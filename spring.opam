@@ -4,7 +4,7 @@ synopsis: "Web programming library"
 description: "A delightful web programming library"
 maintainer: ["gbikal@gmail.com"]
 authors: ["Bikal Gurung"]
-license: "ISC"
+license: "MPL2.0"
 homepage: "https://github.com/gbikal/spring"
 bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [

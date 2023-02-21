@@ -13,7 +13,7 @@
 
 (maintainers "gbikal@gmail.com")
 
-(license ISC)
+(license MPL-2.0)
 
 (package
  (name spring)
