@@ -10,6 +10,6 @@ val post : 'a t
 val put : 'a t
 val patch : 'a t
 val connect : Body.none t
-val equal : 'a t -> 'b t -> bool
+val equal : 'a t -> 'a t -> bool
 val name : 'a t -> string
 val pp : Format.formatter -> 'a t -> unit
