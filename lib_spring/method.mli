@@ -11,5 +11,5 @@ val put : 'a t
 val patch : 'a t
 val connect : Body.none t
 val equal : 'a t -> 'b t -> bool
-val to_string : 'a t -> string
+val name : 'a t -> string
 val pp : Format.formatter -> 'a t -> unit

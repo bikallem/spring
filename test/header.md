@@ -1,7 +1,7 @@
 ## Header tests
 
 ```ocaml
-open Httpx
+open Spring
 ```
 
 ## Name/Canonical names 

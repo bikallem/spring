@@ -11,5 +11,5 @@ let put = { name = "put" }
 let patch = { name = "patch" }
 let connect = { name = "connect" }
 let equal a b = String.equal a.name b.name
-let to_string t = t.name
+let name t = t.name
 let pp fmt t = Format.fprintf fmt "%s" (String.uppercase_ascii t.name)
