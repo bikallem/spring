@@ -128,3 +128,6 @@ let replace t { name; encode; _ } v =
     | (name', v1) :: tl -> (name', v1) :: aux seen tl
   in
   aux false t
+
+let clean_dup t = t
+let iter f t = List.iter (fun (k, v) -> f k v) t

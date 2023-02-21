@@ -69,3 +69,5 @@ val exists : t -> 'a header -> bool
 
 val remove : t -> 'a header -> t
 val replace : t -> 'a header -> 'a -> t
+val clean_dup : t -> t
+val iter : (lname -> string -> unit) -> t -> unit
