@@ -17,7 +17,7 @@ Exception: Failure "code: 0 is not a three-digit number".
 Exception: Failure "code: 1000 is not a three-digit number".
 
 # let s = Status.make 499 "Client Closed Request";;
-val s : Status.t = <abstr>
+val s : Status.t = (499, "Client Closed Request")
 ```
 
 ### Status.equal

@@ -1,4 +1,4 @@
-type t
+type t = private int * string
 
 val make : int -> string -> t
 (** [make code phrase] is [t] with status code [code] and status phrase
@@ -80,6 +80,8 @@ end
 
 include module type of S
 
+val informational : t -> bool
+val server_error : t -> bool
 val equal : t -> t -> bool
 val to_string : t -> string
 val pp : Format.formatter -> t -> unit

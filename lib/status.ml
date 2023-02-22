@@ -78,6 +78,8 @@ end
 
 include S
 
+let informational (code, _) = code >= 100 && code <= 103
+let server_error (code, _) = code >= 500 && code <= 511
 let equal (code_a, _) (code_b, _) = code_a = code_b
 let to_string (code, phrase) = string_of_int code ^ " " ^ phrase
 let pp fmt t = Format.fprintf fmt "%s" (to_string t)
