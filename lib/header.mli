@@ -47,7 +47,7 @@ module H : sig
   val host : string header
   val trailer : string header
   val transfer_encoding : Transfer_encoding.t header
-  val te : Te.t header
+  val te : Te_hdr.t header
   val connection : string header
   val user_agent : string header
 end

@@ -31,7 +31,7 @@ module H = struct
       encode = Transfer_encoding.encode;
     }
 
-  let te = { name = "te"; decode = Te.decode; encode = Te.encode }
+  let te = { name = "te"; decode = Te_hdr.decode; encode = Te_hdr.encode }
   let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
   let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 end
