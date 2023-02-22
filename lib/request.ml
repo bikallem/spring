@@ -17,15 +17,17 @@ let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let meth (t : #t) = t#meth
 let resource (t : #t) = t#resource
+let ( let* ) f o = Option.bind o f
 
 let supports_chunked_trailers (t : #t) =
-  Header.(find_all t#headers te) |> List.mem "trailers"
+  match Header.(find_opt t#headers te) with
+  | Some te' -> Te.(exists te' trailers)
+  | None -> false
 
-let keep_alive (t : _ #t) =
-  match t#version with
-  | `Other _ -> false
-  | `HTTP_1_1 -> true
-  | `HTTP_1_0 -> (
+let keep_alive (t : #t) =
+  match (t#version :> int * int) with
+  | 1, 1 -> true
+  | 1, 0 -> (
       match Header.get t#headers "Connection" with
       | Some v ->
           String.split_on_char ',' v
@@ -33,6 +35,7 @@ let keep_alive (t : _ #t) =
                  let tok = String.(trim tok |> lowercase_ascii) in
                  String.equal tok "keep-alive")
       | None -> false)
+  | _ -> false
 
 class virtual ['a] client_request =
   object

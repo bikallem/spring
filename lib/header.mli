@@ -47,7 +47,7 @@ module H : sig
   val host : string header
   val trailer : string header
   val transfer_encoding : Transfer_encoding.t header
-  val te : string header
+  val te : Te.t header
 end
 
 include module type of H

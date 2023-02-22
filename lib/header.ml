@@ -31,7 +31,7 @@ module H = struct
       encode = Transfer_encoding.encode;
     }
 
-  let te = { name = "te"; decode = Fun.id; encode = Fun.id }
+  let te = { name = "te"; decode = Te.decode; encode = Te.encode }
 end
 
 include H
