@@ -2,7 +2,7 @@ module Version = Version
 module Method = Method
 include Method.M
 module Te_hdr = Te_hdr
-module Transfer_encoding = Transfer_encoding
+module Transfer_encoding_hdr = Transfer_encoding_hdr
 module Header = Header
 include Header.H
 module Body = Body

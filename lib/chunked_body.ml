@@ -148,8 +148,8 @@ let parse_chunk (total_read : int) (headers : Header.t) =
       let request_headers =
         match Header.(find_opt request_headers transfer_encoding) with
         | Some te' ->
-            let te' = Transfer_encoding.(remove te' chunked) in
-            if Transfer_encoding.is_empty te' then
+            let te' = Transfer_encoding_hdr.(remove te' chunked) in
+            if Transfer_encoding_hdr.is_empty te' then
               Header.(remove request_headers transfer_encoding)
             else Header.(replace request_headers transfer_encoding te')
         | None -> assert false
@@ -198,7 +198,7 @@ let writer ~ua_supports_trailer write_chunk write_trailer : Body.writer =
 
 let read_chunked f (t : #Body.reader) =
   match Header.(find_opt t#headers transfer_encoding) with
-  | Some te when Transfer_encoding.(exists te chunked) ->
+  | Some te when Transfer_encoding_hdr.(exists te chunked) ->
       let total_read = ref 0 in
       let rec chunk_loop f =
         let chunk = parse_chunk !total_read t#headers t#buf_read in

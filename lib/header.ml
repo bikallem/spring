@@ -27,8 +27,8 @@ module H = struct
   let transfer_encoding =
     {
       name = "transfer-encoding";
-      decode = Transfer_encoding.decode;
-      encode = Transfer_encoding.encode;
+      decode = Transfer_encoding_hdr.decode;
+      encode = Transfer_encoding_hdr.encode;
     }
 
   let te = { name = "te"; decode = Te_hdr.decode; encode = Te_hdr.encode }
