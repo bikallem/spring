@@ -7,7 +7,7 @@ open Spring
 ### Te.decode, equal
 
 ```ocaml
-# let t = Te.decode "trailers, deflate;q=0.5";;
+# let t = Te.decode "trailers, deflate;q=0.5, gzip";;
 val t : Te.t = <abstr>
 
 # Te.(exists t trailers);;
@@ -17,7 +17,7 @@ val t : Te.t = <abstr>
 - : bool = true
 
 # Te.(exists t gzip);;
-- : bool = false
+- : bool = true
 
 # Te.(get_q t gzip);;
 - : string option = None
@@ -29,6 +29,16 @@ val t : Te.t = <abstr>
 ### Te.encode
 
 ```ocaml
+# Te.encode t;;
+- : string = "trailers, deflate;q=0.5, gzip"
+```
+
+### Te.remove
+
+```ocaml
+# let t = Te.(remove t gzip);; 
+val t : Te.t = <abstr>
+
 # Te.encode t;;
 - : string = "trailers, deflate;q=0.5"
 ```
