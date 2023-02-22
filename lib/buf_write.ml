@@ -1,7 +1,6 @@
 include Eio.Buf_write
 
-let write_header w (k : Header.lname) v =
-  let k = (k :> string) in
+let write_header w k v =
   string w k;
   string w ": ";
   string w v;
@@ -9,4 +8,4 @@ let write_header w (k : Header.lname) v =
 
 let write_headers w headers =
   let headers = Header.clean_dup headers in
-  Header.iter (write_header w) headers
+  Header.iter (fun k v -> write_header w (k :> string) v) headers
