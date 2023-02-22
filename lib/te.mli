@@ -10,9 +10,12 @@ type q = string
 type t
 (** [t] holds TE header values. *)
 
-val trailers : directive
 (** {1 Directives} *)
 
+val directive : string -> directive
+(** [directive name] is [directive]. *)
+
+val trailers : directive
 val compress : directive
 val deflate : directive
 val gzip : directive

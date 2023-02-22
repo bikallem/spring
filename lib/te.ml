@@ -1,4 +1,4 @@
-type directive = string (* lowercase string *)
+type directive = string
 type q = string
 
 module M = Set.Make (struct
@@ -12,6 +12,7 @@ module M = Set.Make (struct
     | _, _ -> Stdlib.compare d1 d2
 end)
 
+let directive = Fun.id
 let trailers = "trailers"
 let compress = "compress"
 let deflate = "deflate"
@@ -40,7 +41,7 @@ open Buf_read
 
 let is_q_value = function '0' .. '9' -> true | '.' -> true | _ -> false
 
-let directive =
+let p_directive =
   let parse_qval () =
     let* ch = peek_char in
     match ch with
@@ -51,23 +52,17 @@ let directive =
   in
   let* directive = token <* ows in
   let+ q =
-    match directive with
-    | "trailers" -> return None
-    | "compress" -> parse_qval ()
-    | "deflate" -> parse_qval ()
-    | "gzip" -> parse_qval ()
-    | _ -> failwith ("Unknown directive '" ^ directive ^ "' in TE header")
+    match directive with "trailers" -> return None | _ -> parse_qval ()
   in
   (directive, q)
 
 let decode v =
-  let v = String.lowercase_ascii v in
   let r = Buf_read.of_string v in
-  let d = directive r in
+  let d = p_directive r in
   let rec aux () =
     match peek_char r with
     | Some ',' ->
-        let d = (char ',' *> ows *> directive) r in
+        let d = (char ',' *> ows *> p_directive) r in
         d :: aux ()
     | _ -> []
   in
