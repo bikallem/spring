@@ -1,4 +1,4 @@
-type encoding = [ `compress | `deflate | `gzip | `chunked ]
+type encoding = string
 
 module M = Set.Make (struct
   type t = encoding
@@ -6,47 +6,28 @@ module M = Set.Make (struct
   (** `chunked at the last *)
   let compare (a : encoding) (b : encoding) =
     match (a, b) with
-    | `chunked, `chunked -> 0
-    | `chunked, _ -> 1
-    | _, `chunked -> -1
-    | `compress, `compress -> 0
-    | `compress, _ -> 1
-    | _, `compress -> -1
-    | `deflate, `deflate -> 0
-    | `deflate, _ -> 1
-    | _, `deflate -> -1
-    | `gzip, `gzip -> 0
+    | "chunked", "chunked" -> 0
+    | "chunked", _ -> 1
+    | _, "chunked" -> -1
+    | _ -> String.compare a b
 end)
 
 type t = M.t
 
-let empty = M.empty
+let encoding s = s
+let compress = "compress"
+let deflate = "deflate"
+let gzip = "gzip"
+let chunked = "chunked"
 let is_empty = M.is_empty
-let exists = M.mem
-let add = M.add
-let remove = M.remove
+let exists t d = M.mem d t
+let add t d = M.add d t
+let remove t d = M.remove d t
 let iter = M.iter
-
-let encode t =
-  M.to_seq t
-  |> List.of_seq
-  |> List.map (function
-       | `chunked -> "chunked"
-       | `compress -> "compress"
-       | `deflate -> "deflate"
-       | `gzip -> "gzip")
-  |> String.concat ", "
+let encode t = M.to_seq t |> List.of_seq |> String.concat ", "
 
 let decode v =
   String.split_on_char ',' v
   |> List.map String.trim
   |> List.filter (fun s -> s <> "")
-  |> List.fold_left
-       (fun t te ->
-         match te with
-         | "chunked" -> M.add `chunked t
-         | "compress" -> M.add `compress t
-         | "deflate" -> M.add `deflate t
-         | "gzip" -> M.add `gzip t
-         | v -> failwith @@ "Invalid 'Transfer-Encoding' value " ^ v)
-       empty
+  |> List.fold_left (fun t te -> M.add te t) M.empty
