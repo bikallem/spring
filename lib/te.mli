@@ -1,11 +1,15 @@
-type directive = [ `trailers | `compress of q | `deflate of q | `gzip of q ]
-and q = string option
-
+type directive
+type q = string
 type t
 
-val exists : directive -> t -> bool
-val add : directive -> t -> t
-val remove : directive -> t -> t
-val iter : (directive -> unit) -> t -> unit
+val trailers : directive
+val compress : directive
+val deflate : directive
+val gzip : directive
+val exists : t -> directive -> bool
+val add : ?q:q -> t -> directive -> t
+val get_q : t -> directive -> q option
+val remove : t -> directive -> t
+val iter : (directive -> q option -> unit) -> t -> unit
 val encode : t -> string
 val decode : string -> t

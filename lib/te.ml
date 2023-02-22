@@ -1,28 +1,38 @@
-type directive = [ `trailers | `compress of q | `deflate of q | `gzip of q ]
-and q = string option
+type directive = string (* lowercase string *)
+type q = string
 
 module M = Set.Make (struct
-  type t = directive
+  type t = directive * q option
 
-  let compare (a : directive) (b : directive) = Stdlib.compare a b
+  let compare ((d1, _) : t) ((d2, _) : t) =
+    match (d1, d2) with
+    | "trailers", "trailers" -> 0
+    | "trailers", _ -> -1
+    | _, "trailers" -> 1
+    | _, _ -> Stdlib.compare d1 d2
 end)
+
+let trailers = "trailers"
+let compress = "compress"
+let deflate = "deflate"
+let gzip = "gzip"
 
 type t = M.t
 
-let exists = M.mem
-let add = M.add
-let remove = M.remove
-let iter = M.iter
+let exists t d = M.mem (d, None) t
+let add ?q t d = M.add (d, q) t
+
+let get_q t d : q option =
+  match M.find_opt (d, None) t with Some (_, q) -> q | None -> None
+
+let remove t d = M.remove (d, None) t
+let iter f t = M.iter (fun (d, q) -> f d q) t
 
 let encode t =
   let q_to_str = function Some q -> ";q=" ^ q | None -> "" in
   M.to_seq t
   |> List.of_seq
-  |> List.map (function
-       | `trailers -> "trailers"
-       | `compress q -> "compress" ^ q_to_str q
-       | `deflate q -> "deflate" ^ q_to_str q
-       | `gzip q -> "gzip" ^ q_to_str q)
+  |> List.map (fun (d, q) -> d ^ q_to_str q)
   |> String.concat ", "
 
 open Buf_read.Syntax
@@ -40,20 +50,18 @@ let directive =
     | _ -> return None
   in
   let* directive = token <* ows in
-  match directive with
-  | "trailers" -> return `trailers
-  | "compress" ->
-      let+ q = parse_qval () in
-      `compress q
-  | "deflate" ->
-      let+ q = parse_qval () in
-      `deflate q
-  | "gzip" ->
-      let+ q = parse_qval () in
-      `gzip q
-  | _ -> failwith ("Unknown directive '" ^ directive ^ "' in TE header")
+  let+ q =
+    match directive with
+    | "trailers" -> return None
+    | "compress" -> parse_qval ()
+    | "deflate" -> parse_qval ()
+    | "gzip" -> parse_qval ()
+    | _ -> failwith ("Unknown directive '" ^ directive ^ "' in TE header")
+  in
+  (directive, q)
 
 let decode v =
+  let v = String.lowercase_ascii v in
   let r = Buf_read.of_string v in
   let d = directive r in
   let rec aux () =
