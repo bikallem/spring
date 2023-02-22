@@ -221,28 +221,12 @@ let http_meth =
   let+ meth = token <* space in
   Method.make meth
 
-let http_version =
-  let* major =
-    Buf_read.string "HTTP/" *> Buf_read.any_char <* Buf_read.char '.'
-  in
-  let* minor = Buf_read.any_char in
-  match (major, minor) with
-  | '1', '1' -> Buf_read.return Version.http1_1
-  | '1', '0' -> Buf_read.return Version.http1_0
-  | _ -> (
-      try
-        let major = Char.escaped major |> int_of_string in
-        let minor = Char.escaped minor |> int_of_string in
-        Buf_read.return (Version.make ~major ~minor)
-      with Failure _ ->
-        failwith (Format.sprintf "Invalid HTTP version: (%c,%c)" major minor))
-
 let http_resource = take_while1 (fun c -> c != ' ') <* space
 
 let parse client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
   let resource = http_resource r in
-  let version = (http_version <* Buf_read.crlf) r in
+  let version = (Version.p <* Buf_read.crlf) r in
   let headers = Buf_read.http_headers r |> Header.of_list in
   server_request ~version ~headers ~resource meth client_addr r
 
