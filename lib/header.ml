@@ -39,6 +39,7 @@ end
 include H
 
 let empty = []
+let singleton ~name ~value = [ (lname name, value) ]
 let is_empty = function [] -> true | _ -> false
 let of_list t = List.map (fun (k, v) -> (lname k, v)) t
 let to_list = Fun.id

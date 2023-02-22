@@ -57,6 +57,7 @@ include module type of H
 (** {1 Create} *)
 
 val empty : t
+val singleton : name:string -> value:string -> t
 val is_empty : t -> bool
 val of_list : (string * string) list -> t
 val to_list : t -> (lname * string) list
