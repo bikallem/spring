@@ -22,6 +22,8 @@ val canonical_name : string -> name
 val lname : string -> lname
 (** [lname s] converts [s] to {!type:lname} *)
 
+val lname_equal : lname -> lname -> bool
+
 (** {1 Codecs} *)
 
 type 'a encode = 'a -> string
@@ -39,10 +41,16 @@ type 'a header
 val header : 'a decode -> 'a encode -> string -> 'a header
 (** [header decoder encoder name] is {!type:header}. *)
 
-val content_length : int header
-val content_type : string header
-val host : string header
-val transfer_encoding : [ `compress | `deflate | `gzip | `chunked ] list header
+module H : sig
+  val content_length : int header
+  val content_type : string header
+  val host : string header
+  val trailer : string header
+  val transfer_encoding : Transfer_encoding.t header
+  val te : string header
+end
+
+include module type of H
 
 (** {1 Create} *)
 
@@ -57,6 +65,8 @@ val length : t -> int
 
 val add : t -> 'a header -> 'a -> t
 val add_unless_exists : t -> 'a header -> 'a -> t
+val append : t -> t -> t
+val append_list : t -> (string * string) list -> t
 
 (** {1 Find} *)
 
@@ -70,4 +80,12 @@ val exists : t -> 'a header -> bool
 val remove : t -> 'a header -> t
 val replace : t -> 'a header -> 'a -> t
 val clean_dup : t -> t
+
+(** {1 Iter/Filter} *)
+
 val iter : (lname -> string -> unit) -> t -> unit
+val filter : (lname -> string -> bool) -> t -> t
+
+(** {1 Pretty Printer} *)
+
+val pp : Format.formatter -> t -> unit

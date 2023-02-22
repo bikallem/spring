@@ -17,19 +17,22 @@ open Spring
 ### Method.make
 
 ```ocaml
-# let lock : Body.none Method.t = Method.make "lock" Body.none ;;
-val lock : Body.none Method.t = <abstr>
+# let lock = Method.make "lock" ;;
+val lock : Method.t = "lock"
 
-# let a : int Method.t = Method.make "get" 1;;
-val a : int Method.t = <abstr>
+# let a = Method.make "get" ;;
+val a : Method.t = "get"
 
 # Method.(equal a get);;
-Line 1, characters 17-20:
-Error: This expression has type Body.none t
-       but an expression was expected of type int t
-       Type
-         Body.none =
-           < write_body : Eio.Buf_write.t -> unit;
-             write_header : (name:string -> value:string -> unit) -> unit >
-       is not compatible with type int
+- : bool = true
+```
+
+## Method.to_string
+
+```ocaml
+# let m = Method.(to_string get) ;;
+val m : Method.t = "get"
+
+# String.equal "get" (m :> string) ;;
+- : bool = true
 ```

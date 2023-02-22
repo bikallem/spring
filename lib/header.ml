@@ -7,6 +7,7 @@ let canonical_name s =
   |> String.concat "-"
 
 let lname = String.lowercase_ascii
+let lname_equal = String.equal
 
 type 'a encode = 'a -> string
 type 'a decode = string -> 'a
@@ -15,39 +16,25 @@ type 'a header = { name : lname; decode : 'a decode; encode : 'a encode }
 
 let header decode encode name = { name = lname name; decode; encode }
 
-let content_length =
-  { name = "content-length"; decode = int_of_string; encode = string_of_int }
+module H = struct
+  let content_length =
+    { name = "content-length"; decode = int_of_string; encode = string_of_int }
 
-let content_type = { name = "content-type"; decode = Fun.id; encode = Fun.id }
-let host = { name = "host"; decode = Fun.id; encode = Fun.id }
+  let content_type = { name = "content-type"; decode = Fun.id; encode = Fun.id }
+  let host = { name = "host"; decode = Fun.id; encode = Fun.id }
+  let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
 
-(* Transfer-Encoding header.
-   TODO bikal ensure that elements maintain the order on encoding/decoding. `chunked must appear last
-*)
-let transfer_encoding =
-  let decode v =
-    String.split_on_char ',' v
-    |> List.map String.trim
-    |> List.filter (fun s -> s <> "")
-    |> List.map (fun te ->
-           match te with
-           | "chunked" -> `chunked
-           | "compress" -> `compress
-           | "deflate" -> `deflate
-           | "gzip" -> `gzip
-           | v -> failwith @@ "Invalid 'Transfer-Encoding' value " ^ v)
-  in
-  let encode v =
-    List.map
-      (function
-        | `chunked -> "chunked"
-        | `compress -> "compress"
-        | `deflate -> "deflate"
-        | `gzip -> "gzip")
-      v
-    |> String.concat ", "
-  in
-  { name = "transfer-encoding"; decode; encode }
+  let transfer_encoding =
+    {
+      name = "transfer-encoding";
+      decode = Transfer_encoding.decode;
+      encode = Transfer_encoding.encode;
+    }
+
+  let te = { name = "te"; decode = Fun.id; encode = Fun.id }
+end
+
+include H
 
 let empty = []
 let is_empty = function [] -> true | _ -> false
@@ -67,6 +54,8 @@ let exists t { name; _ } =
 
 let add t { name; encode; _ } v = (name, encode v) :: t
 let add_unless_exists t hdr v = if exists t hdr then t else add t hdr v
+let append t1 t2 = t1 @ t2
+let append_list (t : t) l = t @ l
 
 let find t { name; decode; _ } =
   let rec aux = function
@@ -131,3 +120,26 @@ let replace t { name; encode; _ } v =
 
 let clean_dup t = t
 let iter f t = List.iter (fun (k, v) -> f k v) t
+let filter f t = List.filter (fun (k, v) -> f k v) t
+
+open Easy_format
+
+let field lbl v =
+  let lbl = Atom (lbl ^ ": ", atom) in
+  let v = Atom (v, atom) in
+  Label ((lbl, label), v)
+
+let easy_fmt t =
+  let p =
+    {
+      list with
+      stick_to_label = false;
+      align_closing = true;
+      space_after_separator = true;
+      wrap_body = `Force_breaks;
+    }
+  in
+  let t = to_list t |> List.map (fun (k, v) -> field k v) in
+  List (("{", ";", "}", p), t)
+
+let pp fmt t = Easy_format.Pretty.to_formatter fmt (easy_fmt t)
