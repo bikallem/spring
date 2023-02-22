@@ -10,3 +10,4 @@ module Status = Status
 include Status.S
 module Chunked_body = Chunked_body
 module Request = Request
+module Response = Response
