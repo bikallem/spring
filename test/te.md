@@ -42,3 +42,13 @@ val t : Te.t = <abstr>
 # Te.encode t;;
 - : string = "trailers, deflate;q=0.5"
 ```
+
+### Te.singleton
+
+```ocaml
+# let t = Te.(singleton trailers);;
+val t : Te.t = <abstr>
+
+# Te.(exists t trailers);;
+- : bool = true
+```

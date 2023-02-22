@@ -3,7 +3,7 @@
 type lowercase_string = string
 type t = lowercase_string
 
-let make t = t
+let make t = String.lowercase_ascii t
 
 module M = struct
   let get = "get"

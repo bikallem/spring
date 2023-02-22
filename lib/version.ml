@@ -1,4 +1,4 @@
-type t = int * int (* major, minor*)
+type t = int * int (* major, minor *)
 
 let make ~major ~minor = (major, minor)
 let http1_1 = (1, 1)

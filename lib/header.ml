@@ -32,6 +32,8 @@ module H = struct
     }
 
   let te = { name = "te"; decode = Te.decode; encode = Te.encode }
+  let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
+  let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 end
 
 include H

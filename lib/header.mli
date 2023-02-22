@@ -48,6 +48,8 @@ module H : sig
   val trailer : string header
   val transfer_encoding : Transfer_encoding.t header
   val te : Te.t header
+  val connection : string header
+  val user_agent : string header
 end
 
 include module type of H
@@ -88,4 +90,5 @@ val filter : (lname -> string -> bool) -> t -> t
 
 (** {1 Pretty Printer} *)
 
+val easy_fmt : t -> Easy_format.t
 val pp : Format.formatter -> t -> unit

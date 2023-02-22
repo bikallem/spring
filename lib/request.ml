@@ -17,7 +17,6 @@ let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let meth (t : #t) = t#meth
 let resource (t : #t) = t#resource
-let ( let* ) f o = Option.bind o f
 
 let supports_chunked_trailers (t : #t) =
   match Header.(find_opt t#headers te) with
@@ -28,7 +27,7 @@ let keep_alive (t : #t) =
   match (t#version :> int * int) with
   | 1, 1 -> true
   | 1, 0 -> (
-      match Header.get t#headers "Connection" with
+      match Header.(find_opt t#headers connection) with
       | Some v ->
           String.split_on_char ',' v
           |> List.exists (fun tok ->
@@ -37,9 +36,9 @@ let keep_alive (t : #t) =
       | None -> false)
   | _ -> false
 
-class virtual ['a] client_request =
+class virtual client_request =
   object
-    inherit [#Body.writer as 'a] t
+    inherit t
     inherit Body.writer
     method virtual host : string
     method virtual port : int option
@@ -51,12 +50,12 @@ let field lbl v =
   let v = Atom (v, atom) in
   Label ((lbl, label), v)
 
-let fields (t : _ #t) (f : unit -> Easy_format.t list) =
+let fields (t : #t) (f : unit -> Easy_format.t list) =
   let open Easy_format in
   let l =
     [
       field "Version" (Version.to_string t#version);
-      field "Method" (Method.to_string t#meth);
+      field "Method" (Method.to_string t#meth :> string);
       field "URI" t#resource;
       Label
         ( (Atom ("Headers :", atom), { label with label_break = `Always }),
@@ -77,10 +76,10 @@ let pp_fields fmt fields =
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
-let client_request ?(version = `HTTP_1_1) ?(headers = Header.init ()) ?port
-    ~host ~resource (meth : (#Body.writer as 'a) Method.t) body =
+let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
+    ~host ~resource (meth : Method.t) body =
   object (self)
-    inherit [#Body.writer as 'a] client_request as _super
+    inherit client_request as _super
     val headers = headers
     method version = version
     method headers = headers
@@ -99,7 +98,7 @@ let client_request ?(version = `HTTP_1_1) ?(headers = Header.init ()) ?port
       pp_fields fmt fields
   end
 
-let client_host_port (t : _ #client_request) = (t#host, t#port)
+let client_host_port (t : #client_request) = (t#host, t#port)
 
 let parse_url url =
   if String.starts_with ~prefix:"https" url then
@@ -124,15 +123,15 @@ type url = string
 
 let get url =
   let host, port, resource = parse_url url in
-  client_request ?port Method.Get ~host ~resource Body.none
+  client_request ?port Method.get ~host ~resource Body.none
 
 let head url =
   let host, port, resource = parse_url url in
-  client_request ?port Method.Head ~host ~resource Body.none
+  client_request ?port Method.head ~host ~resource Body.none
 
 let post body url =
   let host, port, resource = parse_url url in
-  client_request ?port Method.Post ~host ~resource body
+  client_request ?port Method.post ~host ~resource body
 
 let post_form_values form_values url =
   let body = Body.form_values_writer form_values in
@@ -140,12 +139,13 @@ let post_form_values form_values url =
 
 let write_header w ~name ~value = Buf_write.write_header w name value
 
-let write (t : _ #client_request) w =
-  let headers = Header.add_unless_exists t#headers "User-Agent" "cohttp-eio" in
-  let headers = Header.add headers "TE" "trailers" in
-  let headers = Header.add headers "Connection" "TE" in
+let write (t : #client_request) w =
+  let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
+  let te' = Te.(singleton trailers) in
+  let headers = Header.(add headers te te') in
+  let headers = Header.(add headers connection "TE") in
   let headers = Header.clean_dup headers in
-  let meth = Method.to_string t#meth in
+  let meth = (Method.to_string t#meth :> string) in
   let version = Version.to_string t#version in
   Buf_write.string w meth;
   Buf_write.char w ' ';
@@ -159,7 +159,7 @@ let write (t : _ #client_request) w =
     | Some port -> t#host ^ ":" ^ string_of_int port
     | None -> t#host
   in
-  Buf_write.write_header w "Host" host;
+  Buf_write.write_header w "host" host;
   t#write_header (write_header w);
   Buf_write.write_headers w headers;
   Buf_write.string w "\r\n";
@@ -167,7 +167,7 @@ let write (t : _ #client_request) w =
 
 class virtual server_request =
   object
-    inherit [Body.none] t
+    inherit t
     inherit Body.reader
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
@@ -175,8 +175,8 @@ class virtual server_request =
 let buf_read (t : #server_request) = t#buf_read
 let client_addr (t : #server_request) = t#client_addr
 
-let server_request ?(version = `HTTP_1_1) ?(headers = Header.init ()) ~resource
-    meth client_addr buf_read =
+let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
+    ~resource meth client_addr buf_read =
   object (self)
     inherit server_request
     method version = version
@@ -215,46 +215,35 @@ let token =
         true
     | _ -> false)
 
-let ows = Buf_read.skip_while (function ' ' | '\t' -> true | _ -> false)
-let crlf = Buf_read.string "\r\n"
-let not_cr = function '\r' -> false | _ -> true
 let space = Buf_read.char '\x20'
 
 let http_meth =
   let+ meth = token <* space in
-  Method.of_string meth
+  Method.make meth
 
 let http_version =
-  let* v = Buf_read.string "HTTP/1." *> Buf_read.any_char in
-  match v with
-  | '1' -> Buf_read.return `HTTP_1_1
-  | '0' -> Buf_read.return `HTTP_1_0
-  | v -> failwith (Format.sprintf "Invalid HTTP version: %C" v)
+  let* major =
+    Buf_read.string "HTTP/" *> Buf_read.any_char <* Buf_read.char '.'
+  in
+  let* minor = Buf_read.any_char in
+  match (major, minor) with
+  | '1', '1' -> Buf_read.return Version.http1_1
+  | '1', '0' -> Buf_read.return Version.http1_0
+  | _ -> (
+      try
+        let major = Char.escaped major |> int_of_string in
+        let minor = Char.escaped minor |> int_of_string in
+        Buf_read.return (Version.make ~major ~minor)
+      with Failure _ ->
+        failwith (Format.sprintf "Invalid HTTP version: (%c,%c)" major minor))
 
 let http_resource = take_while1 (fun c -> c != ' ') <* space
 
-let http_header =
-  let+ key = token <* Buf_read.char ':' <* ows
-  and+ value = Buf_read.take_while not_cr <* crlf in
-  (key, value)
-
-let http_headers r =
-  let[@tail_mod_cons] rec aux () =
-    match Buf_read.peek_char r with
-    | Some '\r' ->
-        crlf r;
-        []
-    | _ ->
-        let h = http_header r in
-        h :: aux ()
-  in
-  Header.of_list (aux ())
-
-let parse client_addr (r : Eio.Buf_read.t) : server_request =
+let parse client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
   let resource = http_resource r in
-  let version = (http_version <* crlf) r in
-  let headers = http_headers r in
+  let version = (http_version <* Buf_read.crlf) r in
+  let headers = Buf_read.http_headers r |> Header.of_list in
   server_request ~version ~headers ~resource meth client_addr r
 
-let pp fmt (t : _ #t) = t#pp fmt
+let pp fmt (t : #t) = t#pp fmt

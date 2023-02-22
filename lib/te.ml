@@ -20,6 +20,7 @@ let gzip = "gzip"
 
 type t = M.t
 
+let singleton ?q d = M.singleton (d, q)
 let exists t d = M.mem (d, None) t
 let add ?q t d = M.add (d, q) t
 

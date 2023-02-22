@@ -22,6 +22,7 @@ val gzip : directive
 
 (** {1 Exists, Add/Remove} *)
 
+val singleton : ?q:q -> directive -> t
 val exists : t -> directive -> bool
 val add : ?q:q -> t -> directive -> t
 val get_q : t -> directive -> q option
