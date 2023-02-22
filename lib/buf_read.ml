@@ -20,13 +20,6 @@ let space = char '\x20'
 
 open Syntax
 
-let version =
-  let* v = string "HTTP/1." *> any_char in
-  match v with
-  | '1' -> return `HTTP_1_1
-  | '0' -> return `HTTP_1_0
-  | v -> failwith (Format.sprintf "Invalid HTTP version: %C" v)
-
 let header =
   let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
   (key, value)
@@ -41,4 +34,4 @@ let http_headers r =
         let h = header r in
         h :: aux ()
   in
-  Header.of_list (aux ())
+  aux ()
