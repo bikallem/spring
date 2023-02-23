@@ -11,3 +11,4 @@ include module type of Status.S
 module Chunked_body = Chunked_body
 module Request = Request
 module Response = Response
+module Client = Client
