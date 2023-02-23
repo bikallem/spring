@@ -29,7 +29,7 @@ class client_response :
   -> Eio.Buf_read.t
   -> object
        inherit t
-       inherit Body.reader
+       inherit Body.readable
        method version : Version.t
        method headers : Header.t
        method status : Status.t

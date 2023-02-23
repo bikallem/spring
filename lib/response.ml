@@ -15,7 +15,7 @@ class client_response version headers status buf_read =
   let closed = ref false in
   object
     inherit t
-    inherit Body.reader
+    inherit Body.readable
     method version = version
     method headers = headers
     method status = status
