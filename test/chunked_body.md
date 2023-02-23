@@ -19,7 +19,7 @@ let test_writer w =
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## Chunked_body.writer
+## Chunked_body.writable
 
 Writes both chunked body and trailer since `ua_supports_trailer:true`.
 
@@ -46,7 +46,7 @@ val write_chunk : (Chunked_body.t -> 'a) -> 'a = <fun>
     f trailer_headers;;
 val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 
-# test_writer (Chunked_body.writer ~ua_supports_trailer:true write_chunk write_trailer) ;;
+# test_writer (Chunked_body.writable ~ua_supports_trailer:true write_chunk write_trailer) ;;
 +Resuming ...
 +Resuming ...
 +Transfer-Encoding: chunked
@@ -68,7 +68,7 @@ val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 Writes only chunked body and not the trailers since `ua_supports_trailer:false`.
 
 ```ocaml
-# test_writer (Chunked_body.writer ~ua_supports_trailer:false write_chunk write_trailer) ;;
+# test_writer (Chunked_body.writable ~ua_supports_trailer:false write_chunk write_trailer) ;;
 +Resuming ...
 +Resuming ...
 +Transfer-Encoding: chunked

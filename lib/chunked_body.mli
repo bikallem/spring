@@ -49,9 +49,9 @@ type write_trailer = (Header.t -> unit) -> unit
         f headers
     ]} *)
 
-val writer :
+val writable :
   ua_supports_trailer:bool -> write_chunk -> write_trailer -> Body.writable
-(** [writer ~ua_supports_trailer write_chunk write_trailer] is
+(** [writable ~ua_supports_trailer write_chunk write_trailer] is
     {!type:Body.writer} for HTTP [chunked] transfer encoding.
 
     The writer is usually used as a body in HTTP {!type:Request.client} and
