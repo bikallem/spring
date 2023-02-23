@@ -196,7 +196,7 @@ let writer ~ua_supports_trailer write_chunk write_trailer =
       Buf_write.string writer "\r\n"
   end
 
-let read_chunked f (t : #Body.reader) =
+let read_chunked f (t : #Body.readable) =
   match Header.(find_opt t#headers transfer_encoding) with
   | Some te when Transfer_encoding_hdr.(exists te chunked) ->
       let total_read = ref 0 in
