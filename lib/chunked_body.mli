@@ -50,7 +50,7 @@ type write_trailer = (Header.t -> unit) -> unit
     ]} *)
 
 val writer :
-  ua_supports_trailer:bool -> write_chunk -> write_trailer -> Body.writer
+  ua_supports_trailer:bool -> write_chunk -> write_trailer -> Body.writable
 (** [writer ~ua_supports_trailer write_chunk write_trailer] is
     {!type:Body.writer} for HTTP [chunked] transfer encoding.
 

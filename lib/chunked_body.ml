@@ -164,7 +164,7 @@ let parse_chunk (total_read : int) (headers : Header.t) =
 type write_chunk = (t -> unit) -> unit
 type write_trailer = (Header.t -> unit) -> unit
 
-let writer ~ua_supports_trailer write_chunk write_trailer : Body.writer =
+let writer ~ua_supports_trailer write_chunk write_trailer =
   object
     method write_header f = f ~name:"Transfer-Encoding" ~value:"chunked"
 
