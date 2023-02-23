@@ -61,10 +61,12 @@ let response_date : #Eio.Time.clock -> request_pipeline =
           Response.server_response ~version:res#version ~headers
             ~status:res#status res)
 
+let strict_http clock next = response_date clock @@ host_header @@ next
+
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
   | request ->
-      let response = (response_date clock @@ host_header @@ handler) request in
+      let response = handler request in
       Response.write response writer;
       if Request.keep_alive request then
         handle_request clock client_addr reader writer flow handler

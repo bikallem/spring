@@ -52,16 +52,14 @@ exception Graceful_shutdown
 +Route: /
 +{
 +  content-length:  4;
-+  content-type:  text/plain; charset=UTF-8;
-+  date:  Thu, 17 Jun 2021 14:39:38 GMT
++  content-type:  text/plain; charset=UTF-8
 +}
 +root
 +
 +Route: /upload
 +{
 +  content-length:  11;
-+  content-type:  text/plain; charset=UTF-8;
-+  date:  Thu, 17 Jun 2021 14:39:38 GMT
++  content-type:  text/plain; charset=UTF-8
 +}
 +hello world
 - : unit = ()
@@ -100,12 +98,13 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
 - : unit = ()
 ```
 
-## Server.run/Server.run_local
+## Server.strict_http
 
 Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/rfc9112#section-3.2
 
 ```ocaml
 # Eio_main.run @@ fun env ->
+  let handler = Server.strict_http (fake_clock env#clock) @@ handler in
   let server = Server.make ~on_error:raise (fake_clock env#clock) env#net handler in 
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)

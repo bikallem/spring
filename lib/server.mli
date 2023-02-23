@@ -47,6 +47,24 @@ val response_date : #Eio.Time.clock -> request_pipeline
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 
+val strict_http : #Eio.Time.clock -> request_pipeline
+(** [strict_http] is a convenience pipeline that include both {!val:host_header}
+    and {!val:response_date} pipeline. The pipeline intends to more strictly
+    follow the relevant HTTP specifictions.
+
+    Use this pipeline as your base [request_pipeline] along with your [handler]
+    if you enforce HTTP standards in a strict and conforming manner.
+
+    {[
+      let app _req = Response.text "hello world"
+
+      let () =
+        Eio_main.run @@ fun env ->
+        let handler = Server.strict_http env#clock @@ app in
+        let server = Server.make ~on_error:raise env#clock env#net handler in
+        Server.run_local server
+    ]} *)
+
 val make :
   ?max_connections:int ->
   ?additional_domains:#Eio.Domain_manager.t * int ->
