@@ -49,11 +49,6 @@ val status : Status.t = (200, "OK")
 
 ## server_response
 
-```ocaml
-let mock_clock = Eio_mock.Clock.make ()
-let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
-```
-
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
@@ -62,7 +57,7 @@ let test_server_response r =
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw ->
-    Response.write r mock_clock bw;
+    Response.write r bw;
   );
   Eio.traceln "%s" (Buffer.contents b);;
 ```
@@ -72,7 +67,6 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.text "hello, world";;
 +HTTP/1.1 200 OK
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +Content-Length: 12
 +Content-Type: text/plain; charset=UTF-8
 +
@@ -85,7 +79,6 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.html "hello, world";;
 +HTTP/1.1 200 OK
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +Content-Length: 12
 +Content-Type: text/html; charset=UTF-8
 +
@@ -98,7 +91,6 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.not_found ;;
 +HTTP/1.1 404 Not Found
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +content-length: 0
 +
 +
@@ -121,7 +113,6 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.bad_request ;;
 +HTTP/1.1 400 Bad Request
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +content-length: 0
 +
 +
@@ -156,7 +147,6 @@ Writes chunked response trailer headers.
 ```ocaml
 # test_server_response @@ Response.chunked_response ~ua_supports_trailer:true write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +Transfer-Encoding: chunked
 +
 +7;ext1=ext1_v
@@ -178,7 +168,6 @@ No chunked trailer headers.
 ```ocaml
 # test_server_response @@ Response.chunked_response ~ua_supports_trailer:false write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
-+Date: Mon, 24 Oct 2022 16:12:15 GMT
 +Transfer-Encoding: chunked
 +
 +7;ext1=ext1_v

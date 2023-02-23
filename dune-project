@@ -32,6 +32,18 @@
    (>= 4.2.0))
   (ptime
    (>= 1.1.0))
+  (eio_main
+   (and
+    (>= 0.8.1)
+    :with-test))
+  (fmt
+   (and
+    (>= 0.9.0)
+    :with-test))
+  (cstruct
+   (and
+    (>= 6.1.1)
+    :with-test))
   (mdx
    (and
     (>= 2.2.1)

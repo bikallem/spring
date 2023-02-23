@@ -50,6 +50,7 @@ module H : sig
   val te : Te_hdr.t header
   val connection : string header
   val user_agent : string header
+  val date : string header
 end
 
 include module type of H

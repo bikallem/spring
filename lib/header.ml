@@ -34,6 +34,7 @@ module H = struct
   let te = { name = "te"; decode = Te_hdr.decode; encode = Te_hdr.encode }
   let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
   let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
+  let date = { name = "date"; decode = Fun.id; encode = Fun.id }
 end
 
 include H

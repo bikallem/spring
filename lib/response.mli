@@ -75,9 +75,9 @@ val chunked_response :
 
     See {!module:Chunked_body}. *)
 
-val write : #server_response -> #Eio.Time.clock -> Eio.Buf_write.t -> unit
-(** [write response clock buf_write] writes server response [response] to
-    [buf_write]. [clock] is used to generate "Date" header if required. *)
+val write : #server_response -> Eio.Buf_write.t -> unit
+(** [write response buf_write] writes server response [response] using
+    [buf_write]. *)
 
 val text : string -> server_response
 (** [text s] returns a HTTP/1.1, 200 status response with "Content-Type" header

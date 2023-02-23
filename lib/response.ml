@@ -70,52 +70,15 @@ let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   let w = Chunked_body.writer ~ua_supports_trailer write_chunk write_trailer in
   server_response w
 
-let http_date clock =
-  let now = Eio.Time.now clock |> Ptime.of_float_s |> Option.get in
-  let (year, mm, dd), ((hh, min, ss), _) = Ptime.to_date_time now in
-  let weekday = Ptime.weekday now in
-  let weekday =
-    match weekday with
-    | `Mon -> "Mon"
-    | `Tue -> "Tue"
-    | `Wed -> "Wed"
-    | `Thu -> "Thu"
-    | `Fri -> "Fri"
-    | `Sat -> "Sat"
-    | `Sun -> "Sun"
-  in
-  let month =
-    match mm with
-    | 1 -> "Jan"
-    | 2 -> "Feb"
-    | 3 -> "Mar"
-    | 4 -> "Apr"
-    | 5 -> "May"
-    | 6 -> "Jun"
-    | 7 -> "Jul"
-    | 8 -> "Aug"
-    | 9 -> "Sep"
-    | 10 -> "Oct"
-    | 11 -> "Nov"
-    | 12 -> "Dec"
-    | _ -> failwith "Invalid HTTP datetime value"
-  in
-  Format.sprintf "%s, %02d %s %04d %02d:%02d:%02d GMT" weekday dd month year hh
-    min ss
-
 let write_header w ~name ~value = Buf_write.write_header w name value
 
-let write (t : #server_response) (clock : #Eio.Time.clock) w =
+let write (t : #server_response) w =
   let version = Version.to_string t#version in
   let status = Status.to_string t#status in
   Buf_write.string w version;
   Buf_write.char w ' ';
   Buf_write.string w status;
   Buf_write.string w "\r\n";
-  (* https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
-  (match t#status with
-  | s when Status.informational s || Status.server_error s -> ()
-  | _ -> Buf_write.write_header w "Date" (http_date clock));
   t#write_header (write_header w);
   Buf_write.write_headers w t#headers;
   Buf_write.string w "\r\n";

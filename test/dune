@@ -1,3 +1,3 @@
 (mdx
  (package spring)
- (libraries eio eio_main eio.core eio.mock spring fmt))
+ (libraries eio eio.core eio.mock spring eio_main fmt cstruct))
