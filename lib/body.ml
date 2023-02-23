@@ -33,12 +33,6 @@ class virtual readable =
     method virtual buf_read : Eio.Buf_read.t
   end
 
-class virtual reader =
-  object
-    method virtual headers : Header.t
-    method virtual buf_read : Eio.Buf_read.t
-  end
-
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : #readable) =

@@ -50,22 +50,7 @@ class virtual readable :
     method virtual buf_read : Eio.Buf_read.t
   end
 
-(** {1 Reader} *)
-
-(** [reader] is a body that can be read.
-
-    {!class:Request.server_request} and {!class:Response.client_response} are
-    both [reader] body types. As such both of them can be used with functions
-    that accept [#reader] instances.
-
-    See {!val:read_content} and {!val:read_form_values}. *)
-class virtual reader :
-  object
-    method virtual headers : Header.t
-    method virtual buf_read : Eio.Buf_read.t
-  end
-
-(** {2 Content Readers} *)
+(** {1 Readers} *)
 
 val read_content : #readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]
