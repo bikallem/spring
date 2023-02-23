@@ -35,10 +35,25 @@ let qd_text =
       c
   | _ -> failwith ("Invalid qd_text '" ^ Char.escaped c ^ "'")
 
-(*
-let quoted_string = 
-  char '"' *> 
-*)
+let quoted_string r =
+  let rec aux r =
+    let c = peek_char r in
+    match c with
+    | Some '"' -> []
+    | Some '\\' ->
+        let c = quoted_pair r in
+        c :: aux r
+    | Some _ ->
+        let c = qd_text r in
+        c :: aux r
+    | None ->
+        failwith
+          "Invalid quoted_string. Looking for '\"', '\\' or qd_text value"
+  in
+  let () = (char '"') r in
+  let str = aux r |> List.to_seq |> String.of_seq in
+  let () = (char '"') r in
+  str
 
 let header =
   let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
