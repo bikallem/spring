@@ -59,8 +59,7 @@ let response_date : #Eio.Time.clock -> request_pipeline =
           let date_v = Date.http_date clock in
           let headers = Header.(add_unless_exists headers date date_v) in
           Response.server_response ~version:res#version ~headers
-            ~status:res#status
-            (res :> Body.writer))
+            ~status:res#status res)
 
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
