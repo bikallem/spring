@@ -22,15 +22,15 @@ type request_pipeline = handler -> handler
         | "/" -> Response.text "hello, there"
         | _ -> next req
 
-      let final_handler : Server.handler = router @@ Server.not_found_handler
+      let handler : Server.handler = router @@ Server.not_found_handler
 
       let () =
         Eio_main.run @@ fun env ->
-        let server = Server.make ~on_error:raise env#clock env#net final in
+        let server = Server.make ~on_error:raise env#clock env#net handler in
         Server.run_local server
     ]}
 
-    The [final_handler] handler demonstrates how various [request_pipeline]s can
+    The [handler] handler demonstrates how various [request_pipeline]s can
     be constructed and used with {!val:make}. The handlers are executed in the
     order they are combined, i.e. first the [router] is executed then the
     [Server.not_found_handler]. *)
