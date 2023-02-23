@@ -34,6 +34,22 @@ val form_values_writer : (string * string list) list -> writable
     associated list [key_values] as body and adds HTTP header [Content-Length]
     to HTTP request or response. *)
 
+(** {1 Readable} *)
+
+(** [readable] is a body that can be read.
+
+    {!class:Request.server_request} and {!class:Response.client_response} are
+    both [reader] body types. As such both of them can be used with functions
+    that accept [#reader] instances.
+
+    See {!val:read_content} and {!val:read_form_values}. *)
+
+class virtual readable :
+  object
+    method virtual headers : Header.t
+    method virtual buf_read : Eio.Buf_read.t
+  end
+
 (** {1 Reader} *)
 
 (** [reader] is a body that can be read.

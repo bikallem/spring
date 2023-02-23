@@ -27,6 +27,12 @@ let form_values_writer assoc_list =
   let content = Uri.encoded_of_query assoc_list in
   content_writer ~content ~content_type:"application/x-www-form-urlencoded"
 
+class virtual readable =
+  object
+    method virtual headers : Header.t
+    method virtual buf_read : Eio.Buf_read.t
+  end
+
 class virtual reader =
   object
     method virtual headers : Header.t
