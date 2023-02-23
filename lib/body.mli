@@ -67,17 +67,17 @@ class virtual reader :
 
 (** {2 Content Readers} *)
 
-val read_content : #reader -> string option
-(** [read_content reader] is [Some content], where [content] is of length [n] if
-    "Content-Length" header is a valid integer value [n] in [reader].
+val read_content : #readable -> string option
+(** [read_content readable] is [Some content], where [content] is of length [n]
+    if "Content-Length" header is a valid integer value [n] in [readable].
 
-    If ["Content-Length"] header is missing or is an invalid value in [reader]
+    If ["Content-Length"] header is missing or is an invalid value in [readable]
     then [None] is returned. *)
 
-val read_form_values : #reader -> (string * string list) list
-(** [read_form_values reader] is [form_values] if [reader] body [Content-Type]
-    is ["application/x-www-form-urlencoded"] and [Content-Length] is a valid
-    integer value.
+val read_form_values : #readable -> (string * string list) list
+(** [read_form_values readable] is [form_values] if [readable] body
+    [Content-Type] is ["application/x-www-form-urlencoded"] and [Content-Length]
+    is a valid integer value.
 
     [form_values] is a list of tuple of form [(name, values)] where [name] is
     the name of the form field and [values] is a list of values corresponding to

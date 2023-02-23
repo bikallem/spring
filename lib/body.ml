@@ -41,12 +41,12 @@ class virtual reader =
 
 let ( let* ) o f = Option.bind o f
 
-let read_content (t : #reader) =
+let read_content (t : #readable) =
   match Header.(find_opt t#headers content_length) with
   | Some len -> ( try Some (Buf_read.take len t#buf_read) with _ -> None)
   | None -> None
 
-let read_form_values (t : #reader) =
+let read_form_values (t : #readable) =
   match
     let* content = read_content t in
     let* content_type = Header.(find_opt t#headers content_type) in
