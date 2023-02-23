@@ -20,6 +20,18 @@ let space = char '\x20'
 
 open Syntax
 
+let quoted_pair =
+  char '\\'
+  *> let+ c = any_char in
+     match c with
+     | '\x09' | ' ' | '\x21' .. '\x7E' | '\x80' .. '\xFF' -> c
+     | _ -> failwith ("Invalid quoted pair '" ^ Char.escaped c ^ "'")
+
+(*
+let quoted_string = 
+  char '"' *> 
+*)
+
 let header =
   let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
   (key, value)
