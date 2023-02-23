@@ -36,14 +36,14 @@ val form_values_writer : (string * string list) list -> writable
 
 (** {1 Readable} *)
 
-(** [readable] is a body that can be read.
+(** [readable] is a request/response body that can be read.
 
     {!class:Request.server_request} and {!class:Response.client_response} are
-    both [reader] body types. As such both of them can be used with functions
-    that accept [#reader] instances.
+    both [readable] body types. As such both of them can be used with functions
+    that accept [#readable] instances.
 
-    See {!val:read_content} and {!val:read_form_values}. *)
-
+    {!val:read_content} and {!val:read_form_values} are readers that can read
+    these values. *)
 class virtual readable :
   object
     method virtual headers : Header.t
