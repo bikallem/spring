@@ -3,6 +3,7 @@ module Method = Method
 include module type of Method.M
 module Te_hdr = Te_hdr
 module Transfer_encoding_hdr = Transfer_encoding_hdr
+module Date = Date
 module Header = Header
 include module type of Header.H
 module Body = Body
