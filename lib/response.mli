@@ -54,14 +54,14 @@ val body_closed : #client_response -> bool
 class virtual server_response :
   object
     inherit t
-    inherit Body.writer
+    inherit Body.writable
   end
 
 val server_response :
   ?version:Version.t ->
   ?headers:Header.t ->
   ?status:Status.t ->
-  Body.writer ->
+  #Body.writable ->
   server_response
 (** [server_response body] is a server response with body [body]. *)
 

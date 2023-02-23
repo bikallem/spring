@@ -53,11 +53,11 @@ let body_closed (t : #client_response) = t#body_closed
 class virtual server_response =
   object
     inherit t
-    inherit Body.writer
+    inherit Body.writable
   end
 
 let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
-    ?(status = Status.ok) (body : Body.writer) : server_response =
+    ?(status = Status.ok) (body : #Body.writable) : server_response =
   object
     method version = version
     method headers = headers
@@ -94,7 +94,7 @@ let html content =
 
 let none_body_response status =
   let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
-  server_response ~headers ~status (Body.none :> Body.writer)
+  server_response ~headers ~status Body.none
 
 let not_found = none_body_response Status.not_found
 let internal_server_error = none_body_response Status.internal_server_error
