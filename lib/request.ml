@@ -168,7 +168,7 @@ let write (t : #client_request) w =
 class virtual server_request =
   object
     inherit t
-    inherit Body.reader
+    inherit Body.readable
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 

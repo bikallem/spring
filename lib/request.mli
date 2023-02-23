@@ -121,11 +121,11 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 (** [server_request] is a request that is primarily constructed and used in
     {!module:Server}.
 
-    A [server_request] is also a sub-type of {!class:Body.reader}.*)
+    A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
   object
     inherit t
-    inherit Body.reader
+    inherit Body.readable
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
