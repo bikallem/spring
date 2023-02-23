@@ -23,8 +23,6 @@ let handler req =
     | None -> Response.bad_request
     )
   | _ -> Response.not_found
-
-exception Graceful_shutdown
 ```
 
 ## Server.run/Server.run_local
@@ -95,6 +93,83 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
     );;
 +Resource (/): hello, there
 +Resource (/products) : 404 Not Found
+- : unit = ()
+```
+
+## Server.host_header
+
+```ocaml
+let client_addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, 8081)
+
+let make_buf_read version meth connection = 
+  let s = Printf.sprintf "%s /products HTTP/%s\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" meth version connection in
+  Eio.Buf_read.of_string s
+
+let hello _req = Response.text "hello"
+```
+
+Try with GET method.
+
+```ocaml
+# let r = Request.parse client_addr @@ make_buf_read "1.1" "get" "";;
+val r : Request.server_request = <obj>
+
+# let res1 = (Server.host_header @@ hello) r;;
+val res1 : Response.server_response = <obj>
+
+# Eio.traceln "%a" Response.pp res1 ;;
++{
++  Version:  HTTP/1.1;
++  Status:  400 Bad Request;
++  Headers :
++    {
++      content-length:  0
++    }
++}
+- : unit = ()
+```
+
+Try with POST method.
+
+```ocaml
+# let r = Request.parse client_addr @@ make_buf_read "1.1" "post" "";;
+val r : Request.server_request = <obj>
+
+# let res1 = (Server.host_header @@ hello) r;;
+val res1 : Response.server_response = <obj>
+
+# Eio.traceln "%a" Response.pp res1 ;;
++{
++  Version:  HTTP/1.1;
++  Status:  400 Bad Request;
++  Headers :
++    {
++      content-length:  0
++    }
++}
+- : unit = ()
+```
+
+A valid request with HOST header is processed okay.
+
+```ocaml
+# let buf_read = Printf.sprintf "%s /products HTTP/%s\r\nHost: www.example.com\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" "get" "1.1" ""
+  |> Eio.Buf_read.of_string ;;
+val buf_read : Eio.Buf_read.t = <abstr>
+
+# let r = Request.parse client_addr buf_read;;
+val r : Request.server_request = <obj>
+
+# let res1 = (Server.host_header @@ hello) r;;
+val res1 : Response.server_response = <obj>
+
+# Eio.traceln "%a" Response.pp res1 ;;
++{
++  Version:  HTTP/1.1;
++  Status:  200 OK;
++  Headers :
++    { }
++}
 - : unit = ()
 ```
 
