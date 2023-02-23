@@ -42,7 +42,7 @@ val keep_alive : #t -> bool
 class virtual client_request :
   object
     inherit t
-    inherit Body.writer
+    inherit Body.writable
     method virtual host : string
     method virtual port : int option
   end
@@ -54,7 +54,7 @@ val client_request :
   host:string ->
   resource:string ->
   Method.t ->
-  #Body.writer ->
+  #Body.writable ->
   client_request
 (** [client_request ~host ~resource meth body] is an instance of
     {!class:client_request} where [body] is a {!class:Body.writer}. *)
@@ -88,7 +88,7 @@ val head : url -> client_request
     ]}
     @raise Invalid_argument if [url] is invalid. *)
 
-val post : (#Body.writer as 'a) -> url -> client_request
+val post : (#Body.writable as 'a) -> url -> client_request
 (** [post body url] is a client_request request [r] configured with HTTP request
     method {!val:Method.Post} and with request body [body]. A header
     "Content-Length" is added with suitable value in the request header.

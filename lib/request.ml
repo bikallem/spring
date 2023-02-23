@@ -39,7 +39,7 @@ let keep_alive (t : #t) =
 class virtual client_request =
   object
     inherit t
-    inherit Body.writer
+    inherit Body.writable
     method virtual host : string
     method virtual port : int option
   end
