@@ -173,6 +173,78 @@ val res1 : Response.server_response = <obj>
 - : unit = ()
 ```
 
+## Server.response_date
+
+```ocaml
+let mock_clock = Eio_mock.Clock.make ()
+let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
+```
+
+A Date header is added to a 200 response.
+
+```ocaml
+# let hello _req = Response.text "hello, world!" ;;
+val hello : 'a -> Response.server_response = <fun>
+
+# let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server_request = <obj>
+
+# let h = Server.(response_date mock_clock) @@ hello ;;
+val h : Server.handler = <fun>
+
+# Eio.traceln "%a" Response.pp @@ h req;;
++{
++  Version:  HTTP/1.1;
++  Status:  200 OK;
++  Headers :
++    {
++      date:  Mon, 24 Oct 2022 16:12:15 GMT
++    }
++}
+- : unit = ()
+```
+
+A Date header is not added added to a 5xx status response. We use server_request `req` from above.
+
+```ocaml
+# let h _req = Response.server_response ~status:Status.internal_server_error Body.none ;;
+val h : 'a -> Response.server_response = <fun>
+
+# let h= Server.response_date mock_clock) @@ h ;;
+Line 1, characters 39-40:
+Error: Syntax error
+
+# Eio.traceln "%a" Response.pp @@ h req;;
++{
++  Version:  HTTP/1.1;
++  Status:  500 Internal Server Error;
++  Headers :
++    { }
++}
+- : unit = ()
+```
+
+A Date header is not added added to a 1xx status response. We use server_request `req` from above.
+
+```ocaml
+# let h _req = Response.server_response ~status:Status.continue Body.none ;;
+val h : 'a -> Response.server_response = <fun>
+
+# let h= Server.response_date mock_clock) @@ h ;;
+Line 1, characters 39-40:
+Error: Syntax error
+
+# Eio.traceln "%a" Response.pp @@ h req;;
++{
++  Version:  HTTP/1.1;
++  Status:  100 Continue;
++  Headers :
++    { }
++}
+- : unit = ()
+```
+
+
 ## Server.strict_http
 
 Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/rfc9112#section-3.2
