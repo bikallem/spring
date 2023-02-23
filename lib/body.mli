@@ -1,9 +1,9 @@
 (** [Body] is HTTP request or response body. *)
 
-(** {1 Writer} *)
+(** {1 Writable} *)
 
-(** [writer] is a body that can be written. *)
-class virtual writer :
+(** [writable] is a body that can be written. *)
+class virtual writable :
   object
     method virtual write_body : Eio.Buf_write.t -> unit
     method virtual write_header : (name:string -> value:string -> unit) -> unit
@@ -11,13 +11,13 @@ class virtual writer :
 
 (** {2 none} *)
 
-(** [none] is a special type of reader and writer that represents the absence of
-    HTTP request or response body. It is a no-op.
+(** [none] is a no-op [writable] that represents the absence of HTTP request or
+    response body, for e.g. http GET. HEAD, OPTIONS request.
 
     See {!type:Method.t} and {!class:Request.server_request}. *)
 class virtual none :
   object
-    inherit writer
+    inherit writable
   end
 
 val none : none
@@ -25,11 +25,11 @@ val none : none
 
 (** {2 Content Writer} *)
 
-val content_writer : content:string -> content_type:string -> writer
+val content_writer : content:string -> content_type:string -> writable
 (** [content_writer ~content ~content_type] is
     [new content_writer ~content ~content_type]. *)
 
-val form_values_writer : (string * string list) list -> writer
+val form_values_writer : (string * string list) list -> writable
 (** [form_values_writer key_values] is a {!class:writer} which writes an
     associated list [key_values] as body and adds HTTP header [Content-Length]
     to HTTP request or response. *)

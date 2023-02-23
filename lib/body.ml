@@ -1,4 +1,4 @@
-class virtual writer =
+class virtual writable =
   object
     method virtual write_body : Eio.Buf_write.t -> unit
     method virtual write_header : (name:string -> value:string -> unit) -> unit
@@ -6,7 +6,7 @@ class virtual writer =
 
 class none =
   object
-    inherit writer
+    inherit writable
     method write_body _ = ()
     method write_header _ = ()
   end
