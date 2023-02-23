@@ -1,5 +1,5 @@
 type handler = Request.server_request -> Response.server_response
-type request_pipeline = handler -> handler
+type pipeline = handler -> handler
 
 type t = {
   clock : Eio.Time.clock;
@@ -30,7 +30,7 @@ let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
 
     TODO bikal add tests for IPv6 host parsing after
     https://github.com/mirage/ocaml-uri/pull/169 if merged. *)
-let host_header : request_pipeline =
+let host_header : pipeline =
  fun (next : handler) (req : Request.server_request) ->
   let headers = Request.headers req in
   let hosts = Header.(find_all headers host) in
@@ -45,7 +45,7 @@ let host_header : request_pipeline =
 (* A request pipeline that adds "Date" header if required.
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
-let response_date : #Eio.Time.clock -> request_pipeline =
+let response_date : #Eio.Time.clock -> pipeline =
  fun clock next req ->
   let res = next req in
   let headers = Response.headers res |> Header.clean_dup in

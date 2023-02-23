@@ -63,12 +63,12 @@ let handler req =
 - : unit = ()
 ```
 
-## Server.request_pipeline  
+## Server.pipeline  
 
-A `router` request_pipeline is a simple `Request.resource` based request router. It only handles resource path "/" and delegates the rest to the builtin `Server.not_found_handler`. When a request is sent with "/" then we get a "hello, there" text response. However, if we try with any other resource path, we get `404 Not Found` response.
+A `router` pipeline is a simple `Request.resource` based request router. It only handles resource path "/" and delegates the rest to the builtin `Server.not_found_handler`. When a request is sent with "/" then we get a "hello, there" text response. However, if we try with any other resource path, we get `404 Not Found` response.
 
 ```ocaml
-let router : Server.request_pipeline =
+let router : Server.pipeline =
   fun next req ->
     match Request.resource req with
     | "/" -> Response.text "hello, there"

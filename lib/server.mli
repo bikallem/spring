@@ -7,16 +7,16 @@ type t
 type handler = Request.server_request -> Response.server_response
 (** [handler] is a HTTP request handler. *)
 
-type request_pipeline = handler -> handler
-(** [request_pipeline] is the HTTP request processsing pipeline. It is usually
-    used with OCaml infix function, [@@].
+type pipeline = handler -> handler
+(** [pipeline] is the HTTP request processsing pipeline. It is usually used with
+    OCaml infix function, [@@].
 
-    [router] below is an example [request_pipeline] that routes incoming request
-    based on request [resource] value. It only handles ["/"] resource path and
-    any other values are delegated to the [next] handler.
+    [router] below is an example [pipeline] that routes incoming request based
+    on request [resource] value. It only handles ["/"] resource path and any
+    other values are delegated to the [next] handler.
 
     {[
-      let router : Server.request_pipeline =
+      let router : Server.pipeline =
        fun next req ->
         match Request.resource req with
         | "/" -> Response.text "hello, there"
@@ -30,30 +30,30 @@ type request_pipeline = handler -> handler
         Server.run_local server
     ]}
 
-    The [handler] handler demonstrates how various [request_pipeline]s can
-    be constructed and used with {!val:make}. The handlers are executed in the
+    The [handler] handler demonstrates how various [pipeline]s can be
+    constructed and used with {!val:make}. The handlers are executed in the
     order they are combined, i.e. first the [router] is executed then the
     [Server.not_found_handler]. *)
 
-val host_header : request_pipeline
+val host_header : pipeline
 (** [host_header_pipeline] validates an incoming request for valid "Host" header
     value. RFC 9112 states that host is required in server requests and server
     MUST send bad request if Host header value is not correct.
 
     https://www.rfc-editor.org/rfc/rfc9112#section-3.2 *)
 
-val response_date : #Eio.Time.clock -> request_pipeline
+val response_date : #Eio.Time.clock -> pipeline
 (* [response_date clock] adds "Date" header to responses if required.
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 
-val strict_http : #Eio.Time.clock -> request_pipeline
+val strict_http : #Eio.Time.clock -> pipeline
 (** [strict_http] is a convenience pipeline that include both {!val:host_header}
     and {!val:response_date} pipeline. The pipeline intends to more strictly
     follow the relevant HTTP specifictions.
 
-    Use this pipeline as your base [request_pipeline] along with your [handler]
-    if you enforce HTTP standards in a strict and conforming manner.
+    Use this pipeline as your base [pipeline] along with your [handler] if you
+    enforce HTTP standards in a strict and conforming manner.
 
     {[
       let app _req = Response.text "hello world"
