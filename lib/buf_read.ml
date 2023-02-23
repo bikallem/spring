@@ -27,6 +27,14 @@ let quoted_pair =
      | '\x09' | ' ' | '\x21' .. '\x7E' | '\x80' .. '\xFF' -> c
      | _ -> failwith ("Invalid quoted pair '" ^ Char.escaped c ^ "'")
 
+let qd_text =
+  let+ c = any_char in
+  match c with
+  | '\t' | ' ' | '\x21' | '\x23' .. '\x5B' | '\x5D' .. '\x7E' | '\x80' .. '\xFF'
+    ->
+      c
+  | _ -> failwith ("Invalid qd_text '" ^ Char.escaped c ^ "'")
+
 (*
 let quoted_string = 
   char '"' *> 

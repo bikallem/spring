@@ -20,3 +20,13 @@ let b s = Buf_read.of_string s
 # Buf_read.quoted_pair @@ b {|\v|} ;;
 - : char = 'v'
 ```
+
+## Buf_read.qd_text
+
+```ocaml
+# Buf_read.qd_text @@ b "\t";;
+- : char = '\t'
+
+# Buf_read.qd_text @@ b "a";;
+- : char = 'a'
+```
