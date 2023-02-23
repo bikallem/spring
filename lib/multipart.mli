@@ -18,7 +18,7 @@ val boundary : t -> string
 val next_part : t -> part
 (** [next_part t] reads the next part in [t]. *)
 
-(** {2 Part} Details *)
+(** {2 Part Details} *)
 
 val file_name : part -> string
 (** [file_name p] is the file name of part [p]. *)
