@@ -23,3 +23,10 @@ val t : Content_type.t = <abstr>
 # Content_type.find_param t "charset" ;;
 - : string option = Some "utf-8"
 ```
+
+## Content_type.media_type
+
+```ocaml
+# Content_type.media_type t ;;
+- : string * string = ("multipart", "form-data")
+```
