@@ -22,3 +22,10 @@ val t : Content_disposition.t = <abstr>
 # Content_disposition.find_param t "param1" ;;
 - : string option = None
 ```
+
+## Content_disposition.make
+
+```ocaml
+# let t = Content_disposition.make ~params:[("filename", "\"hello world.png\""); ("name", "\"field1\"")] "form-data";;
+val t : Content_disposition.t = <abstr>
+```
