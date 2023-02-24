@@ -19,7 +19,7 @@ let meth (t : #t) = t#meth
 let resource (t : #t) = t#resource
 
 let supports_chunked_trailers (t : #t) =
-  match Header.(find_opt t#headers te) with
+  match Header.(find t#headers te) with
   | Some te' -> Te_hdr.(exists te' trailers)
   | None -> false
 
@@ -27,7 +27,7 @@ let keep_alive (t : #t) =
   match (t#version :> int * int) with
   | 1, 1 -> true
   | 1, 0 -> (
-      match Header.(find_opt t#headers connection) with
+      match Header.(find t#headers connection) with
       | Some v ->
           String.split_on_char ',' v
           |> List.exists (fun tok ->
