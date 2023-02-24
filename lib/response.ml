@@ -44,7 +44,7 @@ let parse buf_read =
   let open Eio.Buf_read.Syntax in
   let version = (Version.p <* Buf_read.space) buf_read in
   let status = Buf_read.(p_status <* crlf) buf_read in
-  let headers = Buf_read.http_headers buf_read |> Header.of_list in
+  let headers = Header.parse buf_read in
   (version, headers, status)
 
 let close_body (t : #client_response) = t#close_body
