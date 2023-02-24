@@ -69,17 +69,17 @@ let append_list (t : t) l = t @ l
 
 let find t { name; decode; _ } =
   let rec aux = function
-    | [] -> raise_notrace Not_found
+    | [] -> None
     | (name', v) :: [] ->
-        if String.equal name' name then decode v else raise_notrace Not_found
+        if String.equal name' name then Some (decode v) else None
     | (name1, v1) :: (name2, v2) :: l ->
-        if String.equal name1 name then decode v1
-        else if String.equal name2 name then decode v2
+        if String.equal name1 name then Some (decode v1)
+        else if String.equal name2 name then Some (decode v2)
         else aux l
   in
   aux t
 
-let find_opt t hdr = try Some (find t hdr) with Not_found -> None
+let find_opt = find
 
 let find_all t { name; decode; _ } =
   let[@tail_mod_cons] rec aux = function
