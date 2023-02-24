@@ -4,6 +4,7 @@ include Method.M
 module Te_hdr = Te_hdr
 module Transfer_encoding_hdr = Transfer_encoding_hdr
 module Date = Date
+module Content_type = Content_type
 module Header = Header
 include Header.H
 
