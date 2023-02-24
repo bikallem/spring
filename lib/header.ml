@@ -68,13 +68,13 @@ let append t1 t2 = t1 @ t2
 let append_list (t : t) l = t @ l
 
 let find t { name; decode; _ } =
+  let decode v = try Some (decode v) with _ -> None in
   let rec aux = function
     | [] -> None
-    | (name', v) :: [] ->
-        if String.equal name' name then Some (decode v) else None
+    | (name', v) :: [] -> if String.equal name' name then decode v else None
     | (name1, v1) :: (name2, v2) :: l ->
-        if String.equal name1 name then Some (decode v1)
-        else if String.equal name2 name then Some (decode v2)
+        if String.equal name1 name then decode v1
+        else if String.equal name2 name then decode v2
         else aux l
   in
   aux t
