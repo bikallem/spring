@@ -6,19 +6,6 @@ type media_type = string * string
 open Buf_read.Syntax
 open Buf_read
 
-let parameter =
-  let* name = char ';' *> ows *> token in
-  let name = String.lowercase_ascii name in
-  let+ value =
-    char '='
-    *> let* c = peek_char in
-       match c with
-       | Some '"' -> quoted_string
-       | Some _ -> token
-       | None -> failwith "parameter: expecting '\"' or token chars buf got EOF"
-  in
-  (name, value)
-
 let p r =
   let rec aux () =
     let c = (ows *> peek_char) r in
