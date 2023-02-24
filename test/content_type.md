@@ -47,8 +47,8 @@ val t : Content_type.t = <abstr>
 # Content_type.charset t ;;
 - : string option = Some "\"utf-8\""
 
-# Content_type.media_type ;;
-- : Content_type.t -> Content_type.media_type = <fun>
+# Content_type.media_type t;;
+- : Content_type.media_type = ("text", "plain")
 
 # Content_type.find_param t "charset";;
 - : string option = Some "\"utf-8\""
