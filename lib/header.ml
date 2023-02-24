@@ -27,6 +27,13 @@ module H = struct
       encode = Content_type.encode;
     }
 
+  let content_disposition =
+    {
+      name = "content-disposition";
+      decode = Content_disposition.decode;
+      encode = Content_disposition.encode;
+    }
+
   let host = { name = "host"; decode = Fun.id; encode = Fun.id }
   let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
 
