@@ -11,9 +11,12 @@ type part
 val make : #Body.readable -> t
 (** [make body] is {!type:t} initialized from body [body].
 
-    @raise Invalid_argument if [body] doesn't contain valid MIME boundary value. *)
+    @raise Invalid_argument
+      if [body] doesn't contain valid MIME [boundary] value. *)
 
 val boundary : t -> string
+(** [boundary t] is the MIME boundary value as specified in
+    https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
 
 val next_part : t -> part
 (** [next_part t] reads the next part in [t]. *)
