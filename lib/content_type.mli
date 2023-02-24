@@ -49,3 +49,5 @@ val charset : t -> string option
 (** {1 Params} *)
 
 val find_param : t -> string -> string option
+(** [find_param t param] is [Some v] is [param] exists in [t]. It is [None]
+    otherwise. *)
