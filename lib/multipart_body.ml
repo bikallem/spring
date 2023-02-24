@@ -4,7 +4,7 @@ type part = { form_name : string; filename : string; headers : Header.t }
 let make (body : #Body.readable) =
   let body = (body :> Body.readable) in
   let boundary =
-    match Header.(find_opt body#headers content_type) with
+    match Header.(find body#headers content_type) with
     | Some _v -> ""
     | None -> raise @@ Invalid_argument "body: boundary value not found"
   in
