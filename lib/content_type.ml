@@ -1,6 +1,7 @@
 module M = Map.Make (String)
 
 type t = { type_ : string; sub_type : string; parameters : string M.t }
+type media_type = string * string
 
 open Buf_read.Syntax
 open Buf_read
@@ -31,6 +32,10 @@ let p r =
   let sub_type = (char '/' *> token) r in
   let parameters = aux () in
   let parameters = M.of_seq @@ List.to_seq parameters in
+  { type_; sub_type; parameters }
+
+let make ?(params = []) (type_, sub_type) =
+  let parameters = M.of_seq @@ List.to_seq params in
   { type_; sub_type; parameters }
 
 let decode v = p (of_string v)
