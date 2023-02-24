@@ -38,7 +38,7 @@ val t : Content_type.t = <abstr>
 - : string option = Some "utf-8"
 ```
 
-## Content_type.make
+## Content_type.make/Content_type.find_param
 
 ```ocaml
 # let t = Content_type.make ~params:["charset","\"utf-8\""; "boundary", "------as28383ddd"] ("text", "plain");;
