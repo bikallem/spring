@@ -140,5 +140,21 @@ val t : Header.t = <abstr>
 - : int option = Some 10063
 ```
 
-## Header.content_type
+## Header.content_type/content_disposition
 
+```ocaml
+# let hdr = "Content-Disposition: form-data; name=\"name\"; filename=\"New document 1.2020_08_01_13_16_42.0.svg\"\r\nContent-Type: image/svg+xml\r\n\r\n" ;;
+val hdr : string =
+  "Content-Disposition: form-data; name=\"name\"; filename=\"New document 1.2020_08_01_13_16_42.0.svg\"\r\nContent-Type: image/svg+xml\r\n\r\n"
+
+# let t = Header.parse @@ Eio.Buf_read.of_string hdr ;;
+val t : Header.t = <abstr>
+
+# Header.(find t content_type) |> Option.iter (fun x -> Eio.traceln "%s" (Content_type.encode x)) ;;
++image/svg+xml
+- : unit = ()
+
+# Header.(find t content_disposition) |> Option.iter (fun x -> Eio.traceln "%s" (Content_disposition.encode x)) ;;
++form-data; filename=New document 1.2020_08_01_13_16_42.0.svg; name=name
+- : unit = ()
+```
