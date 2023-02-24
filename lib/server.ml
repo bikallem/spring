@@ -49,7 +49,7 @@ let response_date : #Eio.Time.clock -> pipeline =
  fun clock next req ->
   let res = next req in
   let headers = Response.headers res |> Header.clean_dup in
-  match Header.(find_opt headers date) with
+  match Header.(find headers date) with
   | Some _ -> res
   | None -> (
       match res#status with
