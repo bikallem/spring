@@ -54,19 +54,3 @@ let quoted_string r =
   let str = aux r |> List.to_seq |> String.of_seq in
   let () = (char '"') r in
   str
-
-let header =
-  let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
-  (key, value)
-
-let http_headers r =
-  let[@tail_mod_cons] rec aux () =
-    match peek_char r with
-    | Some '\r' ->
-        crlf r;
-        []
-    | _ ->
-        let h = header r in
-        h :: aux ()
-  in
-  aux ()
