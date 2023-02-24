@@ -6,3 +6,4 @@ type t
 val decode : string -> t
 val media_type : t -> string * string
 val find_param : t -> string -> string option
+val charset : t -> string option

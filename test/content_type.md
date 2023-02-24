@@ -30,3 +30,10 @@ val t : Content_type.t = <abstr>
 # Content_type.media_type t ;;
 - : string * string = ("multipart", "form-data")
 ```
+
+## Content_type.charset
+
+```ocaml
+# Content_type.charset t ;;
+- : string option = Some "utf-8"
+```
