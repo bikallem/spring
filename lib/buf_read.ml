@@ -67,3 +67,11 @@ let parameter =
        | None -> failwith "parameter: expecting '\"' or token chars buf got EOF"
   in
   (name, value)
+
+let rec parameters r =
+  let c = (ows *> peek_char) r in
+  match c with
+  | Some ';' ->
+      let param = parameter r in
+      param :: parameters r
+  | Some _ | None -> []
