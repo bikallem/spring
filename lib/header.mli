@@ -94,3 +94,7 @@ val filter : (lname -> string -> bool) -> t -> t
 
 val easy_fmt : t -> Easy_format.t
 val pp : Format.formatter -> t -> unit
+
+(** {1 Parse} *)
+
+val parse : Eio.Buf_read.t -> t

@@ -147,3 +147,25 @@ let easy_fmt t =
   List (("{", ";", "}", p), t)
 
 let pp fmt t = Easy_format.Pretty.to_formatter fmt (easy_fmt t)
+
+(* parser *)
+
+open Buf_read
+open Buf_read.Syntax
+
+let p_header =
+  let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
+  let key = String.lowercase_ascii key in
+  (key, value)
+
+let parse r =
+  let[@tail_mod_cons] rec aux () =
+    match peek_char r with
+    | Some '\r' ->
+        crlf r;
+        []
+    | _ ->
+        let h = p_header r in
+        h :: aux ()
+  in
+  aux ()

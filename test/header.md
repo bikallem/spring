@@ -118,3 +118,21 @@ val h2 : Header.t = <abstr>
 # Header.(find_all h2 content_length);;
 - : int list = [300]
 ```
+
+## Header.parse
+
+
+```ocaml
+# let hdr = "Host: localhost:1234\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-GB,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nContent-Type: multipart/form-data; boundary=---------------------------39502568731012728120453570260\r\nContent-Length: 10063\r\nDNT: 1\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\n\r\n" ;;
+val hdr : string =
+  "Host: localhost:1234\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-GB,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nContent-Type: multipart/form-data; boundary=--"... (* string length 442; truncated *)
+
+# let t = Header.parse @@ Eio.Buf_read.of_string hdr ;;
+val t : Header.t = <abstr>
+
+# Header.(find t host);;
+- : string = "localhost:1234"
+
+# Header.(find t content_length);;
+- : int = 10063
+  ```
