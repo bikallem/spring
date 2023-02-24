@@ -132,8 +132,7 @@ let parse_chunk (total_read : int) (headers : Header.t) =
          The spec at https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3
          specifies that 'Content-Length' and 'Transfer-Encoding' headers must be
          updated. *)
-      let* trailer_headers = Buf_read.http_headers in
-      let trailer_headers = Header.of_list trailer_headers in
+      let* trailer_headers = Header.parse in
       let request_trailer_headers = request_trailer_headers headers in
       let trailer_headers =
         Header.filter
