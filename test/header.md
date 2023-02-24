@@ -66,6 +66,7 @@ val h : Header.t = <abstr>
 val h : Header.t = <abstr>
 
 # let ct = Content_type.make ("text", "plain");;
+val ct : Content_type.t = <abstr>
 
 # let h = Header.(add h content_type ct);;
 val h : Header.t = <abstr>
