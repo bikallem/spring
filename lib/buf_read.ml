@@ -54,3 +54,16 @@ let quoted_string =
   *> let+ str = aux in
      String.of_seq @@ List.to_seq str)
   <* char '"'
+
+let parameter =
+  let* name = char ';' *> ows *> token in
+  let name = String.lowercase_ascii name in
+  let+ value =
+    char '='
+    *> let* c = peek_char in
+       match c with
+       | Some '"' -> quoted_string
+       | Some _ -> token
+       | None -> failwith "parameter: expecting '\"' or token chars buf got EOF"
+  in
+  (name, value)
