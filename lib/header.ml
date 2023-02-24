@@ -20,7 +20,13 @@ module H = struct
   let content_length =
     { name = "content-length"; decode = int_of_string; encode = string_of_int }
 
-  let content_type = { name = "content-type"; decode = Fun.id; encode = Fun.id }
+  let content_type =
+    {
+      name = "content-type";
+      decode = Content_type.decode;
+      encode = Content_type.encode;
+    }
+
   let host = { name = "host"; decode = Fun.id; encode = Fun.id }
   let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
 

@@ -43,7 +43,7 @@ val header : 'a decode -> 'a encode -> string -> 'a header
 
 module H : sig
   val content_length : int header
-  val content_type : string header
+  val content_type : Content_type.t header
   val host : string header
   val trailer : string header
   val transfer_encoding : Transfer_encoding_hdr.t header

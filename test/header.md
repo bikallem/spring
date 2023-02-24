@@ -65,7 +65,9 @@ val h : Header.t = <abstr>
 # let h = Header.(add h content_length 20);;
 val h : Header.t = <abstr>
 
-# let h = Header.(add h content_type "text/plain");;
+# let ct = Content_type.make ("text", "plain");;
+
+# let h = Header.(add h content_type ct);;
 val h : Header.t = <abstr>
 
 # let h = Header.(add_unless_exists h content_length 20);;
@@ -135,4 +137,7 @@ val t : Header.t = <abstr>
 
 # Header.(find t content_length);;
 - : int = 10063
-  ```
+```
+
+## Header.content_type
+
