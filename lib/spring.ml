@@ -11,7 +11,7 @@ include Header.H
 (* Body *)
 module Body = Body
 module Chunked_body = Chunked_body
-module Multipart = Multipart
+module Multipart_body = Multipart_body
 
 (* Others *)
 module Status = Status

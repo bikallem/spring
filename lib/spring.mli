@@ -12,7 +12,7 @@ include module type of Header.H
 
 module Body = Body
 module Chunked_body = Chunked_body
-module Multipart = Multipart
+module Multipart_body = Multipart_body
 
 (* {1 Others} *)
 
