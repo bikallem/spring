@@ -1,11 +1,16 @@
 type t = { body : Body.readable; boundary : string }
 type part = { form_name : string; filename : string; headers : Header.t }
 
+open Option.Syntax
+
 let make (body : #Body.readable) =
   let body = (body :> Body.readable) in
   let boundary =
-    match Header.(find body#headers content_type) with
-    | Some _v -> ""
+    match
+      let* ct = Header.(find body#headers content_type) in
+      Content_type.find_param ct "boundary"
+    with
+    | Some v -> v
     | None -> raise @@ Invalid_argument "body: boundary value not found"
   in
   { body; boundary }
