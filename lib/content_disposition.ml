@@ -1,9 +1,14 @@
 module M = Map.Make (String)
 
 type t = { disposition : string; parameters : string M.t }
+type disposition = string
 
 open Buf_read
 (* open Buf_read.Syntax*)
+
+let make ?(params = []) disposition =
+  let parameters = M.of_seq @@ List.to_seq params in
+  { disposition; parameters }
 
 let decode v =
   let r = Buf_read.of_string v in
