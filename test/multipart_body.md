@@ -22,3 +22,10 @@ Exception: Invalid_argument "body: boundary value not found".
 # let t = Multipart_body.make (body "multipart/form-data; boundary=AaB03x" body_txt1);;
 val t : Multipart_body.t = <abstr>
 ```
+
+## Multipart_body.boundary
+
+```ocaml
+# Multipart_body.boundary t;; 
+- : string = "AaB03x"
+```
