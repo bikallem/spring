@@ -5,6 +5,7 @@ module Te_hdr = Te_hdr
 module Transfer_encoding_hdr = Transfer_encoding_hdr
 module Date = Date
 module Content_type = Content_type
+module Content_disposition = Content_disposition
 module Header = Header
 include module type of Header.H
 
