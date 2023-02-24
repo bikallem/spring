@@ -7,17 +7,9 @@ open Buf_read.Syntax
 open Buf_read
 
 let p r =
-  let rec aux () =
-    let c = (ows *> peek_char) r in
-    match c with
-    | Some ';' ->
-        let param = parameter r in
-        param :: aux ()
-    | Some _ | None -> []
-  in
   let type_ = token r in
   let sub_type = (char '/' *> token) r in
-  let parameters = aux () in
+  let parameters = parameters r in
   let parameters = M.of_seq @@ List.to_seq parameters in
   { type_; sub_type; parameters }
 
