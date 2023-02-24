@@ -36,14 +36,14 @@ class virtual readable =
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : #readable) =
-  match Header.(find_opt t#headers content_length) with
+  match Header.(find t#headers content_length) with
   | Some len -> ( try Some (Buf_read.take len t#buf_read) with _ -> None)
   | None -> None
 
 let read_form_values (t : #readable) =
   match
     let* content = read_content t in
-    let* content_type = Header.(find_opt t#headers content_type) in
+    let* content_type = Header.(find t#headers content_type) in
     match Content_type.media_type content_type with
     | "application", "x-www-form-urlencoded" ->
         Some (Uri.query_of_encoded content)
