@@ -18,7 +18,7 @@ val boundary : t -> string
 (** [boundary t] is the MIME boundary value as specified in
     https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
 
-val next_part : t -> part
+val next_part : t -> part option
 (** [next_part t] reads the next part in [t]. *)
 
 (** {2 Part Details} *)
