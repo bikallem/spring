@@ -29,6 +29,9 @@ val decode : string -> t
          charset=\"utf-8\""
     ]} *)
 
+val encode : t -> string
+(** [encode t] encodes [t] into a string. *)
+
 (** {1 Media Type, Charset} *)
 
 val media_type : t -> media_type

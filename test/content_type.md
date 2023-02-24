@@ -56,3 +56,10 @@ val t : Content_type.t = <abstr>
 # Content_type.find_param t "boundary";;
 - : string option = Some "------as28383ddd"
 ```
+
+## Content_type.encode
+
+```ocaml
+# Content_type.encode t;;
+- : string = "text/plain; boundary=------as28383ddd; charset=\"utf-8\""
+```
