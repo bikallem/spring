@@ -44,11 +44,10 @@ let read_form_values (t : #readable) =
   match
     let* content = read_content t in
     let* content_type = Header.(find_opt t#headers content_type) in
-    if
-      String.(
-        equal (lowercase_ascii content_type) "application/x-www-form-urlencoded")
-    then Some (Uri.query_of_encoded content)
-    else None
+    match Content_type.media_type content_type with
+    | "application", "x-www-form-urlencoded" ->
+        Some (Uri.query_of_encoded content)
+    | _ -> None
   with
   | Some l -> l
   | None -> []
