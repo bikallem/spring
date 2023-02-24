@@ -41,7 +41,7 @@ val t : Content_type.t = <abstr>
 ## Content_type.make
 
 ```ocaml
-# let t = Content_type.make ~params:["charset","\"utf-8\""] ("text", "plain");;
+# let t = Content_type.make ~params:["charset","\"utf-8\""; "boundary", "------as28383ddd"] ("text", "plain");;
 val t : Content_type.t = <abstr>
 
 # Content_type.charset t ;;
@@ -52,4 +52,7 @@ val t : Content_type.t = <abstr>
 
 # Content_type.find_param t "charset";;
 - : string option = Some "\"utf-8\""
+
+# Content_type.find_param t "boundary";;
+- : string option = Some "------as28383ddd"
 ```
