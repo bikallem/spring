@@ -79,8 +79,6 @@ let find t { name; decode; _ } =
   in
   aux t
 
-let find_opt = find
-
 let find_all t { name; decode; _ } =
   let[@tail_mod_cons] rec aux = function
     | [] -> []

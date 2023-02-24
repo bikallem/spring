@@ -78,10 +78,10 @@ val h : Header.t = <abstr>
 ## Find
 
 ```ocaml
-# Header.(find_opt h content_length);;
+# Header.(find h content_length);;
 - : int option = Some 20
 
-# Header.(find_opt h content_length);;
+# Header.(find h content_length);;
 - : int option = Some 20
 
 # Header.(find_all h content_length);;
@@ -100,7 +100,7 @@ val h : Header.t = <abstr>
 # let h1 = Header.(remove headers content_length) ;;
 val h1 : Header.t = <abstr>
 
-# Header.(find_opt h1 content_length);;
+# Header.(find h1 content_length);;
 - : int option = None
 
 # Header.to_list h;;
@@ -115,7 +115,7 @@ val h2 : Header.t = <abstr>
 - : (Header.lname * string) list =
 [("content-type", "text/plain"); ("content-length", "300")]
 
-# Header.(find_opt h2 content_length);;
+# Header.(find h2 content_length);;
 - : int option = Some 300
 
 # Header.(find_all h2 content_length);;
@@ -133,10 +133,10 @@ val hdr : string =
 # let t = Header.parse @@ Eio.Buf_read.of_string hdr ;;
 val t : Header.t = <abstr>
 
-# Header.(find_opt t host);;
+# Header.(find t host);;
 - : string option = Some "localhost:1234"
 
-# Header.(find_opt t content_length);;
+# Header.(find t content_length);;
 - : int option = Some 10063
 ```
 
