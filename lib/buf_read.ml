@@ -35,7 +35,7 @@ let qd_text =
       c
   | _ -> failwith ("Invalid qd_text '" ^ Char.escaped c ^ "'")
 
-let quoted_string r =
+let quoted_string =
   let rec aux r =
     let c = peek_char r in
     match c with
@@ -50,7 +50,7 @@ let quoted_string r =
         failwith
           "Invalid quoted_string. Looking for '\"', '\\' or qd_text value"
   in
-  let () = (char '"') r in
-  let str = aux r |> List.to_seq |> String.of_seq in
-  let () = (char '"') r in
-  str
+  (char '"'
+  *> let+ str = aux in
+     String.of_seq @@ List.to_seq str)
+  <* char '"'
