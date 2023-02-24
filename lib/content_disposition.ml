@@ -16,5 +16,17 @@ let decode v =
   let parameters = parameters r |> List.to_seq |> M.of_seq in
   { disposition; parameters }
 
+let encode t =
+  let buf = Buffer.create 10 in
+  Buffer.add_string buf t.disposition;
+  M.iter
+    (fun name value ->
+      Buffer.add_string buf "; ";
+      Buffer.add_string buf name;
+      Buffer.add_string buf "=";
+      Buffer.add_string buf value)
+    t.parameters;
+  Buffer.contents buf
+
 let disposition t = t.disposition
 let find_param t param = M.find_opt param t.parameters
