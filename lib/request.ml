@@ -227,7 +227,7 @@ let parse client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
   let resource = http_resource r in
   let version = (Version.p <* Buf_read.crlf) r in
-  let headers = Buf_read.http_headers r |> Header.of_list in
+  let headers = Header.parse r in
   server_request ~version ~headers ~resource meth client_addr r
 
 let pp fmt (t : #t) = t#pp fmt
