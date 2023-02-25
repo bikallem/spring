@@ -173,11 +173,7 @@ let write (t : #client_request) w =
   Buf_write.string w version;
   Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
-  let host =
-    match t#port with
-    | Some port -> t#host ^ ":" ^ string_of_int port
-    | None -> t#host
-  in
+  let host = host_port_to_string (t#host, t#port) in
   Buf_write.write_header w "host" host;
   t#write_header (write_header w);
   Buf_write.write_headers w headers;
