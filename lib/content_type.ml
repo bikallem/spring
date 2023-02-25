@@ -15,7 +15,7 @@ let p r =
   let type_ = token r |> String.Ascii.lowercase in
   let sub_type = (char '/' *> token) r |> String.Ascii.lowercase in
   let parameters = parameters r in
-  let parameters = String.Map.of_seq @@ List.to_seq parameters in
+  let parameters = String.Map.of_list parameters in
   { type_; sub_type; parameters }
 
 let make ?(params = []) (type_, sub_type) =
