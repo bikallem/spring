@@ -29,3 +29,50 @@ val t : Multipart_body.t = <abstr>
 # Multipart_body.boundary t;; 
 - : string = "AaB03x"
 ```
+
+## Multipart_body.next_part
+
+```ocaml
+# let p = Multipart_body.next_part t;;
+val p : Multipart_body.part = <abstr>
+
+# Multipart_body.file_name p ;;
+- : string option = None
+
+# Multipart_body.form_name p ;;
+- : string option = Some "submit-name"
+
+# Multipart_body.headers p |> (Eio.traceln "%a" Header.pp) ;;
++{
++  content-disposition:  form-data; name="submit-name"
++}
+- : unit = ()
+
+# let flow = Multipart_body.flow p;;
+val flow : Eio.Flow.source = <obj>
+
+# let r = Eio.Buf_read.of_flow ~max_size:max_int flow ;;
+val r : Eio.Buf_read.t = <abstr>
+
+# Eio.Buf_read.take_all  r;;
+- : string = "Larry"
+
+# let p2 = Multipart_body.next_part t;;
+val p2 : Multipart_body.part = <abstr>
+
+# Multipart_body.file_name p2;;
+- : string option = Some "file1.txt"
+
+# Multipart_body.form_name p2;;
+- : string option = Some "files"
+
+# let r = Eio.Buf_read.of_flow ~max_size:max_int (Multipart_body.flow p2);;
+val r : Eio.Buf_read.t = <abstr>
+
+# Eio.Buf_read.take_all r;;
+- : string = "... contents of file1.txt ..."
+
+# Multipart_body.next_part t;;
+Exception: End_of_file.
+```
+
