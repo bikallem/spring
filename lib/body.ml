@@ -48,7 +48,7 @@ let read_form_values (t : #readable) =
   match
     let* content = read_content t in
     let* content_type = Header.(find t#headers content_type) in
-    match Content_type.media_type content_type with
+    match (Content_type.media_type content_type :> string * string) with
     | "application", "x-www-form-urlencoded" ->
       Some (Uri.query_of_encoded content)
     | _ -> None
