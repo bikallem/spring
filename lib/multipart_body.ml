@@ -1,14 +1,14 @@
 open Astring
 
-type t = {
-  r : Buf_read.t;
-  boundary : string;
-  dash_boundary : string;
-  final_boundary : string;
-  mutable last_line : string; (* last line read *)
-  mutable linger : string; (* leftover from last read_into. *)
-  mutable eof : bool; (* eof <- true when final_boundary is read. *)
-}
+type t =
+  { r : Buf_read.t
+  ; boundary : string
+  ; dash_boundary : string
+  ; final_boundary : string
+  ; mutable last_line : string (* last line read *)
+  ; mutable linger : string (* leftover from last read_into. *)
+  ; mutable eof : bool (* eof <- true when final_boundary is read. *)
+  }
 
 open Option.Syntax
 
@@ -25,30 +25,33 @@ let make (body : #Body.readable) =
   let dash_boundary = "--" ^ boundary in
   let final_boundary = "--" ^ boundary ^ "--" in
   let r = body#buf_read in
-  {
-    r;
-    boundary;
-    dash_boundary;
-    final_boundary;
-    last_line = "";
-    linger = "";
-    eof = false;
+  { r
+  ; boundary
+  ; dash_boundary
+  ; final_boundary
+  ; last_line = ""
+  ; linger = ""
+  ; eof = false
   }
 
 let boundary t = t.boundary
 
 (* Part *)
 
-type part = {
-  t : t;
-  form_name : string option;
-  filename : string option;
-  headers : Header.t;
-  mutable body_eof : bool; (* true if body read is complete. *)
-}
+type part =
+  { t : t
+  ; form_name : string option
+  ; filename : string option
+  ; headers : Header.t
+  ; mutable body_eof : bool (* true if body read is complete. *)
+  }
 
 let skip_whitespace s =
-  String.filter (function ' ' | '\t' -> false | _ -> true) s
+  String.filter
+    (function
+      | ' ' | '\t' -> false
+      | _ -> true)
+    s
 
 let is_final_boundary final_boundary ln =
   if not (String.is_prefix ~affix:final_boundary ln) then false
@@ -100,6 +103,7 @@ let read_into (p : part) dst =
 let part_flow (p : part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
+
     method read_into = read_into p
   end
 
@@ -111,17 +115,20 @@ let next_part (t : t) =
     let headers = Header.parse t.r in
     match Header.(find headers content_disposition) with
     | Some d ->
-        if String.equal "form-data" (Content_disposition.disposition d) then
-          let filename = Content_disposition.find_param d "filename" in
-          let form_name = Content_disposition.find_param d "name" in
-          { t; filename; form_name; headers; body_eof = false }
-        else
-          failwith
-            "multipart: \"Content-Disposition\" header doesn't contain \
-             \"form-data\" value"
+      if String.equal "form-data" (Content_disposition.disposition d) then
+        let filename = Content_disposition.find_param d "filename" in
+        let form_name = Content_disposition.find_param d "name" in
+        { t; filename; form_name; headers; body_eof = false }
+      else
+        failwith
+          "multipart: \"Content-Disposition\" header doesn't contain \
+           \"form-data\" value"
     | None -> failwith "multipart: \"Content-Disposition\" header not found"
 
 let file_name p = p.filename
+
 let form_name p = p.form_name
+
 let headers p = p.headers
+
 let flow p = (part_flow p :> Eio.Flow.source)

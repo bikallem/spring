@@ -1,10 +1,9 @@
 (** [Chunked_body] is HTTP [chunked] Transfer-Encoding encoder and decoders as
     described in https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3. *)
 
-type t
 (** [t] is a HTTP chunk. *)
+type t
 
-val make : ?extensions:(string * string option) list -> string -> t
 (** [make data] is a chunk [t]. [t] encapsulates data [data]. If
     [String.length data = 0], then the chunk [t] denotes an end of chunked
     transfer-encoding transmission.
@@ -13,17 +12,17 @@ val make : ?extensions:(string * string option) list -> string -> t
       is a list of extensions associted with [t]. Chunk extension encodes
       additional information about [data] in [t]. An extension is a tuple of
       [(name, value)] where [value] is optional. *)
+val make : ?extensions:(string * string option) list -> string -> t
 
-val data : t -> string option
 (** [data t] is [Some data] if a chunk [t] holds data. Otherwise it is [None]. A
     [None] data denotes an end of the chunked transfer encoding. *)
+val data : t -> string option
 
-val extensions : t -> (string * string option) list
 (** [extensions t] is a list of extensions associated with chunk [t].*)
+val extensions : t -> (string * string option) list
 
 (** {1 Writer} *)
 
-type write_chunk = (t -> unit) -> unit
 (** [write_chunk f] specifies HTTP chunks to be written by a
     {!type:Body.writer}. We specify chunks by applying [f chunk].
 
@@ -36,8 +35,8 @@ type write_chunk = (t -> unit) -> unit
         f (Chunk {data="world!"; extension = []);
         f (Last_chunk {extensions = []);
     ]} *)
+type write_chunk = (t -> unit) -> unit
 
-type write_trailer = (Header.t -> unit) -> unit
 (** [write_trailer f] specifies HTTP chunked trailer headers to be written by a
     {!type:Body.writer}. We specify the trailer headers by applying [f headers].
 
@@ -48,9 +47,8 @@ type write_trailer = (Header.t -> unit) -> unit
         in
         f headers
     ]} *)
+type write_trailer = (Header.t -> unit) -> unit
 
-val writable :
-  ua_supports_trailer:bool -> write_chunk -> write_trailer -> Body.writable
 (** [writable ~ua_supports_trailer write_chunk write_trailer] is
     {!type:Body.writer} for HTTP [chunked] transfer encoding.
 
@@ -62,10 +60,11 @@ val writable :
       receiving chunked trailer headers. This is usually done by adding HTTP
       header "TE" with value "trailers" in requests. See
       {!val:Request.supports_chunked_trailers}. *)
+val writable :
+  ua_supports_trailer:bool -> write_chunk -> write_trailer -> Body.writable
 
 (** {1 Reader} *)
 
-val read_chunked : (t -> unit) -> #Body.readable -> Header.t option
 (** [read_chunked f readable] is [Some updated_headers] if "Transfer-Encoding"
     header value is "chunked" in [request]. Each chunk is applied as [f chunk].
     [updated_headers] is the updated headers as specified by the chunked
@@ -74,6 +73,7 @@ val read_chunked : (t -> unit) -> #Body.readable -> Header.t option
 
     Returns [None] if [Transfer-Encoding] header in [headers] is not specified
     as "chunked" *)
+val read_chunked : (t -> unit) -> #Body.readable -> Header.t option
 
 (** {1 Pretty Printers} *)
 

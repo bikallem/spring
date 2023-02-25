@@ -1,12 +1,16 @@
 class virtual t =
   object
     method virtual version : Version.t
+
     method virtual headers : Header.t
+
     method virtual status : Status.t
   end
 
 let version (t : #t) = t#version
+
 let headers (t : #t) = t#headers
+
 let status (t : #t) = t#status
 
 exception Closed
@@ -15,12 +19,19 @@ class client_response version headers status buf_read =
   let closed = ref false in
   object
     inherit t
+
     inherit Body.readable
+
     method version = version
+
     method headers = headers
+
     method status = status
+
     method buf_read = if !closed then raise Closed else buf_read
+
     method body_closed = !closed
+
     method close_body = closed := true
   end
 
@@ -28,7 +39,9 @@ class client_response version headers status buf_read =
 
 open Buf_read.Syntax
 
-let is_digit = function '0' .. '9' -> true | _ -> false
+let is_digit = function
+  | '0' .. '9' -> true
+  | _ -> false
 
 let reason_phrase =
   Buf_read.take_while (function
@@ -48,11 +61,13 @@ let parse buf_read =
   (version, headers, status)
 
 let close_body (t : #client_response) = t#close_body
+
 let body_closed (t : #client_response) = t#body_closed
 
 class virtual server_response =
   object
     inherit t
+
     inherit Body.writable
   end
 
@@ -60,9 +75,13 @@ let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
     ?(status = Status.ok) (body : #Body.writable) : server_response =
   object
     method version = version
+
     method headers = headers
+
     method status = status
+
     method write_body = body#write_body
+
     method write_header = body#write_header
   end
 
@@ -97,7 +116,9 @@ let none_body_response status =
   server_response ~headers ~status Body.none
 
 let not_found = none_body_response Status.not_found
+
 let internal_server_error = none_body_response Status.internal_server_error
+
 let bad_request = none_body_response Status.bad_request
 
 let field lbl v =
@@ -109,20 +130,18 @@ let field lbl v =
 let pp fmt (t : #t) =
   let open Easy_format in
   let fields =
-    [
-      field "Version" (Version.to_string t#version);
-      field "Status" (Status.to_string t#status);
-      Label
-        ( (Atom ("Headers :", atom), { label with label_break = `Always }),
-          Header.easy_fmt t#headers );
+    [ field "Version" (Version.to_string t#version)
+    ; field "Status" (Status.to_string t#status)
+    ; Label
+        ( (Atom ("Headers :", atom), { label with label_break = `Always })
+        , Header.easy_fmt t#headers )
     ]
   in
   let list_p =
-    {
-      list with
-      align_closing = true;
-      indent_body = 2;
-      wrap_body = `Force_breaks_rec;
+    { list with
+      align_closing = true
+    ; indent_body = 2
+    ; wrap_body = `Force_breaks_rec
     }
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))

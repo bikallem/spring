@@ -1,6 +1,9 @@
 open Astring
 
-type t = { disposition : string; parameters : string String.Map.t }
+type t =
+  { disposition : string
+  ; parameters : string String.Map.t
+  }
 
 let make ?(params = []) disposition =
   let parameters = String.Map.of_seq @@ List.to_seq params in

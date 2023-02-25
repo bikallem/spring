@@ -1,6 +1,11 @@
 module M = Map.Make (String)
 
-type t = { type_ : string; sub_type : string; parameters : string M.t }
+type t =
+  { type_ : string
+  ; sub_type : string
+  ; parameters : string M.t
+  }
+
 type media_type = string * string
 
 open Buf_read.Syntax
@@ -34,5 +39,7 @@ let encode t =
   Buffer.contents buf
 
 let media_type t = (t.type_, t.sub_type)
+
 let find_param t name = M.find_opt (String.lowercase_ascii name) t.parameters
+
 let charset t = M.find_opt "charset" t.parameters

@@ -1,13 +1,25 @@
-type t = Chunk of body | Last_chunk of extension list
-and body = { data : string; extensions : extension list }
-and extension = { name : string; value : string option }
+type t =
+  | Chunk of body
+  | Last_chunk of extension list
+
+and body =
+  { data : string
+  ; extensions : extension list
+  }
+
+and extension =
+  { name : string
+  ; value : string option
+  }
 
 let make ?(extensions = []) data =
   let extensions = List.map (fun (name, value) -> { name; value }) extensions in
   let len = String.length data in
   if len = 0 then Last_chunk extensions else Chunk { data; extensions }
 
-let data = function Chunk { data; _ } -> Some data | Last_chunk _ -> None
+let data = function
+  | Chunk { data; _ } -> Some data
+  | Last_chunk _ -> None
 
 let extensions t =
   let extensions =
@@ -45,11 +57,11 @@ let quoted_string r =
     match Buf_read.any_char r with
     | '"' -> Buffer.contents buf
     | '\\' ->
-        Buffer.add_char buf (quoted_char r);
-        aux ()
+      Buffer.add_char buf (quoted_char r);
+      aux ()
     | c ->
-        Buffer.add_char buf (qdtext c);
-        aux ()
+      Buffer.add_char buf (qdtext c);
+      aux ()
   in
   aux ()
 
@@ -64,16 +76,18 @@ let optional c x r =
 let chunk_ext_val =
   let open Buf_read.Syntax in
   let* c = Buf_read.peek_char in
-  match c with Some '"' -> quoted_string | _ -> Buf_read.token
+  match c with
+  | Some '"' -> quoted_string
+  | _ -> Buf_read.token
 
 let rec chunk_exts r =
   let c = Buf_read.peek_char r in
   match c with
   | Some ';' ->
-      Buf_read.consume r 1;
-      let name = Buf_read.token r in
-      let value = optional '=' chunk_ext_val r in
-      { name; value } :: chunk_exts r
+    Buf_read.consume r 1;
+    let name = Buf_read.token r in
+    let value = optional '=' chunk_ext_val r in
+    { name; value } :: chunk_exts r
   | _ -> []
 
 let chunk_size =
@@ -89,19 +103,37 @@ let chunk_size =
    https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2 *)
 let is_trailer_header_allowed (h : Header.lname) =
   match (h :> string) with
-  | "transfer-encoding" | "content-length" | "host"
+  | "transfer-encoding"
+  | "content-length"
+  | "host"
   (* Request control headers are not allowed. *)
-  | "cache-control" | "expect" | "max-forwards" | "pragma" | "range" | "te"
+  | "cache-control"
+  | "expect"
+  | "max-forwards"
+  | "pragma"
+  | "range"
+  | "te"
   (* Authentication headers are not allowed. *)
-  | "www-authenticate" | "authorization" | "proxy-authenticate"
+  | "www-authenticate"
+  | "authorization"
+  | "proxy-authenticate"
   | "proxy-authorization"
   (* Cookie headers are not allowed. *)
-  | "cookie" | "set-cookie"
+  | "cookie"
+  | "set-cookie"
   (* Response control data headers are not allowed. *)
-  | "age" | "expires" | "date" | "location" | "retry-after" | "vary" | "warning"
+  | "age"
+  | "expires"
+  | "date"
+  | "location"
+  | "retry-after"
+  | "vary"
+  | "warning"
   (* Headers to process the payload are not allowed. *)
-  | "content-encoding" | "content-type" | "content-range" | "trailer" ->
-      false
+  | "content-encoding"
+  | "content-type"
+  | "content-range"
+  | "trailer" -> false
   | _ -> true
 
 (* Request indicates which headers will be sent in chunk trailer part by
@@ -109,9 +141,9 @@ let is_trailer_header_allowed (h : Header.lname) =
 let request_trailer_headers headers =
   match Header.(find headers trailer) with
   | Some v ->
-      List.map
-        (fun h -> String.trim h |> Header.lname)
-        (String.split_on_char ',' v)
+    List.map
+      (fun h -> String.trim h |> Header.lname)
+      (String.split_on_char ',' v)
   | None -> []
 
 (* Chunk decoding algorithm is explained at
@@ -121,46 +153,47 @@ let parse_chunk (total_read : int) (headers : Header.t) =
   let* sz = chunk_size in
   match sz with
   | sz when sz > 0 ->
-      let* extensions = chunk_exts <* Buf_read.crlf in
-      let* data = Buf_read.take sz <* Buf_read.crlf in
-      Buf_read.return @@ `Chunk (sz, data, extensions)
+    let* extensions = chunk_exts <* Buf_read.crlf in
+    let* data = Buf_read.take sz <* Buf_read.crlf in
+    Buf_read.return @@ `Chunk (sz, data, extensions)
   | 0 ->
-      let* extensions = chunk_exts <* Buf_read.crlf in
-      (* Read trailer headers if any and append those to request headers.
-         Only headers names appearing in 'Trailer' request headers and "allowed" trailer
-         headers are appended to request.
-         The spec at https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3
-         specifies that 'Content-Length' and 'Transfer-Encoding' headers must be
-         updated. *)
-      let* trailer_headers = Header.parse in
-      let request_trailer_headers = request_trailer_headers headers in
-      let trailer_headers =
-        Header.filter
-          (fun name _ ->
-            List.mem name request_trailer_headers
-            && is_trailer_header_allowed name)
-          trailer_headers
-      in
-      let request_headers = Header.append headers trailer_headers in
-      (* Remove either just the 'chunked' from Transfer-Encoding header value or
-         remove the header entirely if value is empty. *)
-      let request_headers =
-        match Header.(find request_headers transfer_encoding) with
-        | Some te' ->
-            let te' = Transfer_encoding_hdr.(remove te' chunked) in
-            if Transfer_encoding_hdr.is_empty te' then
-              Header.(remove request_headers transfer_encoding)
-            else Header.(replace request_headers transfer_encoding te')
-        | None -> assert false
-      in
-      (* Remove 'Trailer' from request headers. *)
-      let headers = Header.(remove request_headers trailer) in
-      (* Add Content-Length header *)
-      let headers = Header.(add headers content_length total_read) in
-      Buf_read.return @@ `Last_chunk (extensions, headers)
+    let* extensions = chunk_exts <* Buf_read.crlf in
+    (* Read trailer headers if any and append those to request headers.
+       Only headers names appearing in 'Trailer' request headers and "allowed" trailer
+       headers are appended to request.
+       The spec at https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3
+       specifies that 'Content-Length' and 'Transfer-Encoding' headers must be
+       updated. *)
+    let* trailer_headers = Header.parse in
+    let request_trailer_headers = request_trailer_headers headers in
+    let trailer_headers =
+      Header.filter
+        (fun name _ ->
+          List.mem name request_trailer_headers
+          && is_trailer_header_allowed name)
+        trailer_headers
+    in
+    let request_headers = Header.append headers trailer_headers in
+    (* Remove either just the 'chunked' from Transfer-Encoding header value or
+       remove the header entirely if value is empty. *)
+    let request_headers =
+      match Header.(find request_headers transfer_encoding) with
+      | Some te' ->
+        let te' = Transfer_encoding_hdr.(remove te' chunked) in
+        if Transfer_encoding_hdr.is_empty te' then
+          Header.(remove request_headers transfer_encoding)
+        else Header.(replace request_headers transfer_encoding te')
+      | None -> assert false
+    in
+    (* Remove 'Trailer' from request headers. *)
+    let headers = Header.(remove request_headers trailer) in
+    (* Add Content-Length header *)
+    let headers = Header.(add headers content_length total_read) in
+    Buf_read.return @@ `Last_chunk (extensions, headers)
   | sz -> failwith (Format.sprintf "Invalid chunk size: %d" sz)
 
 type write_chunk = (t -> unit) -> unit
+
 type write_trailer = (Header.t -> unit) -> unit
 
 let writable ~ua_supports_trailer write_chunk write_trailer =
@@ -172,23 +205,25 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
         List.iter
           (fun { name; value } ->
             let v =
-              match value with None -> "" | Some v -> Printf.sprintf "=%s" v
+              match value with
+              | None -> ""
+              | Some v -> Printf.sprintf "=%s" v
             in
             Buf_write.string writer (Printf.sprintf ";%s%s" name v))
           exts
       in
       let write_body = function
         | Chunk { data; extensions = exts } ->
-            let size = String.length data in
-            Buf_write.string writer (Printf.sprintf "%X" size);
-            write_extensions exts;
-            Buf_write.string writer "\r\n";
-            Buf_write.string writer data;
-            Buf_write.string writer "\r\n"
+          let size = String.length data in
+          Buf_write.string writer (Printf.sprintf "%X" size);
+          write_extensions exts;
+          Buf_write.string writer "\r\n";
+          Buf_write.string writer data;
+          Buf_write.string writer "\r\n"
         | Last_chunk exts ->
-            Buf_write.string writer "0";
-            write_extensions exts;
-            Buf_write.string writer "\r\n"
+          Buf_write.string writer "0";
+          write_extensions exts;
+          Buf_write.string writer "\r\n"
       in
       write_chunk write_body;
       if ua_supports_trailer then write_trailer (Buf_write.write_headers writer);
@@ -198,25 +233,27 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
 let read_chunked f (t : #Body.readable) =
   match Header.(find t#headers transfer_encoding) with
   | Some te when Transfer_encoding_hdr.(exists te chunked) ->
-      let total_read = ref 0 in
-      let rec chunk_loop f =
-        let chunk = parse_chunk !total_read t#headers t#buf_read in
-        match chunk with
-        | `Chunk (size, data, extensions) ->
-            f (Chunk { data; extensions });
-            total_read := !total_read + size;
-            (chunk_loop [@tailcall]) f
-        | `Last_chunk (extensions, headers) ->
-            f (Last_chunk extensions);
-            Some headers
-      in
-      chunk_loop f
+    let total_read = ref 0 in
+    let rec chunk_loop f =
+      let chunk = parse_chunk !total_read t#headers t#buf_read in
+      match chunk with
+      | `Chunk (size, data, extensions) ->
+        f (Chunk { data; extensions });
+        total_read := !total_read + size;
+        (chunk_loop [@tailcall]) f
+      | `Last_chunk (extensions, headers) ->
+        f (Last_chunk extensions);
+        Some headers
+    in
+    chunk_loop f
   | _ -> None
 
 let pp_extension fmt ext =
   let open Format in
   pp_print_string fmt ext.name;
-  match ext.value with Some v -> fprintf fmt "=%S" v | None -> ()
+  match ext.value with
+  | Some v -> fprintf fmt "=%S" v
+  | None -> ()
 
 let pp fmt t =
   let open Format in

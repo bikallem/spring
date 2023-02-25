@@ -1,13 +1,16 @@
 class virtual writable =
   object
     method virtual write_body : Eio.Buf_write.t -> unit
+
     method virtual write_header : (name:string -> value:string -> unit) -> unit
   end
 
 class none =
   object
     inherit writable
+
     method write_body _ = ()
+
     method write_header _ = ()
   end
 
@@ -30,6 +33,7 @@ let form_values_writer assoc_list =
 class virtual readable =
   object
     method virtual headers : Header.t
+
     method virtual buf_read : Eio.Buf_read.t
   end
 
@@ -46,7 +50,7 @@ let read_form_values (t : #readable) =
     let* content_type = Header.(find t#headers content_type) in
     match Content_type.media_type content_type with
     | "application", "x-www-form-urlencoded" ->
-        Some (Uri.query_of_encoded content)
+      Some (Uri.query_of_encoded content)
     | _ -> None
   with
   | Some l -> l

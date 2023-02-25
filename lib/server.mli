@@ -1,13 +1,12 @@
 (** [Server] is a HTTP 1.1 server. *)
 
-type t
 (** [t] represents a HTTP/1.1 server instance configured with some specific
     server parameters. *)
+type t
 
-type handler = Request.server_request -> Response.server_response
 (** [handler] is a HTTP request handler. *)
+type handler = Request.server_request -> Response.server_response
 
-type pipeline = handler -> handler
 (** [pipeline] is the HTTP request processsing pipeline. It is usually used with
     OCaml infix function, [@@].
 
@@ -34,20 +33,20 @@ type pipeline = handler -> handler
     constructed and used with {!val:make}. The handlers are executed in the
     order they are combined, i.e. first the [router] is executed then the
     [Server.not_found_handler]. *)
+type pipeline = handler -> handler
 
-val host_header : pipeline
 (** [host_header_pipeline] validates an incoming request for valid "Host" header
     value. RFC 9112 states that host is required in server requests and server
     MUST send bad request if Host header value is not correct.
 
     https://www.rfc-editor.org/rfc/rfc9112#section-3.2 *)
+val host_header : pipeline
 
 val response_date : #Eio.Time.clock -> pipeline
 (* [response_date clock] adds "Date" header to responses if required.
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 
-val strict_http : #Eio.Time.clock -> pipeline
 (** [strict_http] is a convenience pipeline that include both {!val:host_header}
     and {!val:response_date} pipeline. The pipeline intends to more strictly
     follow the relevant HTTP specifictions.
@@ -64,15 +63,8 @@ val strict_http : #Eio.Time.clock -> pipeline
         let server = Server.make ~on_error:raise env#clock env#net handler in
         Server.run_local server
     ]} *)
+val strict_http : #Eio.Time.clock -> pipeline
 
-val make :
-  ?max_connections:int ->
-  ?additional_domains:#Eio.Domain_manager.t * int ->
-  on_error:(exn -> unit) ->
-  #Eio.Time.clock ->
-  #Eio.Net.t ->
-  handler ->
-  t
 (** [make ~on_error clock net handler] is [t].
 
     {b Running a Parallel Server} By default [t] runs on a {e single} OCaml
@@ -86,8 +78,15 @@ val make :
     @param max_connections
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
+val make :
+     ?max_connections:int
+  -> ?additional_domains:#Eio.Domain_manager.t * int
+  -> on_error:(exn -> unit)
+  -> #Eio.Time.clock
+  -> #Eio.Net.t
+  -> handler
+  -> t
 
-val run : Eio.Net.listening_socket -> t -> unit
 (** [run socket t] runs a HTTP/1.1 server listening on socket [socket].
 
     {[
@@ -99,9 +98,8 @@ val run : Eio.Net.listening_socket -> t -> unit
       let server = Server.make ~on_error:raise env#clock handler in
       Cohttp_eio.Server.run socket server
     ]} *)
+val run : Eio.Net.listening_socket -> t -> unit
 
-val run_local :
-  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> t -> unit
 (** [run_local t] runs server on TCP/IP address [localhost] and by default on
     port [80].
 
@@ -117,17 +115,19 @@ val run_local :
     @param socket_backlog is the socket backlog value. Default is [128].
     @param port
       is the port number for TCP/IP address [localhost]. Default is [80]. *)
+val run_local :
+  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> t -> unit
 
-val connection_handler :
-  handler -> #Eio.Time.clock -> Eio.Net.connection_handler
 (** [connection_handler handler clock] is a connection handler, suitable for
     passing to {!Eio.Net.accept_fork}. *)
+val connection_handler :
+  handler -> #Eio.Time.clock -> Eio.Net.connection_handler
 
-val shutdown : t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
     inflight connections to complete. *)
+val shutdown : t -> unit
 
 (** {1 Basic Handlers} *)
 
-val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
+val not_found_handler : handler

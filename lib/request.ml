@@ -1,21 +1,30 @@
 (** [request] is the common request object *)
 let host_port_to_string (host, port) =
-  match port with Some p -> Format.sprintf "%s:%d" host p | None -> host
+  match port with
+  | Some p -> Format.sprintf "%s:%d" host p
+  | None -> host
 
 class virtual t =
   object
     method virtual version : Version.t
+
     method virtual headers : Header.t
+
     method virtual meth : Method.t
+
     method virtual resource : string
+
     method virtual pp : Format.formatter -> unit
   end
 
 type host_port = string * int option
 
 let version (t : #t) = t#version
+
 let headers (t : #t) = t#headers
+
 let meth (t : #t) = t#meth
+
 let resource (t : #t) = t#resource
 
 let supports_chunked_trailers (t : #t) =
@@ -27,20 +36,23 @@ let keep_alive (t : #t) =
   match (t#version :> int * int) with
   | 1, 1 -> true
   | 1, 0 -> (
-      match Header.(find t#headers connection) with
-      | Some v ->
-          String.split_on_char ',' v
-          |> List.exists (fun tok ->
-                 let tok = String.(trim tok |> lowercase_ascii) in
-                 String.equal tok "keep-alive")
-      | None -> false)
+    match Header.(find t#headers connection) with
+    | Some v ->
+      String.split_on_char ',' v
+      |> List.exists (fun tok ->
+             let tok = String.(trim tok |> lowercase_ascii) in
+             String.equal tok "keep-alive")
+    | None -> false)
   | _ -> false
 
 class virtual client_request =
   object
     inherit t
+
     inherit Body.writable
+
     method virtual host : string
+
     method virtual port : int option
   end
 
@@ -53,13 +65,12 @@ let field lbl v =
 let fields (t : #t) (f : unit -> Easy_format.t list) =
   let open Easy_format in
   let l =
-    [
-      field "Version" (Version.to_string t#version);
-      field "Method" (Method.to_string t#meth :> string);
-      field "URI" t#resource;
-      Label
-        ( (Atom ("Headers :", atom), { label with label_break = `Always }),
-          Header.easy_fmt t#headers );
+    [ field "Version" (Version.to_string t#version)
+    ; field "Method" (Method.to_string t#meth :> string)
+    ; field "URI" t#resource
+    ; Label
+        ( (Atom ("Headers :", atom), { label with label_break = `Always })
+        , Header.easy_fmt t#headers )
     ]
   in
   l @ f ()
@@ -67,11 +78,10 @@ let fields (t : #t) (f : unit -> Easy_format.t list) =
 let pp_fields fmt fields =
   let open Easy_format in
   let list_p =
-    {
-      list with
-      align_closing = true;
-      indent_body = 2;
-      wrap_body = `Force_breaks_rec;
+    { list with
+      align_closing = true
+    ; indent_body = 2
+    ; wrap_body = `Force_breaks_rec
     }
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
@@ -80,14 +90,23 @@ let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
     ~host ~resource (meth : Method.t) body =
   object (self)
     inherit client_request as _super
+
     val headers = headers
+
     method version = version
+
     method headers = headers
+
     method meth = meth
+
     method resource = resource
+
     method host = host
+
     method port = port
+
     method write_body = body#write_body
+
     method write_header = body#write_header
 
     method pp fmt =
@@ -168,22 +187,31 @@ let write (t : #client_request) w =
 class virtual server_request =
   object
     inherit t
+
     inherit Body.readable
+
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
 let buf_read (t : #server_request) = t#buf_read
+
 let client_addr (t : #server_request) = t#client_addr
 
 let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
     ~resource meth client_addr buf_read =
   object (self)
     inherit server_request
+
     method version = version
+
     method headers = headers
+
     method meth = meth
+
     method resource = resource
+
     method client_addr = client_addr
+
     method buf_read = buf_read
 
     method pp fmt =
@@ -203,16 +231,30 @@ let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
 open Eio.Buf_read.Syntax
 
 let take_while1 p r =
-  match Buf_read.take_while p r with "" -> raise End_of_file | x -> x
+  match Buf_read.take_while p r with
+  | "" -> raise End_of_file
+  | x -> x
 
 let token =
   take_while1 (function
     | '0' .. '9'
     | 'a' .. 'z'
     | 'A' .. 'Z'
-    | '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_'
-    | '`' | '|' | '~' ->
-        true
+    | '!'
+    | '#'
+    | '$'
+    | '%'
+    | '&'
+    | '\''
+    | '*'
+    | '+'
+    | '-'
+    | '.'
+    | '^'
+    | '_'
+    | '`'
+    | '|'
+    | '~' -> true
     | _ -> false)
 
 let space = Buf_read.char '\x20'

@@ -1,8 +1,11 @@
 type t = int * int (* major, minor *)
 
 let make ~major ~minor = (major, minor)
+
 let http1_1 = (1, 1)
+
 let http1_0 = (1, 0)
+
 let equal (a : t) (b : t) = a = b
 
 let to_string (major, minor) =
@@ -20,9 +23,9 @@ let p =
   | '1', '1' -> Buf_read.return http1_1
   | '1', '0' -> Buf_read.return http1_0
   | _ -> (
-      try
-        let major = Char.escaped major |> int_of_string in
-        let minor = Char.escaped minor |> int_of_string in
-        Buf_read.return (make ~major ~minor)
-      with Failure _ ->
-        failwith (Format.sprintf "Invalid HTTP version: (%c,%c)" major minor))
+    try
+      let major = Char.escaped major |> int_of_string in
+      let minor = Char.escaped minor |> int_of_string in
+      Buf_read.return (make ~major ~minor)
+    with Failure _ ->
+      failwith (Format.sprintf "Invalid HTTP version: (%c,%c)" major minor))

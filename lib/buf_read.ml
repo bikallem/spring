@@ -1,21 +1,43 @@
 include Eio.Buf_read
 
 let take_while1 p r =
-  match take_while p r with "" -> raise End_of_file | x -> x
+  match take_while p r with
+  | "" -> raise End_of_file
+  | x -> x
 
 let token =
   take_while1 (function
     | '0' .. '9'
     | 'a' .. 'z'
     | 'A' .. 'Z'
-    | '!' | '#' | '$' | '%' | '&' | '\'' | '*' | '+' | '-' | '.' | '^' | '_'
-    | '`' | '|' | '~' ->
-        true
+    | '!'
+    | '#'
+    | '$'
+    | '%'
+    | '&'
+    | '\''
+    | '*'
+    | '+'
+    | '-'
+    | '.'
+    | '^'
+    | '_'
+    | '`'
+    | '|'
+    | '~' -> true
     | _ -> false)
 
-let ows = skip_while (function ' ' | '\t' -> true | _ -> false)
+let ows =
+  skip_while (function
+    | ' ' | '\t' -> true
+    | _ -> false)
+
 let crlf = string "\r\n"
-let not_cr = function '\r' -> false | _ -> true
+
+let not_cr = function
+  | '\r' -> false
+  | _ -> true
+
 let space = char '\x20'
 
 open Syntax
@@ -31,8 +53,7 @@ let qd_text =
   let+ c = any_char in
   match c with
   | '\t' | ' ' | '\x21' | '\x23' .. '\x5B' | '\x5D' .. '\x7E' | '\x80' .. '\xFF'
-    ->
-      c
+    -> c
   | _ -> failwith ("Invalid qd_text '" ^ Char.escaped c ^ "'")
 
 let quoted_string =
@@ -41,14 +62,13 @@ let quoted_string =
     match c with
     | Some '"' -> []
     | Some '\\' ->
-        let c = quoted_pair r in
-        c :: aux r
+      let c = quoted_pair r in
+      c :: aux r
     | Some _ ->
-        let c = qd_text r in
-        c :: aux r
+      let c = qd_text r in
+      c :: aux r
     | None ->
-        failwith
-          "Invalid quoted_string. Looking for '\"', '\\' or qd_text value"
+      failwith "Invalid quoted_string. Looking for '\"', '\\' or qd_text value"
   in
   (char '"'
   *> let+ str = aux in
@@ -72,6 +92,6 @@ let rec parameters r =
   let c = (ows *> peek_char) r in
   match c with
   | Some ';' ->
-      let param = parameter r in
-      param :: parameters r
+    let param = parameter r in
+    param :: parameters r
   | Some _ | None -> []
