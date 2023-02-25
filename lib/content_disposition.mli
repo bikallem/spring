@@ -2,9 +2,8 @@
     in https://httpwg.org/specs/rfc6266.html#top *)
 
 type t
-type disposition = string
 
-val make : ?params:(string * string) list -> disposition -> t
+val make : ?params:(string * string) list -> string -> t
 val decode : string -> t
 val encode : t -> string
 val disposition : t -> string
