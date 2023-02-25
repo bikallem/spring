@@ -19,7 +19,10 @@ let p r =
   { type_; sub_type; parameters }
 
 let make ?(params = []) (type_, sub_type) =
-  let parameters = String.Map.of_seq @@ List.to_seq params in
+  let parameters =
+    List.map (fun (k, v) -> (String.Ascii.lowercase k, v)) params
+    |> String.Map.of_list
+  in
   let type_ = String.Ascii.lowercase type_ in
   let sub_type = String.Ascii.lowercase sub_type in
   { type_; sub_type; parameters }
