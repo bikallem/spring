@@ -57,6 +57,9 @@ val r : Eio.Buf_read.t = <abstr>
 # Eio.Buf_read.take_all  r;;
 - : string = "Larry"
 
+# Eio.Flow.single_read flow (Cstruct.create 10) ;;
+Exception: End_of_file.
+
 # let p2 = Multipart_body.next_part t;;
 val p2 : Multipart_body.part = <abstr>
 
@@ -66,11 +69,17 @@ val p2 : Multipart_body.part = <abstr>
 # Multipart_body.form_name p2;;
 - : string option = Some "files"
 
-# let r = Eio.Buf_read.of_flow ~max_size:max_int (Multipart_body.flow p2);;
+# let flow2 = Multipart_body.flow p2;;
+val flow2 : Eio.Flow.source = <obj>
+
+# let r = Eio.Buf_read.of_flow ~max_size:max_int flow2;;
 val r : Eio.Buf_read.t = <abstr>
 
 # Eio.Buf_read.take_all r;;
 - : string = "... contents of file1.txt ..."
+
+# Eio.Flow.single_read flow2 (Cstruct.create 10) ;;
+Exception: End_of_file.
 
 # Multipart_body.next_part t;;
 Exception: End_of_file.
