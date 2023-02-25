@@ -1,5 +1,3 @@
-open Astring
-
 type t =
   { type_ : string
   ; sub_type : string

@@ -47,7 +47,7 @@ let encode t =
   in
   M.to_seq t |> List.of_seq
   |> List.map (fun (d, q) -> d ^ q_to_str q)
-  |> String.concat ", "
+  |> String.concat ~sep:", "
 
 open Buf_read.Syntax
 open Buf_read

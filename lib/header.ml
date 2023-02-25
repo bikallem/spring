@@ -3,11 +3,11 @@ type name = string
 type lname = string
 
 let canonical_name s =
-  String.split_on_char '-' s
-  |> List.map (fun s -> String.(lowercase_ascii s |> capitalize_ascii))
-  |> String.concat "-"
+  String.cuts ~sep:"-" s
+  |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
+  |> String.concat ~sep:"-"
 
-let lname = String.lowercase_ascii
+let lname = String.Ascii.lowercase
 
 let lname_equal = String.equal
 
@@ -189,7 +189,7 @@ open Buf_read.Syntax
 let p_header =
   let+ key = token <* char ':' <* ows
   and+ value = take_while not_cr <* crlf in
-  let key = String.lowercase_ascii key in
+  let key = String.Ascii.lowercase key in
   (key, value)
 
 let parse r =

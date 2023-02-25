@@ -34,9 +34,9 @@ let remove t d = M.remove d t
 
 let iter = M.iter
 
-let encode t = M.to_seq t |> List.of_seq |> String.concat ", "
+let encode t = M.to_seq t |> List.of_seq |> String.concat ~sep:", "
 
 let decode v =
-  String.split_on_char ',' v |> List.map String.trim
+  String.cuts ~sep:"," v |> List.map String.trim
   |> List.filter (fun s -> s <> "")
   |> List.fold_left (fun t te -> M.add te t) M.empty

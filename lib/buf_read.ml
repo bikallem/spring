@@ -72,12 +72,12 @@ let quoted_string =
   in
   (char '"'
   *> let+ str = aux in
-     String.of_seq @@ List.to_seq str)
+     Stdlib.String.of_seq @@ List.to_seq str)
   <* char '"'
 
 let parameter =
   let* name = char ';' *> ows *> token in
-  let name = String.lowercase_ascii name in
+  let name = String.Ascii.lowercase name in
   let+ value =
     char '='
     *> let* c = peek_char in

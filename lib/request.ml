@@ -38,9 +38,9 @@ let keep_alive (t : #t) =
   | 1, 0 -> (
     match Header.(find t#headers connection) with
     | Some v ->
-      String.split_on_char ',' v
+      String.cuts ~sep:"," v
       |> List.exists (fun tok ->
-             let tok = String.(trim tok |> lowercase_ascii) in
+             let tok = String.(trim tok |> Ascii.lowercase) in
              String.equal tok "keep-alive")
     | None -> false)
   | _ -> false
@@ -120,12 +120,12 @@ let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
 let client_host_port (t : #client_request) = (t#host, t#port)
 
 let parse_url url =
-  if String.starts_with ~prefix:"https" url then
+  if String.is_prefix ~affix:"https" url then
     raise @@ Invalid_argument "url: https protocol not supported";
   let url =
     if
-      (not (String.starts_with ~prefix:"http" url))
-      && not (String.starts_with ~prefix:"//" url)
+      (not (String.is_prefix ~affix:"http" url))
+      && not (String.is_prefix ~affix:"//" url)
     then "//" ^ url
     else url
   in

@@ -141,9 +141,7 @@ let is_trailer_header_allowed (h : Header.lname) =
 let request_trailer_headers headers =
   match Header.(find headers trailer) with
   | Some v ->
-    List.map
-      (fun h -> String.trim h |> Header.lname)
-      (String.split_on_char ',' v)
+    List.map (fun h -> String.trim h |> Header.lname) (String.cuts ~sep:"," v)
   | None -> []
 
 (* Chunk decoding algorithm is explained at

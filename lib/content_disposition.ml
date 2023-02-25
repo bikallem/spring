@@ -1,5 +1,3 @@
-open Astring
-
 type t =
   { disposition : string
   ; parameters : string String.Map.t

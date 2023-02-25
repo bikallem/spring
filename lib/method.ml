@@ -4,7 +4,7 @@ type lowercase_string = string
 
 type t = lowercase_string
 
-let make t = String.lowercase_ascii t
+let make t = String.Ascii.lowercase t
 
 module M = struct
   let get = "get"
@@ -32,4 +32,4 @@ let to_string t = t
 
 let equal a b = String.equal a b
 
-let pp fmt t = Format.fprintf fmt "%s" (String.uppercase_ascii t)
+let pp fmt t = Format.fprintf fmt "%s" (String.Ascii.uppercase t)

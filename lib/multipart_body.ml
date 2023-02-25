@@ -1,5 +1,3 @@
-open Astring
-
 type t =
   { r : Buf_read.t
   ; boundary : string
