@@ -40,10 +40,11 @@ let boundary t = t.boundary
 (* Part *)
 
 type part = {
+  t : t;
   form_name : string option;
   filename : string option;
   headers : Header.t;
-  flow : Eio.Flow.source;
+  mutable body_eof : bool; (* true if body read is complete. *)
 }
 
 let skip_whitespace s =
@@ -71,36 +72,37 @@ let read_line t =
     ln)
   else Buf_read.line t.r
 
-let read_into t dst =
+let read_into (p : part) dst =
   let write_data data =
     let data_len = String.length data in
     let n = min (Cstruct.length dst) data_len in
     Cstruct.blit_from_string data 0 dst 0 n;
-    t.linger <-
+    p.t.linger <-
       (if n < data_len then String.with_range ~first:n ~len:(data_len - n) data
       else "");
     n
   in
-  if not @@ String.is_empty t.linger then write_data t.linger
-  else if t.eof then raise End_of_file
+  if not @@ String.is_empty p.t.linger then write_data p.t.linger
+  else if p.t.eof then raise End_of_file
+  else if p.body_eof then raise End_of_file
   else
-    let ln = read_line t in
-    if is_final_boundary t.final_boundary ln then (
-      t.eof <- true;
+    let ln = read_line p.t in
+    if is_final_boundary p.t.final_boundary ln then (
+      p.t.eof <- true;
       raise End_of_file)
-    else if is_boundary_delimiter t.dash_boundary ln then (
-      t.last_line <- ln;
+    else if is_boundary_delimiter p.t.dash_boundary ln then (
+      p.body_eof <- true;
+      p.t.last_line <- ln;
       raise End_of_file)
     else write_data ln
 
 (* part body flow *)
-let part_flow (t : t) : Eio.Flow.source =
+let part_flow (p : part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
-    method read_into = read_into t
+    method read_into = read_into p
   end
 
-(* TODO replace with take_while_bigstring after https://github.com/ocaml-multicore/eio/pull/449 lands *)
 let next_part (t : t) =
   let ln = read_line t in
   if not (is_boundary_delimiter t.dash_boundary ln) then
@@ -112,8 +114,7 @@ let next_part (t : t) =
         if String.equal "form-data" (Content_disposition.disposition d) then
           let filename = Content_disposition.find_param d "filename" in
           let form_name = Content_disposition.find_param d "name" in
-          let flow = (part_flow t :> Eio.Flow.source) in
-          { filename; form_name; headers; flow }
+          { t; filename; form_name; headers; body_eof = false }
         else
           failwith
             "multipart: \"Content-Disposition\" header doesn't contain \
@@ -123,4 +124,4 @@ let next_part (t : t) =
 let file_name p = p.filename
 let form_name p = p.form_name
 let headers p = p.headers
-let flow p = p.flow
+let flow p = (part_flow p :> Eio.Flow.source)
