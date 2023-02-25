@@ -5,7 +5,7 @@
 type t
 
 (** [media_type] is a tuple of [(type, subtype)]. e.g. text/plain, text/html,
-    multipart/formdata etc.
+    multipart/formdata etc. It is in ASCII lowercase.
 
     See https://httpwg.org/specs/rfc9110.html#rfc.section.8.3.1 *)
 type media_type = private string * string
