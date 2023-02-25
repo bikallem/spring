@@ -8,12 +8,12 @@ type t
     multipart/formdata etc.
 
     See https://httpwg.org/specs/rfc9110.html#rfc.section.8.3.1 *)
-type media_type = string * string
+type media_type = private string * string
 
 (** [make media_type] is [t].
 
     @param params is the list of parameters encoded in [t]. Default is [\[\]]. *)
-val make : ?params:(string * string) list -> media_type -> t
+val make : ?params:(string * string) list -> string * string -> t
 
 (** {1 Codec} *)
 
