@@ -30,3 +30,16 @@ val date3 : Ptime.t = <abstr>
 +1994-11-06 08:49:37 +00:00
 - : unit = ()
 ```
+
+## Date.encode
+
+```ocaml
+# Date.encode date1;;
+- : string = "Sun, 06 Nov 1994 08:49:37 GMT"
+
+# Date.encode date2;;
+- : string = "Sun, 06 Nov 1994 08:49:37 GMT"
+
+# Date.encode date3;;
+- : string = "Sun, 06 Nov 1994 08:49:37 GMT"
+```
