@@ -57,9 +57,7 @@ module H = struct
 
   let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 
-  let date = { name = "date"; decode = Fun.id; encode = Fun.id }
-
-  let date1 = { name = "date"; decode = Date.decode; encode = Date.encode }
+  let date = { name = "date"; decode = Date.decode; encode = Date.encode }
 end
 
 include H
