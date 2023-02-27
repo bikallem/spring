@@ -150,3 +150,26 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.max_age t;;
 - : int option = Some 2
 ```
+
+## Set_cookie.pp
+
+```ocaml
+# let t = Set_cookie.decode "SID=31d4d96e407aad42; Path=/; Domain=example.com; Secure; HttpOnly; \
+     Expires=Sun, 06 Nov 1994 08:49:37 GMT; extension1; extension2; extension3" ;;
+val t : Set_cookie.t = <abstr>
+
+# Eio.traceln "%a" Set_cookie.pp t;;
++{
++  Name:  SID;
++  Value:  31d4d96e407aad42;
++  Expires:  Sun, 06 Nov 1994 08:49:37 GMT;
++  Domain:  example.com;
++  Path:  /;
++  Secure;
++  HttpOnly;
++  extension1;
++  extension2;
++  extension3
++}
+- : unit = ()
+```
