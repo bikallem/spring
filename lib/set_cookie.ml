@@ -3,6 +3,7 @@ type t =
   ; value : string
   ; expires : Ptime.t option
   ; max_age : int option
+  ; domain : [ `raw ] Domain_name.t option
   }
 
 type state =
@@ -103,7 +104,8 @@ let space s =
 
 let cookie_attributes s =
   let attributes =
-    [ "Expires"; "Max-Age" ] |> List.map (fun v -> (v, String.length v))
+    [ "Expires"; "Max-Age"; "Domain" ]
+    |> List.map (fun v -> (v, String.length v))
   in
   let rec aux () =
     if s.pos < String.length s.i then
@@ -121,7 +123,6 @@ let cookie_attributes s =
         with
         | Some (av_name, len) ->
           accept s (len + 1);
-
           let av_value = av_value s in
           (av_name, av_value) :: aux ()
         | None -> failwith "cookie_av: expected cookie-av")
@@ -141,7 +142,15 @@ let decode v =
   let max_age =
     List.assoc_opt "Max-Age" attributes |> Option.map int_of_string
   in
-  { name; value; expires; max_age }
+  let domain =
+    let o = List.assoc_opt "Domain" attributes in
+    Option.bind o (fun v ->
+        match Domain_name.of_string v with
+        | Ok d -> Some d
+        | Error _ ->
+          failwith @@ "domain: invalid domain attribute value '" ^ v ^ "'")
+  in
+  { name; value; expires; max_age; domain }
 
 let name t = t.name
 
@@ -150,3 +159,5 @@ let value t = t.value
 let expires t = t.expires
 
 let max_age t = t.max_age
+
+let domain t = t.domain

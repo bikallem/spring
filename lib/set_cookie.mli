@@ -15,3 +15,5 @@ val value : t -> string
 val expires : t -> Ptime.t option
 
 val max_age : t -> int option
+
+val domain : t -> [ `raw ] Domain_name.t option
