@@ -5,7 +5,7 @@
     specified in
     https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00#section-1 *)
 
-(** [t] represents a HTTP cookie. *)
+(** [t] represents a HTTP Set-Cookie header value. *)
 type t
 
 (** {1 Create} *)
