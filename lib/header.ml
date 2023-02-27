@@ -61,6 +61,12 @@ module H = struct
 
   let cookie =
     { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
+
+  let set_cookie =
+    { name = "set-cookie"
+    ; decode = Set_cookie.decode
+    ; encode = Set_cookie.encode
+    }
 end
 
 include H

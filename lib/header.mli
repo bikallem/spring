@@ -64,6 +64,8 @@ module H : sig
   val date : Ptime.t header
 
   val cookie : Cookie.t header
+
+  val set_cookie : Set_cookie.t header
 end
 
 include module type of H
