@@ -7,7 +7,7 @@ open Spring
 ## Set_cookie.decode
 
 ```ocaml
-# let t = Set_cookie.decode "lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT"
+# let t = Set_cookie.decode "lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT; Max-Age=2"
 val t : Set_cookie.t = <abstr>
 ```
 ## Set_cooki.name
@@ -30,5 +30,12 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.expires t |> Option.get |> Eio.traceln "%a" Ptime.pp ;;
 +2021-06-09 10:18:14 +00:00
 - : unit = ()
+```
+
+## Set_cookie.max_age
+
+```ocaml
+# Set_cookie.max_age t;;
+- : int option = Some 2
 ```
 
