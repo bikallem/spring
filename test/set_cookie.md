@@ -92,3 +92,19 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.path t;;
 - : string option = Some "path1"
 ```
+
+## Set_cookie.secure
+
+```ocaml
+# let t = Set_cookie.decode "d=d; Max-Age=1; Secure";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.secure t;;
+- : bool = true
+
+# let t = Set_cookie.decode "d=d; Max-Age=1";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.secure t;;
+- : bool = false
+```
