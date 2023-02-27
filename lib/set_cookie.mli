@@ -25,3 +25,8 @@ val secure : t -> bool
 val http_only : t -> bool
 
 val extensions : t -> string list
+
+(** {1 Expire a Cookie} *)
+
+(** [expire t] configures [t] to be expired/removed by user-agents. *)
+val expire : t -> t
