@@ -134,3 +134,19 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.extensions t;;
 - : string list = ["extension2"; "extension1"]
 ```
+
+## Set_cookie.make 
+
+```ocaml
+# let t = Set_cookie.make ~max_age:2 ("d","d");;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.name t;;
+- : string = "d"
+
+# Set_cookie.value t;;
+- : string = "d"
+
+# Set_cookie.max_age t;;
+- : int option = Some 2
+```
