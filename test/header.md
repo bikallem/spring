@@ -158,3 +158,19 @@ val t : Header.t = <abstr>
 +form-data; filename=New document 1.2020_08_01_13_16_42.0.svg; name=name
 - : unit = ()
 ```
+
+## Header.cookie
+
+```ocaml
+# let t = Header.parse (Eio.Buf_read.of_string "Cookie: SID=31d4d96e407aad42; lang=en\r\n\r\n");;
+val t : Header.t = <abstr>
+
+# let cookies = Header.(find t cookie) |> Option.get ;;
+val cookies : Cookie.t = <abstr>
+
+# Cookie.find cookies "SID";;
+- : string option = Some "31d4d96e407aad42"
+
+# Cookie.find cookies "lang";;
+- : string option = Some "en"
+```
