@@ -125,3 +125,12 @@ val t : Set_cookie.t = <abstr>
 - : bool = false
 ```
 
+## Set_cookie.extensions
+
+```ocaml
+# let t = Set_cookie.decode "d=d; Max-Age=1; HttpOnly; extension1; extension2";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.extensions t;;
+- : string list = ["extension2"; "extension1"]
+```
