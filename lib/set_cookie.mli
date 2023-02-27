@@ -13,3 +13,5 @@ val name : t -> string
 val value : t -> string
 
 val expires : t -> Ptime.t option
+
+val max_age : t -> int option

@@ -2,6 +2,7 @@ type t =
   { name : string
   ; value : string
   ; expires : Ptime.t option
+  ; max_age : int option
   }
 
 type state =
@@ -101,7 +102,9 @@ let space s =
   | x -> failwith @@ "space: expected ' '(space), got '" ^ Char.escaped x ^ "'"
 
 let cookie_attributes s =
-  let attributes = [ "Expires" ] |> List.map (fun v -> (v, String.length v)) in
+  let attributes =
+    [ "Expires"; "Max-Age" ] |> List.map (fun v -> (v, String.length v))
+  in
   let rec aux () =
     if s.pos < String.length s.i then
       match String.get s.i s.pos with
@@ -135,10 +138,15 @@ let decode v =
   let value = cookie_value s in
   let attributes = cookie_attributes s in
   let expires = List.assoc_opt "Expires" attributes |> Option.map Date.decode in
-  { name; value; expires }
+  let max_age =
+    List.assoc_opt "Max-Age" attributes |> Option.map int_of_string
+  in
+  { name; value; expires; max_age }
 
 let name t = t.name
 
 let value t = t.value
 
 let expires t = t.expires
+
+let max_age t = t.max_age
