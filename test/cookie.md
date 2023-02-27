@@ -22,3 +22,10 @@ val t : Cookie.t = <abstr>
 # Cookie.find t "asdfsa";;
 - : string option = None
 ```
+
+## Cookie.encode
+
+```ocaml
+# Cookie.encode t;;
+- : string = "lang=en; SID=31d4d96e407aad42"
+```
