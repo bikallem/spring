@@ -36,6 +36,8 @@ val make :
 
 val decode : string -> t
 
+val encode : t -> string
+
 (** {1 Cookie Attributes} *)
 
 val name : t -> string

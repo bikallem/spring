@@ -138,6 +138,31 @@ let decode v =
       | av -> { t with extensions = av :: t.extensions })
     t attributes
 
+let encode t =
+  let module O = Option in
+  let b = Buffer.create 10 in
+  Buffer.add_string b t.name;
+  Buffer.add_char b '=';
+  Buffer.add_string b t.value;
+  O.iter (fun path -> Buffer.add_string b @@ "; Path=" ^ path) t.path;
+  O.iter
+    (fun domain ->
+      Buffer.add_string b @@ "; Domain=" ^ Domain_name.to_string domain)
+    t.domain;
+  O.iter
+    (fun expires -> Buffer.add_string b @@ "; Expires=" ^ Date.encode expires)
+    t.expires;
+  O.iter
+    (fun max_age -> Buffer.add_string b @@ "; Max-Age=" ^ string_of_int max_age)
+    t.max_age;
+  O.iter
+    (fun same_site -> Buffer.add_string b @@ "; SameSite=" ^ same_site)
+    t.same_site;
+  if t.secure then Buffer.add_string b "; Secure";
+  if t.http_only then Buffer.add_string b "; HttpOnly";
+
+  Buffer.contents b
+
 let name t = t.name
 
 let value t = t.value
