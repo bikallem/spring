@@ -208,3 +208,11 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.same_site t;;
 - : Set_cookie.same_site option = Some "Lax"
 ```
+
+## Set_cookie.encode
+
+```ocaml
+# Set_cookie.encode t;;
+- : string =
+"SID=31d4d96e407aad42; Path=/; Domain=example.com; Expires=Sun, 06 Nov 1994 08:49:37 GMT; SameSite=Lax; Secure; HttpOnly"
+```
