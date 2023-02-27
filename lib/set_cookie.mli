@@ -1,5 +1,9 @@
 (** [Set_cookie] implements HTTP [Set-Cooki]e header functionality as specified
-    in https://www.rfc-editor.org/rfc/inline-errata/rfc6265.html *)
+    in https://datatracker.ietf.org/doc/html/rfc6265
+
+    Addtionally, the module also supports Same-Site cookie attribute value as
+    specified in
+    https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00#section-1 *)
 
 (** [t] represents a HTTP cookie. *)
 type t
@@ -7,6 +11,16 @@ type t
 (** {1 Create} *)
 
 type name_value = string * string
+
+type same_site = private string
+
+(** {1 Same Site} *)
+
+val strict : same_site
+
+val lax : same_site
+
+(** {1 Create} *)
 
 val make :
      ?expires:Ptime.t
@@ -16,6 +30,7 @@ val make :
   -> ?secure:bool
   -> ?http_only:bool
   -> ?extensions:string list
+  -> ?same_site:same_site
   -> name_value
   -> t
 
@@ -40,6 +55,8 @@ val secure : t -> bool
 val http_only : t -> bool
 
 val extensions : t -> string list
+
+val same_site : t -> same_site option
 
 (** {1 Expire a Cookie} *)
 

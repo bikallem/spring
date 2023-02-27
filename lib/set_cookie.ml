@@ -8,13 +8,30 @@ type t =
   ; secure : bool
   ; http_only : bool
   ; extensions : string list
+  ; same_site : same_site option
   }
+
+and same_site = string
 
 type name_value = string * string
 
+let strict = "Strict"
+
+let lax = "Lax"
+
 let make ?expires ?max_age ?domain ?path ?(secure = true) ?(http_only = true)
-    ?(extensions = []) (name, value) =
-  { name; value; expires; max_age; domain; path; secure; http_only; extensions }
+    ?(extensions = []) ?same_site (name, value) =
+  { name
+  ; value
+  ; expires
+  ; max_age
+  ; domain
+  ; path
+  ; secure
+  ; http_only
+  ; extensions
+  ; same_site
+  }
 
 type state =
   { i : string
@@ -118,7 +135,7 @@ let cookie_attributes s =
         accept s (String.length attr_nm);
         let attr_val =
           match attr_nm with
-          | "Expires" | "Max-Age" | "Domain" | "Path" ->
+          | "Expires" | "Max-Age" | "Domain" | "Path" | "SameSite" ->
             eq s;
             av_value s
           | _ -> ""
@@ -153,6 +170,7 @@ let decode v =
     ; secure = false
     ; http_only = false
     ; extensions = []
+    ; same_site = None
     }
   in
   List.fold_left
@@ -176,6 +194,10 @@ let decode v =
       | "Path" ->
         if is_av_octet v then { t with path = Some v }
         else failwith "path: invalid path value"
+      | "SameSite" -> (
+        match v with
+        | "Strict" | "Lax" -> { t with same_site = Some v }
+        | _ -> failwith "same_site: invalid same-site value")
       | "Secure" -> { t with secure = true }
       | "HttpOnly" -> { t with http_only = true }
       | av -> { t with extensions = av :: t.extensions })
@@ -199,6 +221,8 @@ let http_only t = t.http_only
 
 let extensions t = t.extensions
 
+let same_site t = t.same_site
+
 let expire t =
   { t with
     value = ""
@@ -209,6 +233,7 @@ let expire t =
   ; secure = false
   ; http_only = false
   ; extensions = []
+  ; same_site = None
   }
 
 open Easy_format
