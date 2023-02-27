@@ -155,7 +155,7 @@ val t : Set_cookie.t = <abstr>
 
 ```ocaml
 # let t = Set_cookie.decode "SID=31d4d96e407aad42; Path=/; Domain=example.com; Secure; HttpOnly; \
-     Expires=Sun, 06 Nov 1994 08:49:37 GMT; extension1; extension2; extension3" ;;
+     Expires=Sun, 06 Nov 1994 08:49:37 GMT; SameSite=Strict; extension1; extension2; extension3" ;;
 val t : Set_cookie.t = <abstr>
 
 # Eio.traceln "%a" Set_cookie.pp t;;
@@ -165,6 +165,7 @@ val t : Set_cookie.t = <abstr>
 +  Expires:  Sun, 06 Nov 1994 08:49:37 GMT;
 +  Domain:  example.com;
 +  Path:  /;
++  SameSite:  Strict;
 +  Secure;
 +  HttpOnly;
 +  extension1;
