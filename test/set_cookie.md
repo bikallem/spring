@@ -35,8 +35,20 @@ val t : Set_cookie.t = <abstr>
 ## Set_cookie.max_age
 
 ```ocaml
+# let t = Set_cookie.decode "lang=en-US; Max-Age=2"
+val t : Set_cookie.t = <abstr>
+
 # Set_cookie.max_age t;;
 - : int option = Some 2
+
+# let t = Set_cookie.decode "lang=en-US; Max-Age=-1"
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.max_age t;;
+- : int option = Some (-1)
+
+# let t = Set_cookie.decode "lang=en-US; Max-Age=adasdf"
+Exception: Failure "max-age: invalid max-age value".
 ```
 
 ## Set_cookie.domain

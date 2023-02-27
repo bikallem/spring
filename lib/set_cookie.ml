@@ -140,7 +140,10 @@ let decode v =
   let attributes = cookie_attributes s in
   let expires = List.assoc_opt "Expires" attributes |> Option.map Date.decode in
   let max_age =
-    List.assoc_opt "Max-Age" attributes |> Option.map int_of_string
+    List.assoc_opt "Max-Age" attributes
+    |> Option.map (fun v ->
+           try int_of_string v
+           with _ -> failwith "max-age: invalid max-age value")
   in
   let domain =
     let o = List.assoc_opt "Domain" attributes in
