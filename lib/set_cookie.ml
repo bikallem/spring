@@ -202,10 +202,12 @@ let extensions t = t.extensions
 let expire t =
   { t with
     value = ""
-  ; path = None
-  ; domain = None
   ; expires = None
   ; max_age = Some (-1)
+  ; domain = None
+  ; path = None
+  ; secure = false
+  ; http_only = false
   ; extensions = []
   }
 
