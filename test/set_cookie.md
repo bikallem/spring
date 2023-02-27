@@ -80,4 +80,15 @@ val t : Set_cookie.t = <abstr>
 - : unit = ()
 ```
 
+## Set_cookie.path 
 
+```ocaml
+# let t = Set_cookie.decode "d=d; Path=asd\x19fasdf";;
+Exception: Failure "path: invalid path value".
+
+# let t = Set_cookie.decode "d=d; Path=path1";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.path t;;
+- : string option = Some "path1"
+```
