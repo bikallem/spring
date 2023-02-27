@@ -131,11 +131,12 @@ let cookie_attributes s =
               | ';' | '=' -> false
               | _ -> true)
             (String.with_range ~first:s.pos s.i)
+          |> String.Ascii.lowercase
         in
         accept s (String.length attr_nm);
         let attr_val =
           match attr_nm with
-          | "Expires" | "Max-Age" | "Domain" | "Path" | "SameSite" ->
+          | "expires" | "max-age" | "domain" | "path" | "samesite" ->
             eq s;
             av_value s
           | _ -> ""
@@ -176,30 +177,30 @@ let decode v =
   List.fold_left
     (fun t (k, v) ->
       match k with
-      | "Expires" -> (
+      | "expires" -> (
         try
           let v = Date.decode v in
           { t with expires = Some v }
         with e -> failwith @@ "expires: " ^ Printexc.to_string e)
-      | "Max-Age" -> (
+      | "max-age" -> (
         try
           let v = int_of_string v in
           { t with max_age = Some v }
         with _ -> failwith "max-age: invalid max-age value")
-      | "Domain" -> (
+      | "domain" -> (
         match Domain_name.of_string v with
         | Ok d -> { t with domain = Some d }
         | Error _ ->
           failwith @@ "domain: invalid domain attribute value '" ^ v ^ "'")
-      | "Path" ->
+      | "path" ->
         if is_av_octet v then { t with path = Some v }
         else failwith "path: invalid path value"
-      | "SameSite" -> (
+      | "samesite" -> (
         match v with
         | "Strict" | "Lax" -> { t with same_site = Some v }
         | _ -> failwith "same_site: invalid same-site value")
-      | "Secure" -> { t with secure = true }
-      | "HttpOnly" -> { t with http_only = true }
+      | "secure" -> { t with secure = true }
+      | "httponly" -> { t with http_only = true }
       | av -> { t with extensions = av :: t.extensions })
     t attributes
 
