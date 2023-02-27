@@ -9,6 +9,7 @@ module Date = Date
 module Content_type = Content_type
 module Content_disposition = Content_disposition
 module Set_cookie = Set_cookie
+module Cookie = Cookie
 module Header = Header
 
 include module type of Header.H
