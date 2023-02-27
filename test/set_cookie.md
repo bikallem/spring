@@ -39,3 +39,33 @@ val t : Set_cookie.t = <abstr>
 - : int option = Some 2
 ```
 
+## Set_cookie.domain
+
+```ocaml
+# let t = Set_cookie.decode "d=d; Domain=www.example.com";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.domain t |> Option.get |> Eio.traceln "%a" Domain_name.pp ;;
++www.example.com
+- : unit = ()
+
+# let t = Set_cookie.decode "d=d; Domain=example.org";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.domain t |> Option.get |> Eio.traceln "%a" Domain_name.pp ;;
++example.org
+- : unit = ()
+```
+
+Host only. 
+
+```ocaml
+# let t = Set_cookie.decode "d=d; Domain=example-host";;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.domain t |> Option.get |> Eio.traceln "%a" Domain_name.pp ;;
++example-host
+- : unit = ()
+```
+
+
