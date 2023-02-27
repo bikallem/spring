@@ -41,16 +41,18 @@ let eq s =
 
 let cookie_octet s =
   let rec aux b =
-    match String.get s.i s.pos with
-    | ( '\x21'
-      | '\x23' .. '\x2B'
-      | '\x2D' .. '\x3A'
-      | '\x3C' .. '\x5B'
-      | '\x5D' .. '\x7E' ) as c ->
-      accept s 1;
-      Buffer.add_char b c;
-      aux b
-    | _ -> Buffer.contents b
+    if s.pos < String.length s.i then
+      match String.get s.i s.pos with
+      | ( '\x21'
+        | '\x23' .. '\x2B'
+        | '\x2D' .. '\x3A'
+        | '\x3C' .. '\x5B'
+        | '\x5D' .. '\x7E' ) as c ->
+        accept s 1;
+        Buffer.add_char b c;
+        aux b
+      | _ -> Buffer.contents b
+    else Buffer.contents b
   in
   aux (Buffer.create 5)
 
