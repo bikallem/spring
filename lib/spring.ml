@@ -6,6 +6,7 @@ module Transfer_encoding_hdr = Transfer_encoding_hdr
 module Date = Date
 module Content_type = Content_type
 module Content_disposition = Content_disposition
+module Set_cookie = Set_cookie
 module Header = Header
 include Header.H
 
