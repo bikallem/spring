@@ -6,6 +6,10 @@ type t
 
 val decode : string -> t
 
+val encode : t -> string
+
+(** {1 Find Cookies} *)
+
 (** [find t cookie_name] is [Some v] if [cookie_name] exists in [t]. It is
     [None] otherwise. *)
 val find : t -> string -> string option

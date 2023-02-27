@@ -33,4 +33,6 @@ let decode v =
   let cookie = cookie_pair s in
   aux [ cookie ]
 
+let encode t = List.map (fun (k, v) -> k ^ "=" ^ v) t |> String.concat ~sep:"; "
+
 let find t cookie_name = List.assoc_opt cookie_name t
