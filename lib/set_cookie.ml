@@ -95,14 +95,13 @@ let av_value s =
   if len = 0 then failwith "av_value: attribute value missing" else accept s len;
   v
 
-let attributes = [ "Expires" ] |> List.map (fun v -> (v, String.length v))
-
 let space s =
   match String.get s.i s.pos with
   | ' ' -> accept s 1
   | x -> failwith @@ "space: expected ' '(space), got '" ^ Char.escaped x ^ "'"
 
 let cookie_attributes s =
+  let attributes = [ "Expires" ] |> List.map (fun v -> (v, String.length v)) in
   let rec aux () =
     if s.pos < String.length s.i then
       match String.get s.i s.pos with
