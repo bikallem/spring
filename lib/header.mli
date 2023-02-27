@@ -62,6 +62,8 @@ module H : sig
   val user_agent : string header
 
   val date : Ptime.t header
+
+  val cookie : Cookie.t header
 end
 
 include module type of H

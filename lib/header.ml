@@ -58,6 +58,9 @@ module H = struct
   let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 
   let date = { name = "date"; decode = Date.decode; encode = Date.encode }
+
+  let cookie =
+    { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
 end
 
 include H
