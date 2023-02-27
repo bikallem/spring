@@ -5,6 +5,7 @@ type t =
   ; max_age : int option
   ; domain : [ `raw ] Domain_name.t option
   ; path : string option
+  ; secure : bool
   }
 
 type state =
@@ -94,8 +95,12 @@ let space s =
 
 let cookie_attributes s =
   let attributes =
-    [ "Expires"; "Max-Age"; "Domain"; "Path" ]
-    |> List.map (fun v -> (v, String.length v))
+    [ ("Expires", true)
+    ; ("Max-Age", true)
+    ; ("Domain", true)
+    ; ("Path", true)
+    ; ("Secure", false)
+    ]
   in
   let rec aux () =
     if s.pos < String.length s.i then
@@ -105,17 +110,20 @@ let cookie_attributes s =
         space s;
         match
           List.find_opt
-            (fun (av_name, len) ->
-              let v = String.with_range ~first:s.pos ~len:(len + 1) s.i in
-              let av_name = av_name ^ "=" in
+            (fun (av_name, has_attr_val) ->
+              let av_name = if has_attr_val then av_name ^ "=" else av_name in
+              let len = String.length av_name in
+              let v = String.with_range ~first:s.pos ~len s.i in
               String.equal v av_name)
             attributes
         with
-        | Some (av_name, len) ->
-          accept s (len + 1);
-          let av_value = av_value s in
+        | Some (av_name, has_attr_val) ->
+          let len = String.length av_name in
+          let len = if has_attr_val then len + 1 else len in
+          accept s len;
+          let av_value = if has_attr_val then av_value s else "" in
           (av_name, av_value) :: aux ()
-        | None -> failwith "cookie_av: expected cookie-av")
+        | None -> failwith "cookie_av: expected cookie-attribute")
       | _ -> []
     else []
   in
@@ -155,7 +163,12 @@ let decode v =
     |> Option.map (fun v ->
            if is_av_octet v then v else failwith "path: invalid path value")
   in
-  { name; value; expires; max_age; domain; path }
+  let secure =
+    match List.assoc_opt "Secure" attributes with
+    | Some "" -> true
+    | Some _ | None -> false
+  in
+  { name; value; expires; max_age; domain; path; secure }
 
 let name t = t.name
 
@@ -168,3 +181,5 @@ let max_age t = t.max_age
 let domain t = t.domain
 
 let path t = t.path
+
+let secure t = t.secure

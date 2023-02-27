@@ -19,3 +19,5 @@ val max_age : t -> int option
 val domain : t -> [ `raw ] Domain_name.t option
 
 val path : t -> string option
+
+val secure : t -> bool
