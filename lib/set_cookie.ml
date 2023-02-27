@@ -266,6 +266,7 @@ let pp fmt t =
       , let+ v = t.domain in
         Domain_name.to_string v )
     ; ("Path", t.path)
+    ; ("SameSite", t.same_site)
     ; ("Secure", if t.secure then Some "" else None)
     ; ("HttpOnly", if t.http_only then Some "" else None)
     ]
