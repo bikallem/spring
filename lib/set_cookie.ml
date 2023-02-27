@@ -136,37 +136,42 @@ let decode v =
   eq s;
   let value = cookie_value s in
   let attributes = cookie_attributes s in
-  let expires = List.assoc_opt "Expires" attributes |> Option.map Date.decode in
-  let max_age =
-    List.assoc_opt "Max-Age" attributes
-    |> Option.map (fun v ->
-           try int_of_string v
-           with _ -> failwith "max-age: invalid max-age value")
+  let t =
+    { name
+    ; value
+    ; expires = None
+    ; max_age = None
+    ; domain = None
+    ; path = None
+    ; secure = false
+    ; http_only = false
+    }
   in
-  let domain =
-    let o = List.assoc_opt "Domain" attributes in
-    Option.bind o (fun v ->
+  List.fold_left
+    (fun t (k, v) ->
+      match k with
+      | "Expires" -> (
+        try
+          let v = Date.decode v in
+          { t with expires = Some v }
+        with e -> failwith @@ "expires: " ^ Printexc.to_string e)
+      | "Max-Age" -> (
+        try
+          let v = int_of_string v in
+          { t with max_age = Some v }
+        with _ -> failwith "max-age: invalid max-age value")
+      | "Domain" -> (
         match Domain_name.of_string v with
-        | Ok d -> Some d
+        | Ok d -> { t with domain = Some d }
         | Error _ ->
           failwith @@ "domain: invalid domain attribute value '" ^ v ^ "'")
-  in
-  let path =
-    List.assoc_opt "Path" attributes
-    |> Option.map (fun v ->
-           if is_av_octet v then v else failwith "path: invalid path value")
-  in
-  let secure =
-    match List.assoc_opt "Secure" attributes with
-    | Some "" -> true
-    | Some _ | None -> false
-  in
-  let http_only =
-    match List.assoc_opt "HttpOnly" attributes with
-    | Some "" -> true
-    | Some _ | None -> false
-  in
-  { name; value; expires; max_age; domain; path; secure; http_only }
+      | "Path" ->
+        if is_av_octet v then { t with path = Some v }
+        else failwith "path: invalid path value"
+      | "Secure" -> { t with secure = true }
+      | "HttpOnly" -> { t with http_only = true }
+      | _ -> t)
+    t attributes
 
 let name t = t.name
 
