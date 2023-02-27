@@ -7,6 +7,7 @@ type t =
   ; path : string option
   ; secure : bool
   ; http_only : bool
+  ; extensions : string list
   }
 
 type state =
@@ -145,6 +146,7 @@ let decode v =
     ; path = None
     ; secure = false
     ; http_only = false
+    ; extensions = []
     }
   in
   List.fold_left
@@ -170,7 +172,7 @@ let decode v =
         else failwith "path: invalid path value"
       | "Secure" -> { t with secure = true }
       | "HttpOnly" -> { t with http_only = true }
-      | _ -> t)
+      | av -> { t with extensions = av :: t.extensions })
     t attributes
 
 let name t = t.name
@@ -188,3 +190,5 @@ let path t = t.path
 let secure t = t.secure
 
 let http_only t = t.http_only
+
+let extensions t = t.extensions

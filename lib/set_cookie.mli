@@ -23,3 +23,5 @@ val path : t -> string option
 val secure : t -> bool
 
 val http_only : t -> bool
+
+val extensions : t -> string list
