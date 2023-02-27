@@ -6,6 +6,7 @@ type t =
   ; domain : [ `raw ] Domain_name.t option
   ; path : string option
   ; secure : bool
+  ; http_only : bool
   }
 
 type state =
@@ -100,6 +101,7 @@ let cookie_attributes s =
     ; ("Domain", true)
     ; ("Path", true)
     ; ("Secure", false)
+    ; ("HttpOnly", false)
     ]
   in
   let rec aux () =
@@ -168,7 +170,12 @@ let decode v =
     | Some "" -> true
     | Some _ | None -> false
   in
-  { name; value; expires; max_age; domain; path; secure }
+  let http_only =
+    match List.assoc_opt "HttpOnly" attributes with
+    | Some "" -> true
+    | Some _ | None -> false
+  in
+  { name; value; expires; max_age; domain; path; secure; http_only }
 
 let name t = t.name
 
@@ -183,3 +190,5 @@ let domain t = t.domain
 let path t = t.path
 
 let secure t = t.secure
+
+let http_only t = t.http_only
