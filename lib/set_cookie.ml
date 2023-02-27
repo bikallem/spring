@@ -48,7 +48,7 @@ let token s =
 let eq s =
   match String.get s.i s.pos with
   | '=' -> accept s 1
-  | c -> failwith @@ "ch_eq: expected '=', got '" ^ Char.escaped c ^ "'"
+  | c -> failwith @@ "eq: expected '=', got '" ^ Char.escaped c ^ "'"
 
 let cookie_octet s =
   let rec aux b =
@@ -95,37 +95,28 @@ let space s =
   | x -> failwith @@ "space: expected ' '(space), got '" ^ Char.escaped x ^ "'"
 
 let cookie_attributes s =
-  let attributes =
-    [ ("Expires", true)
-    ; ("Max-Age", true)
-    ; ("Domain", true)
-    ; ("Path", true)
-    ; ("Secure", false)
-    ; ("HttpOnly", false)
-    ]
-  in
   let rec aux () =
     if s.pos < String.length s.i then
       match String.get s.i s.pos with
-      | ';' -> (
+      | ';' ->
         accept s 1;
         space s;
-        match
-          List.find_opt
-            (fun (av_name, has_attr_val) ->
-              let av_name = if has_attr_val then av_name ^ "=" else av_name in
-              let len = String.length av_name in
-              let v = String.with_range ~first:s.pos ~len s.i in
-              String.equal v av_name)
-            attributes
-        with
-        | Some (av_name, has_attr_val) ->
-          let len = String.length av_name in
-          let len = if has_attr_val then len + 1 else len in
-          accept s len;
-          let av_value = if has_attr_val then av_value s else "" in
-          (av_name, av_value) :: aux ()
-        | None -> failwith "cookie_av: expected cookie-attribute")
+        let attr_nm =
+          String.take
+            ~sat:(function
+              | ';' | '=' -> false
+              | _ -> true)
+            (String.with_range ~first:s.pos s.i)
+        in
+        accept s (String.length attr_nm);
+        let attr_val =
+          match attr_nm with
+          | "Expires" | "Max-Age" | "Domain" | "Path" ->
+            eq s;
+            av_value s
+          | _ -> ""
+        in
+        (attr_nm, attr_val) :: aux ()
       | _ -> []
     else []
   in
