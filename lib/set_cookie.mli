@@ -45,3 +45,7 @@ val extensions : t -> string list
 
 (** [expire t] configures [t] to be expired/removed by user-agents. *)
 val expire : t -> t
+
+(** {1 Pretty Printing} *)
+
+val pp : Format.formatter -> t -> unit

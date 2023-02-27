@@ -208,3 +208,51 @@ let expire t =
   ; max_age = Some (-1)
   ; extensions = []
   }
+
+open Easy_format
+open Option.Syntax
+
+let field lbl v =
+  let lbl = Atom (lbl ^ ": ", atom) in
+  let v = Atom (v, atom) in
+  Label ((lbl, label), v)
+
+let pp fmt t =
+  let param =
+    { list with
+      stick_to_label = false
+    ; align_closing = true
+    ; space_after_separator = true
+    ; wrap_body = `Force_breaks
+    }
+  in
+  let fields =
+    [ ("Name", Some t.name)
+    ; ("Value", Some t.value)
+    ; ( "Expires"
+      , let+ v = t.expires in
+        Date.encode v )
+    ; ( "Max-Age"
+      , let+ v = t.max_age in
+        string_of_int v )
+    ; ( "Domain"
+      , let+ v = t.domain in
+        Domain_name.to_string v )
+    ; ("Path", t.path)
+    ; ("Secure", if t.secure then Some "" else None)
+    ; ("HttpOnly", if t.http_only then Some "" else None)
+    ]
+  in
+  let fields =
+    List.fold_right
+      (fun (k, v) acc ->
+        match v with
+        | Some "" -> Atom (k, atom) :: acc
+        | Some v -> field k v :: acc
+        | None -> acc)
+      fields []
+  in
+  let fields =
+    fields @ List.map (fun v -> Atom (v, atom)) (List.rev t.extensions)
+  in
+  Easy_format.Pretty.to_formatter fmt @@ List (("{", ";", "}", param), fields)
