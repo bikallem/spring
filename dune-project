@@ -34,6 +34,8 @@
    (>= 1.1.0))
   (astring
    (>= 0.8.5))
+  (domain-name
+   (>= 0.4.0))
   (eio_main
    (and
     (>= 0.8.1)

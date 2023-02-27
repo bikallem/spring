@@ -1,4 +1,4 @@
 (library
  (name spring)
  (public_name spring)
- (libraries eio ptime easy-format uri astring))
+ (libraries eio ptime easy-format uri astring domain-name))
