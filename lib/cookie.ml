@@ -33,3 +33,4 @@ let decode v =
   let cookie = cookie_pair s in
   aux [ cookie ]
 
+let find t cookie_name = List.assoc_opt cookie_name t

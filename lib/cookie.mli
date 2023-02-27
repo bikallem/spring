@@ -2,6 +2,8 @@
     https://datatracker.ietf.org/doc/html/rfc6265#section-4.2 *)
 
 (** [t] represents a HTTP cookie. *)
-type t = (string * string) list
+type t
 
 val decode : string -> t
+
+val find : t -> string -> string option
