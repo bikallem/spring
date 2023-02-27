@@ -189,3 +189,21 @@ val t : Set_cookie.t = <abstr>
 +}
 - : unit = ()
 ```
+
+## Set_cookie.same_site
+
+```ocaml
+# let t = Set_cookie.decode "SID=31d4d96e407aad42; Path=/; Domain=example.com; Secure; HttpOnly; \
+     Expires=Sun, 06 Nov 1994 08:49:37 GMT; SameSite=Strict; extension1; extension2; extension3" ;;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.same_site t;;
+- : Set_cookie.same_site option = Some "Strict"
+
+# let t = Set_cookie.decode "SID=31d4d96e407aad42; Path=/; Domain=example.com; Secure; HttpOnly; \
+     Expires=Sun, 06 Nov 1994 08:49:37 GMT; SameSite=Lax; extension1; extension2; extension3" ;;
+val t : Set_cookie.t = <abstr>
+
+# Set_cookie.same_site t;;
+- : Set_cookie.same_site option = Some "Lax"
+```
