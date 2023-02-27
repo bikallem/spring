@@ -4,6 +4,7 @@ type t =
   ; expires : Ptime.t option
   ; max_age : int option
   ; domain : [ `raw ] Domain_name.t option
+  ; path : string option
   }
 
 type state =
@@ -12,17 +13,6 @@ type state =
   }
 
 let accept s n = s.pos <- s.pos + n
-
-let _av_octet s =
-  let rec aux b =
-    match String.get s.i s.pos with
-    | ';' | '\x00' .. '\x1F' | '\x7F' -> Buffer.contents b
-    | c ->
-      accept s 1;
-      Buffer.add_char b c;
-      aux b
-  in
-  aux (Buffer.create 5)
 
 let token s =
   let rec aux b =
@@ -104,7 +94,7 @@ let space s =
 
 let cookie_attributes s =
   let attributes =
-    [ "Expires"; "Max-Age"; "Domain" ]
+    [ "Expires"; "Max-Age"; "Domain"; "Path" ]
     |> List.map (fun v -> (v, String.length v))
   in
   let rec aux () =
@@ -131,6 +121,13 @@ let cookie_attributes s =
   in
   aux ()
 
+let is_av_octet v =
+  String.for_all
+    (function
+      | '\x20' .. '\x3A' | '\x3C' .. '\x7E' -> true
+      | _ -> false)
+    v
+
 (* eg . Set-Cookie: lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT *)
 let decode v =
   let s = { i = v; pos = 0 } in
@@ -153,7 +150,12 @@ let decode v =
         | Error _ ->
           failwith @@ "domain: invalid domain attribute value '" ^ v ^ "'")
   in
-  { name; value; expires; max_age; domain }
+  let path =
+    List.assoc_opt "Path" attributes
+    |> Option.map (fun v ->
+           if is_av_octet v then v else failwith "path: invalid path value")
+  in
+  { name; value; expires; max_age; domain; path }
 
 let name t = t.name
 
@@ -164,3 +166,5 @@ let expires t = t.expires
 let max_age t = t.max_age
 
 let domain t = t.domain
+
+let path t = t.path
