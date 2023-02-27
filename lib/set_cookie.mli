@@ -4,6 +4,21 @@
 (** [t] represents a HTTP cookie. *)
 type t
 
+(** {1 Create} *)
+
+type name_value = string * string
+
+val make :
+     ?expires:Ptime.t
+  -> ?max_age:int
+  -> ?domain:[ `raw ] Domain_name.t
+  -> ?path:string
+  -> ?secure:bool
+  -> ?http_only:bool
+  -> ?extensions:string list
+  -> name_value
+  -> t
+
 val decode : string -> t
 
 (** {1 Cookie Attributes} *)

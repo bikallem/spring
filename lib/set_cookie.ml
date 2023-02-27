@@ -10,6 +10,12 @@ type t =
   ; extensions : string list
   }
 
+type name_value = string * string
+
+let make ?expires ?max_age ?domain ?path ?(secure = true) ?(http_only = true)
+    ?(extensions = []) (name, value) =
+  { name; value; expires; max_age; domain; path; secure; http_only; extensions }
+
 type state =
   { i : string
   ; mutable pos : int
