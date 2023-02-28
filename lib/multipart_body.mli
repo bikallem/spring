@@ -24,7 +24,7 @@ val flow : part -> Eio.Flow.source
     {!class:Body.readable}. *)
 type reader
 
-(** [make body] is {!type:t} initialized from body [body].
+(** [reader body] is {!type:t} initialized from body [body].
 
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
