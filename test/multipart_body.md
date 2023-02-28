@@ -34,7 +34,7 @@ val rdr : Multipart_body.reader = <abstr>
 
 ```ocaml
 # let p = Multipart_body.next_part rdr;;
-val p : Multipart_body.part = <abstr>
+val p : Multipart_body.reader Multipart_body.part = <abstr>
 
 # Multipart_body.file_name p ;;
 - : string option = None
@@ -48,7 +48,7 @@ val p : Multipart_body.part = <abstr>
 +}
 - : unit = ()
 
-# let flow = Multipart_body.flow p;;
+# let flow = Multipart_body.reader_flow p;;
 val flow : Eio.Flow.source = <obj>
 
 # let r = Eio.Buf_read.of_flow ~max_size:max_int flow ;;
@@ -61,7 +61,7 @@ val r : Eio.Buf_read.t = <abstr>
 Exception: End_of_file.
 
 # let p2 = Multipart_body.next_part rdr;;
-val p2 : Multipart_body.part = <abstr>
+val p2 : Multipart_body.reader Multipart_body.part = <abstr>
 
 # Multipart_body.file_name p2;;
 - : string option = Some "file1.txt"
@@ -69,7 +69,7 @@ val p2 : Multipart_body.part = <abstr>
 # Multipart_body.form_name p2;;
 - : string option = Some "files"
 
-# let flow2 = Multipart_body.flow p2;;
+# let flow2 = Multipart_body.reader_flow p2;;
 val flow2 : Eio.Flow.source = <obj>
 
 # let r = Eio.Buf_read.of_flow ~max_size:max_int flow2;;
