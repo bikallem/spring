@@ -19,7 +19,7 @@ let none = new none
 let content_writer ~content ~content_type =
   let content_length = String.length content in
   object
-    method write_body w = Buf_write.string w content
+    method write_body w = Eio.Buf_write.string w content
 
     method write_header f =
       f ~name:"Content-Length" ~value:(string_of_int content_length);
