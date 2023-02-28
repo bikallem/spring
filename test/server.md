@@ -281,31 +281,31 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
       Server.shutdown server
     );;
 +HTTP/1.1 400 Bad Request
-+date: Thu, 17 Jun 2021 14:39:38 GMT
-+content-length: 0
++Date: Thu, 17 Jun 2021 14:39:38 GMT
++Content-Length: 0
 +
 +
 +HTTP/1.1 400 Bad Request
-+date: Thu, 17 Jun 2021 14:39:38 GMT
-+content-length: 0
++Date: Thu, 17 Jun 2021 14:39:38 GMT
++Content-Length: 0
 +
 +
 +HTTP/1.1 200 OK
 +Content-Length: 4
 +Content-Type: text/plain; charset=UTF-8
-+date: Thu, 17 Jun 2021 14:39:38 GMT
++Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
 +HTTP/1.1 200 OK
 +Content-Length: 4
 +Content-Type: text/plain; charset=UTF-8
-+date: Thu, 17 Jun 2021 14:39:38 GMT
++Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
 +HTTP/1.1 200 OK
 +Content-Length: 4
 +Content-Type: text/plain; charset=UTF-8
-+date: Thu, 17 Jun 2021 14:39:38 GMT
++Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
 - : unit = ()
