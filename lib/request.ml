@@ -156,7 +156,8 @@ let post_form_values form_values url =
   let body = Body.form_values_writer form_values in
   post body url
 
-let write_header w ~name ~value = Buf_write.write_header w name value
+let write_header w ~name ~value =
+  Header.write_header (Buf_write.string w) name value
 
 let write (t : #client_request) w =
   let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
@@ -174,9 +175,10 @@ let write (t : #client_request) w =
   Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
   let host = host_port_to_string (t#host, t#port) in
-  Buf_write.write_header w "host" host;
+  let writer = Buf_write.string w in
+  Header.write_header writer "host" host;
   t#write_header (write_header w);
-  Buf_write.write_headers w headers;
+  Header.write headers writer;
   Buf_write.string w "\r\n";
   t#write_body w
 
