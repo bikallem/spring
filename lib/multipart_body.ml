@@ -163,8 +163,8 @@ let writable boundary parts =
       f ~name:"Content-Type" ~value:content_type
 
     method write_body w =
-      Buf_write.string w (Buffer.contents b);
-      Buf_write.string w "\r\n--";
-      Buf_write.string w boundary;
-      Buf_write.string w "--\r\n"
+      Eio.Buf_write.string w (Buffer.contents b);
+      Eio.Buf_write.string w "\r\n--";
+      Eio.Buf_write.string w boundary;
+      Eio.Buf_write.string w "--\r\n"
   end
