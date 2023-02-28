@@ -115,15 +115,15 @@ val p2 : Eio.Flow.source Multipart_body.part = <abstr>
 val w : Body.writable = <obj>
 
 # test_writer w;;
-+Content-Length: 172
++Content-Length: 178
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +
 +----A1B2C3
-+Content-Disposition: form-data; filename=a.txt; name=file
++Content-Disposition: form-data; filename="a.txt"; name="file"
 +
 +content of a.txt
 +----A1B2C3
-+Content-Disposition: form-data; name=detail
++Content-Disposition: form-data; name="detail"
 +
 +file is a text file.
 +----A1B2C3--
@@ -141,11 +141,11 @@ val p1 : Eio.Flow.source Multipart_body.part = <abstr>
 val w : Body.writable = <obj>
 
 # test_writer w;;
-+Content-Length: 91
++Content-Length: 95
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +
 +----A1B2C3
-+Content-Disposition: form-data; filename=a.txt; name=file
++Content-Disposition: form-data; filename="a.txt"; name="file"
 +
 +content of a.txt
 +----A1B2C3--

@@ -21,8 +21,9 @@ let encode t =
     (fun name value ->
       Buffer.add_string buf "; ";
       Buffer.add_string buf name;
-      Buffer.add_string buf "=";
-      Buffer.add_string buf value)
+      Buffer.add_string buf "=\"";
+      Buffer.add_string buf value;
+      Buffer.add_string buf "\"")
     t.parameters;
   Buffer.contents buf
 
