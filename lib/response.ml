@@ -90,18 +90,18 @@ let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   |> server_response
 
 let write_header w ~name ~value =
-  Header.write_header (Buf_write.string w) name value
+  Header.write_header (Eio.Buf_write.string w) name value
 
 let write (t : #server_response) w =
   let version = Version.to_string t#version in
   let status = Status.to_string t#status in
-  Buf_write.string w version;
-  Buf_write.char w ' ';
-  Buf_write.string w status;
-  Buf_write.string w "\r\n";
+  Eio.Buf_write.string w version;
+  Eio.Buf_write.char w ' ';
+  Eio.Buf_write.string w status;
+  Eio.Buf_write.string w "\r\n";
   t#write_header (write_header w);
-  Header.write t#headers (Buf_write.string w);
-  Buf_write.string w "\r\n";
+  Header.write t#headers (Eio.Buf_write.string w);
+  Eio.Buf_write.string w "\r\n";
   t#write_body w
 
 let text content =
