@@ -9,31 +9,31 @@ let body content_type_hdr txt = object
 end ;;
 ```
 
-## Multipart_body.make
+## Multipart_body.reader
 
 ```ocaml
 # let body_txt1 ="--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--\r\n";;
 val body_txt1 : string =
   "--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--\r\n"
 
-# let t = Multipart_body.make (body "multipart/form-data" body_txt1);;
+# let rdr = Multipart_body.reader (body "multipart/form-data" body_txt1);;
 Exception: Invalid_argument "body: boundary value not found".
 
-# let t = Multipart_body.make (body "multipart/form-data; boundary=AaB03x" body_txt1);;
-val t : Multipart_body.t = <abstr>
+# let rdr = Multipart_body.reader (body "multipart/form-data; boundary=AaB03x" body_txt1);;
+val rdr : Multipart_body.reader = <abstr>
 ```
 
 ## Multipart_body.boundary
 
 ```ocaml
-# Multipart_body.boundary t;; 
+# Multipart_body.boundary rdr;; 
 - : string = "AaB03x"
 ```
 
 ## Multipart_body.next_part
 
 ```ocaml
-# let p = Multipart_body.next_part t;;
+# let p = Multipart_body.next_part rdr;;
 val p : Multipart_body.part = <abstr>
 
 # Multipart_body.file_name p ;;
@@ -60,7 +60,7 @@ val r : Eio.Buf_read.t = <abstr>
 # Eio.Flow.single_read flow (Cstruct.create 10) ;;
 Exception: End_of_file.
 
-# let p2 = Multipart_body.next_part t;;
+# let p2 = Multipart_body.next_part rdr;;
 val p2 : Multipart_body.part = <abstr>
 
 # Multipart_body.file_name p2;;
@@ -81,7 +81,7 @@ val r : Eio.Buf_read.t = <abstr>
 # Eio.Flow.single_read flow2 (Cstruct.create 10) ;;
 Exception: End_of_file.
 
-# Multipart_body.next_part t;;
+# Multipart_body.next_part rdr;;
 Exception: End_of_file.
 ```
 
