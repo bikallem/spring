@@ -35,9 +35,9 @@ val r : Request.client_request = <obj>
 # test_client r ;;
 +get /products HTTP/1.1
 +host: www.example.com
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
 +
 +
 - : unit = ()
@@ -45,9 +45,9 @@ val r : Request.client_request = <obj>
 # test_client @@ Request.get "www.example.com" ;;
 +get / HTTP/1.1
 +host: www.example.com
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
 +
 +
 - : unit = ()
@@ -59,9 +59,9 @@ val r : Request.client_request = <obj>
 # test_client @@ Request.head "www.example.com" ;;
 +head / HTTP/1.1
 +host: www.example.com
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
 +
 +
 - : unit = ()
@@ -76,9 +76,9 @@ val r : Request.client_request = <obj>
 +host: www.example.com
 +Content-Length: 12
 +Content-Type: text/plain
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
 +
 +Hello World!
 - : unit = ()
@@ -93,9 +93,9 @@ val r : Request.client_request = <obj>
 +host: www.example.com
 +Content-Length: 30
 +Content-Type: application/x-www-form-urlencoded
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
 +
 +field1=val%201&field2=v2,v3,v4
 - : unit = ()
@@ -115,11 +115,11 @@ val r : Request.client_request = <obj>
     Body.none ;;
 +get /update HTTP/1.1
 +host: www.example.com:8080
-+connection: TE
-+te: trailers
-+user-agent: cohttp-eio
-+header1: val 1
-+header2: val 2
++Connection: TE
++Te: trailers
++User-Agent: cohttp-eio
++Header1: val 1
++Header2: val 2
 +
 +
 - : unit = ()
