@@ -174,3 +174,27 @@ val cookies : Cookie.t = <abstr>
 # Cookie.find cookies "lang";;
 - : string option = Some "en"
 ```
+
+## Header.write
+
+```ocaml
+# let l : (string * string) list =
+  [("Content-Type", "text/html"); ("Age", "40");
+   ("Transfer-Encoding", "chunked"); ("Content-Length", "2000")];;
+val l : (string * string) list =
+  [("Content-Type", "text/html"); ("Age", "40");
+   ("Transfer-Encoding", "chunked"); ("Content-Length", "2000")]
+
+# let headers = Header.of_list l ;;
+val headers : Header.t = <abstr>
+
+# let b = Buffer.create 10;;
+val b : Buffer.t = <abstr>
+
+# Header.write headers (Buffer.add_string b) ;;
+- : unit = ()
+
+# Buffer.contents b;;
+- : string =
+"Content-Type: text/html\r\nAge: 40\r\nTransfer-Encoding: chunked\r\nContent-Length: 2000\r\n"
+```
