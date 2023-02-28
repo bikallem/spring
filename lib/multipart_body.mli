@@ -29,7 +29,7 @@ type reader
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
       header. *)
-val make : #Body.readable -> reader
+val reader : #Body.readable -> reader
 
 (** [boundary t] is the MIME boundary value as specified in
     https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)

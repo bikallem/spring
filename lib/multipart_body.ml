@@ -10,7 +10,7 @@ type reader =
 
 open Option.Syntax
 
-let make (body : #Body.readable) =
+let reader (body : #Body.readable) =
   let body = (body :> Body.readable) in
   let boundary =
     match
