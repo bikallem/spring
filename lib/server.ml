@@ -81,7 +81,7 @@ let rec handle_request clock client_addr reader writer flow handler =
 
 let connection_handler handler clock flow client_addr =
   let reader = Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int flow in
-  Buf_write.with_flow flow (fun writer ->
+  Eio.Buf_write.with_flow flow (fun writer ->
       handle_request clock client_addr reader writer flow handler)
 
 let run socket t =
