@@ -57,9 +57,9 @@ val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 +6
 +Again!
 +0
-+expires: Wed, 21 Oct 2015 07:28:00 GMT
-+header1: Header1 value text
-+header2: Header2 value text
++Expires: Wed, 21 Oct 2015 07:28:00 GMT
++Header1: Header1 value text
++Header2: Header2 value text
 +
 +
 - : unit = ()
