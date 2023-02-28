@@ -224,7 +224,8 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
           Buf_write.string writer "\r\n"
       in
       write_chunk write_body;
-      if ua_supports_trailer then write_trailer (Buf_write.write_headers writer);
+      if ua_supports_trailer then
+        write_trailer (fun h -> Header.write h (Buf_write.string writer));
       Buf_write.string writer "\r\n"
   end
 
