@@ -89,7 +89,8 @@ let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked_body.writable ~ua_supports_trailer write_chunk write_trailer
   |> server_response
 
-let write_header w ~name ~value = Buf_write.write_header w name value
+let write_header w ~name ~value =
+  Header.write_header (Buf_write.string w) name value
 
 let write (t : #server_response) w =
   let version = Version.to_string t#version in
@@ -99,7 +100,7 @@ let write (t : #server_response) w =
   Buf_write.string w status;
   Buf_write.string w "\r\n";
   t#write_header (write_header w);
-  Buf_write.write_headers w t#headers;
+  Header.write t#headers (Buf_write.string w);
   Buf_write.string w "\r\n";
   t#write_body w
 

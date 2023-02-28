@@ -91,7 +91,7 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.not_found ;;
 +HTTP/1.1 404 Not Found
-+content-length: 0
++Content-Length: 0
 +
 +
 - : unit = ()
@@ -102,7 +102,7 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.internal_server_error ;;
 +HTTP/1.1 500 Internal Server Error
-+content-length: 0
++Content-Length: 0
 +
 +
 - : unit = ()
@@ -113,7 +113,7 @@ let test_server_response r =
 ```ocaml
 # test_server_response @@ Response.bad_request ;;
 +HTTP/1.1 400 Bad Request
-+content-length: 0
++Content-Length: 0
 +
 +
 - : unit = ()
@@ -156,9 +156,9 @@ Writes chunked response trailer headers.
 +6
 +Again!
 +0
-+expires: Wed, 21 Oct 2015 07:28:00 GMT
-+header1: Header1 value text
-+header2: Header2 value text
++Expires: Wed, 21 Oct 2015 07:28:00 GMT
++Header1: Header1 value text
++Header2: Header2 value text
 +
 +
 - : unit = ()
