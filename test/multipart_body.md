@@ -85,3 +85,70 @@ Exception: End_of_file.
 Exception: End_of_file.
 ```
 
+## Multipart_body.writable
+
+A `Buffer.t` sink to test `Body.writer`.
+
+```ocaml
+let test_writer w =
+  Eio_main.run @@ fun env ->
+  let b = Buffer.create 10 in
+  let s = Eio.Flow.buffer_sink b in
+  let f ~name ~value = Buffer.add_string b (name ^ ": " ^ value ^ "\n") in
+  Eio.Buf_write.with_flow s (fun bw ->
+    w#write_header f;
+    w#write_body bw;
+  );
+  Eio.traceln "%s" (Buffer.contents b);;
+```
+
+Writable with 2 parts.
+
+```ocaml
+# let p1 = Multipart_body.make_part ~filename:"a.txt" (Eio.Flow.string_source "content of a.txt") "file";;
+val p1 : Eio.Flow.source Multipart_body.part = <abstr>
+
+# let p2 = Multipart_body.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
+val p2 : Eio.Flow.source Multipart_body.part = <abstr>
+
+# let w = Multipart_body.writable "--A1B2C3" [p1;p2];;
+val w : Body.writable = <obj>
+
+# test_writer w;;
++Content-Length: 172
++Content-Type: multipart/formdata; boundary=--A1B2C3
++
++----A1B2C3
++Content-Disposition: form-data; filename=a.txt; name=file
++
++content of a.txt
++----A1B2C3
++Content-Disposition: form-data; name=detail
++
++file is a text file.
++----A1B2C3--
++
+- : unit = ()
+```
+
+Writable with only one part. 
+
+```ocaml
+# let p1 = Multipart_body.make_part ~filename:"a.txt" (Eio.Flow.string_source "content of a.txt") "file";;
+val p1 : Eio.Flow.source Multipart_body.part = <abstr>
+
+# let w = Multipart_body.writable "--A1B2C3" [p1];;
+val w : Body.writable = <obj>
+
+# test_writer w;;
++Content-Length: 91
++Content-Type: multipart/formdata; boundary=--A1B2C3
++
++----A1B2C3
++Content-Disposition: form-data; filename=a.txt; name=file
++
++content of a.txt
++----A1B2C3--
++
+- : unit = ()
+```
