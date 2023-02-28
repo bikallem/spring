@@ -99,7 +99,7 @@ let do_call t req =
   in
   let k = (host, service) in
   let conn = connection t k in
-  Buf_write.with_flow ~initial_size:t.write_initial_size conn (fun writer ->
+  Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn (fun writer ->
       Request.write req writer;
       let initial_size = t.read_initial_size in
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
@@ -140,7 +140,7 @@ let post_form_values t assoc_values url =
 
 let call ~conn req =
   let initial_size = 0x1000 in
-  Buf_write.with_flow ~initial_size conn @@ fun writer ->
+  Eio.Buf_write.with_flow ~initial_size conn @@ fun writer ->
   Request.write req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
   let version, headers, status = Response.parse buf_read in
