@@ -4,19 +4,16 @@
 (** {1 Part} *)
 
 (** [part] is a single part of a multipart request/response body. *)
-type part
+type 'a part
 
 (** [file_name p] is the file name of part [p]. *)
-val file_name : part -> string option
+val file_name : 'a part -> string option
 
 (** [form_name p] is the form name of part [p]. *)
-val form_name : part -> string option
+val form_name : 'a part -> string option
 
 (** [headers p] is headers associated with part [p]. *)
-val headers : part -> Header.t
-
-(** [flow p] is the part [p] body {!class:Eio.Flow.source}. *)
-val flow : part -> Eio.Flow.source
+val headers : 'a part -> Header.t
 
 (** {1 Reader} *)
 
@@ -40,4 +37,7 @@ val boundary : reader -> string
 
     @raise End_of_file if there are not more parts to be read from [t].
     @raise Failure if [t] contains invalid multipart [part] data. *)
-val next_part : reader -> part
+val next_part : reader -> reader part
+
+(** [reader_flow p] is the part [p] body {!class:Eio.Flow.source}. *)
+val reader_flow : reader part -> Eio.Flow.source

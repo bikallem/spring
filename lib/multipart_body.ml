@@ -36,8 +36,8 @@ let boundary t = t.boundary
 
 (* Part *)
 
-type part =
-  { t : reader
+type 'a part =
+  { t : 'a
   ; form_name : string option
   ; filename : string option
   ; headers : Header.t
@@ -73,7 +73,7 @@ let read_line t =
     ln)
   else Buf_read.line t.r
 
-let read_into (p : part) dst =
+let read_into (p : reader part) dst =
   let write_data data =
     let data_len = String.length data in
     let n = min (Cstruct.length dst) data_len in
@@ -98,7 +98,7 @@ let read_into (p : part) dst =
     else write_data ln
 
 (* part body flow *)
-let part_flow (p : part) : Eio.Flow.source =
+let reader_flow (p : reader part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
 
@@ -128,5 +128,3 @@ let file_name p = p.filename
 let form_name p = p.form_name
 
 let headers p = p.headers
-
-let flow p = (part_flow p :> Eio.Flow.source)
