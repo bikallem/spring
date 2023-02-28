@@ -157,7 +157,7 @@ let post_form_values form_values url =
   post body url
 
 let write_header w ~name ~value =
-  Header.write_header (Buf_write.string w) name value
+  Header.write_header (Eio.Buf_write.string w) name value
 
 let write (t : #client_request) w =
   let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
@@ -167,19 +167,19 @@ let write (t : #client_request) w =
   let headers = Header.clean_dup headers in
   let meth = (Method.to_string t#meth :> string) in
   let version = Version.to_string t#version in
-  Buf_write.string w meth;
-  Buf_write.char w ' ';
-  Buf_write.string w t#resource;
-  Buf_write.char w ' ';
-  Buf_write.string w version;
-  Buf_write.string w "\r\n";
+  Eio.Buf_write.string w meth;
+  Eio.Buf_write.char w ' ';
+  Eio.Buf_write.string w t#resource;
+  Eio.Buf_write.char w ' ';
+  Eio.Buf_write.string w version;
+  Eio.Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
   let host = host_port_to_string (t#host, t#port) in
-  let writer = Buf_write.string w in
+  let writer = Eio.Buf_write.string w in
   Header.write_header writer "host" host;
   t#write_header (write_header w);
   Header.write headers writer;
-  Buf_write.string w "\r\n";
+  Eio.Buf_write.string w "\r\n";
   t#write_body w
 
 class virtual server_request =
