@@ -127,3 +127,12 @@ val pp : Format.formatter -> t -> unit
 (** {1 Parse} *)
 
 val parse : Eio.Buf_read.t -> t
+
+(** {1 Write Header} *)
+
+(** [write_header f name value] writes header [name] and [value] using writer
+    [f]. *)
+val write_header : (string -> unit) -> string -> string -> unit
+
+(** [write t f] writes headers [t] using writer [f]. *)
+val write : t -> (string -> unit) -> unit

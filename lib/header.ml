@@ -212,3 +212,13 @@ let parse r =
       h :: aux ()
   in
   aux ()
+
+let write_header f k v =
+  f k;
+  f ": ";
+  f v;
+  f "\r\n"
+
+let write t f =
+  let t = clean_dup t in
+  iter (fun k v -> write_header f (canonical_name k) v) t
