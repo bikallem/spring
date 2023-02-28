@@ -207,26 +207,26 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
               | None -> ""
               | Some v -> Printf.sprintf "=%s" v
             in
-            Buf_write.string writer (Printf.sprintf ";%s%s" name v))
+            Eio.Buf_write.string writer (Printf.sprintf ";%s%s" name v))
           exts
       in
       let write_body = function
         | Chunk { data; extensions = exts } ->
           let size = String.length data in
-          Buf_write.string writer (Printf.sprintf "%X" size);
+          Eio.Buf_write.string writer (Printf.sprintf "%X" size);
           write_extensions exts;
-          Buf_write.string writer "\r\n";
-          Buf_write.string writer data;
-          Buf_write.string writer "\r\n"
+          Eio.Buf_write.string writer "\r\n";
+          Eio.Buf_write.string writer data;
+          Eio.Buf_write.string writer "\r\n"
         | Last_chunk exts ->
-          Buf_write.string writer "0";
+          Eio.Buf_write.string writer "0";
           write_extensions exts;
-          Buf_write.string writer "\r\n"
+          Eio.Buf_write.string writer "\r\n"
       in
       write_chunk write_body;
       if ua_supports_trailer then
-        write_trailer (fun h -> Header.write h (Buf_write.string writer));
-      Buf_write.string writer "\r\n"
+        write_trailer (fun h -> Header.write h (Eio.Buf_write.string writer));
+      Eio.Buf_write.string writer "\r\n"
   end
 
 let read_chunked f (t : #Body.readable) =
