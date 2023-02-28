@@ -1,32 +1,10 @@
 (** [Multipart] implements HTTP MIME multipart parsing as defined in
     {{:https://tools.ietf.org/html/rfc7578} RFC 7578}. *)
 
-(** [t] represents HTTP multipart request/response body initialized from a
-    {!class:Body.readable}. *)
-type t
-
-(** [make body] is {!type:t} initialized from body [body].
-
-    @raise Invalid_argument
-      if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
-      header. *)
-val make : #Body.readable -> t
-
-(** [boundary t] is the MIME boundary value as specified in
-    https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
-val boundary : t -> string
-
-(** {2 Part} *)
+(** {1 Part} *)
 
 (** [part] is a single part of a multipart request/response body. *)
 type part
-
-(** [next_part t] returns the next multipart [part] that is ready to be
-    consumed.
-
-    @raise End_of_file if there are not more parts to be read from [t].
-    @raise Failure if [t] contains invalid multipart [part] data. *)
-val next_part : t -> part
 
 (** [file_name p] is the file name of part [p]. *)
 val file_name : part -> string option
@@ -39,3 +17,27 @@ val headers : part -> Header.t
 
 (** [flow p] is the part [p] body {!class:Eio.Flow.source}. *)
 val flow : part -> Eio.Flow.source
+
+(** {1 Reader} *)
+
+(** [reader] represents HTTP multipart request/response body initialized from a
+    {!class:Body.readable}. *)
+type reader
+
+(** [make body] is {!type:t} initialized from body [body].
+
+    @raise Invalid_argument
+      if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
+      header. *)
+val make : #Body.readable -> reader
+
+(** [boundary t] is the MIME boundary value as specified in
+    https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
+val boundary : reader -> string
+
+(** [next_part t] returns the next multipart [part] that is ready to be
+    consumed.
+
+    @raise End_of_file if there are not more parts to be read from [t].
+    @raise Failure if [t] contains invalid multipart [part] data. *)
+val next_part : reader -> part

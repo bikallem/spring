@@ -1,4 +1,4 @@
-type t =
+type reader =
   { r : Buf_read.t
   ; boundary : string
   ; dash_boundary : string
@@ -37,7 +37,7 @@ let boundary t = t.boundary
 (* Part *)
 
 type part =
-  { t : t
+  { t : reader
   ; form_name : string option
   ; filename : string option
   ; headers : Header.t
@@ -105,7 +105,7 @@ let part_flow (p : part) : Eio.Flow.source =
     method read_into = read_into p
   end
 
-let next_part (t : t) =
+let next_part (t : reader) =
   let ln = read_line t in
   if not (is_boundary_delimiter t.dash_boundary ln) then
     failwith @@ "mulitpart: expecting a new part; got line \"" ^ ln ^ "\""
