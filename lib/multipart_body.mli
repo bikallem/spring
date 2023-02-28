@@ -15,7 +15,7 @@ val form_name : 'a part -> string option
 (** [headers p] is headers associated with part [p]. *)
 val headers : 'a part -> Header.t
 
-(** {1 Reader} *)
+(** {1 Reading Multipart Body} *)
 
 (** [reader] represents HTTP multipart request/response body initialized from a
     {!class:Body.readable}. *)
@@ -41,3 +41,21 @@ val next_part : reader -> reader part
 
 (** [reader_flow p] is the part [p] body {!class:Eio.Flow.source}. *)
 val reader_flow : reader part -> Eio.Flow.source
+
+(** {1 Writing Multipart Body} *)
+
+(** [make_part ~file_name ~headers part_body form_name] creates a mulitpart
+    [part] that can be written to a {!class:Body.writable}.
+
+    @param filename is the part [filename] attribute.
+    @param headers is HTTP headers for [part] *)
+val make_part :
+     ?filename:string
+  -> ?headers:Header.t
+  -> (#Eio.Flow.source as 'a)
+  -> string
+  -> 'a part
+
+(** [writeable boundary parts] creates a multipart request/response
+    {!class:Body.writable} body. *)
+val writable : string -> #Eio.Flow.source part list -> Body.writable
