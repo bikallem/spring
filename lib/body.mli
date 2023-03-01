@@ -7,7 +7,8 @@ class virtual writable :
   object
     method virtual write_body : Eio.Buf_write.t -> unit
 
-    method virtual write_header : (name:string -> value:string -> unit) -> unit
+    method virtual write_header :
+      < f : 'a. 'a Header.header -> 'a -> unit > -> unit
   end
 
 (** {2 none} *)
@@ -26,9 +27,10 @@ val none : none
 
 (** {2 Content Writer} *)
 
-(** [content_writer ~content ~content_type] is
-    [new content_writer ~content ~content_type]. *)
-val content_writer : content:string -> content_type:string -> writable
+(** [content_writer content_type content] creates a {!class:writable}
+    request/response body whose content is [content] and content type is
+    [content_type]. *)
+val content_writer : Content_type.t -> string -> writable
 
 (** [form_values_writer key_values] is a {!class:writer} which writes an
     associated list [key_values] as body and adds HTTP header [Content-Length]

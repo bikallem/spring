@@ -2,7 +2,8 @@ class virtual writable =
   object
     method virtual write_body : Eio.Buf_write.t -> unit
 
-    method virtual write_header : (name:string -> value:string -> unit) -> unit
+    method virtual write_header
+        : < f : 'a. 'a Header.header -> 'a -> unit > -> unit
   end
 
 class none =
@@ -16,19 +17,22 @@ class none =
 
 let none = new none
 
-let content_writer ~content ~content_type =
+let content_writer content_type content =
   let content_length = String.length content in
   object
     method write_body w = Eio.Buf_write.string w content
 
-    method write_header f =
-      f ~name:"Content-Length" ~value:(string_of_int content_length);
-      f ~name:"Content-Type" ~value:content_type
+    method write_header (f : < f : 'a. 'a Header.header -> 'a -> unit >) =
+      f#f Header.content_length content_length;
+      f#f Header.content_type content_type
   end
 
 let form_values_writer assoc_list =
   let content = Uri.encoded_of_query assoc_list in
-  content_writer ~content ~content_type:"application/x-www-form-urlencoded"
+  let content_type =
+    Content_type.make ("application", "x-www-form-urlencoded")
+  in
+  content_writer content_type content
 
 class virtual readable =
   object
