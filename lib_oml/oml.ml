@@ -146,7 +146,7 @@ let rec p_skip_ws (i : #input) =
   | '\t' | ' ' | '\n' | '\r' -> p_skip_ws i
   | _ -> ()
 
-let tag i =
+let p_tag i =
   let rec aux () =
     match i#next_char with
     | c when is_alpha_num c ->
@@ -170,5 +170,5 @@ let tag i =
 let start_tag (i : #input) =
   p_skip_ws i;
   match i#c with
-  | '<' -> tag i
+  | '<' -> p_tag i
   | _ -> err "start_tag" "start tag must start with '<'" i
