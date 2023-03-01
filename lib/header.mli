@@ -56,7 +56,7 @@ val content_length : int header
     https://httpwg.org/specs/rfc9110.html#field.content-type *)
 val content_type : Content_type.t header
 
-(** [content_disposition] is the [Content-Disposition] header as defined in in
+(** [content_disposition] is the [Content-Disposition] header as defined in
     https://httpwg.org/specs/rfc6266.html#top *)
 val content_disposition : Content_disposition.t header
 
@@ -64,6 +64,8 @@ val host : string header
 
 val trailer : string header
 
+(** [transfer_encoding] is the [Transfer-Encoding] header as defined in
+    https://httpwg.org/specs/rfc9112.html#field.transfer-encoding *)
 val transfer_encoding : Transfer_encoding.t header
 
 val te : Te.t header
