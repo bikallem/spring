@@ -2,6 +2,7 @@
 
 ```ocaml
 module P = Oml__Parser
+let () = Printexc.record_backtrace true;
 ```
 
 ## Oml.skip_ws
@@ -20,14 +21,11 @@ val i : P.input = <obj>
 ## Oml.start_tag
 
 ```ocaml
-# let i = P.string_input "\t \n\r <hello ";;
+# let i = P.string_input "\t \n\r <hello    >";;
 val i : P.input = <obj>
 
-# P.start_tag i;;
+# P.element i;;
 - : string = "hello"
-
-# i#c;;
-- : char = ' '
 ```
 
 let _exp1 () = element ~children:[ text "hello<&"; element "div" ] "div"
