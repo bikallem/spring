@@ -24,6 +24,8 @@ let gzip = "gzip"
 
 let chunked = "chunked"
 
+let singleton enc = M.singleton enc
+
 let is_empty = M.is_empty
 
 let exists t d = M.mem d t
