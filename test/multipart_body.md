@@ -44,7 +44,7 @@ val p : Multipart_body.reader Multipart_body.part = <abstr>
 
 # Multipart_body.headers p |> (Eio.traceln "%a" Header.pp) ;;
 +{
-+  content-disposition:  form-data; name="submit-name"
++  Content-Disposition:  form-data; name="submit-name"
 +}
 - : unit = ()
 
