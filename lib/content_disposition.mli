@@ -6,6 +6,12 @@ type t
 
 val make : ?params:(string * string) list -> string -> t
 
+(** [decode v] decodes [v] into [t] where [v] holds [Content-Disposition] header
+    value in textual format.
+
+    {[
+      Content_disposition.decode "formdata; filename=example.html;"
+    ]} *)
 val decode : string -> t
 
 val encode : t -> string
