@@ -102,8 +102,23 @@ let tag i =
   | _ ->
     err "start_tag" "tag name must start with an alphabet or '_' character" i
 
-let start_tag (i : #input) =
+let expect c (i : #input) =
+  if Char.equal c i#c then ()
+  else
+    err "expect"
+      ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i#c ^ "'")
+      i
+
+let element (i : #input) =
   skip_ws i;
   match i#c with
-  | '<' -> tag i
+  | '<' ->
+    let name =
+      let nm = tag i in
+      (* attributes *)
+      skip_ws i;
+      expect '>' i;
+      nm
+    in
+    name
   | _ -> err "start_tag" "start tag must start with '<'" i
