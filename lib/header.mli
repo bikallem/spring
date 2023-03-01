@@ -76,6 +76,8 @@ val user_agent : string header
     https://httpwg.org/specs/rfc9110.html#field.date *)
 val date : Date.t header
 
+(** [cookie] is the [Cookie] header as specified in
+    https://datatracker.ietf.org/doc/html/rfc6265#section-4.2 *)
 val cookie : Cookie.t header
 
 val set_cookie : Set_cookie.t header
