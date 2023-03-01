@@ -29,51 +29,46 @@ let name (type a) (hdr : a header) = canonical_name hdr.name
 
 let encode (type a) (hdr : a header) (v : a) = hdr.encode v
 
-module H = struct
-  let content_length =
-    { name = "content-length"; decode = int_of_string; encode = string_of_int }
+let content_length =
+  { name = "content-length"; decode = int_of_string; encode = string_of_int }
 
-  let content_type =
-    { name = "content-type"
-    ; decode = Content_type.decode
-    ; encode = Content_type.encode
-    }
+let content_type =
+  { name = "content-type"
+  ; decode = Content_type.decode
+  ; encode = Content_type.encode
+  }
 
-  let content_disposition =
-    { name = "content-disposition"
-    ; decode = Content_disposition.decode
-    ; encode = Content_disposition.encode
-    }
+let content_disposition =
+  { name = "content-disposition"
+  ; decode = Content_disposition.decode
+  ; encode = Content_disposition.encode
+  }
 
-  let host = { name = "host"; decode = Fun.id; encode = Fun.id }
+let host = { name = "host"; decode = Fun.id; encode = Fun.id }
 
-  let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
+let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
 
-  let transfer_encoding =
-    { name = "transfer-encoding"
-    ; decode = Transfer_encoding.decode
-    ; encode = Transfer_encoding.encode
-    }
+let transfer_encoding =
+  { name = "transfer-encoding"
+  ; decode = Transfer_encoding.decode
+  ; encode = Transfer_encoding.encode
+  }
 
-  let te = { name = "te"; decode = Te.decode; encode = Te.encode }
+let te = { name = "te"; decode = Te.decode; encode = Te.encode }
 
-  let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
+let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
 
-  let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
+let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 
-  let date = { name = "date"; decode = Date.decode; encode = Date.encode }
+let date = { name = "date"; decode = Date.decode; encode = Date.encode }
 
-  let cookie =
-    { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
+let cookie = { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
 
-  let set_cookie =
-    { name = "set-cookie"
-    ; decode = Set_cookie.decode
-    ; encode = Set_cookie.encode
-    }
-end
-
-include H
+let set_cookie =
+  { name = "set-cookie"
+  ; decode = Set_cookie.decode
+  ; encode = Set_cookie.encode
+  }
 
 let empty = []
 

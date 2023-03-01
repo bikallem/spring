@@ -46,33 +46,31 @@ val name : 'a header -> name
 
 val encode : 'a header -> 'a -> string
 
-module H : sig
-  val content_length : int header
+(** {2 Predefined Headers} *)
 
-  val content_type : Content_type.t header
+val content_length : int header
 
-  val content_disposition : Content_disposition.t header
+val content_type : Content_type.t header
 
-  val host : string header
+val content_disposition : Content_disposition.t header
 
-  val trailer : string header
+val host : string header
 
-  val transfer_encoding : Transfer_encoding.t header
+val trailer : string header
 
-  val te : Te.t header
+val transfer_encoding : Transfer_encoding.t header
 
-  val connection : string header
+val te : Te.t header
 
-  val user_agent : string header
+val connection : string header
 
-  val date : Date.t header
+val user_agent : string header
 
-  val cookie : Cookie.t header
+val date : Date.t header
 
-  val set_cookie : Set_cookie.t header
-end
+val cookie : Cookie.t header
 
-include module type of H
+val set_cookie : Set_cookie.t header
 
 (** {1 Create} *)
 
