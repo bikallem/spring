@@ -18,6 +18,14 @@ val decode : string -> t
     [Content-Disposition] header value. *)
 val encode : t -> string
 
+(** [disposition t] returns the disposition value of [t].
+
+    {[
+      Content_disposition.decode "formdata; filename=example.html;"
+      |> Content_disposition.disposition
+    ]}
+
+    returns ["formdata"]. *)
 val disposition : t -> string
 
 val find_param : t -> string -> string option
