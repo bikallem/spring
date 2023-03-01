@@ -41,7 +41,10 @@ let handler req =
       Eio.traceln "%s" (Body.read_content res |> Option.get);
       Eio.traceln "";
       Eio.traceln "Route: /upload";
-      let body = Body.content_writer ~content:"hello world" ~content_type:"text/plain" in
+      let body = 
+        let content_type = Content_type.make ("text", "plain") in
+        Body.content_writer content_type "hello world" 
+      in
       let res = Client.post client body "localhost:8081/upload" in
       Eio.traceln "%a" Header.pp (Response.headers res);
       Eio.traceln "%s" (Body.read_content res |> Option.get);
@@ -50,14 +53,14 @@ let handler req =
 +Route: /
 +{
 +  content-length:  4;
-+  content-type:  text/plain; charset=UTF-8
++  content-type:  text/plain; charset=uf-8
 +}
 +root
 +
 +Route: /upload
 +{
 +  content-length:  11;
-+  content-type:  text/plain; charset=UTF-8
++  content-type:  text/plain; charset=uf-8
 +}
 +hello world
 - : unit = ()
@@ -210,9 +213,8 @@ A Date header is not added added to a 5xx status response. We use server_request
 # let h _req = Response.server_response ~status:Status.internal_server_error Body.none ;;
 val h : 'a -> Response.server_response = <fun>
 
-# let h= Server.response_date mock_clock) @@ h ;;
-Line 1, characters 39-40:
-Error: Syntax error
+# let h= Server.response_date mock_clock @@ h ;;
+val h : Server.handler = <fun>
 
 # Eio.traceln "%a" Response.pp @@ h req;;
 +{
@@ -230,9 +232,8 @@ A Date header is not added added to a 1xx status response. We use server_request
 # let h _req = Response.server_response ~status:Status.continue Body.none ;;
 val h : 'a -> Response.server_response = <fun>
 
-# let h= Server.response_date mock_clock) @@ h ;;
-Line 1, characters 39-40:
-Error: Syntax error
+# let h= Server.response_date mock_clock @@ h ;;
+val h : Server.handler = <fun>
 
 # Eio.traceln "%a" Response.pp @@ h req;;
 +{
@@ -292,19 +293,19 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
 +
 +HTTP/1.1 200 OK
 +Content-Length: 4
-+Content-Type: text/plain; charset=UTF-8
++Content-Type: text/plain; charset=uf-8
 +Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
 +HTTP/1.1 200 OK
 +Content-Length: 4
-+Content-Type: text/plain; charset=UTF-8
++Content-Type: text/plain; charset=uf-8
 +Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
 +HTTP/1.1 200 OK
 +Content-Length: 4
-+Content-Type: text/plain; charset=UTF-8
++Content-Type: text/plain; charset=uf-8
 +Date: Thu, 17 Jun 2021 14:39:38 GMT
 +
 +root
