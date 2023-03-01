@@ -23,16 +23,16 @@ val s : Status.t = (499, "Client Closed Request")
 ### Status.equal
 
 ```ocaml
-# Status.equal ok ok;;
+# Status.(equal ok ok);;
 - : bool = true
 
-# Status.equal ok created ;;
+# Status.(equal ok created) ;;
 - : bool = false
 ```
 
 ### Status.pp
 
 ```ocaml
-# Status.to_string ok;;
+# Status.(to_string ok);;
 - : string = "200 OK"
 ```
