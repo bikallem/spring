@@ -52,3 +52,13 @@
    (and
     (>= 2.2.1)
     :with-test))))
+
+(package
+ (name oml)
+ (synopsis "OCaml Markup Language")
+ (description "OCaml HTML authoring library.")
+ (depends
+  (ocaml
+   (>= 5.0.0))
+  (astring
+   (>= 0.8.5))))
