@@ -123,11 +123,11 @@ let test_server_response r =
 
 ```ocaml
 # let write_chunk f =
-    f @@ Chunked_body.make ~extensions:["ext1",Some "ext1_v"] "Hello, ";
-    f @@ Chunked_body.make ~extensions:["ext2",None] "world!";
-    f @@ Chunked_body.make "Again!";
-    f @@ Chunked_body.make "";;
-val write_chunk : (Chunked_body.t -> 'a) -> 'a = <fun>
+    f @@ Chunked.make ~extensions:["ext1",Some "ext1_v"] "Hello, ";
+    f @@ Chunked.make ~extensions:["ext2",None] "world!";
+    f @@ Chunked.make "Again!";
+    f @@ Chunked.make "";;
+val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
 
 # let write_trailer f =
     let trailer_headers =
