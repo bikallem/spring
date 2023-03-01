@@ -86,7 +86,7 @@ let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
   end
 
 let chunked_response ~ua_supports_trailer write_chunk write_trailer =
-  Chunked_body.writable ~ua_supports_trailer write_chunk write_trailer
+  Chunked.writable ~ua_supports_trailer write_chunk write_trailer
   |> server_response
 
 let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =

@@ -81,8 +81,8 @@ val server_response :
     See {!module:Chunked_body}. *)
 val chunked_response :
      ua_supports_trailer:bool
-  -> Chunked_body.write_chunk
-  -> Chunked_body.write_trailer
+  -> Chunked.write_chunk
+  -> Chunked.write_trailer
   -> server_response
 
 (** [write response buf_write] writes server response [response] using
