@@ -131,6 +131,8 @@ val append_list : t -> (string * string) list -> t
 
 val find : t -> 'a header -> 'a option
 
+val find_opt : t -> 'a header -> 'a option
+
 val find_all : t -> 'a header -> 'a list
 
 val exists : t -> 'a header -> bool
