@@ -6,7 +6,7 @@
 # let i = Oml.string_input "\t \n\r <hello";;
 val i : Oml.input = <obj>
 
-# Oml.skip_ws i;;
+# Oml.p_skip_ws i;;
 - : unit = ()
 
 # i#c;;
