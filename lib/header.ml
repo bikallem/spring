@@ -44,7 +44,7 @@ let content_disposition =
   ; encode = Content_disposition.encode
   }
 
-(* TODO Host header *)
+(* TODO Host header - https://httpwg.org/specs/rfc9110.html#field.host *)
 let host = { name = "host"; decode = Fun.id; encode = Fun.id }
 
 (** TODO Trailer header *)
