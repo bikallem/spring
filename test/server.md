@@ -52,15 +52,15 @@ let handler req =
     );;
 +Route: /
 +{
-+  content-length:  4;
-+  content-type:  text/plain; charset=uf-8
++  Content-Length:  4;
++  Content-Type:  text/plain; charset=uf-8
 +}
 +root
 +
 +Route: /upload
 +{
-+  content-length:  11;
-+  content-type:  text/plain; charset=uf-8
++  Content-Length:  11;
++  Content-Type:  text/plain; charset=uf-8
 +}
 +hello world
 - : unit = ()
@@ -126,7 +126,7 @@ val res1 : Response.server_response = <obj>
 +  Status:  400 Bad Request;
 +  Headers :
 +    {
-+      content-length:  0
++      Content-Length:  0
 +    }
 +}
 - : unit = ()
@@ -147,7 +147,7 @@ val res1 : Response.server_response = <obj>
 +  Status:  400 Bad Request;
 +  Headers :
 +    {
-+      content-length:  0
++      Content-Length:  0
 +    }
 +}
 - : unit = ()
@@ -201,7 +201,7 @@ val h : Server.handler = <fun>
 +  Status:  200 OK;
 +  Headers :
 +    {
-+      date:  Mon, 24 Oct 2022 16:12:15 GMT
++      Date:  Mon, 24 Oct 2022 16:12:15 GMT
 +    }
 +}
 - : unit = ()
