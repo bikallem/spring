@@ -135,3 +135,33 @@ let is_digit = function
 
 let is_alpha_num = function
   | c -> is_alpha c || is_digit c
+
+let rec skip_ws (i : #input) =
+  match i#next_char with
+  | '\t' | ' ' | '\n' | '\r' -> skip_ws i
+  | _ -> ()
+
+let start_tag (i : #input) =
+  let rec tag () =
+    match i#next_char with
+    | c when is_alpha_num c ->
+      i#add;
+      tag ()
+    | '_' | '\'' | '.' ->
+      i#add;
+      tag ()
+    | _ ->
+      let tag = Buffer.contents i#buf in
+      clear i;
+      tag
+  in
+  skip_ws i;
+  match i#c with
+  | '<' -> (
+    match i#next_char with
+    | c when is_alpha c || c = '_' ->
+      i#add;
+      tag ()
+    | _ ->
+      err "start_tag" "tag name must start with an alphabet or '_' character" i)
+  | _ -> err "start_tag" "start tag must start with '<'" i
