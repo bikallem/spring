@@ -70,7 +70,9 @@ val r : Request.client_request = <obj>
 ## Request.post - client
 
 ```ocaml
-# let body = Body.content_writer ~content:"Hello World!" ~content_type:"text/plain" in
+
+# let content_type = Content_type.make ("text", "plain") in
+  let body = Body.content_writer content_type "Hello World!" in
   test_client @@ Request.post body "www.example.com/say_hello";;
 +post /say_hello HTTP/1.1
 +host: www.example.com
