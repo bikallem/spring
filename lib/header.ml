@@ -44,8 +44,10 @@ let content_disposition =
   ; encode = Content_disposition.encode
   }
 
+(* TODO Host header *)
 let host = { name = "host"; decode = Fun.id; encode = Fun.id }
 
+(** TODO Trailer header *)
 let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
 
 let transfer_encoding =
@@ -56,6 +58,7 @@ let transfer_encoding =
 
 let te = { name = "te"; decode = Te.decode; encode = Te.encode }
 
+(* TODO Connection header *)
 let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
 
 let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
