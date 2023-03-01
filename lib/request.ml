@@ -29,7 +29,7 @@ let resource (t : #t) = t#resource
 
 let supports_chunked_trailers (t : #t) =
   match Header.(find t#headers te) with
-  | Some te' -> Te_hdr.(exists te' trailers)
+  | Some te' -> Te.(exists te' trailers)
   | None -> false
 
 let keep_alive (t : #t) =
@@ -167,7 +167,7 @@ let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
 
 let write (t : #client_request) w =
   let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
-  let te' = Te_hdr.(singleton trailers) in
+  let te' = Te.(singleton trailers) in
   let headers = Header.(add headers te te') in
   let headers = Header.(add headers connection "TE") in
   let headers = Header.clean_dup headers in
