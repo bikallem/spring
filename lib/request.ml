@@ -156,8 +156,14 @@ let post_form_values form_values url =
   let body = Body.form_values_writer form_values in
   post body url
 
-let write_header w ~name ~value =
-  Header.write_header (Eio.Buf_write.string w) name value
+let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
+  object
+    method f : 'a. 'a Header.header -> 'a -> unit =
+      fun hdr v ->
+        let v = Header.encode hdr v in
+        let name = (Header.name hdr :> string) in
+        Header.write_header (Eio.Buf_write.string w) name v
+  end
 
 let write (t : #client_request) w =
   let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
