@@ -28,4 +28,6 @@ val encode : t -> string
     returns ["formdata"]. *)
 val disposition : t -> string
 
+(** [find_param t param_name] is [Some param_value] if [param_name] exists in
+    [t]. It is [None] otherwise. *)
 val find_param : t -> string -> string option
