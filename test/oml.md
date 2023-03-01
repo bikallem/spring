@@ -1,12 +1,16 @@
 # Oml tests
 
+```ocaml
+module P = Oml__Parser
+```
+
 ## Oml.skip_ws
 
 ```ocaml
-# let i = Oml.string_input "\t \n\r <hello";;
-val i : Oml.input = <obj>
+# let i = P.string_input "\t \n\r <hello";;
+val i : P.input = <obj>
 
-# Oml.p_skip_ws i;;
+# P.skip_ws i;;
 - : unit = ()
 
 # i#c;;
@@ -16,10 +20,10 @@ val i : Oml.input = <obj>
 ## Oml.start_tag
 
 ```ocaml
-# let i = Oml.string_input "\t \n\r <hello ";;
-val i : Oml.input = <obj>
+# let i = P.string_input "\t \n\r <hello ";;
+val i : P.input = <obj>
 
-# Oml.p_start_tag i;;
+# P.start_tag i;;
 - : string = "hello"
 
 # i#c;;
