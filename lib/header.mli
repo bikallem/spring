@@ -39,7 +39,9 @@ type t
 
 type 'a header
 
-(** [header decoder encoder name] is {!type:header}. *)
+(** [header decoder encoder name] is {!type:header}.
+
+    Use this function define new/custom headers. *)
 val header : 'a decode -> 'a encode -> string -> 'a header
 
 val name : 'a header -> name
