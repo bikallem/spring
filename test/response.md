@@ -33,16 +33,16 @@ val status : Status.t = (200, "OK")
 
 # Eio.traceln "%a" Header.pp headers ;;
 +{
-+  content-length:  13;
-+  date:  Wed, 08 Feb 2023 16:18:17 GMT;
-+  content-type:  text/html; charset=utf-8;
-+  x-powered-by:  Express;
-+  cache-control:  public, max-age=86400;
-+  cf-cache-status:  DYNAMIC;
-+  server:  cloudflare;
-+  cf-ray:  7965ae27fa7c75bf-LHR;
-+  content-encoding:  br;
-+  x-firefox-spdy:  h2
++  Content-Length:  13;
++  Date:  Wed, 08 Feb 2023 16:18:17 GMT;
++  Content-Type:  text/html; charset=utf-8;
++  X-Powered-By:  Express;
++  Cache-Control:  public, max-age=86400;
++  Cf-Cache-Status:  DYNAMIC;
++  Server:  cloudflare;
++  Cf-Ray:  7965ae27fa7c75bf-LHR;
++  Content-Encoding:  br;
++  X-Firefox-Spdy:  h2
 +}
 - : unit = ()
 ```
