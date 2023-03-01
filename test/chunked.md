@@ -1,4 +1,4 @@
-# Chunked_body
+# Chunked
 
 ```ocaml
 open Spring
@@ -28,21 +28,21 @@ let test_writer w =
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## Chunked_body.writable
+## Chunked.writable
 
 Writes both chunked body and trailer since `ua_supports_trailer:true`.
 
 ```ocaml
 # let write_chunk f =
-    f @@ Chunked_body.make ~extensions:["ext1",Some "ext1_v"] "Hello, ";
+    f @@ Chunked.make ~extensions:["ext1",Some "ext1_v"] "Hello, ";
     Eio.Fiber.yield ();
     Eio.traceln "Resuming ...";
-    f @@ Chunked_body.make ~extensions:["ext2",None] "world!";
+    f @@ Chunked.make ~extensions:["ext2",None] "world!";
     Eio.Fiber.yield ();
     Eio.traceln "Resuming ...";
-    f @@ Chunked_body.make "Again!";
-    f @@ Chunked_body.make "";;
-val write_chunk : (Chunked_body.t -> 'a) -> 'a = <fun>
+    f @@ Chunked.make "Again!";
+    f @@ Chunked.make "";;
+val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
 # let write_trailer f =
     let trailer_headers =
       Header.of_list
@@ -55,7 +55,7 @@ val write_chunk : (Chunked_body.t -> 'a) -> 'a = <fun>
     f trailer_headers;;
 val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 
-# test_writer (Chunked_body.writable ~ua_supports_trailer:true write_chunk write_trailer) ;;
+# test_writer (Chunked.writable ~ua_supports_trailer:true write_chunk write_trailer) ;;
 +Resuming ...
 +Resuming ...
 +Transfer-Encoding: chunked
@@ -77,7 +77,7 @@ val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 Writes only chunked body and not the trailers since `ua_supports_trailer:false`.
 
 ```ocaml
-# test_writer (Chunked_body.writable ~ua_supports_trailer:false write_chunk write_trailer) ;;
+# test_writer (Chunked.writable ~ua_supports_trailer:false write_chunk write_trailer) ;;
 +Resuming ...
 +Resuming ...
 +Transfer-Encoding: chunked
@@ -93,7 +93,7 @@ Writes only chunked body and not the trailers since `ua_supports_trailer:false`.
 - : unit = ()
 ```
 
-## Chunked_body.reader
+## Chunked.reader
 
 ```ocaml
 let test_reader body headers f =
@@ -107,7 +107,7 @@ let test_reader body headers f =
     in
     f r
 
-let f chunk = Eio.traceln "%a" Chunked_body.pp chunk
+let f chunk = Eio.traceln "%a" Chunked.pp chunk
 
 let body = "7;ext1=ext1_v;ext2=ext2_v;ext3\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\nNetwork\r\n0\r\nHeader2: Header2 value text\r\nHeader1: Header1 value text\r\nExpires: Wed, 21 Oct 2015 07:28:00 GMT\r\n\r\n"
 ```
@@ -121,7 +121,7 @@ header list.
     test_reader
       body
       ["Trailer", "Expires, Header1"; "Transfer-Encoding", "chunked"]
-      (Chunked_body.read_chunked f);;
+      (Chunked.read_chunked f);;
 +
 +[size = 7; ext1="ext1_v" ext2="ext2_v" ext3
 +Mozilla
@@ -153,7 +153,7 @@ Returns `Header2` since it is specified in the request `Trailer` header.
     test_reader
       body
       ["Trailer", "Expires, Header1, Header2"; "Transfer-Encoding", "chunked"]
-      (Chunked_body.read_chunked f);;
+      (Chunked.read_chunked f);;
 +
 +[size = 7; ext1="ext1_v" ext2="ext2_v" ext3
 +Mozilla
@@ -186,7 +186,7 @@ Nothing is read if `Transfer-Encoding: chunked` header is missing.
     test_reader
       body
       ["Trailer", "Expires, Header1, Header2"; "Transfer-Encoding", "gzip"]
-      (Chunked_body.read_chunked f);;
+      (Chunked.read_chunked f);;
 val headers : Header.t option = None
 
 # headers = None;;
@@ -204,7 +204,7 @@ let body = "7;ext1=ext1_v;ext2=ext2_v;ext3\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\n
     test_reader
       body
       ["Trailer", "Expires, Header1, Header2"; "Transfer-Encoding", "chunked"]
-      (Chunked_body.read_chunked f);;
+      (Chunked.read_chunked f);;
 +
 +[size = 7; ext1="ext1_v" ext2="ext2_v" ext3
 +Mozilla
