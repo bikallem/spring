@@ -79,6 +79,8 @@ val trailer : string header
     https://httpwg.org/specs/rfc9112.html#field.transfer-encoding *)
 val transfer_encoding : Transfer_encoding.t header
 
+(** [te] is the [TE] header as defined in
+    https://httpwg.org/specs/rfc9110.html#rfc.section.10.1.4 *)
 val te : Te.t header
 
 val connection : string header
