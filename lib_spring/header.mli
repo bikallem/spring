@@ -131,6 +131,7 @@ val append_list : t -> (string * string) list -> t
 
 val find : t -> 'a header -> 'a option
 
+(** [find_opt t hdr] is [Some v] is [hdr] exists in [t]. It is [None] otherwise. *)
 val find_opt : t -> 'a header -> 'a option
 
 val find_all : t -> 'a header -> 'a list
