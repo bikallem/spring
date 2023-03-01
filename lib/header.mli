@@ -60,6 +60,8 @@ val content_type : Content_type.t header
     https://httpwg.org/specs/rfc6266.html#top *)
 val content_disposition : Content_disposition.t header
 
+(** [host] is the [Host] header as specified in
+    https://httpwg.org/specs/rfc9110.html#field.host *)
 val host : string header
 
 val trailer : string header
