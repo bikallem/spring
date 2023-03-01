@@ -80,6 +80,8 @@ val date : Date.t header
     https://datatracker.ietf.org/doc/html/rfc6265#section-4.2 *)
 val cookie : Cookie.t header
 
+(** [set_cookie] is the [Set-Cookie] header as specified in
+    https://datatracker.ietf.org/doc/html/rfc6265 *)
 val set_cookie : Set_cookie.t header
 
 (** {1 Create} *)
