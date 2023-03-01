@@ -42,6 +42,10 @@ type 'a header
 (** [header decoder encoder name] is {!type:header}. *)
 val header : 'a decode -> 'a encode -> string -> 'a header
 
+val name : 'a header -> name
+
+val encode : 'a header -> 'a -> string
+
 module H : sig
   val content_length : int header
 

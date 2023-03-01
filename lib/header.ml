@@ -25,6 +25,10 @@ type 'a header =
 
 let header decode encode name = { name = lname name; decode; encode }
 
+let name (type a) (hdr : a header) = canonical_name hdr.name
+
+let encode (type a) (hdr : a header) (v : a) = hdr.encode v
+
 module H = struct
   let content_length =
     { name = "content-length"; decode = int_of_string; encode = string_of_int }
