@@ -19,7 +19,7 @@ val i : Oml.input = <obj>
 # let i = Oml.string_input "\t \n\r <hello ";;
 val i : Oml.input = <obj>
 
-# Oml.start_tag i;;
+# Oml.p_start_tag i;;
 - : string = "hello"
 
 # i#c;;
