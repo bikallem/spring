@@ -3,7 +3,7 @@ module Method = Method
 
 include module type of Method.M
 
-module Te_hdr = Te_hdr
+module Te = Te
 module Transfer_encoding = Transfer_encoding
 module Date = Date
 module Content_type = Content_type
