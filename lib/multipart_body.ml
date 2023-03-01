@@ -132,7 +132,7 @@ let headers p = p.headers
 let make_part ?filename ?(headers = Header.empty) body form_name =
   { t = body; form_name = Some form_name; filename; headers; body_eof = false }
 
-let writable boundary parts =
+let writable boundary parts : Body.writable =
   let b = Buffer.create 10 in
   List.iter
     (fun part ->
@@ -155,16 +155,13 @@ let writable boundary parts =
       in
       Buffer.add_string b data)
     parts;
+  Buffer.add_string b "\r\n--";
+  Buffer.add_string b boundary;
+  Buffer.add_string b "--\r\n";
 
-  object
-    method write_header f =
-      let content_type = "multipart/formdata; boundary=" ^ boundary in
-      f ~name:"Content-Length" ~value:(string_of_int @@ Buffer.length b);
-      f ~name:"Content-Type" ~value:content_type
-
-    method write_body w =
-      Eio.Buf_write.string w (Buffer.contents b);
-      Eio.Buf_write.string w "\r\n--";
-      Eio.Buf_write.string w boundary;
-      Eio.Buf_write.string w "--\r\n"
-  end
+  let content_type =
+    Content_type.make
+      ~params:[ ("boundary", boundary) ]
+      ("multipart", "formdata")
+  in
+  Body.content_writer content_type (Buffer.contents b)
