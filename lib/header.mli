@@ -57,7 +57,7 @@ module H : sig
 
   val trailer : string header
 
-  val transfer_encoding : Transfer_encoding_hdr.t header
+  val transfer_encoding : Transfer_encoding.t header
 
   val te : Te_hdr.t header
 
