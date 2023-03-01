@@ -51,3 +51,13 @@ val t2 : Transfer_encoding_hdr.t = <abstr>
 # Transfer_encoding_hdr.encode t2;;
 - : string = "chunked"
 ```
+
+## Transfer_encoding.singleon
+
+```ocaml
+# let t = Transfer_encoding_hdr.(singleton chunked);;
+val t : Transfer_encoding_hdr.t = <abstr>
+
+# Transfer_encoding_hdr.(exists t chunked) ;;
+- : bool = true
+```
