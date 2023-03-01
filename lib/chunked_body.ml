@@ -194,9 +194,11 @@ type write_chunk = (t -> unit) -> unit
 
 type write_trailer = (Header.t -> unit) -> unit
 
-let writable ~ua_supports_trailer write_chunk write_trailer =
+let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =
   object
-    method write_header f = f ~name:"Transfer-Encoding" ~value:"chunked"
+    method write_header (f : < f : 'a. 'a Header.header -> 'a -> unit >) =
+      let t_enc = Transfer_encoding_hdr.(singleton chunked) in
+      f#f Header.transfer_encoding t_enc
 
     method write_body writer =
       let write_extensions exts =
