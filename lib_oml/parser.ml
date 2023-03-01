@@ -65,6 +65,8 @@ let err lbl msg (i : #input) =
 
 let clear (i : #input) = Buffer.clear i#buf
 
+let next (i : #input) = i#next
+
 let is_alpha = function
   | 'a' .. 'z' | 'A' .. 'Z' -> true
   | _ -> false
@@ -112,17 +114,25 @@ let expect c (i : #input) =
       i
 
 let element (i : #input) =
-  i#next;
+  next i;
   skip_ws i;
   match i#c with
   | '<' ->
-    let name =
-      let nm = tag i in
-      (* attributes *)
-      skip_ws i;
-      expect '>' i;
-      nm
+    let name = tag i in
+    (* attributes *)
+    skip_ws i;
+    let _children =
+      match i#c with
+      | '/' ->
+        next i;
+        expect '>' i;
+        []
+      | '>' ->
+        next i;
+        []
+      | _ -> err "element" "expecting '/>' or '>'" i
     in
+    skip_ws i;
 
     name
   | _ -> err "start_tag" "start tag must start with '<'" i
