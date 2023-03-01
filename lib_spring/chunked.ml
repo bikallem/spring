@@ -139,7 +139,7 @@ let is_trailer_header_allowed (h : Header.lname) =
 (* Request indicates which headers will be sent in chunk trailer part by
    specifying the headers in comma separated value in 'Trailer' header. *)
 let request_trailer_headers headers =
-  match Header.(find headers trailer) with
+  match Header.(find_opt headers trailer) with
   | Some v ->
     List.map (fun h -> String.trim h |> Header.lname) (String.cuts ~sep:"," v)
   | None -> []
@@ -175,7 +175,7 @@ let parse_chunk (total_read : int) (headers : Header.t) =
     (* Remove either just the 'chunked' from Transfer-Encoding header value or
        remove the header entirely if value is empty. *)
     let request_headers =
-      match Header.(find request_headers transfer_encoding) with
+      match Header.(find_opt request_headers transfer_encoding) with
       | Some te' ->
         let te' = Transfer_encoding.(remove te' chunked) in
         if Transfer_encoding.is_empty te' then
@@ -232,7 +232,7 @@ let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =
   end
 
 let read_chunked f (t : #Body.readable) =
-  match Header.(find t#headers transfer_encoding) with
+  match Header.(find_opt t#headers transfer_encoding) with
   | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
     let rec chunk_loop f =
