@@ -77,8 +77,10 @@ let is_alpha_num = function
   | c -> is_alpha c || is_digit c
 
 let rec skip_ws (i : #input) =
-  match i#next_char with
-  | '\t' | ' ' | '\n' | '\r' -> skip_ws i
+  match i#c with
+  | '\t' | ' ' | '\n' | '\r' ->
+    i#next;
+    skip_ws i
   | _ -> ()
 
 let tag i =
@@ -103,13 +105,14 @@ let tag i =
     err "start_tag" "tag name must start with an alphabet or '_' character" i
 
 let expect c (i : #input) =
-  if Char.equal c i#c then ()
+  if Char.equal c i#c then i#next
   else
     err "expect"
       ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i#c ^ "'")
       i
 
 let element (i : #input) =
+  i#next;
   skip_ws i;
   match i#c with
   | '<' ->
@@ -117,8 +120,10 @@ let element (i : #input) =
       let nm = tag i in
       (* attributes *)
       skip_ws i;
+      Printf.printf "%c\n%!" i#c;
       expect '>' i;
       nm
     in
+
     name
   | _ -> err "start_tag" "start tag must start with '<'" i
