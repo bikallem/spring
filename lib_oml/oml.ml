@@ -61,3 +61,42 @@ class html =
       Buffer.contents b
   end
 
+(* parser input *)
+
+class virtual input =
+  object (self)
+    val mutable line = 1
+
+    val mutable col = 0
+
+    val mutable c = '\000' (* NUL *)
+
+    val buf = Buffer.create 10
+
+    method line = line
+
+    method col = col
+
+    method c = c
+
+    method buf = buf
+
+    method add = Buffer.add_char buf c
+
+    method next =
+      let c' = self#char in
+      match c' with
+      | '\n' ->
+        col <- 1;
+        line <- line + 1;
+        c <- c'
+      | _ ->
+        col <- col + 1;
+        c <- c'
+
+    method next_char =
+      self#next;
+      self#c
+
+    method virtual char : char
+  end
