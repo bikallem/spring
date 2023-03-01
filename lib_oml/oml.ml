@@ -111,3 +111,10 @@ let string_input s =
       incr pos;
       if !pos = len then raise End_of_file else String.get s !pos
   end
+
+let channel_input in_channel =
+  object
+    inherit input
+
+    method char = input_char in_channel
+  end
