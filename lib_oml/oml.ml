@@ -118,3 +118,20 @@ let channel_input in_channel =
 
     method char = input_char in_channel
   end
+
+let err lbl msg (i : #input) =
+  failwith
+    (lbl ^ "(" ^ string_of_int i#line ^ "," ^ string_of_int i#col ^ ") : " ^ msg)
+
+let clear (i : #input) = Buffer.clear i#buf
+
+let is_alpha = function
+  | 'a' .. 'z' | 'A' .. 'Z' -> true
+  | _ -> false
+
+let is_digit = function
+  | '0' .. '9' -> true
+  | _ -> false
+
+let is_alpha_num = function
+  | c -> is_alpha c || is_digit c
