@@ -150,10 +150,10 @@ val r : Request.server_request = <obj>
 
 # Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
-+  host:  www.example.com;
-+  connection:  TE;
-+  te:  trailers;
-+  user-agent:  cohttp-eio
++  Host:  www.example.com;
++  Connection:  TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
 +}
 - : unit = ()
 
@@ -184,10 +184,10 @@ val r : Request.server_request = <obj>
 
 # Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
-+  host:  www.example.com;
-+  connection:  TE;
-+  te:  trailers;
-+  user-agent:  cohttp-eio
++  Host:  www.example.com;
++  Connection:  TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
 +}
 - : unit = ()
 
@@ -203,10 +203,10 @@ val r : Request.server_request = <obj>
 
 # Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
-+  host:  www.example.com;
-+  connection:  keep-alive, TE;
-+  te:  trailers;
-+  user-agent:  cohttp-eio
++  Host:  www.example.com;
++  Connection:  keep-alive, TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
 +}
 - : unit = ()
 
@@ -273,8 +273,8 @@ val req : Request.client_request = <obj>
   URI:  /update;
   Headers :
     {
-      header1:  val 1;
-      header2:  val 2
+      Header1:  val 1;
+      Header2:  val 2
     };
   Host:  www.example.com:8080
 }
@@ -304,8 +304,8 @@ val req : Request.server_request = <obj>
   URI:  /update;
   Headers :
     {
-      header1:  val 1;
-      header2:  val 2
+      Header1:  val 1;
+      Header2:  val 2
     };
   Client Address:  tcp:127.0.0.1:8081
 }
