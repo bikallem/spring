@@ -100,3 +100,14 @@ class virtual input =
 
     method virtual char : char
   end
+
+let string_input s =
+  let len = String.length s in
+  let pos = ref (-1) in
+  object
+    inherit input
+
+    method char =
+      incr pos;
+      if !pos = len then raise End_of_file else String.get s !pos
+  end
