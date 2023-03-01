@@ -167,7 +167,7 @@ let p_tag i =
   | _ ->
     err "start_tag" "tag name must start with an alphabet or '_' character" i
 
-let start_tag (i : #input) =
+let p_start_tag (i : #input) =
   p_skip_ws i;
   match i#c with
   | '<' -> p_tag i
