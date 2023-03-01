@@ -4,27 +4,23 @@ type t = lowercase_string
 
 val make : string -> t
 
-module M : sig
-  val get : t
+val get : t
 
-  val head : t
+val head : t
 
-  val delete : t
+val delete : t
 
-  val options : t
+val options : t
 
-  val trace : t
+val trace : t
 
-  val post : t
+val post : t
 
-  val put : t
+val put : t
 
-  val patch : t
+val patch : t
 
-  val connect : t
-end
-
-include module type of M
+val connect : t
 
 val to_string : t -> lowercase_string
 

@@ -6,27 +6,23 @@ type t = lowercase_string
 
 let make t = String.Ascii.lowercase t
 
-module M = struct
-  let get = "get"
+let get = "get"
 
-  let head = "head"
+let head = "head"
 
-  let delete = "delete"
+let delete = "delete"
 
-  let options = "options"
+let options = "options"
 
-  let trace = "trace"
+let trace = "trace"
 
-  let post = "post"
+let post = "post"
 
-  let put = "put"
+let put = "put"
 
-  let patch = "patch"
+let patch = "patch"
 
-  let connect = "connect"
-end
-
-include M
+let connect = "connect"
 
 let to_string t = t
 
