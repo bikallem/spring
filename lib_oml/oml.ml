@@ -141,27 +141,29 @@ let rec skip_ws (i : #input) =
   | '\t' | ' ' | '\n' | '\r' -> skip_ws i
   | _ -> ()
 
-let start_tag (i : #input) =
-  let rec tag () =
+let tag i =
+  let rec aux () =
     match i#next_char with
     | c when is_alpha_num c ->
       i#add;
-      tag ()
+      aux ()
     | '_' | '\'' | '.' ->
       i#add;
-      tag ()
+      aux ()
     | _ ->
       let tag = Buffer.contents i#buf in
       clear i;
       tag
   in
+  match i#next_char with
+  | c when is_alpha c || c = '_' ->
+    i#add;
+    aux ()
+  | _ ->
+    err "start_tag" "tag name must start with an alphabet or '_' character" i
+
+let start_tag (i : #input) =
   skip_ws i;
   match i#c with
-  | '<' -> (
-    match i#next_char with
-    | c when is_alpha c || c = '_' ->
-      i#add;
-      tag ()
-    | _ ->
-      err "start_tag" "tag name must start with an alphabet or '_' character" i)
+  | '<' -> tag i
   | _ -> err "start_tag" "start tag must start with '<'" i
