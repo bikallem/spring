@@ -89,8 +89,14 @@ let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked_body.writable ~ua_supports_trailer write_chunk write_trailer
   |> server_response
 
-let write_header w ~name ~value =
-  Header.write_header (Eio.Buf_write.string w) name value
+let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
+  object
+    method f : 'a. 'a Header.header -> 'a -> unit =
+      fun hdr v ->
+        let v = Header.encode hdr v in
+        let name = (Header.name hdr :> string) in
+        Header.write_header (Eio.Buf_write.string w) name v
+  end
 
 let write (t : #server_response) w =
   let version = Version.to_string t#version in
@@ -105,12 +111,18 @@ let write (t : #server_response) w =
   t#write_body w
 
 let text content =
-  server_response
-    (Body.content_writer ~content ~content_type:"text/plain; charset=UTF-8")
+  let content_type =
+    Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "plain")
+  in
+  let body = Body.content_writer content_type content in
+  server_response body
 
 let html content =
-  server_response
-    (Body.content_writer ~content ~content_type:"text/html; charset=UTF-8")
+  let content_type =
+    Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "html")
+  in
+  let body = Body.content_writer content_type content in
+  server_response body
 
 let none_body_response status =
   let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
