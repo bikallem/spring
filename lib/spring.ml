@@ -9,7 +9,6 @@ module Content_disposition = Content_disposition
 module Set_cookie = Set_cookie
 module Cookie = Cookie
 module Header = Header
-include Header.H
 
 (* Body *)
 module Body = Body

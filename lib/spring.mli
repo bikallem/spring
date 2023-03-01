@@ -12,8 +12,6 @@ module Set_cookie = Set_cookie
 module Cookie = Cookie
 module Header = Header
 
-include module type of Header.H
-
 (** {1 Body} *)
 
 module Body = Body
