@@ -140,8 +140,8 @@ val headers : Header.t option = Some <abstr>
 
 # Header.pp Format.std_formatter (Option.get headers) ;;
 {
-  content-length:  23;
-  header1:  Header1 value text
+  Content-Length:  23;
+  Header1:  Header1 value text
 }
 - : unit = ()
 ```
@@ -172,9 +172,9 @@ val headers : Header.t option = Some <abstr>
 
 # Eio.traceln "%a" Header.pp (Option.get headers) ;;
 +{
-+  content-length:  23;
-+  header2:  Header2 value text;
-+  header1:  Header1 value text
++  Content-Length:  23;
++  Header2:  Header2 value text;
++  Header1:  Header1 value text
 +}
 - : unit = ()
 ```
