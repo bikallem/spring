@@ -59,7 +59,7 @@ module H : sig
 
   val transfer_encoding : Transfer_encoding.t header
 
-  val te : Te_hdr.t header
+  val te : Te.t header
 
   val connection : string header
 
