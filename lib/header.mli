@@ -70,6 +70,8 @@ val te : Te.t header
 
 val connection : string header
 
+(** [user_agent] is the [User-Agent] header as specified in
+    https://httpwg.org/specs/rfc9110.html#rfc.section.10.1.5 *)
 val user_agent : string header
 
 (** [date] is the [Date] header as defined in

@@ -61,6 +61,7 @@ let te = { name = "te"; decode = Te.decode; encode = Te.encode }
 (* TODO Connection header *)
 let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
 
+(* TODO User-Agent spec at https://httpwg.org/specs/rfc9110.html#rfc.section.10.1.5 *)
 let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
 
 let date = { name = "date"; decode = Date.decode; encode = Date.encode }
