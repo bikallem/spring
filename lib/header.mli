@@ -52,6 +52,8 @@ val encode : 'a header -> 'a -> string
     https://httpwg.org/specs/rfc9110.html#rfc.section.8.6 *)
 val content_length : int header
 
+(** [content_type] is the [Content-Type] header as defined in
+    https://httpwg.org/specs/rfc9110.html#field.content-type *)
 val content_type : Content_type.t header
 
 val content_disposition : Content_disposition.t header
