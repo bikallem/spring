@@ -189,7 +189,7 @@ let easy_fmt t =
     ; wrap_body = `Force_breaks
     }
   in
-  let t = to_list t |> List.map (fun (k, v) -> field k v) in
+  let t = to_list t |> List.map (fun (k, v) -> field (canonical_name k) v) in
   List (("{", ";", "}", p), t)
 
 let pp fmt t = Easy_format.Pretty.to_formatter fmt (easy_fmt t)
