@@ -1,3 +1,5 @@
+type t = Ptime.t
+
 type state =
   { i : string (* input *)
   ; mutable pos : int

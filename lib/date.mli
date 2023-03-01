@@ -12,15 +12,17 @@
     For RFC 850 if the year value is [>= 50] then the cencure is [19] else it is
     [20]. *)
 
+type t = Ptime.t
+
 (** [decode v] decodes [v] into a {!val:Ptime.t} value.
 
     {[
       Date.decode "Sun, 06 Nov 1994 08:49:37 GMT"
     ]} *)
-val decode : string -> Ptime.t
+val decode : string -> t
 
 (** [encode date] converts [date] into IMF fixdate format. *)
-val encode : Ptime.t -> string
+val encode : t -> string
 
 (** [now clock] is [ptime] where [ptime] is the current date time value. *)
-val now : #Eio.Time.clock -> Ptime.t
+val now : #Eio.Time.clock -> t
