@@ -72,6 +72,8 @@ val connection : string header
 
 val user_agent : string header
 
+(** [date] is the [Date] header as defined in
+    https://httpwg.org/specs/rfc9110.html#field.date *)
 val date : Date.t header
 
 val cookie : Cookie.t header
