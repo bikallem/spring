@@ -44,6 +44,9 @@ type 'a header
     Use this function define new/custom headers. *)
 val header : 'a decode -> 'a encode -> string -> 'a header
 
+(** [name hdr] is the name of [hdr] in canonical form.
+
+    See {!val:canonical_name}. *)
 val name : 'a header -> name
 
 val encode : 'a header -> 'a -> string
