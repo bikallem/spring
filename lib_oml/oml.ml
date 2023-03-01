@@ -63,13 +63,15 @@ class html =
 
 (* parser input *)
 
+let nul = '\000'
+
 class virtual input =
   object (self)
     val mutable line = 1
 
     val mutable col = 0
 
-    val mutable c = '\000' (* NUL *)
+    val mutable c = nul
 
     val buf = Buffer.create 10
 
@@ -109,7 +111,10 @@ let string_input s =
 
     method char =
       incr pos;
-      if !pos = len then raise End_of_file else String.get s !pos
+      if !pos = len then (
+        c <- nul;
+        raise End_of_file)
+      else String.get s !pos
   end
 
 let channel_input in_channel =
