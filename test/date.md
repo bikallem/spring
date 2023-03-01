@@ -43,3 +43,16 @@ val date3 : Ptime.t = <abstr>
 # Date.encode date3;;
 - : string = "Sun, 06 Nov 1994 08:49:37 GMT"
 ```
+
+## Date.now 
+
+```ocaml
+let mock_clock = Eio_mock.Clock.make ()
+let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
+```
+
+```ocaml
+# Date.now mock_clock |> Eio.traceln "%a" Ptime.pp;; 
++2022-10-24 16:12:15 +00:00
+- : unit = ()
+```
