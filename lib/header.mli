@@ -49,6 +49,8 @@ val header : 'a decode -> 'a encode -> string -> 'a header
     See {!val:canonical_name}. *)
 val name : 'a header -> name
 
+(** [encode hdr v] is [txt]. [txt] is a textual representation of [hdr] and [v].
+    It is suitable for use in request/response header section. *)
 val encode : 'a header -> 'a -> string
 
 (** {2 Predefined Headers} *)
