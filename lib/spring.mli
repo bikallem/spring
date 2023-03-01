@@ -1,7 +1,7 @@
 module Version = Version
 module Method = Method
 
-include module type of Method.M
+(** {1 Header} *)
 
 module Te = Te
 module Transfer_encoding = Transfer_encoding

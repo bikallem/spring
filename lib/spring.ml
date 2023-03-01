@@ -1,6 +1,7 @@
 module Version = Version
 module Method = Method
-include Method.M
+
+(* Header *)
 module Te = Te
 module Transfer_encoding = Transfer_encoding
 module Date = Date
