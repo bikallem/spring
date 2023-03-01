@@ -145,7 +145,8 @@ let test_client f =
 
 ```ocaml
 # test_client @@ fun t ->
-  let body = Body.content_writer ~content:"hello world" ~content_type:"text/plain" in
+  let content_type = Content_type.make ("text", "plain") in
+  let body = Body.content_writer content_type "hello world" in
   Client.post t body "www.example.com/upload" ;;
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
