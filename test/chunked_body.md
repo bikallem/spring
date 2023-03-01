@@ -7,13 +7,22 @@ open Spring
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
+
+let write_header b : < f : 'a. 'a Header.header -> 'a -> unit > =
+  object
+    method f : 'a. 'a Header.header -> 'a -> unit =
+      fun hdr v ->
+        let v = Header.encode hdr v in
+        let name = (Header.name hdr :> string) in
+        Header.write_header (Buffer.add_string b) name v
+  end
+
 let test_writer w =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  let f ~name ~value = Buffer.add_string b (name ^ ": " ^ value ^ "\n") in
   Eio.Buf_write.with_flow s (fun bw ->
-    w#write_header f;
+    w#write_header (write_header b);
     w#write_body bw;
   );
   Eio.traceln "%s" (Buffer.contents b);;
