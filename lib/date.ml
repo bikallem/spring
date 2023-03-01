@@ -209,3 +209,7 @@ let encode now =
   in
   Format.sprintf "%s, %02d %s %04d %02d:%02d:%02d GMT" weekday dd month year hh
     min ss
+
+let now (clock : #Eio.Time.clock) =
+  let now = Eio.Time.now clock in
+  Ptime.of_float_s now |> Option.get

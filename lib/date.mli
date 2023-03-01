@@ -16,9 +16,11 @@
 
     {[
       Date.decode "Sun, 06 Nov 1994 08:49:37 GMT"
-    ]}
-    @raise Failure if [v] contains invalid/unsupported date format. *)
+    ]} *)
 val decode : string -> Ptime.t
 
 (** [encode date] converts [date] into IMF fixdate format. *)
 val encode : Ptime.t -> string
+
+(** [now clock] is [ptime] where [ptime] is the current date time value. *)
+val now : #Eio.Time.clock -> Ptime.t
