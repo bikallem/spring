@@ -68,7 +68,7 @@ let test_server_response r =
 # test_server_response @@ Response.text "hello, world";;
 +HTTP/1.1 200 OK
 +Content-Length: 12
-+Content-Type: text/plain; charset=UTF-8
++Content-Type: text/plain; charset=uf-8
 +
 +hello, world
 - : unit = ()
@@ -80,7 +80,7 @@ let test_server_response r =
 # test_server_response @@ Response.html "hello, world";;
 +HTTP/1.1 200 OK
 +Content-Length: 12
-+Content-Type: text/html; charset=UTF-8
++Content-Type: text/html; charset=uf-8
 +
 +hello, world
 - : unit = ()
