@@ -120,7 +120,6 @@ let element (i : #input) =
       let nm = tag i in
       (* attributes *)
       skip_ws i;
-      Printf.printf "%c\n%!" i#c;
       expect '>' i;
       nm
     in

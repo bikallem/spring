@@ -25,7 +25,6 @@ val i : P.input = <obj>
 val i : P.input = <obj>
 
 # P.element i;;
->
 - : string = "div"
 ```
 
@@ -36,7 +35,6 @@ Element with children.
 val i : P.input = <obj>
 
 # P.element i;;
->
 - : string = "div"
 ```
 
