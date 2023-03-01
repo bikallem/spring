@@ -14,6 +14,8 @@ val make : ?params:(string * string) list -> string -> t
     ]} *)
 val decode : string -> t
 
+(** [encode t] encodes [t] into a textual representation of
+    [Content-Disposition] header value. *)
 val encode : t -> string
 
 val disposition : t -> string
