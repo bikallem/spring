@@ -177,8 +177,8 @@ let parse_chunk (total_read : int) (headers : Header.t) =
     let request_headers =
       match Header.(find request_headers transfer_encoding) with
       | Some te' ->
-        let te' = Transfer_encoding_hdr.(remove te' chunked) in
-        if Transfer_encoding_hdr.is_empty te' then
+        let te' = Transfer_encoding.(remove te' chunked) in
+        if Transfer_encoding.is_empty te' then
           Header.(remove request_headers transfer_encoding)
         else Header.(replace request_headers transfer_encoding te')
       | None -> assert false
@@ -197,7 +197,7 @@ type write_trailer = (Header.t -> unit) -> unit
 let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =
   object
     method write_header (f : < f : 'a. 'a Header.header -> 'a -> unit >) =
-      let t_enc = Transfer_encoding_hdr.(singleton chunked) in
+      let t_enc = Transfer_encoding.(singleton chunked) in
       f#f Header.transfer_encoding t_enc
 
     method write_body writer =
@@ -233,7 +233,7 @@ let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =
 
 let read_chunked f (t : #Body.readable) =
   match Header.(find t#headers transfer_encoding) with
-  | Some te when Transfer_encoding_hdr.(exists te chunked) ->
+  | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
     let rec chunk_loop f =
       let chunk = parse_chunk !total_read t#headers t#buf_read in
