@@ -1,5 +1,6 @@
 module Version = Version
 module Method = Method
+module Status = Status
 
 (** {1 Header} *)
 
@@ -18,13 +19,18 @@ module Body = Body
 module Chunked = Chunked
 module Multipart = Multipart
 
-(* {1 Others} *)
-
-module Status = Status
-
-include module type of Status.S
+(* {1 Request} *)
 
 module Request = Request
+
+(** {1 Response} *)
+
 module Response = Response
+
+(** {1 Client} *)
+
 module Client = Client
+
+(** {1 Server} *)
+
 module Server = Server

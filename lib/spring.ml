@@ -1,5 +1,6 @@
 module Version = Version
 module Method = Method
+module Status = Status
 
 (* Header *)
 module Te = Te
@@ -17,8 +18,6 @@ module Chunked = Chunked
 module Multipart = Multipart
 
 (* Others *)
-module Status = Status
-include Status.S
 module Request = Request
 module Response = Response
 module Client = Client
