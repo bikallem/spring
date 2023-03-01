@@ -64,6 +64,8 @@ val content_disposition : Content_disposition.t header
     https://httpwg.org/specs/rfc9110.html#field.host *)
 val host : string header
 
+(** [trailer] is the [Trailer] header as specified in
+    https://httpwg.org/specs/rfc9110.html#field.trailer *)
 val trailer : string header
 
 (** [transfer_encoding] is the [Transfer-Encoding] header as defined in
