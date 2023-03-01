@@ -2,7 +2,7 @@ module Version = Version
 module Method = Method
 include Method.M
 module Te_hdr = Te_hdr
-module Transfer_encoding_hdr = Transfer_encoding_hdr
+module Transfer_encoding = Transfer_encoding
 module Date = Date
 module Content_type = Content_type
 module Content_disposition = Content_disposition
