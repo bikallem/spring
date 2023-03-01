@@ -14,7 +14,7 @@ let reader (body : #Body.readable) =
   let body = (body :> Body.readable) in
   let boundary =
     match
-      let* ct = Header.(find body#headers content_type) in
+      let* ct = Header.(find_opt body#headers content_type) in
       Content_type.find_param ct "boundary"
     with
     | Some v -> v
@@ -111,7 +111,7 @@ let next_part (t : reader) =
     failwith @@ "mulitpart: expecting a new part; got line \"" ^ ln ^ "\""
   else
     let headers = Header.parse t.r in
-    match Header.(find headers content_disposition) with
+    match Header.(find_opt headers content_disposition) with
     | Some d ->
       if String.equal "form-data" (Content_disposition.disposition d) then
         let filename = Content_disposition.find_param d "filename" in
