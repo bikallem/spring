@@ -141,9 +141,9 @@ let is_digit = function
 let is_alpha_num = function
   | c -> is_alpha c || is_digit c
 
-let rec skip_ws (i : #input) =
+let rec p_skip_ws (i : #input) =
   match i#next_char with
-  | '\t' | ' ' | '\n' | '\r' -> skip_ws i
+  | '\t' | ' ' | '\n' | '\r' -> p_skip_ws i
   | _ -> ()
 
 let tag i =
@@ -168,7 +168,7 @@ let tag i =
     err "start_tag" "tag name must start with an alphabet or '_' character" i
 
 let start_tag (i : #input) =
-  skip_ws i;
+  p_skip_ws i;
   match i#c with
   | '<' -> tag i
   | _ -> err "start_tag" "start tag must start with '<'" i
