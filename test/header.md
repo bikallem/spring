@@ -78,10 +78,10 @@ val h : Header.t = <abstr>
 ## Find
 
 ```ocaml
-# Header.(find h content_length);;
+# Header.(find_opt h content_length);;
 - : int option = Some 20
 
-# Header.(find h content_length);;
+# Header.(find_opt h content_length);;
 - : int option = Some 20
 
 # Header.(find_all h content_length);;
@@ -100,7 +100,7 @@ val h : Header.t = <abstr>
 # let h1 = Header.(remove headers content_length) ;;
 val h1 : Header.t = <abstr>
 
-# Header.(find h1 content_length);;
+# Header.(find_opt h1 content_length);;
 - : int option = None
 
 # Header.to_list h;;
@@ -115,7 +115,7 @@ val h2 : Header.t = <abstr>
 - : (Header.lname * string) list =
 [("content-type", "text/plain"); ("content-length", "300")]
 
-# Header.(find h2 content_length);;
+# Header.(find_opt h2 content_length);;
 - : int option = Some 300
 
 # Header.(find_all h2 content_length);;
@@ -133,10 +133,10 @@ val hdr : string =
 # let t = Header.parse @@ Eio.Buf_read.of_string hdr ;;
 val t : Header.t = <abstr>
 
-# Header.(find t host);;
+# Header.(find_opt t host);;
 - : string option = Some "localhost:1234"
 
-# Header.(find t content_length);;
+# Header.(find_opt t content_length);;
 - : int option = Some 10063
 ```
 
@@ -150,11 +150,11 @@ val hdr : string =
 # let t = Header.parse @@ Eio.Buf_read.of_string hdr ;;
 val t : Header.t = <abstr>
 
-# Header.(find t content_type) |> Option.iter (fun x -> Eio.traceln "%s" (Content_type.encode x)) ;;
+# Header.(find_opt t content_type) |> Option.iter (fun x -> Eio.traceln "%s" (Content_type.encode x)) ;;
 +image/svg+xml
 - : unit = ()
 
-# Header.(find t content_disposition) |> Option.iter (fun x -> Eio.traceln "%s" (Content_disposition.encode x)) ;;
+# Header.(find_opt t content_disposition) |> Option.iter (fun x -> Eio.traceln "%s" (Content_disposition.encode x)) ;;
 +form-data; filename="New document 1.2020_08_01_13_16_42.0.svg"; name="name"
 - : unit = ()
 ```
@@ -165,7 +165,7 @@ val t : Header.t = <abstr>
 # let t = Header.parse (Eio.Buf_read.of_string "Cookie: SID=31d4d96e407aad42; lang=en\r\n\r\n");;
 val t : Header.t = <abstr>
 
-# let cookies = Header.(find t cookie) |> Option.get ;;
+# let cookies = Header.(find_opt t cookie) |> Option.get ;;
 val cookies : Cookie.t = <abstr>
 
 # Cookie.find cookies "SID";;
