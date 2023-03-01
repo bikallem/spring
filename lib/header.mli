@@ -48,6 +48,8 @@ val encode : 'a header -> 'a -> string
 
 (** {2 Predefined Headers} *)
 
+(** [content_length] is the [Content-Length] header as defined in
+    https://httpwg.org/specs/rfc9110.html#rfc.section.8.6 *)
 val content_length : int header
 
 val content_type : Content_type.t header
