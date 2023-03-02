@@ -101,7 +101,10 @@ let tag i =
     i#next;
     aux ()
   | _ ->
-    err "start_tag" "tag name must start with an alphabet or '_' character" i
+    err "start_tag"
+      ("tag name must start with an alphabet or '_' character, got '"
+     ^ Char.escaped i#c ^ "'")
+      i
 
 let expect c (i : #input) =
   if Char.equal c i#c then ()
@@ -110,40 +113,80 @@ let expect c (i : #input) =
       ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i#c ^ "'")
       i
 
-let element (i : #input) =
-  i#next;
+(* <div *)
+let start_tag (i : #input) =
   skip_ws i;
   match i#c with
   | '<' ->
     i#next;
-    let name = tag i in
-    (* attributes *)
-    skip_ws i;
-    let _children =
-      match i#c with
-      | '/' ->
-        i#next;
-        expect '>' i;
-        i#next;
-        []
-      | '>' ->
-        i#next;
-        skip_ws i;
-        (* children *)
-        []
-      | _ -> err "element" "expecting '/>' or '>'" i
-    in
-    skip_ws i;
-    expect '<' i;
+    tag i
+  | c ->
+    err "start_tag"
+      ("start tag must start with '<', got '" ^ Char.escaped c ^ "'")
+      i
+
+(* /> or > *)
+let start_tag_close i =
+  skip_ws i;
+  match i#c with
+  | '/' ->
     i#next;
-    expect '/' i;
+    expect '>' i;
     i#next;
-    let name2 = tag i in
-    skip_ws i;
-    if String.equal name name2 then expect '>' i
+    `Close_elem
+  | '>' ->
+    i#next;
+    `Close_start_tag
+  | c ->
+    err "start_tag_close"
+      ("'/>' or '>' expected, got '" ^ Char.escaped c ^ "'")
+      i
+
+(* </div> *)
+let close_tag start_tag i =
+  expect '<' i;
+  i#next;
+  expect '/' i;
+  i#next;
+  let close_tag = tag i in
+  expect '>' i;
+  if String.equal start_tag close_tag then ()
+  else
+    err "close_tag"
+      ("expected closed tag '" ^ start_tag ^ "', got '" ^ close_tag ^ "'")
+      i
+
+let is_void_elem = function
+  | "area"
+  | "base"
+  | "br"
+  | "col"
+  | "embed"
+  | "hr"
+  | "img"
+  | "input"
+  | "link"
+  | "meta"
+  | "param"
+  | "source"
+  | "track"
+  | "wbr" -> true
+  | _ -> false
+
+let element (i : #input) =
+  let tag_name = start_tag i in
+  skip_ws i;
+  let start_tag_close = start_tag_close i in
+  let _children =
+    if is_void_elem tag_name then []
     else
-      err "element"
-        ("start tag '" ^ name ^ "' and end tag '" ^ name2 ^ "' doesn't match")
-        i;
-    name
-  | _ -> err "start_tag" "start tag must start with '<'" i
+      match start_tag_close with
+      | `Close_elem -> []
+      | `Close_start_tag -> []
+  in
+  close_tag tag_name i;
+  tag_name
+
+let root (i : #input) =
+  i#next;
+  element i
