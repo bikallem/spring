@@ -132,8 +132,8 @@ let start_tag_close i =
   | '/' ->
     i#next;
     expect '>' i;
-    `Close_slash_gt
-  | '>' -> `Close_gt
+    `Close_slash_gt (* /> *)
+  | '>' -> `Close_gt (* > *)
   | c ->
     err "start_tag_close"
       ("'/>' or '>' expected, got '" ^ Char.escaped c ^ "'")
@@ -181,8 +181,9 @@ let element (i : #input) =
       | `Close_slash_gt -> []
       | `Close_gt ->
         i#next;
+        let children = [] in
         close_tag tag_name i;
-        []
+        children
   in
   tag_name
 
