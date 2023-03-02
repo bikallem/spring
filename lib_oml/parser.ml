@@ -1,23 +1,86 @@
 let nul = '\000'
 
+type tok =
+  | End_elem_start (* </ *)
+  | Comment_elem (* <!-- *)
+  | Start_elem (* < *)
+  | Elem_slash_close (* /> *)
+  | Elem_close (* > *)
+  | Eoi (* End of input *)
+
+let tok_to_string = function
+  | End_elem_start -> "</"
+  | Comment_elem -> "<!--"
+  | Start_elem -> "<"
+  | Elem_slash_close -> "/>"
+  | Elem_close -> ">"
+  | Eoi -> "EOF"
+
 type input =
-  { buf : Buffer.t
-  ; mutable line : int
-  ; mutable col : int
-  ; mutable c : char
-  ; i : unit -> char
+  { buf : Buffer.t (* buffer *)
+  ; mutable line : int (* line number *)
+  ; mutable col : int (* column number *)
+  ; mutable c : char (* lookahead character *)
+  ; mutable tok : tok (* current token *)
+  ; i : unit -> char (* input function *)
   }
 
 let next i =
-  let c = i.i () in
-  match c with
-  | '\n' ->
-    i.col <- 1;
-    i.line <- i.line + 1;
-    i.c <- c
-  | _ ->
-    i.col <- i.col + 1;
-    i.c <- c
+  try
+    let c = i.i () in
+    match c with
+    | '\n' ->
+      i.col <- 1;
+      i.line <- i.line + 1;
+      i.c <- c
+    | _ ->
+      i.col <- i.col + 1;
+      i.c <- c
+  with End_of_file -> i.c <- nul
+
+let rec skip_ws i =
+  match i.c with
+  | '\t' | ' ' | '\n' | '\r' ->
+    next i;
+    skip_ws i
+  | _ -> ()
+
+let err lbl msg (i : input) =
+  failwith
+    (lbl ^ "(" ^ string_of_int i.line ^ "," ^ string_of_int i.col ^ ") : " ^ msg)
+
+let expect_c c i =
+  if Char.equal c i.c then ()
+  else
+    err "expect"
+      ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i.c ^ "'")
+      i
+
+let tok i =
+  skip_ws i;
+  match i.c with
+  | '<' -> (
+    next i;
+    match i.c with
+    | '/' ->
+      next i;
+      i.tok <- End_elem_start
+    | '!' ->
+      expect_c '-' i;
+      next i;
+      expect_c '-' i;
+      next i;
+      i.tok <- Comment_elem
+    | _ -> i.tok <- Start_elem)
+  | '/' ->
+    next i;
+    expect_c '>' i;
+    next i;
+    i.tok <- Elem_slash_close
+  | '>' ->
+    next i;
+    i.tok <- Elem_close
+  | c -> err "tok" ("unrecognized character '" ^ Char.escaped c ^ "'") i
 
 let string_input s =
   let len = String.length s in
@@ -26,15 +89,14 @@ let string_input s =
     incr pos;
     if !pos = len then raise End_of_file else String.get s !pos
   in
-  let input = { buf = Buffer.create 10; line = 1; col = 0; c = nul; i } in
+  let input =
+    { buf = Buffer.create 10; line = 1; col = 0; c = nul; tok = Eoi; i }
+  in
   next input;
+  tok input;
   input
 
 let add_c i = Buffer.add_char i.buf i.c
-
-let err lbl msg (i : input) =
-  failwith
-    (lbl ^ "(" ^ string_of_int i.line ^ "," ^ string_of_int i.col ^ ") : " ^ msg)
 
 let clear i = Buffer.clear i.buf
 
@@ -48,13 +110,6 @@ let is_digit = function
 
 let is_alpha_num = function
   | c -> is_alpha c || is_digit c
-
-let rec skip_ws i =
-  match i.c with
-  | '\t' | ' ' | '\n' | '\r' ->
-    next i;
-    skip_ws i
-  | _ -> ()
 
 let tag i =
   let rec aux () =
@@ -78,56 +133,31 @@ let tag i =
     next i;
     aux ()
   | _ ->
-    err "start_tag"
+    err "tag"
       ("tag name must start with an alphabet or '_' character, got '"
      ^ Char.escaped i.c ^ "'")
       i
 
-let expect c i =
-  if Char.equal c i.c then ()
+let expect_tok tok i =
+  if i.tok = tok then ()
   else
-    err "expect"
-      ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i.c ^ "'")
+    err "expect_tok"
+      ("expecting " ^ tok_to_string tok ^ " but got " ^ tok_to_string i.tok)
       i
 
-(* <div *)
-let start_tag i =
-  skip_ws i;
-  match i.c with
-  | '<' ->
-    next i;
-    tag i
-  | c ->
-    err "start_tag"
-      ("start tag must start with '<', got '" ^ Char.escaped c ^ "'")
-      i
-
-(* /> or > *)
-let start_tag_close i =
-  skip_ws i;
-  match i.c with
-  | '/' ->
-    next i;
-    expect '>' i;
-    `Close_slash_gt (* /> *)
-  | '>' -> `Close_gt (* > *)
-  | c ->
-    err "start_tag_close"
-      ("'/>' or '>' expected, got '" ^ Char.escaped c ^ "'")
-      i
+let _pf = Printf.printf
 
 (* </div> *)
-let close_tag start_tag i =
-  expect '<' i;
-  next i;
-  expect '/' i;
-  next i;
-  let close_tag = tag i in
-  expect '>' i;
-  if String.equal start_tag close_tag then ()
+let end_elem start_tag i =
+  tok i;
+  expect_tok End_elem_start i (* </ *);
+  let tag = tag i in
+  tok i;
+  expect_tok Elem_close i (* > *);
+  if String.equal start_tag tag then ()
   else
     err "close_tag"
-      ("expected closed tag '" ^ start_tag ^ "', got '" ^ close_tag ^ "'")
+      ("expected closed tag '" ^ start_tag ^ "', got '" ^ tag ^ "'")
       i
 
 let is_void_elem = function
@@ -147,19 +177,38 @@ let is_void_elem = function
   | "wbr" -> true
   | _ -> false
 
+let void_elem_close i =
+  tok i;
+  match i.tok with
+  | Elem_close | Elem_slash_close -> ()
+  | tok ->
+    err "void_elem_close"
+      ("expecting '" ^ tok_to_string Elem_close ^ "' or '"
+      ^ tok_to_string Elem_slash_close
+      ^ "', got '" ^ tok_to_string tok ^ "'.")
+      i
+
 let element i =
-  let tag_name = start_tag i in
-  skip_ws i;
-  let start_tag_close = start_tag_close i in
+  expect_tok Start_elem i;
+  let tag_name = tag i in
   let _children =
-    if is_void_elem tag_name then []
-    else
-      match start_tag_close with
-      | `Close_slash_gt -> []
-      | `Close_gt ->
-        next i;
+    if is_void_elem tag_name then (
+      void_elem_close i;
+      [])
+    else (
+      tok i;
+      match i.tok with
+      | Elem_slash_close -> [] (* no children *)
+      | Elem_close ->
         let children = [] in
-        close_tag tag_name i;
+        end_elem tag_name i;
         children
+      | tok ->
+        err "element"
+          ("expecting '"
+          ^ tok_to_string Elem_slash_close
+          ^ "' or '" ^ tok_to_string Elem_close ^ "', got '" ^ tok_to_string tok
+          ^ "'")
+          i)
   in
   tag_name
