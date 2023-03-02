@@ -132,11 +132,8 @@ let start_tag_close i =
   | '/' ->
     i#next;
     expect '>' i;
-    i#next;
-    `Close_elem
-  | '>' ->
-    i#next;
-    `Close_start_tag
+    `Close_slash_gt
+  | '>' -> `Close_gt
   | c ->
     err "start_tag_close"
       ("'/>' or '>' expected, got '" ^ Char.escaped c ^ "'")
@@ -181,10 +178,12 @@ let element (i : #input) =
     if is_void_elem tag_name then []
     else
       match start_tag_close with
-      | `Close_elem -> []
-      | `Close_start_tag -> []
+      | `Close_slash_gt -> []
+      | `Close_gt ->
+        i#next;
+        close_tag tag_name i;
+        []
   in
-  close_tag tag_name i;
   tag_name
 
 let root (i : #input) =

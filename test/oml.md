@@ -8,7 +8,7 @@ let () = Printexc.record_backtrace true;
 ## Oml.skip_ws
 
 ```ocaml
-# let i = P.string_input "\t \n\r <hello";;
+# let i = P.string_input "\t \n\r <";;
 val i : P.input = <obj>
 
 # P.skip_ws i;;
@@ -24,7 +24,7 @@ val i : P.input = <obj>
 # let i = P.string_input "\t \n\r <div    ></div>";;
 val i : P.input = <obj>
 
-# P.element i;;
+# P.root i;;
 - : string = "div"
 ```
 
@@ -34,7 +34,7 @@ Element with children.
 # let i = P.string_input "\t \n\r <div></div>";;
 val i : P.input = <obj>
 
-# P.element i;;
+# P.root i;;
 - : string = "div"
 ```
 
