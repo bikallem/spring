@@ -230,7 +230,6 @@ and children start_tag i =
       acc
     | _ -> acc
   in
-  let e = element i in
-  aux [ e ]
+  aux []
 
 let root i = element i
