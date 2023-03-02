@@ -1,65 +1,42 @@
 let nul = '\000'
 
-class virtual input =
-  object (self)
-    val mutable line = 1
+type input =
+  { buf : Buffer.t
+  ; mutable line : int
+  ; mutable col : int
+  ; mutable c : char
+  ; i : unit -> char
+  }
 
-    val mutable col = 0
-
-    val mutable c = nul
-
-    val buf = Buffer.create 10
-
-    method line = line
-
-    method col = col
-
-    method c = c
-
-    method buf = buf
-
-    method add = Buffer.add_char buf c
-
-    method next =
-      let c' = self#char in
-      match c' with
-      | '\n' ->
-        col <- 1;
-        line <- line + 1;
-        c <- c'
-      | _ ->
-        col <- col + 1;
-        c <- c'
-
-    method virtual char : char
-  end
+let next i =
+  let c = i.i () in
+  match c with
+  | '\n' ->
+    i.col <- 1;
+    i.line <- i.line + 1;
+    i.c <- c
+  | _ ->
+    i.col <- i.col + 1;
+    i.c <- c
 
 let string_input s =
   let len = String.length s in
   let pos = ref (-1) in
-  object
-    inherit input
+  let i () =
+    incr pos;
+    if !pos = len then raise End_of_file else String.get s !pos
+  in
+  let input = { buf = Buffer.create 10; line = 1; col = 0; c = nul; i } in
+  next input;
+  input
 
-    method char =
-      incr pos;
-      if !pos = len then (
-        c <- nul;
-        raise End_of_file)
-      else String.get s !pos
-  end
+let add_c i = Buffer.add_char i.buf i.c
 
-let channel_input in_channel =
-  object
-    inherit input
-
-    method char = input_char in_channel
-  end
-
-let err lbl msg (i : #input) =
+let err lbl msg (i : input) =
   failwith
-    (lbl ^ "(" ^ string_of_int i#line ^ "," ^ string_of_int i#col ^ ") : " ^ msg)
+    (lbl ^ "(" ^ string_of_int i.line ^ "," ^ string_of_int i.col ^ ") : " ^ msg)
 
-let clear (i : #input) = Buffer.clear i#buf
+let clear i = Buffer.clear i.buf
 
 let is_alpha = function
   | 'a' .. 'z' | 'A' .. 'Z' -> true
@@ -72,53 +49,53 @@ let is_digit = function
 let is_alpha_num = function
   | c -> is_alpha c || is_digit c
 
-let rec skip_ws (i : #input) =
-  match i#c with
+let rec skip_ws i =
+  match i.c with
   | '\t' | ' ' | '\n' | '\r' ->
-    i#next;
+    next i;
     skip_ws i
   | _ -> ()
 
 let tag i =
   let rec aux () =
-    match i#c with
+    match i.c with
     | c when is_alpha_num c ->
-      i#add;
-      i#next;
+      add_c i;
+      next i;
       aux ()
     | '_' | '\'' | '.' ->
-      i#add;
-      i#next;
+      add_c i;
+      next i;
       aux ()
     | _ ->
-      let tag = Buffer.contents i#buf in
+      let tag = Buffer.contents i.buf in
       clear i;
       tag
   in
-  match i#c with
+  match i.c with
   | c when is_alpha c || c = '_' ->
-    i#add;
-    i#next;
+    add_c i;
+    next i;
     aux ()
   | _ ->
     err "start_tag"
       ("tag name must start with an alphabet or '_' character, got '"
-     ^ Char.escaped i#c ^ "'")
+     ^ Char.escaped i.c ^ "'")
       i
 
-let expect c (i : #input) =
-  if Char.equal c i#c then ()
+let expect c i =
+  if Char.equal c i.c then ()
   else
     err "expect"
-      ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i#c ^ "'")
+      ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i.c ^ "'")
       i
 
 (* <div *)
-let start_tag (i : #input) =
+let start_tag i =
   skip_ws i;
-  match i#c with
+  match i.c with
   | '<' ->
-    i#next;
+    next i;
     tag i
   | c ->
     err "start_tag"
@@ -128,9 +105,9 @@ let start_tag (i : #input) =
 (* /> or > *)
 let start_tag_close i =
   skip_ws i;
-  match i#c with
+  match i.c with
   | '/' ->
-    i#next;
+    next i;
     expect '>' i;
     `Close_slash_gt (* /> *)
   | '>' -> `Close_gt (* > *)
@@ -142,9 +119,9 @@ let start_tag_close i =
 (* </div> *)
 let close_tag start_tag i =
   expect '<' i;
-  i#next;
+  next i;
   expect '/' i;
-  i#next;
+  next i;
   let close_tag = tag i in
   expect '>' i;
   if String.equal start_tag close_tag then ()
@@ -170,7 +147,7 @@ let is_void_elem = function
   | "wbr" -> true
   | _ -> false
 
-let element (i : #input) =
+let element i =
   let tag_name = start_tag i in
   skip_ws i;
   let start_tag_close = start_tag_close i in
@@ -180,13 +157,9 @@ let element (i : #input) =
       match start_tag_close with
       | `Close_slash_gt -> []
       | `Close_gt ->
-        i#next;
+        next i;
         let children = [] in
         close_tag tag_name i;
         children
   in
   tag_name
-
-let root (i : #input) =
-  i#next;
-  element i
