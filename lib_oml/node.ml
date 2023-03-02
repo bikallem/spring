@@ -10,8 +10,9 @@ class type ['repr] t =
           method float : float -> 'repr
 
           method raw_text : string -> 'repr
-       method void : attribute list -> string -> 'repr
     *)
+    method void : string -> 'repr
+
     method text : string -> 'repr
 
     method element : 'repr t list -> string -> 'repr
@@ -41,11 +42,11 @@ let text txt ro =
 
 (* let raw_text txt ro = ro#text txt *)
 
-(* let void ?(attributes = []) name ro = ro#void ~attributes name *)
+let void tag ro = ro#void tag
 
-let element ?(children = []) name ro =
+let element ?(children = []) tag ro =
   let children = List.map (fun child -> child ro) children in
-  ro#element children name
+  ro#element children tag
 
 (* interpreters *)
 
@@ -53,10 +54,17 @@ class html =
   object
     method text s : string = s
 
-    method element children name =
+    method void tag : string =
       let b = Buffer.create 10 in
-      Buffer.add_string b ("<" ^ name ^ ">");
+      Buffer.add_char b '<';
+      Buffer.add_string b tag;
+      Buffer.add_string b "/>";
+      Buffer.contents b
+
+    method element children tag =
+      let b = Buffer.create 10 in
+      Buffer.add_string b ("<" ^ tag ^ ">");
       List.iter (Buffer.add_string b) children;
-      Buffer.add_string b ("<" ^ name ^ "/>");
+      Buffer.add_string b ("</" ^ tag ^ ">");
       Buffer.contents b
   end
