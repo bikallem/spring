@@ -58,13 +58,13 @@ val i : P.input =
 Element with code-block children.
 
 ```ocaml
-# let i = P.string_input {|<div>{Node.text \"hello"}</div>|};;
+# let i = P.string_input {|<div>{Node.text "hello"}</div>|};;
 val i : P.input =
   {P.buf = <abstr>; line = 1; col = 2; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ html;;
-- : string = "<div>{Node.text \\\"hello\"}</div>"
+- : string = "<div>{Node.text \"hello\"}</div>"
 ```
 
 
