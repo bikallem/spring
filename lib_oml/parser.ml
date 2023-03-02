@@ -6,6 +6,8 @@ type tok =
   | Start_elem (* < *)
   | Elem_slash_close (* /> *)
   | Elem_close (* > *)
+  | Code_block_start (* { *)
+  | Code_block_end (* } *)
   | Tag (* element tag name *)
   | Eoi (* End of input *)
 
@@ -15,6 +17,8 @@ let tok_to_string = function
   | Start_elem -> "START_ELEM"
   | Elem_slash_close -> "ELEM_SLASH_CLOSE"
   | Elem_close -> "ELEM_CLOSE"
+  | Code_block_start -> "CODE_BLOCK_START"
+  | Code_block_end -> "CODE_BLOCK_END"
   | Tag -> "TAG"
   | Eoi -> "EOF"
 
@@ -97,6 +101,8 @@ let tok i =
   | '>' ->
     next i;
     i.tok <- Elem_close
+  | '{' -> i.tok <- Code_block_start
+  | '}' -> i.tok <- Code_block_end
   | c when is_alpha c || c = '_' -> i.tok <- Tag
   | c -> err "tok" ("unrecognized character '" ^ Char.escaped c ^ "'") i
 
@@ -202,7 +208,7 @@ let rec element i =
         tok i;
         end_elem tag_name i;
         Node.element tag_name
-      | Start_elem (* < *) ->
+      | Start_elem | Code_block_start ->
         let children = children tag_name i in
         Node.element ~children tag_name
       | tok ->
@@ -228,8 +234,46 @@ and children start_tag i =
       tok i;
       end_elem start_tag i;
       acc
+    | Code_block_start -> aux (code_element i :: acc)
     | _ -> acc
   in
   aux []
+
+(* OCaml code blocks starts with '{' and ends with '}' *)
+and code_element i =
+  let rec aux parsing_code_block acc =
+    match i.c with
+    | '}' ->
+      let acc =
+        if parsing_code_block then (
+          let code = Buffer.contents i.buf in
+          clear i;
+          Node.code_block code :: acc)
+        else acc
+      in
+      next i;
+      i.tok <- Code_block_end;
+      acc
+    | '<' ->
+      let acc =
+        if parsing_code_block then (
+          let code = Buffer.contents i.buf in
+          clear i;
+          Node.code_block code :: acc)
+        else acc
+      in
+      i.tok <- Start_elem;
+      aux false (element i :: acc)
+    | _ ->
+      add_c i;
+      next i;
+      aux true acc
+  in
+  expect_tok Code_block_start i;
+  next i;
+  let code_blocks = aux false [] in
+  expect_tok Code_block_end i;
+  tok i;
+  Node.code_element code_blocks
 
 let root i = element i
