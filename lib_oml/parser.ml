@@ -31,10 +31,6 @@ class virtual input =
         col <- col + 1;
         c <- c'
 
-    method next_char =
-      self#next;
-      self#c
-
     method virtual char : char
   end
 
@@ -65,8 +61,6 @@ let err lbl msg (i : #input) =
 
 let clear (i : #input) = Buffer.clear i#buf
 
-let next (i : #input) = i#next
-
 let is_alpha = function
   | 'a' .. 'z' | 'A' .. 'Z' -> true
   | _ -> false
@@ -87,52 +81,69 @@ let rec skip_ws (i : #input) =
 
 let tag i =
   let rec aux () =
-    match i#next_char with
+    match i#c with
     | c when is_alpha_num c ->
       i#add;
+      i#next;
       aux ()
     | '_' | '\'' | '.' ->
       i#add;
+      i#next;
       aux ()
     | _ ->
       let tag = Buffer.contents i#buf in
       clear i;
       tag
   in
-  match i#next_char with
+  match i#c with
   | c when is_alpha c || c = '_' ->
     i#add;
+    i#next;
     aux ()
   | _ ->
     err "start_tag" "tag name must start with an alphabet or '_' character" i
 
 let expect c (i : #input) =
-  if Char.equal c i#c then i#next
+  if Char.equal c i#c then ()
   else
     err "expect"
       ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i#c ^ "'")
       i
 
 let element (i : #input) =
-  next i;
+  i#next;
   skip_ws i;
   match i#c with
   | '<' ->
+    i#next;
     let name = tag i in
     (* attributes *)
     skip_ws i;
     let _children =
       match i#c with
       | '/' ->
-        next i;
+        i#next;
         expect '>' i;
+        i#next;
         []
       | '>' ->
-        next i;
+        i#next;
+        skip_ws i;
+        (* children *)
         []
       | _ -> err "element" "expecting '/>' or '>'" i
     in
     skip_ws i;
-
+    expect '<' i;
+    i#next;
+    expect '/' i;
+    i#next;
+    let name2 = tag i in
+    skip_ws i;
+    if String.equal name name2 then expect '>' i
+    else
+      err "element"
+        ("start tag '" ^ name ^ "' and end tag '" ^ name2 ^ "' doesn't match")
+        i;
     name
   | _ -> err "start_tag" "start tag must start with '<'" i
