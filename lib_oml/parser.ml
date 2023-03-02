@@ -10,11 +10,11 @@ type tok =
   | Eoi (* End of input *)
 
 let tok_to_string = function
-  | End_elem_start -> "</"
-  | Comment_elem -> "<!--"
-  | Start_elem -> "<"
-  | Elem_slash_close -> "/>"
-  | Elem_close -> ">"
+  | End_elem_start -> "END_ELEM_START"
+  | Comment_elem -> "COMMENT_ELEM"
+  | Start_elem -> "START_ELEM"
+  | Elem_slash_close -> "ELEM_SLASH_CLOSE"
+  | Elem_close -> "ELEM_CLOSE"
   | Tag -> "TAG"
   | Eoi -> "EOF"
 
@@ -114,6 +114,13 @@ let string_input s =
   tok input;
   input
 
+let expect_tok tok i =
+  if i.tok = tok then ()
+  else
+    err "expect_tok"
+      ("expecting " ^ tok_to_string tok ^ " but got " ^ tok_to_string i.tok)
+      i
+
 let tag i =
   let rec aux () =
     match i.c with
@@ -130,16 +137,10 @@ let tag i =
       clear i;
       tag
   in
+  expect_tok Tag i;
   add_c i;
   next i;
   aux ()
-
-let expect_tok tok i =
-  if i.tok = tok then ()
-  else
-    err "expect_tok"
-      ("expecting " ^ tok_to_string tok ^ " but got " ^ tok_to_string i.tok)
-      i
 
 let _pf = Printf.printf
 
@@ -183,6 +184,8 @@ let void_elem_close i =
       i
 
 let rec element i =
+  expect_tok Start_elem i;
+  tok i;
   expect_tok Tag i;
   let tag_name = tag i in
   if is_void_elem tag_name then (
@@ -196,11 +199,11 @@ let rec element i =
       tok i;
       match i.tok with
       | End_elem_start (* </ *) ->
+        tok i;
         end_elem tag_name i;
         Node.element tag_name
       | Start_elem (* < *) ->
-        let children = children i in
-        end_elem tag_name i;
+        let children = children tag_name i in
         Node.element ~children tag_name
       | tok ->
         err "element"
@@ -217,15 +220,17 @@ let rec element i =
         ^ "'")
         i)
 
-and children i =
+and children start_tag i =
   let rec aux acc =
     match i.tok with
     | Start_elem -> aux (element i :: acc)
+    | End_elem_start ->
+      tok i;
+      end_elem start_tag i;
+      acc
     | _ -> acc
   in
-  aux []
+  let e = element i in
+  aux [ e ]
 
-let root i =
-  expect_tok Start_elem i;
-  tok i;
-  element i
+let root i = element i
