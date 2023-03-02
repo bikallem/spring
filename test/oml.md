@@ -18,7 +18,9 @@ val i : P.input = <obj>
 - : char = '\000'
 ```
 
-## Oml.start_tag
+## Oml.root 
+
+normal element.
 
 ```ocaml
 # let i = P.string_input "\t \n\r <div    ></div>";;
@@ -26,6 +28,22 @@ val i : P.input = <obj>
 
 # P.root i;;
 - : string = "div"
+```
+
+Void element (must close with '/>' or '>').
+
+```ocaml
+# let i = P.string_input "\t \n\r <area />";;
+val i : P.input = <obj>
+
+# P.root i;;
+- : string = "area"
+
+# let i = P.string_input "\t \n\r <area >";;
+val i : P.input = <obj>
+
+# P.root i;;
+- : string = "area"
 ```
 
 Element with children.
