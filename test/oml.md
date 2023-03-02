@@ -46,13 +46,13 @@ val i : P.input =
 Element with children.
 
 ```ocaml
-# let i = P.string_input "\t \n\r <div></div>";;
+# let i = P.string_input "\t \n\r <div><span><area/></span></div>";;
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 5; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ html;;
-- : string = "<div></div>"
+- : string = "<div><span><area/></span></div>"
 ```
 
 let _exp1 () = element ~children:[ text "hello<&"; element "div" ] "div"
