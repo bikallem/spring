@@ -6,6 +6,7 @@ type tok =
   | Start_elem (* < *)
   | Elem_slash_close (* /> *)
   | Elem_close (* > *)
+  | Tag (* element tag name *)
   | Eoi (* End of input *)
 
 let tok_to_string = function
@@ -14,6 +15,7 @@ let tok_to_string = function
   | Start_elem -> "<"
   | Elem_slash_close -> "/>"
   | Elem_close -> ">"
+  | Tag -> "TAG"
   | Eoi -> "EOF"
 
 type input =
@@ -56,6 +58,21 @@ let expect_c c i =
       ("expecting '" ^ Char.escaped c ^ "', got '" ^ Char.escaped i.c ^ "'")
       i
 
+let is_alpha = function
+  | 'a' .. 'z' | 'A' .. 'Z' -> true
+  | _ -> false
+
+let is_digit = function
+  | '0' .. '9' -> true
+  | _ -> false
+
+let is_alpha_num = function
+  | c -> is_alpha c || is_digit c
+
+let add_c i = Buffer.add_char i.buf i.c
+
+let clear i = Buffer.clear i.buf
+
 let tok i =
   skip_ws i;
   match i.c with
@@ -80,6 +97,7 @@ let tok i =
   | '>' ->
     next i;
     i.tok <- Elem_close
+  | c when is_alpha c || c = '_' -> i.tok <- Tag
   | c -> err "tok" ("unrecognized character '" ^ Char.escaped c ^ "'") i
 
 let string_input s =
@@ -95,21 +113,6 @@ let string_input s =
   next input;
   tok input;
   input
-
-let add_c i = Buffer.add_char i.buf i.c
-
-let clear i = Buffer.clear i.buf
-
-let is_alpha = function
-  | 'a' .. 'z' | 'A' .. 'Z' -> true
-  | _ -> false
-
-let is_digit = function
-  | '0' .. '9' -> true
-  | _ -> false
-
-let is_alpha_num = function
-  | c -> is_alpha c || is_digit c
 
 let tag i =
   let rec aux () =
@@ -127,16 +130,9 @@ let tag i =
       clear i;
       tag
   in
-  match i.c with
-  | c when is_alpha c || c = '_' ->
-    add_c i;
-    next i;
-    aux ()
-  | _ ->
-    err "tag"
-      ("tag name must start with an alphabet or '_' character, got '"
-     ^ Char.escaped i.c ^ "'")
-      i
+  add_c i;
+  next i;
+  aux ()
 
 let expect_tok tok i =
   if i.tok = tok then ()
@@ -149,8 +145,6 @@ let _pf = Printf.printf
 
 (* </div> *)
 let end_elem start_tag i =
-  tok i;
-  expect_tok End_elem_start i (* </ *);
   let tag = tag i in
   tok i;
   expect_tok Elem_close i (* > *);
@@ -188,27 +182,50 @@ let void_elem_close i =
       ^ "', got '" ^ tok_to_string tok ^ "'.")
       i
 
-let element i =
-  expect_tok Start_elem i;
+let rec element i =
+  expect_tok Tag i;
   let tag_name = tag i in
-  let _children =
-    if is_void_elem tag_name then (
-      void_elem_close i;
-      [])
-    else (
+  if is_void_elem tag_name then (
+    void_elem_close i;
+    Node.void tag_name)
+  else (
+    tok i;
+    match i.tok with
+    | Elem_slash_close -> Node.element tag_name (* no children *)
+    | Elem_close -> (
       tok i;
       match i.tok with
-      | Elem_slash_close -> [] (* no children *)
-      | Elem_close ->
-        let children = [] in
+      | End_elem_start (* </ *) ->
         end_elem tag_name i;
-        children
+        Node.element tag_name
+      | Start_elem (* < *) ->
+        let children = children i in
+        end_elem tag_name i;
+        Node.element ~children tag_name
       | tok ->
         err "element"
           ("expecting '"
-          ^ tok_to_string Elem_slash_close
-          ^ "' or '" ^ tok_to_string Elem_close ^ "', got '" ^ tok_to_string tok
+          ^ tok_to_string End_elem_start
+          ^ "' or '" ^ tok_to_string Start_elem ^ "', got '" ^ tok_to_string tok
           ^ "'")
           i)
+    | tok ->
+      err "element"
+        ("expecting '"
+        ^ tok_to_string Elem_slash_close
+        ^ "' or '" ^ tok_to_string Elem_close ^ "', got '" ^ tok_to_string tok
+        ^ "'")
+        i)
+
+and children i =
+  let rec aux acc =
+    match i.tok with
+    | Start_elem -> aux (element i :: acc)
+    | _ -> acc
   in
-  tag_name
+  aux []
+
+let root i =
+  expect_tok Start_elem i;
+  tok i;
+  element i
