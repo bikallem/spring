@@ -16,6 +16,10 @@ class type ['repr] t =
     method text : string -> 'repr
 
     method element : 'repr t list -> string -> 'repr
+
+    method code_block : string -> 'repr
+
+    method code_element : 'repr t list -> 'repr
   end
 
 (* Constructors *)
@@ -48,6 +52,12 @@ let element ?(children = []) tag ro =
   let children = List.map (fun child -> child ro) children in
   ro#element children tag
 
+let code_block code ro = ro#code_block code
+
+let code_element children ro =
+  let children = List.map (fun child -> child ro) children in
+  ro#code_element children
+
 (* interpreters *)
 
 class html =
@@ -66,5 +76,14 @@ class html =
       Buffer.add_string b ("<" ^ tag ^ ">");
       List.iter (Buffer.add_string b) children;
       Buffer.add_string b ("</" ^ tag ^ ">");
+      Buffer.contents b
+
+    method code_block code : string = code
+
+    method code_element children =
+      let b = Buffer.create 10 in
+      Buffer.add_char b '{';
+      List.iter (Buffer.add_string b) children;
+      Buffer.add_char b '}';
       Buffer.contents b
   end
