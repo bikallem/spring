@@ -8,7 +8,8 @@ type tok =
   | Elem_close (* > *)
   | Code_block_start (* { *)
   | Code_block_end (* } *)
-  | Tag (* element tag name *)
+  | Data (* element tag name *)
+  | Equal (* = *)
   | Eoi (* End of input *)
 
 let tok_to_string = function
@@ -19,7 +20,8 @@ let tok_to_string = function
   | Elem_close -> "ELEM_CLOSE"
   | Code_block_start -> "CODE_BLOCK_START"
   | Code_block_end -> "CODE_BLOCK_END"
-  | Tag -> "TAG"
+  | Data -> "TAG"
+  | Equal -> "EQUAL"
   | Eoi -> "EOF"
 
 type input =
@@ -103,7 +105,9 @@ let tok i =
     i.tok <- Elem_close
   | '{' -> i.tok <- Code_block_start
   | '}' -> i.tok <- Code_block_end
-  | c when is_alpha c || c = '_' -> i.tok <- Tag
+  | '=' -> i.tok <- Equal
+  | c when c = nul -> i.tok <- Eoi
+  | c when is_alpha c || c = '_' -> i.tok <- Data
   | c -> err "tok" ("unrecognized character '" ^ Char.escaped c ^ "'") i
 
 let string_input s =
@@ -127,6 +131,46 @@ let expect_tok tok i =
       ("expecting " ^ tok_to_string tok ^ " but got " ^ tok_to_string i.tok)
       i
 
+let _pf = Printf.printf
+
+(* Attribute parsing *)
+
+let rec attribute_name i =
+  match i.c with
+  | ' ' | '=' | '>' | '/' ->
+    let name = Buffer.contents i.buf in
+    clear i;
+    name
+  | ('\x00' .. '\x1F' | '\x7F' .. '\x9F' | '"' | '\'') as c ->
+    err "attribute_name"
+      ("invalid attribute name character '" ^ Char.escaped c ^ "'")
+      i
+  | _ ->
+    add_c i;
+    next i;
+    attribute_name i
+
+let attributes i =
+  let attributes = Queue.create () in
+  let rec aux () =
+    let name = attribute_name i in
+(*     _pf "%s\n%!" name; *)
+    tok i;
+    match i.tok with
+    | Equal -> ()
+    | Elem_close -> ()
+    | Elem_slash_close -> ()
+    | _ ->
+      Queue.add (Node.bool_attr name) attributes;
+      aux ()
+  in
+  match i.tok with
+  | Data ->
+    aux ();
+    Queue.to_seq attributes |> List.of_seq
+  | _ -> []
+
+(* Element/Code Element/Comment/Text parsing *)
 let tag i =
   let rec aux () =
     match i.c with
@@ -143,14 +187,11 @@ let tag i =
       clear i;
       tag
   in
-  expect_tok Tag i;
+  expect_tok Data i;
   add_c i;
   next i;
   aux ()
 
-let _pf = Printf.printf
-
-(* </div> *)
 let end_elem start_tag i =
   let tag = tag i in
   tok i;
@@ -179,7 +220,6 @@ let is_void_elem = function
   | _ -> false
 
 let void_elem_close i =
-  tok i;
   match i.tok with
   | Elem_close | Elem_slash_close -> ()
   | tok ->
@@ -191,28 +231,30 @@ let void_elem_close i =
 
 let rec element i =
   expect_tok Start_elem i;
-  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
   tok i;
-  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
-  expect_tok Tag i;
+  expect_tok Data i;
   let tag_name = tag i in
+  tok i;
+  (*  _pf "%s\n%!" (tok_to_string i.tok);*)
+  let attributes = attributes i in
+  (*   _pf "%s\n%!" (tok_to_string i.tok); *)
+  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
   if is_void_elem tag_name then (
     void_elem_close i;
-    Node.void tag_name)
-  else (
-    tok i;
+    Node.void ~attributes tag_name)
+  else
     match i.tok with
-    | Elem_slash_close -> Node.element tag_name (* no children *)
+    | Elem_slash_close -> Node.element ~attributes tag_name (* no children *)
     | Elem_close -> (
       tok i;
       match i.tok with
       | End_elem_start (* </ *) ->
         tok i;
         end_elem tag_name i;
-        Node.element tag_name
+        Node.element ~attributes tag_name
       | Start_elem | Code_block_start ->
         let children = children tag_name i in
-        Node.element ~children tag_name
+        Node.element ~attributes ~children tag_name
       | tok ->
         err "element"
           ("expecting '"
@@ -226,7 +268,7 @@ let rec element i =
         ^ tok_to_string Elem_slash_close
         ^ "' or '" ^ tok_to_string Elem_close ^ "', got '" ^ tok_to_string tok
         ^ "'")
-        i)
+        i
 
 and children start_tag i =
   let rec aux acc =
