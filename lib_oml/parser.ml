@@ -244,30 +244,24 @@ and code_element i =
   let rec aux parsing_code_block acc =
     match i.c with
     | '}' ->
-      let acc =
-        if parsing_code_block then (
-          let code = Buffer.contents i.buf in
-          clear i;
-          Node.code_block code :: acc)
-        else acc
-      in
+      let acc = prepend_code_block parsing_code_block i acc in
       next i;
       i.tok <- Code_block_end;
       acc
     | '<' ->
-      let acc =
-        if parsing_code_block then (
-          let code = Buffer.contents i.buf in
-          clear i;
-          Node.code_block code :: acc)
-        else acc
-      in
+      let acc = prepend_code_block parsing_code_block i acc in
       i.tok <- Start_elem;
       aux false (element i :: acc)
     | _ ->
       add_c i;
       next i;
       aux true acc
+  and prepend_code_block is_parsing_code_block i acc =
+    if is_parsing_code_block then (
+      let code = Buffer.contents i.buf in
+      clear i;
+      Node.code_block code :: acc)
+    else acc
   in
   expect_tok Code_block_start i;
   next i;
