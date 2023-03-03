@@ -20,7 +20,7 @@ let tok_to_string = function
   | Elem_close -> "ELEM_CLOSE"
   | Code_block_start -> "CODE_BLOCK_START"
   | Code_block_end -> "CODE_BLOCK_END"
-  | Data -> "TAG"
+  | Data -> "DATA"
   | Equal -> "EQUAL"
   | Eoi -> "EOF"
 
@@ -46,12 +46,14 @@ let next i =
       i.c <- c
   with End_of_file -> i.c <- nul
 
+let is_ascii_whitespace = function
+  | '\x09' | '\x0A' | '\x0C' | '\x0D' | '\x20' -> true
+  | _ -> false
+
 let rec skip_ws i =
-  match i.c with
-  | '\t' | ' ' | '\n' | '\r' ->
+  if is_ascii_whitespace i.c then (
     next i;
-    skip_ws i
-  | _ -> ()
+    skip_ws i)
 
 let err lbl msg (i : input) =
   failwith
@@ -137,10 +139,20 @@ let _pf = Printf.printf
 
 let rec attribute_name i =
   match i.c with
-  | ' ' | '=' | '>' | '/' ->
+  | ' ' | '=' | '>' ->
     let name = Buffer.contents i.buf in
     clear i;
     name
+  | '/' -> (
+    next i;
+    match i.c with
+    | '>' ->
+      let v = Buffer.contents i.buf in
+      clear i;
+      i.tok <- Elem_slash_close;
+      v
+    | _ ->
+      err "attribute_name" ("expected '>', got '" ^ Char.escaped i.c ^ "'") i)
   | ('\x00' .. '\x1F' | '\x7F' .. '\x9F' | '"' | '\'') as c ->
     err "attribute_name"
       ("invalid attribute name character '" ^ Char.escaped c ^ "'")
@@ -150,25 +162,95 @@ let rec attribute_name i =
     next i;
     attribute_name i
 
+let rec quoted_attribute_value c i =
+  if Char.equal i.c c then (
+    let v = Buffer.contents i.buf in
+    clear i;
+    next i;
+    v)
+  else (
+    add_c i;
+    next i;
+    quoted_attribute_value c i)
+
+let rec unquoted_attribute_value i =
+  match i.c with
+  | ' ' ->
+    let v = Buffer.contents i.buf in
+    clear i;
+    v
+  | '>' ->
+    let v = Buffer.contents i.buf in
+    clear i;
+    i.tok <- Elem_close;
+    v
+  | '/' -> (
+    next i;
+    match i.c with
+    | '>' ->
+      let v = Buffer.contents i.buf in
+      clear i;
+      i.tok <- Elem_slash_close;
+      v
+    | _ ->
+      err "unquoted_attribute_value"
+        ("expected '>', got '" ^ Char.escaped i.c ^ "'")
+        i)
+  | '"' | '\'' | '=' | '<' | '`' ->
+    err "unquoted_attribute_value"
+      ("invalid attribute value character '" ^ Char.escaped i.c ^ "'")
+      i
+  | c when is_ascii_whitespace c ->
+    err "unquoted_attribute_value"
+      ("invalid attribute value character '" ^ Char.escaped i.c ^ "'")
+      i
+  | _ ->
+    add_c i;
+    next i;
+    unquoted_attribute_value i
+
+let attribute_value i =
+  let v =
+    _pf "%c\n%!" i.c;
+
+    match i.c with
+    | ('\'' | '"') as c ->
+      next i;
+      quoted_attribute_value c i
+    | _ -> unquoted_attribute_value i
+  in
+  if String.(equal empty v) then
+    err "attribute_value" "empty attribute value not allowed" i
+  else v
+
 let attributes i =
   let attributes = Queue.create () in
   let rec aux () =
-    let name = attribute_name i in
-(*     _pf "%s\n%!" name; *)
-    tok i;
     match i.tok with
-    | Equal -> ()
-    | Elem_close -> ()
-    | Elem_slash_close -> ()
-    | _ ->
-      Queue.add (Node.bool_attr name) attributes;
-      aux ()
+    | Data -> (
+      let name = attribute_name i in
+      tok i;
+      match i.tok with
+      | Equal ->
+        next i;
+        skip_ws i;
+        let v = attribute_value i in
+        Queue.add (Node.attribute name v) attributes;
+        tok i;
+        aux ()
+      | Elem_close | Elem_slash_close ->
+        Queue.add (Node.bool_attr name) attributes
+      | Data ->
+        Queue.add (Node.bool_attr name) attributes;
+        aux ()
+      | _ ->
+        err "attributes"
+          ("expected token '=', '>' or '/>', got '" ^ tok_to_string i.tok ^ "'")
+          i)
+    | _ -> ()
   in
-  match i.tok with
-  | Data ->
-    aux ();
-    Queue.to_seq attributes |> List.of_seq
-  | _ -> []
+  aux ();
+  Queue.to_seq attributes |> List.of_seq
 
 (* Element/Code Element/Comment/Text parsing *)
 let tag i =
@@ -235,10 +317,7 @@ let rec element i =
   expect_tok Data i;
   let tag_name = tag i in
   tok i;
-  (*  _pf "%s\n%!" (tok_to_string i.tok);*)
   let attributes = attributes i in
-  (*   _pf "%s\n%!" (tok_to_string i.tok); *)
-  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
   if is_void_elem tag_name then (
     void_elem_close i;
     Node.void ~attributes tag_name)
