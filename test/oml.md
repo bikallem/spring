@@ -9,9 +9,9 @@ module P = Oml__Parser
 let pp = new Node.pp
 ```
 
-## Oml.root 
+## Oml.element
 
-normal element.
+## Normal HTML element.
 
 ```ocaml
 # let i = P.string_input "\t \n\r <div    ></div>";;
@@ -23,7 +23,7 @@ val i : P.input =
 - : string = "<div></div>"
 ```
 
-Void element (must close with '/>' or '>').
+## Void element (must close with '/>' or '>').
 
 ```ocaml
 # let i = P.string_input "\t \n\r <area />";;
@@ -43,7 +43,7 @@ val i : P.input =
 - : string = "<area/>"
 ```
 
-Element with children.
+## Element with children.
 
 ```ocaml
 # let i = P.string_input "\t \n\r <div><span><area/></span></div>";;
@@ -55,7 +55,7 @@ val i : P.input =
 - : string = "<div><span><area/></span></div>"
 ```
 
-Element with code-block children.
+## Element with code-block children.
 
 ```ocaml
 # let i = P.string_input {|<div>{Node.text "hello"}</div>|};;
@@ -67,7 +67,7 @@ val i : P.input =
 - : string = "<div>{Node.text \"hello\"}</div>"
 ```
 
-Element with pp mixed inside code-block.
+## Code element with HTML mixed inside code-block.
 
 ```ocaml
 # let i = P.string_input "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>";;
@@ -78,4 +78,18 @@ val i : P.input =
 # P.root i @@ pp;;
 - : string =
 "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>"
+```
+
+## Attribute parsing
+
+Empty attribute.
+
+```ocaml
+# let i = P.string_input "<input disabled attr1 attr2 attr3>";;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string = "<input disabled attr1 attr2/>"
 ```
