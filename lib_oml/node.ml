@@ -10,6 +10,9 @@ class type ['repr] t =
     (* <input { } /> *)
     method code_attribute : string -> 'repr
 
+    (* <input attr={"val"} /> *)
+    method attribute_code_value : string -> string -> 'repr
+
     (* method int : int -> 'repr
 
           method float : float -> 'repr
@@ -34,6 +37,9 @@ let bool_attr name ro = ro#bool_attr name
 let attribute name value ro = ro#attribute name value
 
 let code_attribute code_block ro = ro#code_attribute code_block
+
+let attribute_code_value name value_code_block ro =
+  ro#attribute_code_value name value_code_block
 
 (* [t] Constructors *)
 
@@ -91,6 +97,9 @@ class pp =
     method attribute name value : string = name ^ "='" ^ value ^ "'"
 
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
+
+    method attribute_code_value name code_block : string =
+      name ^ "={" ^ code_block ^ "}"
 
     method text s : string = s
 
