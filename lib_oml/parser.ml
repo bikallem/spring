@@ -209,17 +209,38 @@ let rec unquoted_attribute_value i =
     next i;
     unquoted_attribute_value i
 
-let attribute_value i =
-  let v =
-    match i.c with
-    | ('\'' | '"') as c ->
-      next i;
-      quoted_attribute_value c i
-    | _ -> unquoted_attribute_value i
+let rec code_attribute_value i =
+  match i.c with
+  | '}' ->
+    let code_block = Buffer.contents i.buf in
+    clear i;
+    next i;
+    code_block
+  | _ ->
+    add_c i;
+    next i;
+    code_attribute_value i
+
+let attribute_value name i =
+  let validate_value v =
+    if String.(equal empty v) then
+      err "attribute_value" "empty attribute value not allowed" i
   in
-  if String.(equal empty v) then
-    err "attribute_value" "empty attribute value not allowed" i
-  else v
+  match i.c with
+  | ('\'' | '"') as c ->
+    next i;
+    let value = quoted_attribute_value c i in
+    validate_value value;
+    Node.attribute name value
+  | '{' ->
+    next i;
+    let code = code_attribute_value i in
+    validate_value code;
+    Node.attribute_code_value name code
+  | _ ->
+    let value = unquoted_attribute_value i in
+    validate_value value;
+    Node.attribute name value
 
 let attributes i =
   let attributes = Queue.create () in
@@ -232,8 +253,8 @@ let attributes i =
       | Equal ->
         next i;
         skip_ws i;
-        let v = attribute_value i in
-        Queue.add (Node.attribute name v) attributes;
+        let v = attribute_value name i in
+        Queue.add v attributes;
         tok i;
         aux ()
       | Elem_close | Elem_slash_close ->
