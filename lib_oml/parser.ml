@@ -211,8 +211,6 @@ let rec unquoted_attribute_value i =
 
 let attribute_value i =
   let v =
-    _pf "%c\n%!" i.c;
-
     match i.c with
     | ('\'' | '"') as c ->
       next i;
