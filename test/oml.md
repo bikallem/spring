@@ -105,8 +105,5 @@ val i : P.input =
    i = <fun>}
 
 # P.root i @@ pp;;
-'
-"
-v
 - : string = "<input disabled attr1='value1' attr2='val2' attr3='val3'/>"
 ```
