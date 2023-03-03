@@ -191,7 +191,9 @@ let void_elem_close i =
 
 let rec element i =
   expect_tok Start_elem i;
+  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
   tok i;
+  (*   _pf "%c %s\n%!" i.c (tok_to_string i.tok); *)
   expect_tok Tag i;
   let tag_name = tag i in
   if is_void_elem tag_name then (
@@ -241,31 +243,34 @@ and children start_tag i =
 
 (* OCaml code blocks starts with '{' and ends with '}' *)
 and code_element i =
-  let rec aux parsing_code_block acc =
+  let rec aux parsing_code_block q =
     match i.c with
     | '}' ->
-      let acc = prepend_code_block parsing_code_block i acc in
+      prepend_code_block parsing_code_block i q;
       next i;
       i.tok <- Code_block_end;
-      acc
+      q
     | '<' ->
-      let acc = prepend_code_block parsing_code_block i acc in
+      prepend_code_block parsing_code_block i q;
+      next i;
       i.tok <- Start_elem;
-      aux false (element i :: acc)
+      Queue.add (element i) q;
+      aux false q
     | _ ->
       add_c i;
       next i;
-      aux true acc
-  and prepend_code_block is_parsing_code_block i acc =
+      aux true q
+  and prepend_code_block is_parsing_code_block i q =
     if is_parsing_code_block then (
       let code = Buffer.contents i.buf in
       clear i;
-      Node.code_block code :: acc)
-    else acc
+      Queue.add (Node.code_block code) q)
   in
   expect_tok Code_block_start i;
   next i;
-  let code_blocks = aux false [] in
+  let code_blocks =
+    aux false (Queue.create ()) |> Queue.to_seq |> List.of_seq
+  in
   expect_tok Code_block_end i;
   tok i;
   Node.code_element code_blocks
