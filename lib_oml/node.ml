@@ -1,28 +1,33 @@
 open Astring
 
-type attribute = string * string
-
 (* [t] is the node type *)
 class type ['repr] t =
   object
+    method bool_attr : string -> 'repr (* <input disabled> *)
+
     (* method int : int -> 'repr
 
           method float : float -> 'repr
 
           method raw_text : string -> 'repr
     *)
-    method void : string -> 'repr
-
     method text : string -> 'repr
 
-    method element : 'repr t list -> string -> 'repr
+    method void : 'repr list -> string -> 'repr
+
+    method element : 'repr list -> 'repr t list -> string -> 'repr
 
     method code_block : string -> 'repr
 
     method code_element : 'repr t list -> 'repr
   end
 
-(* Constructors *)
+(* Attribute constructors *)
+
+let bool_attr name ro = ro#bool_attr name
+
+(* [t] Constructors *)
+
 (* let int n ro = ro#int n *)
 
 (* let float x ro = ro#float x *)
@@ -46,11 +51,14 @@ let text txt ro =
 
 (* let raw_text txt ro = ro#text txt *)
 
-let void tag ro = ro#void tag
+let void ?(attributes = []) tag ro =
+  let attributes = List.map (fun attr -> attr ro) attributes in
+  ro#void attributes tag
 
-let element ?(children = []) tag ro =
+let element ?(attributes = []) ?(children = []) tag ro =
+  let attributes = List.map (fun attr -> attr ro) attributes in
   let children = List.map (fun child -> child ro) children in
-  ro#element children tag
+  ro#element attributes children tag
 
 let code_block code ro = ro#code_block code
 
@@ -62,18 +70,32 @@ let code_element children ro =
 
 class pp =
   object
+    method bool_attr name : string = name
+
     method text s : string = s
 
-    method void tag : string =
+    method void attributes tag : string =
       let b = Buffer.create 10 in
       Buffer.add_char b '<';
       Buffer.add_string b tag;
+      List.iter
+        (fun attr ->
+          Buffer.add_char b ' ';
+          Buffer.add_string b attr)
+        attributes;
       Buffer.add_string b "/>";
       Buffer.contents b
 
-    method element children tag =
+    method element attributes children tag =
       let b = Buffer.create 10 in
-      Buffer.add_string b ("<" ^ tag ^ ">");
+      Buffer.add_char b '<';
+      Buffer.add_string b tag;
+      List.iter
+        (fun attr ->
+          Buffer.add_char b ' ';
+          Buffer.add_string b attr)
+        attributes;
+      Buffer.add_char b '>';
       List.iter (Buffer.add_string b) children;
       Buffer.add_string b ("</" ^ tag ^ ">");
       Buffer.contents b
