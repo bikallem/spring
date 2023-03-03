@@ -5,6 +5,8 @@ class type ['repr] t =
   object
     method bool_attr : string -> 'repr (* <input disabled> *)
 
+    method attribute : string -> string -> 'repr
+
     (* method int : int -> 'repr
 
           method float : float -> 'repr
@@ -25,6 +27,8 @@ class type ['repr] t =
 (* Attribute constructors *)
 
 let bool_attr name ro = ro#bool_attr name
+
+let attribute name value ro = ro#attribute name value
 
 (* [t] Constructors *)
 
@@ -69,8 +73,17 @@ let code_element children ro =
 (* interpreters *)
 
 class pp =
+  let pp_attributes attributes b =
+    List.iter
+      (fun attr ->
+        Buffer.add_char b ' ';
+        Buffer.add_string b attr)
+      attributes
+  in
   object
     method bool_attr name : string = name
+
+    method attribute name value : string = name ^ "='" ^ value ^ "'"
 
     method text s : string = s
 
@@ -78,11 +91,7 @@ class pp =
       let b = Buffer.create 10 in
       Buffer.add_char b '<';
       Buffer.add_string b tag;
-      List.iter
-        (fun attr ->
-          Buffer.add_char b ' ';
-          Buffer.add_string b attr)
-        attributes;
+      pp_attributes attributes b;
       Buffer.add_string b "/>";
       Buffer.contents b
 
@@ -90,11 +99,7 @@ class pp =
       let b = Buffer.create 10 in
       Buffer.add_char b '<';
       Buffer.add_string b tag;
-      List.iter
-        (fun attr ->
-          Buffer.add_char b ' ';
-          Buffer.add_string b attr)
-        attributes;
+      pp_attributes attributes b;
       Buffer.add_char b '>';
       List.iter (Buffer.add_string b) children;
       Buffer.add_string b ("</" ^ tag ^ ">");
