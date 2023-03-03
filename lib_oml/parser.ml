@@ -238,13 +238,31 @@ let attributes i =
         aux ()
       | Elem_close | Elem_slash_close ->
         Queue.add (Node.bool_attr name) attributes
-      | Data ->
+      | Data | Code_block_start ->
         Queue.add (Node.bool_attr name) attributes;
         aux ()
       | _ ->
         err "attributes"
           ("expected token '=', '>' or '/>', got '" ^ tok_to_string i.tok ^ "'")
           i)
+    | Code_block_start ->
+      next i;
+      let rec code_attr () =
+        match i.c with
+        | '}' ->
+          let code_block = Buffer.contents i.buf in
+          clear i;
+          next i;
+          if String.(equal empty code_block) then ()
+          else Queue.add (Node.code_attribute code_block) attributes
+        | _ ->
+          add_c i;
+          next i;
+          code_attr ()
+      in
+      code_attr ();
+      tok i;
+      aux ()
     | _ -> ()
   in
   aux ();
