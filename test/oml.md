@@ -82,7 +82,7 @@ val i : P.input =
 
 ## Attribute parsing
 
-Empty attribute.
+Bool attributes.
 
 ```ocaml
 # let i = P.string_input "<input disabled attr1 attr2 attr3>";;
@@ -91,5 +91,22 @@ val i : P.input =
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<input disabled attr1 attr2/>"
+- : string = "<input disabled attr1 attr2 attr3/>"
+```
+
+## Attribute parsing
+
+Name/Value attributes.
+
+```ocaml
+# let i = P.string_input {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    >|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+'
+"
+v
+- : string = "<input disabled attr1='value1' attr2='val2' attr3='val3'/>"
 ```
