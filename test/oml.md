@@ -80,7 +80,7 @@ val i : P.input =
 "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>"
 ```
 
-## Attribute parsing
+## Empty Attributes
 
 Bool attributes.
 
@@ -94,7 +94,7 @@ val i : P.input =
 - : string = "<input disabled attr1 attr2 attr3/>"
 ```
 
-## Attribute parsing
+## Name/Value attribute parsing
 
 Name/Value attributes.
 
@@ -107,3 +107,19 @@ val i : P.input =
 # P.root i @@ pp;;
 - : string = "<input disabled attr1='value1' attr2='val2' attr3='val3'/>"
 ```
+
+## Code attribute, name/value attribute parsing
+
+Name/Value attributes.
+
+```ocaml
+# let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    >|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string =
+"<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2='val2' attr3='val3'/>"
+```
+
