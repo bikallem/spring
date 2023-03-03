@@ -123,3 +123,19 @@ val i : P.input =
 "<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2='val2' attr3='val3'/>"
 ```
 
+## Code attribute, name/value attribute, attribute code value parsing
+
+Name/Value attributes.
+
+```ocaml
+# let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100}  >|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string =
+"<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2='val2' attr3='val3' attr4={ string_of_int 100}/>"
+```
+
+
