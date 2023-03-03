@@ -60,7 +60,7 @@ let code_element children ro =
 
 (* interpreters *)
 
-class html =
+class pp =
   object
     method text s : string = s
 
