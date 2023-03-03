@@ -6,7 +6,7 @@ open Oml
 let () = Printexc.record_backtrace true
 
 module P = Oml__Parser
-let html = new Node.html 
+let pp = new Node.pp
 ```
 
 ## Oml.root 
@@ -19,7 +19,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 2; col = 5; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html ;;
+# P.root i @@ pp ;;
 - : string = "<div></div>"
 ```
 
@@ -31,7 +31,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 2; col = 5; c = 'a'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html;;
+# P.root i @@ pp;;
 - : string = "<area/>"
 
 # let i = P.string_input "\t \n\r <area >";;
@@ -39,7 +39,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 2; col = 5; c = 'a'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html;;
+# P.root i @@ pp;;
 - : string = "<area/>"
 ```
 
@@ -51,7 +51,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 2; col = 5; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html;;
+# P.root i @@ pp;;
 - : string = "<div><span><area/></span></div>"
 ```
 
@@ -63,11 +63,11 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 2; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html;;
+# P.root i @@ pp;;
 - : string = "<div>{Node.text \"hello\"}</div>"
 ```
 
-Element with html mixed inside code-block.
+Element with pp mixed inside code-block.
 
 ```ocaml
 # let i = P.string_input "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>";;
@@ -75,7 +75,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 2; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ html;;
+# P.root i @@ pp;;
 - : string =
 "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>"
 ```
