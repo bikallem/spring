@@ -357,6 +357,7 @@ let rec element i =
 and children i =
   let children = Queue.create () in
   let rec aux () =
+    skip_ws i;
     (*     _pf "\nchildren: %s%!" (tok_to_string i.tok); *)
     match i.tok with
     | Start_elem ->
@@ -368,10 +369,9 @@ and children i =
       Queue.add el children;
       aux ()
     | Comment_elem_start ->
-      () (*
-      Queue.add (comment_element i) children;
+      let el = comment_element i in
+      Queue.add el children;
       aux ()
-*)
     | Data c ->
       add_c c i;
       let el = text_element i in
@@ -449,16 +449,16 @@ and comment_element i =
       | _ ->
         Buffer.add_char i.buf '-';
         Buffer.add_char i.buf '-';
-        (*         add_c i; *)
+        add_c i.c i;
         next i;
         comment_element i)
     | _ ->
       Buffer.add_char i.buf '-';
-      (*       add_c i; *)
+      add_c i.c i;
       next i;
       comment_element i)
   | _ ->
-    (*     add_c i; *)
+    add_c i.c i;
     next i;
     comment_element i
 
