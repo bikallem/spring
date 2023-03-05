@@ -85,6 +85,18 @@ val i : P.input =
 "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section> names }</div>"
 ```
 
+## Text element
+
+```ocaml
+# let i = P.string_input {|<div><span>Hello World</span>Hello &Again!</div>|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string = "<div>{Node.text \"hello\"}<span><area></area></span></div>"
+```
+
 ## Bool attributes
 
 ```ocaml
