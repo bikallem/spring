@@ -372,10 +372,28 @@ and children i =
       Queue.add (comment_element i) children;
       aux ()
 *)
+    | Data c ->
+      add_c c i;
+      let el = text_element i in
+      Queue.add el children;
+      aux ()
     | _ -> ()
   in
   aux ();
   Queue.to_seq children |> List.of_seq
+
+and text_element i =
+  match i.c with
+  | '<' | '{' ->
+    let v = Buffer.contents i.buf in
+    clear i;
+    tok i;
+    let el = Node.text v in
+    el
+  | c ->
+    add_c c i;
+    tok i;
+    text_element i
 
 (* { ... } *)
 and code_element i =
