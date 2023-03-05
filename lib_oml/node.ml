@@ -3,15 +3,24 @@ open Astring
 (* [t] is the node type *)
 class type ['repr] t =
   object
+    (* Attribute value constructors *)
+    method unquoted_attribute_value : string -> 'repr
+
+    method single_quoted_attribute_value : string -> 'repr
+
+    method double_quoted_attribute_value : string -> 'repr
+
+    method code_attribute_value : string -> 'repr
+
+    (* Attribute constructors *)
     method bool_attr : string -> 'repr (* <input disabled> *)
 
-    method attribute : string -> string -> 'repr
+    method attribute : string -> 'repr -> 'repr
 
     (* <input { } /> *)
     method code_attribute : string -> 'repr
 
-    (* <input attr={"val"} /> *)
-    method attribute_code_value : string -> string -> 'repr
+    (* Element constructors *)
 
     (* method int : int -> 'repr
 
@@ -28,18 +37,27 @@ class type ['repr] t =
     method code_block : string -> 'repr
 
     method code_element : 'repr t list -> 'repr
+
+    method comment : string -> 'repr
   end
 
 (* Attribute constructors *)
 
+let unquoted_attribute_value code ro = ro#unquoted_attribute_value code
+
+let single_quoted_attribute_value v ro = ro#single_quoted_attribute_value v
+
+let double_quoted_attribute_value v ro = ro#double_quoted_attribute_value v
+
+let code_attribute_value code ro = ro#code_attribute_value code
+
 let bool_attr name ro = ro#bool_attr name
 
-let attribute name value ro = ro#attribute name value
+let attribute name value ro =
+  let v = value ro in
+  ro#attribute name v
 
 let code_attribute code_block ro = ro#code_attribute code_block
-
-let attribute_code_value name value_code_block ro =
-  ro#attribute_code_value name value_code_block
 
 (* [t] Constructors *)
 
@@ -81,6 +99,8 @@ let code_element children ro =
   let children = List.map (fun child -> child ro) children in
   ro#code_element children
 
+let comment txt ro = ro#comment txt
+
 (* interpreters *)
 
 class pp =
@@ -92,14 +112,19 @@ class pp =
       attributes
   in
   object
+    method unquoted_attribute_value code : string = code
+
+    method single_quoted_attribute_value v : string = "'" ^ v ^ "'"
+
+    method double_quoted_attribute_value v : string = "\"" ^ v ^ "\""
+
+    method code_attribute_value code : string = "{" ^ code ^ "}"
+
     method bool_attr name : string = name
 
-    method attribute name value : string = name ^ "='" ^ value ^ "'"
+    method attribute name value : string = name ^ "=" ^ value
 
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
-
-    method attribute_code_value name code_block : string =
-      name ^ "={" ^ code_block ^ "}"
 
     method text s : string = s
 
@@ -128,5 +153,12 @@ class pp =
       Buffer.add_char b '{';
       List.iter (Buffer.add_string b) children;
       Buffer.add_char b '}';
+      Buffer.contents b
+
+    method comment txt : string =
+      let b = Buffer.create 10 in
+      Buffer.add_string b "<!--";
+      Buffer.add_string b txt;
+      Buffer.add_string b "-->";
       Buffer.contents b
   end
