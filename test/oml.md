@@ -88,13 +88,26 @@ val i : P.input =
 ## Text element
 
 ```ocaml
-# let i = P.string_input {|<div><span>Hello World</span>Hello &Again!</div>|};;
+# let i = P.string_input {|<div>    <span>Hello World</span>Hello &Again!</div>|};;
 val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<div>{Node.text \"hello\"}<span><area></area></span></div>"
+- : string = "<div><span>Hello World</span>Hello &amp;Again!</div>"
+```
+
+## Comment element
+
+```ocaml
+# let i = P.string_input {|<div> Hello     <!-- hello comment -->    <span>Hello World</span>Hello &Again!</div>|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string =
+"<div>Hello <!-- hello comment --><span>Hello World</span>Hello &amp;Again!</div>"
 ```
 
 ## Bool attributes
