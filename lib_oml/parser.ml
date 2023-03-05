@@ -218,7 +218,7 @@ let rec code_attribute i =
     code_attribute i
 
 let attribute_value i =
-(*   _pf "\nattr value: %s%!" (tok_to_string i.tok); *)
+  (*   _pf "\nattr value: %s%!" (tok_to_string i.tok); *)
   match i.tok with
   | Equal -> (
     tok i;
@@ -255,7 +255,7 @@ let attributes i =
     | Data c -> (
       add_c c i;
       let name = attribute_name i in
-(*       _pf "\nattribute name: %s%!" name; *)
+      (*       _pf "\nattribute name: %s%!" name; *)
       skip_ws i;
       match attribute_value i with
       | Some v ->
@@ -346,10 +346,10 @@ let end_tag tag_name i =
 let rec element i =
   let tag_name, attributes, has_children = start_tag i in
   if has_children then (
-(*     _pf "\nelement: start children %s%!" tag_name; *)
+    (*     _pf "\nelement: start children %s%!" tag_name; *)
     let children = children i in
     let e = Node.element ~attributes ~children tag_name in
-(*     _pf "\nelement: end children: %s:%d%!" tag_name (List.length children); *)
+    (*     _pf "\nelement: end children: %s:%d%!" tag_name (List.length children); *)
     end_tag tag_name i;
     e)
   else Node.element ~attributes ~children:[] tag_name
@@ -357,7 +357,7 @@ let rec element i =
 and children i =
   let children = Queue.create () in
   let rec aux () =
-(*     _pf "\nchildren: %s%!" (tok_to_string i.tok); *)
+    (*     _pf "\nchildren: %s%!" (tok_to_string i.tok); *)
     match i.tok with
     | Start_elem ->
       let el = element i in
