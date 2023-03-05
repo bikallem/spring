@@ -22,12 +22,12 @@ class type ['repr] t =
 
     (* Element constructors *)
 
-    (* method int : int -> 'repr
+    method int : int -> 'repr
 
-          method float : float -> 'repr
+    method float : float -> 'repr
 
-          method raw_text : string -> 'repr
-    *)
+    method raw_text : string -> 'repr
+
     method text : string -> 'repr
 
     method element : 'repr list -> 'repr t list -> string -> 'repr
@@ -59,9 +59,9 @@ let code_attribute code_block ro = ro#code_attribute code_block
 
 (* [t] Constructors *)
 
-(* let int n ro = ro#int n *)
+let int n ro = ro#int n
 
-(* let float x ro = ro#float x *)
+let float x ro = ro#float x
 
 let text txt ro =
   let escaped = Buffer.create 10 in
@@ -80,7 +80,7 @@ let text txt ro =
   let txt = Buffer.contents escaped in
   ro#text txt
 
-(* let raw_text txt ro = ro#text txt *)
+let raw_text txt ro = ro#text txt
 
 let element ?(attributes = []) ?(children = []) tag ro =
   let attributes = List.map (fun attr -> attr ro) attributes in
@@ -120,7 +120,13 @@ class pp =
 
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
 
+    method int n : string = string_of_int n
+
+    method float x : string = string_of_float x
+
     method text s : string = s
+
+    method raw_text s : string = s
 
     method element attributes children tag =
       let b = Buffer.create 10 in
