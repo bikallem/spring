@@ -16,8 +16,14 @@ let pp = new Node.pp
 ```ocaml
 # let i = P.string_input "\t \n\r <div    ></div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 2; col = 5; c = 'd'; tok = P.Start_elem;
-   i = <fun>}
+  {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
+
+# P.root i @@ pp ;;
+- : string = "<div></div>"
+
+# let i = P.string_input "\t \n\r <div   />";;
+val i : P.input =
+  {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
 # P.root i @@ pp ;;
 - : string = "<div></div>"
@@ -28,43 +34,42 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "\t \n\r <area />";;
 val i : P.input =
-  {P.buf = <abstr>; line = 2; col = 5; c = 'a'; tok = P.Start_elem;
-   i = <fun>}
+  {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<area/>"
+- : string = "<area></area>"
 
-# let i = P.string_input "\t \n\r <area >";;
+# let i = P.string_input "\t \n\r <area></area>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 2; col = 5; c = 'a'; tok = P.Start_elem;
-   i = <fun>}
+  {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<area/>"
+- : string = "<area></area>"
 ```
 
 ## Element with children.
 
 ```ocaml
-# let i = P.string_input "\t \n\r <div><span><area/></span></div>";;
+# let i = P.string_input "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 2; col = 5; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<div><span><area/></span></div>"
+- : string =
+"<div><span><area></area></span><span><area></area></span><span><area></area></span></div>"
 ```
 
 ## Element with code-block children.
 
 ```ocaml
-# let i = P.string_input {|<div>{Node.text "hello"}</div>|};;
+# let i = P.string_input {|<div>{Node.text "hello"}<span><area/></span></div>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<div>{Node.text \"hello\"}</div>"
+- : string = "<div>{Node.text \"hello\"}<span><area></area></span></div>"
 ```
 
 ## Code element with HTML mixed inside code-block.
@@ -72,55 +77,62 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
 - : string =
-"<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>"
+"<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section> names }</div>"
 ```
 
-## Empty Attributes
-
-Bool attributes.
+## Bool attributes
 
 ```ocaml
-# let i = P.string_input "<input disabled attr1 attr2 attr3>";;
+# let i = P.string_input "<input disabled attr1 attr2 attr3></input>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<input disabled attr1 attr2 attr3/>"
+- : string = "<input disabled attr1 attr2 attr3></input>"
 ```
 
-## Name/Value attribute parsing
-
-Name/Value attributes.
+## Unquoted attribute value
 
 ```ocaml
-# let i = P.string_input {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    >|};;
+# let i = P.string_input "<input attr1 = attrv></input>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
-- : string = "<input disabled attr1='value1' attr2='val2' attr3='val3'/>"
+- : string = "<input attr1=attrv></input>"
 ```
 
-## Code attribute, name/value attribute parsing
-
-Name/Value attributes.
+## Quoted attribute value
 
 ```ocaml
-# let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    >|};;
+# let i = P.string_input {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
 - : string =
-"<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2='val2' attr3='val3'/>"
+"<input disabled attr1='value1' attr2=\"val2\" attr3=val3><span></span></input>"
+```
+
+## Code attribute value
+
+```ocaml
+# let i = P.string_input {|<input disabled attr1={"value1"} attr2 = { string_of_int 100 } >  </input>|};;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string =
+"<input disabled attr1={\"value1\"} attr2={ string_of_int 100 }></input>"
 ```
 
 ## Code attribute, name/value attribute, attribute code value parsing
@@ -128,14 +140,24 @@ val i : P.input =
 Name/Value attributes.
 
 ```ocaml
-# let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100}  >|};;
+# let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 2; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
 # P.root i @@ pp;;
 - : string =
-"<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2='val2' attr3='val3' attr4={ string_of_int 100}/>"
+"<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2=\"val2\" attr3=val3 attr4={ string_of_int 100}></input>"
 ```
 
+## Element with comments.
 
+```ocaml
+# let i = P.string_input "<div><a></a><a></a><a></a></div>";;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+   i = <fun>}
+
+# P.root i @@ pp;;
+- : string = "<div><a></a><a></a><a></a></div>"
+```
