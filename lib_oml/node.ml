@@ -30,8 +30,6 @@ class type ['repr] t =
     *)
     method text : string -> 'repr
 
-    method void : 'repr list -> string -> 'repr
-
     method element : 'repr list -> 'repr t list -> string -> 'repr
 
     method code_block : string -> 'repr
@@ -84,10 +82,6 @@ let text txt ro =
 
 (* let raw_text txt ro = ro#text txt *)
 
-let void ?(attributes = []) tag ro =
-  let attributes = List.map (fun attr -> attr ro) attributes in
-  ro#void attributes tag
-
 let element ?(attributes = []) ?(children = []) tag ro =
   let attributes = List.map (fun attr -> attr ro) attributes in
   let children = List.map (fun child -> child ro) children in
@@ -127,14 +121,6 @@ class pp =
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
 
     method text s : string = s
-
-    method void attributes tag : string =
-      let b = Buffer.create 10 in
-      Buffer.add_char b '<';
-      Buffer.add_string b tag;
-      pp_attributes attributes b;
-      Buffer.add_string b "/>";
-      Buffer.contents b
 
     method element attributes children tag =
       let b = Buffer.create 10 in
