@@ -1,32 +1,32 @@
 let nul = '\000'
 
 type tok =
-  | Start_elem (* < *)
-  | Elem_close (* > - Both start end end element *)
-  | Start_elem_slash_close (* /> *)
-  | End_elem_start (* </ *)
-  | Comment_elem_start (* <!-- *)
-  | Comment_elem_end (* --> *)
-  | Code_block_start (* { *)
-  | Code_block_end (* } *)
-  | Data of char (* element tag name *)
+  | START_ELEM (* < *)
+  | ELEM_CLOSE (* > - Both start end end element *)
+  | START_ELEM_SLASH_CLOSE (* /> *)
+  | END_ELEM_START (* </ *)
+  | COMMENT_ELEM_START (* <!-- *)
+  | COMMENT_ELEM_END (* --> *)
+  | CODE_BLOCK_START (* { *)
+  | CODE_BLOCK_END (* } *)
+  | DATA of char (* element tag name *)
   | SPACE (* whitespace *)
-  | Equal (* = *)
-  | Eoi (* End of input *)
+  | EQUAL (* = *)
+  | EOF (* End of input *)
 
 let tok_to_string = function
-  | Start_elem -> "START_ELEM"
-  | Start_elem_slash_close -> "START_ELEM_SLASH_CLOSE"
-  | End_elem_start -> "END_ELEM_START"
-  | Comment_elem_start -> "COMMENT_ELEM_START"
-  | Comment_elem_end -> "COMMENT_ELEM_END"
-  | Elem_close -> "ELEM_CLOSE"
-  | Code_block_start -> "CODE_BLOCK_START"
-  | Code_block_end -> "CODE_BLOCK_END"
-  | Data c -> "DATA " ^ Char.escaped c
+  | START_ELEM -> "START_ELEM"
+  | START_ELEM_SLASH_CLOSE -> "START_ELEM_SLASH_CLOSE"
+  | END_ELEM_START -> "END_ELEM_START"
+  | COMMENT_ELEM_START -> "COMMENT_ELEM_START"
+  | COMMENT_ELEM_END -> "COMMENT_ELEM_END"
+  | ELEM_CLOSE -> "ELEM_CLOSE"
+  | CODE_BLOCK_START -> "CODE_BLOCK_START"
+  | CODE_BLOCK_END -> "CODE_BLOCK_END"
+  | DATA c -> "DATA " ^ Char.escaped c
   | SPACE -> "SPACE"
-  | Equal -> "EQUAL"
-  | Eoi -> "EOF"
+  | EQUAL -> "EQUAL"
+  | EOF -> "EOF"
 
 type input =
   { buf : Buffer.t (* buffer *)
@@ -88,32 +88,32 @@ let tok i =
     next i;
     match i.c with
     | '/' ->
-      i.tok <- End_elem_start;
+      i.tok <- END_ELEM_START;
       next i
     | '!' ->
       next i;
       expect_c '-' i;
       next i;
       expect_c '-' i;
-      i.tok <- Comment_elem_start;
+      i.tok <- COMMENT_ELEM_START;
       next i
-    | _ -> i.tok <- Start_elem)
+    | _ -> i.tok <- START_ELEM)
   | '/' ->
     next i;
     expect_c '>' i;
-    i.tok <- Start_elem_slash_close;
+    i.tok <- START_ELEM_SLASH_CLOSE;
     next i
   | '>' ->
-    i.tok <- Elem_close;
+    i.tok <- ELEM_CLOSE;
     next i
   | '{' ->
-    i.tok <- Code_block_start;
+    i.tok <- CODE_BLOCK_START;
     next i
   | '}' ->
-    i.tok <- Code_block_end;
+    i.tok <- CODE_BLOCK_END;
     next i
   | '=' ->
-    i.tok <- Equal;
+    i.tok <- EQUAL;
     next i
   | c when is_ascii_whitespace c ->
     let rec aux () =
@@ -126,9 +126,9 @@ let tok i =
     next i;
     aux ();
     i.tok <- SPACE
-  | c when c = nul -> i.tok <- Eoi
+  | c when c = nul -> i.tok <- EOF
   | c ->
-    i.tok <- Data c;
+    i.tok <- DATA c;
     next i
 
 let rec skip_ws i =
@@ -148,7 +148,7 @@ let string_input s =
     if !pos >= len then raise End_of_file else String.get s !pos
   in
   let input =
-    { buf = Buffer.create 10; line = 1; col = 0; c = i (); tok = Eoi; i }
+    { buf = Buffer.create 10; line = 1; col = 0; c = i (); tok = EOF; i }
   in
   tok input;
   input
@@ -220,21 +220,21 @@ let rec code_attribute i =
 let attribute_value i =
   (*   _pf "\nattr value: %s%!" (tok_to_string i.tok); *)
   match i.tok with
-  | Equal -> (
+  | EQUAL -> (
     tok i;
     skip_ws i;
     match i.tok with
-    | Data c when c = '\'' ->
+    | DATA c when c = '\'' ->
       let v = quoted_attribute_value c i in
       Some (Node.single_quoted_attribute_value v)
-    | Data c when c = '"' ->
+    | DATA c when c = '"' ->
       let v = quoted_attribute_value c i in
       Some (Node.double_quoted_attribute_value v)
-    | Data c ->
+    | DATA c ->
       add_c c i;
       let v = unquoted_attribute_value i in
       Some (Node.unquoted_attribute_value v)
-    | Code_block_start ->
+    | CODE_BLOCK_START ->
       let v = code_attribute i in
       Some (Node.code_attribute_value v)
     | _ ->
@@ -248,11 +248,11 @@ let attributes i =
   let rec aux () =
     skip_ws i;
     match i.tok with
-    | Code_block_start ->
+    | CODE_BLOCK_START ->
       let v = code_attribute i in
       Queue.add (Node.code_attribute v) attributes;
       aux ()
-    | Data c -> (
+    | DATA c -> (
       add_c c i;
       let name = attribute_name i in
       (*       _pf "\nattribute name: %s%!" name; *)
@@ -274,7 +274,7 @@ let attributes i =
 let tag i =
   let rec aux () =
     match i.tok with
-    | Data c when is_alpha_num c || c = '_' || c = '\'' || c = '.' ->
+    | DATA c when is_alpha_num c || c = '_' || c = '\'' || c = '.' ->
       add_c c i;
       tok i;
       aux ()
@@ -285,11 +285,11 @@ let tag i =
   in
   skip_ws i;
   match i.tok with
-  | Data c when is_alpha c || c = '_' ->
+  | DATA c when is_alpha c || c = '_' ->
     add_c c i;
     tok i;
     aux ()
-  | Data c ->
+  | DATA c ->
     err "tag"
       ("tag name starts with alpha or '_' character, got '" ^ Char.escaped c
      ^ "'")
@@ -298,7 +298,7 @@ let tag i =
 
 let end_elem start_tag i =
   let tag = tag i in
-  expect_tok Elem_close i (* > *);
+  expect_tok ELEM_CLOSE i (* > *);
   if String.equal start_tag tag then ()
   else
     err "close_tag"
@@ -308,34 +308,34 @@ let end_elem start_tag i =
 (* <div > or <div /> *)
 let start_tag i =
   skip_ws i;
-  expect_tok Start_elem i;
+  expect_tok START_ELEM i;
   tok i;
   let tag_name = tag i in
   skip_ws i;
   let attributes = attributes i in
   skip_ws i;
   match i.tok with
-  | Start_elem_slash_close ->
+  | START_ELEM_SLASH_CLOSE ->
     tok i;
     (tag_name, attributes, false)
-  | Elem_close ->
+  | ELEM_CLOSE ->
     tok i;
     (tag_name, attributes, true)
   | tok ->
     err "element"
       ("expecting '"
-      ^ tok_to_string Start_elem_slash_close
-      ^ "' or '" ^ tok_to_string Elem_close ^ "', got '" ^ tok_to_string tok
+      ^ tok_to_string START_ELEM_SLASH_CLOSE
+      ^ "' or '" ^ tok_to_string ELEM_CLOSE ^ "', got '" ^ tok_to_string tok
       ^ "'")
       i
 
 (* </div> *)
 let end_tag tag_name i =
   skip_ws i;
-  expect_tok End_elem_start i;
+  expect_tok END_ELEM_START i;
   tok i;
   let tag = tag i in
-  expect_tok Elem_close i (* > *);
+  expect_tok ELEM_CLOSE i (* > *);
   tok i;
   if String.equal tag_name tag then ()
   else
@@ -360,19 +360,19 @@ and children i =
     skip_ws i;
     (*     _pf "\nchildren: %s%!" (tok_to_string i.tok); *)
     match i.tok with
-    | Start_elem ->
+    | START_ELEM ->
       let el = element i in
       Queue.add el children;
       aux ()
-    | Code_block_start ->
+    | CODE_BLOCK_START ->
       let el = code_element i in
       Queue.add el children;
       aux ()
-    | Comment_elem_start ->
+    | COMMENT_ELEM_START ->
       let el = comment_element i in
       Queue.add el children;
       aux ()
-    | Data c ->
+    | DATA c ->
       add_c c i;
       let el = text_element i in
       Queue.add el children;
@@ -408,7 +408,7 @@ and code_element i =
     | '<' ->
       prepend_code_block parsing_code_block i;
       next i;
-      i.tok <- Start_elem;
+      i.tok <- START_ELEM;
       Queue.add (element i) code_blocks;
       aux false
     | _ ->
@@ -421,7 +421,7 @@ and code_element i =
       clear i;
       Queue.add (Node.code_block code) code_blocks)
   in
-  expect_tok Code_block_start i;
+  expect_tok CODE_BLOCK_START i;
   add_c i.c i;
   next i;
   aux false;
@@ -464,7 +464,7 @@ and comment_element i =
 
 let params i =
   match i.tok with
-  | Data '@' ->
+  | DATA '@' ->
     List.iter
       (fun c ->
         expect_c c i;
