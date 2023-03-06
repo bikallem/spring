@@ -18,14 +18,14 @@ let pp = new Node.pp
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.root i @@ pp ;;
+# P.doc i @@ pp ;;
 - : string = "<div></div>"
 
 # let i = P.string_input "\t \n\r <div   />";;
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.root i @@ pp ;;
+# P.doc i @@ pp ;;
 - : string = "<div></div>"
 ```
 
@@ -36,14 +36,14 @@ val i : P.input =
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<area></area>"
 
 # let i = P.string_input "\t \n\r <area></area>";;
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<area></area>"
 ```
 
@@ -55,7 +55,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<div><span><area></area></span><span><area></area></span><span><area></area></span></div>"
 ```
@@ -68,7 +68,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<div>{Node.text \"hello\"}<span><area></area></span></div>"
 ```
 
@@ -80,7 +80,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section> names }</div>"
 ```
@@ -93,7 +93,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<div><span>Hello World</span>Hello &amp;Again!</div>"
 ```
 
@@ -105,7 +105,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<div>Hello <!-- hello comment --><span>Hello World</span>Hello &amp;Again!</div>"
 ```
@@ -118,7 +118,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<input disabled attr1 attr2 attr3></input>"
 ```
 
@@ -130,7 +130,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<input attr1=attrv></input>"
 ```
 
@@ -142,7 +142,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<input disabled attr1='value1' attr2=\"val2\" attr3=val3><span></span></input>"
 ```
@@ -155,7 +155,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<input disabled attr1={\"value1\"} attr2={ string_of_int 100 }></input>"
 ```
@@ -170,7 +170,7 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string =
 "<input disabled {Spring_oml.attribute \"name\" \"value\"} attr1='value1' attr2=\"val2\" attr3=val3 attr4={ string_of_int 100}></input>"
 ```
@@ -183,6 +183,17 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
    i = <fun>}
 
-# P.root i @@ pp;;
+# P.doc i @@ pp;;
 - : string = "<div><a></a><a></a><a></a></div>"
+```
+
+## @param
+
+```ocaml
+# let i = P.string_input "@params a:int b:string\n<div>Hello <span>world!</span></div>";;
+val i : P.input =
+  {P.buf = <abstr>; line = 1; col = 1; c = 'p'; tok = P.Data '@'; i = <fun>}
+
+# P.doc i @@ pp;;
+- : string = "@params a:int b:string\n<div>Hello <span>world!</span></div>"
 ```
