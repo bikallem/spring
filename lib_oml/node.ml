@@ -37,6 +37,10 @@ class type ['repr] t =
     method code_element : 'repr t list -> 'repr
 
     method comment : string -> 'repr
+
+    (* Document constructors *)
+
+    method doc : string list -> 'repr -> 'repr
   end
 
 (* Attribute constructors *)
@@ -95,8 +99,13 @@ let code_element children ro =
 
 let comment txt ro = ro#comment txt
 
-(* interpreters *)
+let doc pars root_el ro =
+  let el = root_el ro in
+  ro#doc pars el
 
+(* Interpreters *)
+
+(* pretty printer - mostly for parser tests and debugging. *)
 class pp =
   let pp_attributes attributes b =
     List.iter
@@ -104,6 +113,18 @@ class pp =
         Buffer.add_char b ' ';
         Buffer.add_string b attr)
       attributes
+  in
+  let pp_params pars b =
+    match pars with
+    | [] -> ()
+    | _ ->
+      Buffer.add_string b "@params";
+      List.iter
+        (fun p ->
+          Buffer.add_char b ' ';
+          Buffer.add_string b p)
+        pars;
+      Buffer.add_char b '\n'
   in
   object
     method unquoted_attribute_value code : string = code
@@ -152,5 +173,11 @@ class pp =
       Buffer.add_string b "<!--";
       Buffer.add_string b txt;
       Buffer.add_string b "-->";
+      Buffer.contents b
+
+    method doc pars root_el : string =
+      let b = Buffer.create 10 in
+      pp_params pars b;
+      Buffer.add_string b root_el;
       Buffer.contents b
   end
