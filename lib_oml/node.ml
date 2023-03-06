@@ -1,5 +1,3 @@
-open Astring
-
 (* [t] is the node type *)
 class type ['repr] t =
   object
@@ -78,7 +76,7 @@ let text txt ro =
       | '\039' -> Buffer.add_string escaped "&#x27;"
       | '\047' -> Buffer.add_string escaped "&#x2F;"
       | ('\x00' .. '\x1F' as c) | ('\x7F' as c) ->
-        Buffer.add_string escaped ("&#" ^ string_of_int (Char.to_int c) ^ ";")
+        Buffer.add_string escaped ("&#" ^ string_of_int (Char.code c) ^ ";")
       | c -> Buffer.add_char escaped c)
     txt;
   let txt = Buffer.contents escaped in
