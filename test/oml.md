@@ -52,7 +52,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -65,7 +65,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input {|<div>{Node.text "hello"}<span><area/></span></div>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -77,7 +77,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -90,7 +90,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input {|<div>    <span>Hello World</span>Hello &Again!</div>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -102,7 +102,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input {|<div> Hello     <!-- hello comment -->    <span>Hello World</span>Hello &Again!</div>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -115,7 +115,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<input disabled attr1 attr2 attr3></input>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -127,7 +127,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<input attr1 = attrv></input>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -139,7 +139,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -152,7 +152,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input {|<input disabled attr1={"value1"} attr2 = { string_of_int 100 } >  </input>|};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -167,7 +167,7 @@ Name/Value attributes.
 ```ocaml
 # let i = P.string_input {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'i'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -180,7 +180,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "<div><a></a><a></a><a></a></div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.Start_elem;
+  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
 # P.doc i @@ pp;;
@@ -192,7 +192,7 @@ val i : P.input =
 ```ocaml
 # let i = P.string_input "@params a:int b:string\n<div>Hello <span>world!</span></div>";;
 val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'p'; tok = P.Data '@'; i = <fun>}
+  {P.buf = <abstr>; line = 1; col = 1; c = 'p'; tok = P.DATA '@'; i = <fun>}
 
 # P.doc i @@ pp;;
 - : string = "@params a:int b:string\n<div>Hello <span>world!</span></div>"
