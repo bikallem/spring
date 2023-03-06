@@ -1,4 +1,3 @@
 (library
  (public_name oml)
- (name oml)
- (libraries astring))
+ (name oml))
