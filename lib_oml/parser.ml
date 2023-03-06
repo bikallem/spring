@@ -462,6 +462,43 @@ and comment_element i =
     next i;
     comment_element i
 
-let root i =
+let params i =
+  match i.tok with
+  | Data '@' ->
+    List.iter
+      (fun c ->
+        expect_c c i;
+        next i)
+      [ 'p'; 'a'; 'r'; 'a'; 'm'; 's' ];
+    skip_ws i;
+    let params = Queue.create () in
+    let rec aux () =
+      match i.c with
+      | ' ' ->
+        if Buffer.length i.buf > 0 then (
+          let par = Buffer.contents i.buf in
+          clear i;
+          Queue.add par params);
+        next i;
+        aux ()
+      | '\n' ->
+        let par = Buffer.contents i.buf in
+        clear i;
+        next i;
+        Queue.add par params
+      | c ->
+        add_c c i;
+        next i;
+        aux ()
+    in
+    aux ();
+    tok i;
+    (*     _pf "\n%d%!" (Queue.length params); *)
+    if Queue.length params > 0 then Queue.to_seq params |> List.of_seq else []
+  | _ -> []
+
+let doc i =
+  skip_ws i;
+  let pars = params i in
   let e = element i in
-  e
+  Node.doc pars e
