@@ -10,7 +10,6 @@ bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
   "dune" {>= "3.6"}
   "ocaml" {>= "5.0.0"}
-  "astring" {>= "0.8.5"}
   "odoc" {with-doc}
 ]
 build: [

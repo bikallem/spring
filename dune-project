@@ -59,6 +59,4 @@
  (description "OCaml HTML authoring library.")
  (depends
   (ocaml
-   (>= 5.0.0))
-  (astring
-   (>= 0.8.5))))
+   (>= 5.0.0))))
