@@ -7,7 +7,7 @@ Perhaps a continuation of `cohttp-eio` - https://github.com/mirage/ocaml-cohttp/
 
 # Hello world in Spring
 
-```
+```ocaml
 open Spring
 
 let router : Server.pipeline =
