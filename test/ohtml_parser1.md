@@ -156,7 +156,12 @@ Ohtml__.Node2.Element
   children = []}
 ```
 
+## HTML Comment
 
+```ocaml
+# Ohtml.parse "<!-- Hello world comment -->";;
+- : Node2.element = Ohtml__.Node2.Html_comment " Hello world comment "
+```
 
 
 ## Text element
