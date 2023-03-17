@@ -17,12 +17,12 @@
 %token EOF
 
 
-%start <Node2.element> doc
+%start <Node2.doc> doc
 
 %%
 
 doc :
-  root = html_element { root }
+  dtd=DTD? root = html_element { {Node2.dtd; root } }
 
 html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
