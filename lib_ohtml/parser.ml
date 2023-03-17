@@ -410,6 +410,9 @@ and code_element i =
       next i;
       i.tok <- START_ELEM;
       Queue.add (element i) code_blocks;
+      (match i.tok with
+      | DATA c -> add_c c i
+      | _ -> ());
       aux false
     | _ ->
       add_c i.c i;

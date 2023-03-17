@@ -13,22 +13,16 @@ class type ['repr] t =
     (* Attribute constructors *)
     method bool_attr : string -> 'repr (* <input disabled> *)
 
-    method attribute : string -> 'repr -> 'repr
+    method attribute : string -> 'repr t -> 'repr
 
     (* <input { } /> *)
     method code_attribute : string -> 'repr
 
     (* Element constructors *)
 
-    method int : int -> 'repr
-
-    method float : float -> 'repr
-
-    method raw_text : string -> 'repr
-
     method text : string -> 'repr
 
-    method element : 'repr list -> 'repr t list -> string -> 'repr
+    method element : 'repr t list -> 'repr t list -> string -> 'repr
 
     method code_block : string -> 'repr
 
@@ -38,7 +32,7 @@ class type ['repr] t =
 
     (* Document constructors *)
 
-    method doc : string list -> 'repr -> 'repr
+    method doc : string list -> 'repr t -> 'repr
   end
 
 (* Attribute constructors *)
@@ -53,19 +47,13 @@ let code_attribute_value code ro = ro#code_attribute_value code
 
 let bool_attr name ro = ro#bool_attr name
 
-let attribute name value ro =
-  let v = value ro in
-  ro#attribute name v
+let attribute name value ro = ro#attribute name value
 
 let code_attribute code_block ro = ro#code_attribute code_block
 
 (* [t] Constructors *)
 
-let int n ro = ro#int n
-
-let float x ro = ro#float x
-
-let text txt ro =
+let escape_html txt =
   let escaped = Buffer.create 10 in
   String.iter
     (function
@@ -79,27 +67,26 @@ let text txt ro =
         Buffer.add_string escaped ("&#" ^ string_of_int (Char.code c) ^ ";")
       | c -> Buffer.add_char escaped c)
     txt;
-  let txt = Buffer.contents escaped in
-  ro#text txt
+  Buffer.contents escaped
 
-let raw_text txt ro = ro#text txt
+let text txt ro = ro#text txt
 
 let element ?(attributes = []) ?(children = []) tag ro =
-  let attributes = List.map (fun attr -> attr ro) attributes in
-  let children = List.map (fun child -> child ro) children in
   ro#element attributes children tag
 
 let code_block code ro = ro#code_block code
 
-let code_element children ro =
-  let children = List.map (fun child -> child ro) children in
-  ro#code_element children
+let code_element children ro = ro#code_element children
 
 let comment txt ro = ro#comment txt
 
-let doc pars root_el ro =
-  let el = root_el ro in
-  ro#doc pars el
+let doc pars root_el ro = ro#doc pars root_el
+
+type html_writer = Buffer.t -> unit
+
+let html_text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
+
+let raw_text txt : html_writer = fun b -> Buffer.add_string b txt
 
 (* Interpreters *)
 
@@ -124,8 +111,8 @@ class pp =
         pars;
       Buffer.add_char b '\n'
   in
-  object
-    method unquoted_attribute_value code : string = code
+  object (self)
+    method unquoted_attribute_value v : string = v
 
     method single_quoted_attribute_value v : string = "'" ^ v ^ "'"
 
@@ -135,19 +122,17 @@ class pp =
 
     method bool_attr name : string = name
 
-    method attribute name value : string = name ^ "=" ^ value
+    method attribute name value : string =
+      let v = value self in
+      name ^ "=" ^ v
 
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
 
-    method int n : string = string_of_int n
-
-    method float x : string = string_of_float x
-
     method text s : string = s
 
-    method raw_text s : string = s
-
     method element attributes children tag =
+      let attributes = List.map (fun attr -> attr self) attributes in
+      let children = List.map (fun child -> child self) children in
       let b = Buffer.create 10 in
       Buffer.add_char b '<';
       Buffer.add_string b tag;
@@ -160,6 +145,7 @@ class pp =
     method code_block code : string = code
 
     method code_element children =
+      let children = List.map (fun child -> child self) children in
       let b = Buffer.create 10 in
       Buffer.add_char b '{';
       List.iter (Buffer.add_string b) children;
@@ -174,8 +160,67 @@ class pp =
       Buffer.contents b
 
     method doc pars root_el : string =
+      let el = root_el self in
       let b = Buffer.create 10 in
       pp_params pars b;
-      Buffer.add_string b root_el;
+      Buffer.add_string b el;
       Buffer.contents b
+  end
+
+(* server side renderer - generates OCaml code *)
+class ssr (f : string -> unit) (func_name : string) =
+  object (self : 'a)
+    method unquoted_attribute_value v : unit =
+      f "Buffer.add_string b ";
+      f v
+
+    method single_quoted_attribute_value v : unit = f @@ "'" ^ v ^ "'"
+
+    method double_quoted_attribute_value v : unit = f @@ "\"" ^ v ^ "\""
+
+    method code_attribute_value code : unit = f @@ code
+
+    method bool_attr name : unit = f name
+
+    method attribute (_name : string) (_value : 'a -> unit) : unit = ()
+    (* f name;
+       f "=";
+       value self *)
+
+    method code_attribute (_code_block : string) : unit =
+      () (* "{" ^ code_block ^ "}" *)
+
+    method text txt : unit =
+      f @@ "\nBuffer.add_string b ";
+      f @@ txt
+
+    method element (attributes : ('a -> unit) list)
+        (children : ('a -> unit) list) tag =
+      f @@ "\nBuffer.add_string b \"<" ^ tag ^ "\";";
+      List.iter (fun a -> a self) attributes;
+      f "\nBuffer.add_string b \">\";";
+      List.iter (fun child -> child self) children;
+      f @@ "\nBuffer.add_string b \"</" ^ tag ^ ">\""
+
+    method code_block (code : string) : unit = f @@ code
+
+    method code_element (children : ('a -> unit) list) : unit =
+      f @@ "\n(fun b -> ";
+      List.iter (fun child -> child self) children;
+      f @@ " ) b;"
+
+    method comment (_txt : string) : unit = ()
+    (*
+      let b = Buffer.create 10 in
+      Buffer.add_string b "<!--";
+      Buffer.add_string b txt;
+      Buffer.add_string b "-->";
+      Buffer.contents b
+      *)
+
+    method doc (pars : string list) (root_el : 'a -> unit) : unit =
+      f @@ "let " ^ func_name;
+      List.iter (fun p -> f @@ " " ^ p) pars;
+      f @@ " : Node.html_writer =\nfun b -> ";
+      root_el self
   end

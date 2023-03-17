@@ -7,6 +7,15 @@ let () = Printexc.record_backtrace true
 
 module P = Ohtml__Parser
 let pp = new Node.pp
+
+let gen f = 
+  let fname = "func1" in
+  Out_channel.with_open_gen [Open_wronly; Open_creat;Open_trunc; Open_text] 0o644 (fname ^ ".ml")
+    (fun out -> 
+      let ssr = new Node.ssr (Out_channel.output_string out) fname in
+      f ssr);
+  In_channel.with_open_text (fname ^ ".ml")
+    (fun in_ch -> Eio.traceln "%s" @@ In_channel.input_all in_ch)
 ```
 
 ## Oml.element
@@ -18,15 +27,25 @@ let pp = new Node.pp
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.doc i @@ pp ;;
-- : string = "<div></div>"
+# gen (P.doc i);;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b "</div>"
+- : unit = ()
 
 # let i = P.string_input "\t \n\r <div   />";;
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.doc i @@ pp ;;
-- : string = "<div></div>"
+# gen (P.doc i);;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b "</div>"
+- : unit = ()
 ```
 
 ## Void element (must close with '/>' or '>').
@@ -36,15 +55,25 @@ val i : P.input =
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.doc i @@ pp;;
-- : string = "<area></area>"
+# gen (P.doc i);;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
+- : unit = ()
 
 # let i = P.string_input "\t \n\r <area></area>";;
 val i : P.input =
   {P.buf = <abstr>; line = 2; col = 4; c = '<'; tok = P.SPACE; i = <fun>}
 
-# P.doc i @@ pp;;
-- : string = "<area></area>"
+# gen (P.doc i);;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
+- : unit = ()
 ```
 
 ## Element with children.
@@ -55,34 +84,77 @@ val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
-# P.doc i @@ pp;;
-- : string =
-"<div><span><area></area></span><span><area></area></span><span><area></area></span></div>"
+# gen (P.doc i);;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
++Buffer.add_string b "</span>"
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
++Buffer.add_string b "</span>"
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
++Buffer.add_string b "</span>"
++Buffer.add_string b "</div>"
+- : unit = ()
 ```
 
 ## Element with code-block children.
 
 ```ocaml
-# let i = P.string_input {|<div>{Node.text "hello"}<span><area/></span></div>|};;
+# let i = P.string_input {|<div>{Node.html_text "hello"}<span><area/></span></div>|};;
 val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
-# P.doc i @@ pp;;
-- : string = "<div>{Node.text \"hello\"}<span><area></area></span></div>"
+# gen @@ P.doc i;;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++(fun b -> Node.html_text "hello" ) b;
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "<area";
++Buffer.add_string b ">";
++Buffer.add_string b "</area>"
++Buffer.add_string b "</span>"
++Buffer.add_string b "</div>"
+- : unit = ()
 ```
 
 ## Code element with HTML mixed inside code-block.
 
 ```ocaml
-# let i = P.string_input "<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>";;
+# let i = P.string_input "<div>{ List.iter (fun a -> <section>{Oml.Node.html_text a}</section>) names}</div>";;
 val i : P.input =
   {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
    i = <fun>}
 
-# P.doc i @@ pp;;
-- : string =
-"<div>{ List.map (fun a -> <section>{Gilung_oml.text a}</section>) names }</div>"
+# gen @@ P.doc i;;
++let func1 : Node.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++(fun b ->  List.iter (fun a ->
++Buffer.add_string b "<section";
++Buffer.add_string b ">";
++(fun b -> Oml.Node.html_text a ) b;
++Buffer.add_string b "</section>") names ) b;
++Buffer.add_string b "</div>"
+- : unit = ()
 ```
 
 ## Text element
