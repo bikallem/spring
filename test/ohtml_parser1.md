@@ -14,16 +14,16 @@ let pp = new Node.pp
 ## Normal HTML element.
 
 ```ocaml
-# Ohtml.parse "\t \n\r <div></div>";;
+# Ohtml.parse_element "\t \n\r <div></div>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = []; children = []}}
 
-# Ohtml.parse "<div />";;
+# Ohtml.parse_element "<div />";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = []; children = []}}
@@ -32,9 +32,9 @@ let pp = new Node.pp
 ## Element with children.
 
 ```ocaml
-# Ohtml.parse "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
+# Ohtml.parse_element "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = [];
@@ -59,9 +59,9 @@ let pp = new Node.pp
 ## Element with code-block children.
 
 ```ocaml
-# Ohtml.parse {|<div>{Node.text "hello"}<span>    <area/></span></div>|};;
+# Ohtml.parse_element {|<div>{Node.text "hello"}<span>    <area/></span></div>|};;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = [];
@@ -77,9 +77,9 @@ let pp = new Node.pp
 ## Code element with HTML mixed inside code-block.
 
 ```ocaml
-# Ohtml.parse "<div>{ List.map (fun a -> }<section>{Ohtml.text a}</section>{) names }</div>";;
+# Ohtml.parse_element "<div>{ List.map (fun a -> }<section>{Ohtml.text a}</section>{) names }</div>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = [];
@@ -94,9 +94,9 @@ let pp = new Node.pp
 ## Bool attributes
 
 ```ocaml
-# Ohtml.parse "<input disabled attr1 attr2 attr3></input>";;
+# Ohtml.parse_element "<input disabled attr1 attr2 attr3></input>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "input";
@@ -111,9 +111,9 @@ let pp = new Node.pp
 ## Unquoted attribute value
 
 ```ocaml
-# Ohtml.parse "<input attr1 = attrv\n></input>";;
+# Ohtml.parse_element "<input attr1 = attrv\n></input>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "input";
@@ -124,9 +124,9 @@ let pp = new Node.pp
 ## Quoted attribute value
 
 ```ocaml
-# Ohtml.parse {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
+# Ohtml.parse_element {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "input";
@@ -143,9 +143,9 @@ let pp = new Node.pp
 ## Code attribute value
 
 ```ocaml
-# Ohtml.parse {|<input attr1=  {"value1"} attr2 = { string_of_int 100 }></input>|};;
+# Ohtml.parse_element {|<input attr1=  {"value1"} attr2 = { string_of_int 100 }></input>|};;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "input";
@@ -160,9 +160,9 @@ let pp = new Node.pp
 Name/Value attributes.
 
 ```ocaml
-# Ohtml.parse {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
+# Ohtml.parse_element {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "input";
@@ -179,14 +179,14 @@ Name/Value attributes.
 ## HTML Comment
 
 ```ocaml
-# Ohtml.parse "<!-- Hello world comment -->";;
+# Ohtml.parse_element "<!-- Hello world comment -->";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root = Ohtml__.Node2.Html_comment " Hello world comment "}
 
-# Ohtml.parse "<![ Hello world conditional comment ]>";;
+# Ohtml.parse_element "<![ Hello world conditional comment ]>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Html_conditional_comment " Hello world conditional comment "}
 ```
@@ -194,24 +194,25 @@ Name/Value attributes.
 ## HTML CDATA
 
 ```ocaml
-# Ohtml.parse "<![CDATA[ This is CDATA ]]>";;
+# Ohtml.parse_element "<![CDATA[ This is CDATA ]]>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None; root = Ohtml__.Node2.Cdata " This is CDATA "}
+{Ohtml__.Node2.fun_args = None; dtd = None;
+ root = Ohtml__.Node2.Cdata " This is CDATA "}
 ```
 
 ## HTML DTD
 
 ```ocaml
-# Ohtml.parse "<!DOCTYPE html><html></html>";;
+# Ohtml.parse_element "<!DOCTYPE html><html></html>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = Some "DOCTYPE html";
+{Ohtml__.Node2.fun_args = None; dtd = Some "DOCTYPE html";
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "html"; attributes = []; children = []}}
 
-# Ohtml.parse "<!doctype html><html></html>";;
+# Ohtml.parse_element "<!doctype html><html></html>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = Some "doctype html";
+{Ohtml__.Node2.fun_args = None; dtd = Some "doctype html";
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "html"; attributes = []; children = []}}
@@ -220,9 +221,9 @@ Name/Value attributes.
 ## Text element
 
 ```ocaml
-# Ohtml.parse "<div>  <span>\n\t Hello World { \"hello world from OCaml!\"}    </span>     Hello &Again!     </div>";;
+# Ohtml.parse_element "<div>  <span>\n\t Hello World { \"hello world from OCaml!\"}    </span>     Hello &Again!     </div>";;
 - : Node2.doc =
-{Ohtml__.Node2.dtd = None;
+{Ohtml__.Node2.fun_args = None; dtd = None;
  root =
   Ohtml__.Node2.Element
    {Ohtml__.Node2.tag_name = "div"; attributes = [];
@@ -238,10 +239,15 @@ Name/Value attributes.
 ## @param
 
 ```ocaml
-# let i = P.string_input "@params a:int b:string\n<div>Hello <span>world!</span></div>";;
-val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'p'; tok = P.DATA '@'; i = <fun>}
-
-# P.doc i @@ pp;;
-- : string = "@params a:int b:string\n<div>Hello <span>world!</span></div>"
+# Ohtml.parse_doc "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
+- : Node2.doc =
+{Ohtml__.Node2.fun_args = Some "a:int b:string "; dtd = None;
+ root =
+  Ohtml__.Node2.Element
+   {Ohtml__.Node2.tag_name = "div"; attributes = [];
+    children =
+     [Ohtml__.Node2.Html_text "Hello ";
+      Ohtml__.Node2.Element
+       {Ohtml__.Node2.tag_name = "span"; attributes = [];
+        children = [Ohtml__.Node2.Html_text "world!"]}]}}
 ```
