@@ -12,6 +12,7 @@
 %token <string> CODE_ATTR
 %token <string> HTML_COMMENT
 %token <string> HTML_CONDITIONAL_COMMENT
+%token <string> CDATA
 %token EOF
 
 
