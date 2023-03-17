@@ -25,6 +25,7 @@ let tok_to_string = function
   | HTML_COMMENT _ -> "HTML_COMMENT"
   | HTML_CONDITIONAL_COMMENT _ -> "HTML_CONDITIONAL_COMMENT"
   | CDATA _ -> "CDATA"
+  | DTD _ -> "DTD"
   | EOF -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser1.token
