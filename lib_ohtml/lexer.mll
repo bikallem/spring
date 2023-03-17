@@ -11,10 +11,15 @@
 let alpha = ['a'-'z'] | ['A'-'Z']
 let num = ['0'-'9']
 let tag_name = (alpha | '_') (alpha | num | '_' | '\'' | '.')*
-let ws = [ ' ' '\t' '\n' '\r' '\x09']
+let ws = [' ' '\t' '\n' '\r' '\x09']
 let html_text = ws* ([^ '<' '{']+ as text)
+let param_char = [^ ' ' '-']+
 
-rule element = parse
+rule params = parse
+| ws* { params lexbuf }
+| "fun" ws* ((_)+ as params) "->" { FUNC params }
+
+and element = parse
 | ws* { element lexbuf }
 | '<' { TAG_OPEN }
 | "</" { TAG_OPEN_SLASH } 
