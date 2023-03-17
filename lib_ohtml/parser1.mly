@@ -10,6 +10,7 @@
 %token <string> ATTR_VAL
 %token <string> ATTR_VAL_CODE
 %token <string> CODE_ATTR
+%token <string> HTML_COMMENT
 %token EOF
 
 
@@ -30,6 +31,7 @@ element :
     { Node2.element ~attributes tag_name }
 
   | code_block=CODE_BLOCK { Node2.Code_block code_block }
+  | comment=HTML_COMMENT { Node2.Html_comment comment }
 
 attribute :
   | code_block = CODE_BLOCK { Node2.Code_attribute code_block }
