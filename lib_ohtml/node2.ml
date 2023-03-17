@@ -16,6 +16,8 @@ type element =
   | Html_conditional_comment of string
   | Cdata of string
 
+type dtd = Dtd of string
+
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =
  fun ?(attributes = []) ?(children = []) tag_name ->
