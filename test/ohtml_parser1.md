@@ -16,13 +16,13 @@ let pp = new Node.pp
 ```ocaml
 # Ohtml.parse "\t \n\r <div></div>";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "div"; attributes = []; children = []}
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "div"; attributes = []; children = []}
 
 # Ohtml.parse "<div />";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "div"; attributes = []; children = []}
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "div"; attributes = []; children = []}
 ```
 
 ## Element with children.
@@ -30,24 +30,24 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "div"; attributes = [];
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "div"; attributes = [];
   children =
-   [Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "span"; attributes = [];
+   [Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "span"; attributes = [];
       children =
-       [Ohtml.Node2.Element
-         {Ohtml.Node2.tag_name = "area"; attributes = []; children = []}]};
-    Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "span"; attributes = [];
+       [Ohtml__.Node2.Element
+         {Ohtml__.Node2.tag_name = "area"; attributes = []; children = []}]};
+    Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "span"; attributes = [];
       children =
-       [Ohtml.Node2.Element
-         {Ohtml.Node2.tag_name = "area"; attributes = []; children = []}]};
-    Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "span"; attributes = [];
+       [Ohtml__.Node2.Element
+         {Ohtml__.Node2.tag_name = "area"; attributes = []; children = []}]};
+    Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "span"; attributes = [];
       children =
-       [Ohtml.Node2.Element
-         {Ohtml.Node2.tag_name = "area"; attributes = []; children = []}]}]}
+       [Ohtml__.Node2.Element
+         {Ohtml__.Node2.tag_name = "area"; attributes = []; children = []}]}]}
 ```
 
 ## Element with code-block children.
@@ -55,15 +55,15 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse {|<div>{Node.text "hello"}<span>    <area/></span></div>|};;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "div"; attributes = [];
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "div"; attributes = [];
   children =
-   [Ohtml.Node2.Code_block "Node.text \"hello\"";
-    Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "span"; attributes = [];
+   [Ohtml__.Node2.Code_block "Node.text \"hello\"";
+    Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "span"; attributes = [];
       children =
-       [Ohtml.Node2.Element
-         {Ohtml.Node2.tag_name = "area"; attributes = []; children = []}]}]}
+       [Ohtml__.Node2.Element
+         {Ohtml__.Node2.tag_name = "area"; attributes = []; children = []}]}]}
 ```
 
 ## Code element with HTML mixed inside code-block.
@@ -71,14 +71,14 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse "<div>{ List.map (fun a -> }<section>{Ohtml.text a}</section>{) names }</div>";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "div"; attributes = [];
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "div"; attributes = [];
   children =
-   [Ohtml.Node2.Code_block " List.map (fun a -> ";
-    Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "section"; attributes = [];
-      children = [Ohtml.Node2.Code_block "Ohtml.text a"]};
-    Ohtml.Node2.Code_block ") names "]}
+   [Ohtml__.Node2.Code_block " List.map (fun a -> ";
+    Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "section"; attributes = [];
+      children = [Ohtml__.Node2.Code_block "Ohtml.text a"]};
+    Ohtml__.Node2.Code_block ") names "]}
 ```
 
 ## Bool attributes
@@ -86,12 +86,13 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse "<input disabled attr1 attr2 attr3></input>";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "input";
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "input";
   attributes =
-   [Ohtml.Node2.Bool_attribute "disabled";
-    Ohtml.Node2.Bool_attribute "attr1"; Ohtml.Node2.Bool_attribute "attr2";
-    Ohtml.Node2.Bool_attribute "attr3"];
+   [Ohtml__.Node2.Bool_attribute "disabled";
+    Ohtml__.Node2.Bool_attribute "attr1";
+    Ohtml__.Node2.Bool_attribute "attr2";
+    Ohtml__.Node2.Bool_attribute "attr3"];
   children = []}
 ```
 
@@ -100,9 +101,9 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse "<input attr1 = attrv\n></input>";;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "input";
-  attributes = [Ohtml.Node2.Name_val_attribute ("attr1", "attrv")];
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "input";
+  attributes = [Ohtml__.Node2.Name_val_attribute ("attr1", "attrv")];
   children = []}
 ```
 
@@ -111,16 +112,16 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "input";
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "input";
   attributes =
-   [Ohtml.Node2.Bool_attribute "disabled";
-    Ohtml.Node2.Name_val_attribute ("attr1", "value1");
-    Ohtml.Node2.Name_val_attribute ("attr2", "val2");
-    Ohtml.Node2.Name_val_attribute ("attr3", "val3")];
+   [Ohtml__.Node2.Bool_attribute "disabled";
+    Ohtml__.Node2.Name_val_attribute ("attr1", "value1");
+    Ohtml__.Node2.Name_val_attribute ("attr2", "val2");
+    Ohtml__.Node2.Name_val_attribute ("attr3", "val3")];
   children =
-   [Ohtml.Node2.Element
-     {Ohtml.Node2.tag_name = "span"; attributes = []; children = []}]}
+   [Ohtml__.Node2.Element
+     {Ohtml__.Node2.tag_name = "span"; attributes = []; children = []}]}
 ```
 
 ## Code attribute value
@@ -128,11 +129,11 @@ Ohtml.Node2.Element
 ```ocaml
 # Ohtml.parse {|<input attr1=  {"value1"} attr2 = { string_of_int 100 }></input>|};;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "input";
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "input";
   attributes =
-   [Ohtml.Node2.Name_code_val_attribute ("attr1", "\"value1\"");
-    Ohtml.Node2.Name_code_val_attribute ("attr2", " string_of_int 100 ")];
+   [Ohtml__.Node2.Name_code_val_attribute ("attr1", "\"value1\"");
+    Ohtml__.Node2.Name_code_val_attribute ("attr2", " string_of_int 100 ")];
   children = []}
 ```
 
@@ -143,15 +144,15 @@ Name/Value attributes.
 ```ocaml
 # Ohtml.parse {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
 - : Node2.element =
-Ohtml.Node2.Element
- {Ohtml.Node2.tag_name = "input";
+Ohtml__.Node2.Element
+ {Ohtml__.Node2.tag_name = "input";
   attributes =
-   [Ohtml.Node2.Bool_attribute "disabled";
-    Ohtml.Node2.Code_attribute "Spring_oml.attribute \"name\" \"value\"";
-    Ohtml.Node2.Name_val_attribute ("attr1", "value1");
-    Ohtml.Node2.Name_val_attribute ("attr2", "val2");
-    Ohtml.Node2.Name_val_attribute ("attr3", "val3");
-    Ohtml.Node2.Name_code_val_attribute ("attr4", " string_of_int 100")];
+   [Ohtml__.Node2.Bool_attribute "disabled";
+    Ohtml__.Node2.Code_attribute "Spring_oml.attribute \"name\" \"value\"";
+    Ohtml__.Node2.Name_val_attribute ("attr1", "value1");
+    Ohtml__.Node2.Name_val_attribute ("attr2", "val2");
+    Ohtml__.Node2.Name_val_attribute ("attr3", "val3");
+    Ohtml__.Node2.Name_code_val_attribute ("attr4", " string_of_int 100")];
   children = []}
 ```
 
