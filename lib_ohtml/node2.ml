@@ -14,6 +14,7 @@ type element =
   | Html_text of string
   | Html_comment of string
   | Html_conditional_comment of string
+  | Cdata of string
 
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =
