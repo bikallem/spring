@@ -21,6 +21,7 @@ rule element = parse
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
 | "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
+| "<!" ((_)* as dtd) ">" { DTD dtd }
 | _ as c { err c lexbuf }
 
 and tag = parse
