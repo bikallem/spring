@@ -220,13 +220,19 @@ Name/Value attributes.
 ## Text element
 
 ```ocaml
-# let i = P.string_input {|<div>    <span>Hello World</span>Hello &Again!</div>|};;
-val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
-   i = <fun>}
-
-# P.doc i @@ pp;;
-- : string = "<div><span>Hello World</span>Hello &Again!</div>"
+# Ohtml.parse "<div>  <span>\n\t Hello World { \"hello world from OCaml!\"}    </span>     Hello &Again!     </div>";;
+- : Node2.doc =
+{Ohtml__.Node2.dtd = None;
+ root =
+  Ohtml__.Node2.Element
+   {Ohtml__.Node2.tag_name = "div"; attributes = [];
+    children =
+     [Ohtml__.Node2.Element
+       {Ohtml__.Node2.tag_name = "span"; attributes = [];
+        children =
+         [Ohtml__.Node2.Html_text "Hello World ";
+          Ohtml__.Node2.Code_block " \"hello world from OCaml!\""]};
+      Ohtml__.Node2.Html_text "Hello &Again!     "]}}
 ```
 
 ## Comment element
