@@ -18,12 +18,13 @@ rule element = parse
 | '<' { TAG_OPEN }
 | "</" { TAG_OPEN_SLASH } 
 | '{' { code_block (Buffer.create 10) lexbuf }
+| "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | _ as c { err c lexbuf }
 
 and tag = parse
 | ws { tag lexbuf }
 | '>' { TAG_CLOSE }
-| "/>" { TAG_SLASH_CLOSE } 
+| "/>" { TAG_SLASH_CLOSE }
 | '=' { TAG_EQUALS }
 | '{' { code_block (Buffer.create 10) lexbuf }
 | tag_name as name { TAG_NAME name }
