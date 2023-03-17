@@ -21,8 +21,13 @@ rule element = parse
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
 | "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
-| "<!" ((_)* as dtd) ">" { DTD dtd }
+| "<!" { dtd (Buffer.create 10) lexbuf }
+| eof { EOF }
 | _ as c { err c lexbuf }
+
+and dtd buf = parse
+| '>' { DTD (Buffer.contents buf) }
+| _ as c { Buffer.add_char buf c; dtd buf lexbuf } 
 
 and tag = parse
 | ws { tag lexbuf }
