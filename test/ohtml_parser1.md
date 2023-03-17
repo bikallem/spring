@@ -161,6 +161,10 @@ Ohtml__.Node2.Element
 ```ocaml
 # Ohtml.parse "<!-- Hello world comment -->";;
 - : Node2.element = Ohtml__.Node2.Html_comment " Hello world comment "
+
+# Ohtml.parse "<![ Hello world conditional comment ]>";;
+- : Node2.element =
+Ohtml__.Node2.Html_conditional_comment " Hello world conditional comment "
 ```
 
 
