@@ -22,6 +22,7 @@ let tok_to_string = function
   | ATTR_VAL _ -> "ATTR_VAL"
   | ATTR_VAL_CODE _ -> "ATTR_VAL_CODE"
   | CODE_ATTR _ -> "CODE_ATTR"
+  | HTML_COMMENT _ -> "HTML_COMMENT"
   | EOF -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser1.token
