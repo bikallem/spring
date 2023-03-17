@@ -19,7 +19,8 @@ type element =
 type dtd = Dtd of string
 
 type doc =
-  { dtd : string option
+  { fun_args : string option
+  ; dtd : string option
   ; root : element
   }
 
