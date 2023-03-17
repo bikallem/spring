@@ -14,6 +14,7 @@
 %token <string> HTML_CONDITIONAL_COMMENT
 %token <string> CDATA
 %token <string> DTD
+%token <string> HTML_TEXT
 %token EOF
 
 
@@ -36,6 +37,7 @@ html_element :
   | code_block=CODE_BLOCK { Node2.Code_block code_block }
   | comment=html_comment { comment }
   | cdata=CDATA { Node2.Cdata cdata }
+  | text=HTML_TEXT { Node2.Html_text text }
 
 html_comment :
   | comment=HTML_COMMENT {Node2.Html_comment comment }
