@@ -175,25 +175,35 @@ Name/Value attributes.
 ## HTML Comment
 
 ```ocaml
-# Ohtml.parse_element "<!-- Hello world comment -->";;
-- : Doc.doc =
-{Ohtml__.Doc.fun_args = None; dtd = None;
- root = Ohtml__.Doc.Html_comment " Hello world comment "}
-
-# Ohtml.parse_element "<![ Hello world conditional comment ]>";;
+# Ohtml.parse_element "<html><!-- Hello world comment --></html>";;
 - : Doc.doc =
 {Ohtml__.Doc.fun_args = None; dtd = None;
  root =
-  Ohtml__.Doc.Html_conditional_comment " Hello world conditional comment "}
+  Ohtml__.Doc.Element
+   {Ohtml__.Doc.tag_name = "html"; attributes = [];
+    children = [Ohtml__.Doc.Html_comment " Hello world comment "]}}
+
+# Ohtml.parse_element "<html><![ Hello world conditional comment ]></html>";;
+- : Doc.doc =
+{Ohtml__.Doc.fun_args = None; dtd = None;
+ root =
+  Ohtml__.Doc.Element
+   {Ohtml__.Doc.tag_name = "html"; attributes = [];
+    children =
+     [Ohtml__.Doc.Html_conditional_comment
+       " Hello world conditional comment "]}}
 ```
 
 ## HTML CDATA
 
 ```ocaml
-# Ohtml.parse_element "<![CDATA[ This is CDATA ]]>";;
+# Ohtml.parse_element "<html><![CDATA[ This is CDATA ]]></html>";;
 - : Doc.doc =
 {Ohtml__.Doc.fun_args = None; dtd = None;
- root = Ohtml__.Doc.Cdata " This is CDATA "}
+ root =
+  Ohtml__.Doc.Element
+   {Ohtml__.Doc.tag_name = "html"; attributes = [];
+    children = [Ohtml__.Doc.Cdata " This is CDATA "]}}
 ```
 
 ## HTML DTD

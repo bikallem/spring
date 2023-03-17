@@ -28,17 +28,19 @@ doc :
 
 html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
-    children=html_element*
+    children=html_content*
     TAG_OPEN_SLASH TAG_NAME TAG_CLOSE 
     { Doc.element ~attributes ~children tag_name } 
 
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_SLASH_CLOSE 
     { Doc.element ~attributes tag_name }
 
+html_content :
   | code_block=CODE_BLOCK { Doc.Code_block code_block }
   | comment=html_comment { comment }
   | cdata=CDATA { Doc.Cdata cdata }
   | text=HTML_TEXT { Doc.Html_text text }
+  | el=html_element { el }
 
 html_comment :
   | comment=HTML_COMMENT {Doc.Html_comment comment }
