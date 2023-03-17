@@ -15,6 +15,7 @@
 %token <string> CDATA
 %token <string> DTD
 %token <string> HTML_TEXT
+%token <string> FUNC
 %token EOF
 
 
@@ -23,7 +24,7 @@
 %%
 
 doc :
-  dtd=DTD? root = html_element { {Node2.dtd; root } }
+  | fun_args=FUNC? dtd=DTD? root=html_element { {Node2.dtd; root; fun_args } }
 
 html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
