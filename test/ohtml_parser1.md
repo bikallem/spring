@@ -235,19 +235,6 @@ Name/Value attributes.
       Ohtml__.Node2.Html_text "Hello &Again!     "]}}
 ```
 
-## Comment element
-
-```ocaml
-# let i = P.string_input {|<div> Hello     <!-- hello comment -->    <span>Hello World</span>Hello &Again!</div>|};;
-val i : P.input =
-  {P.buf = <abstr>; line = 1; col = 1; c = 'd'; tok = P.START_ELEM;
-   i = <fun>}
-
-# P.doc i @@ pp;;
-- : string =
-"<div>Hello <!-- hello comment --><span>Hello World</span>Hello &Again!</div>"
-```
-
 ## @param
 
 ```ocaml
