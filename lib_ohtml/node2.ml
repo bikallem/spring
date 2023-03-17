@@ -11,7 +11,8 @@ type element =
       ; children : element list
       }
   | Code_block of string
-  | Static_text of string
+  | Html_text of string
+  | Html_comment of string
 
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =
