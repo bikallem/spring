@@ -13,7 +13,6 @@ let num = ['0'-'9']
 let tag_name = (alpha | '_') (alpha | num | '_' | '\'' | '.')*
 let ws = [' ' '\t' '\n' '\r' '\x09']
 let html_text = ws* ([^ '<' '{']+ as text)
-let param_char = [^ ' ' '-']+
 
 rule func = parse
 | ws* { func lexbuf }
@@ -23,7 +22,7 @@ and element = parse
 | ws* { element lexbuf }
 | '<' { TAG_OPEN }
 | "</" { TAG_OPEN_SLASH } 
-| '{' { code_block (Buffer.create 10) lexbuf }
+| '{' { CODE_OPEN }
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
 | "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
@@ -41,15 +40,15 @@ and tag = parse
 | '>' { TAG_CLOSE }
 | "/>" { TAG_SLASH_CLOSE }
 | '=' { TAG_EQUALS }
-| '{' { code_block (Buffer.create 10) lexbuf }
+| '{' { code_attr (Buffer.create 10) lexbuf }
 | tag_name as name { TAG_NAME name }
 | eof { EOF }
 | _ as c { err c lexbuf }
 
-and code_block buf = parse
-| '}'      { CODE_BLOCK (Buffer.contents buf) }
-| '\\' '}' { Buffer.add_char buf '}'; code_block buf lexbuf }
-| _ as c   { Buffer.add_char buf c; code_block buf lexbuf }
+and code_attr buf = parse
+| '}'      { CODE_ATTR (Buffer.contents buf) }
+| '\\' '}' { Buffer.add_char buf '}'; code_attr buf lexbuf }
+| _ as c   { Buffer.add_char buf c; code_attr buf lexbuf }
 | eof      { EOF }
 
 and attribute_val = parse
@@ -60,3 +59,4 @@ and attribute_val = parse
 | ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { ATTR_VAL v }
 | eof { EOF }
 | _ as c { err c lexbuf }
+
