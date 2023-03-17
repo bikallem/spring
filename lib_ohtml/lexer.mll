@@ -15,8 +15,8 @@ let ws = [' ' '\t' '\n' '\r' '\x09']
 let html_text = ws* ([^ '<' '{']+ as text)
 let param_char = [^ ' ' '-']+
 
-rule params = parse
-| ws* { params lexbuf }
+rule func = parse
+| ws* { func lexbuf }
 | "fun" ws* ((_)+ as params) "->" { FUNC params }
 
 and element = parse

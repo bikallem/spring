@@ -82,6 +82,6 @@ let parse_doc s =
   let lexbuf = Lexing.from_string s in
   let tokenizer = Stack.create () in
   let i = { lexbuf; tokenizer } in
-  push i Lexer.params;
+  push i Lexer.func;
   let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
