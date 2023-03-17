@@ -167,6 +167,12 @@ Ohtml__.Node2.Element
 Ohtml__.Node2.Html_conditional_comment " Hello world conditional comment "
 ```
 
+## HTML CDATA
+
+```ocaml
+# Ohtml.parse "<![CDATA[ This is CDATA ]]>";;
+- : Node2.element = Ohtml__.Node2.Cdata " This is CDATA "
+```
 
 ## Text element
 
