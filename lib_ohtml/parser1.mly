@@ -25,7 +25,7 @@ doc :
 
 html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
-    children=html_element* 
+    children=html_element*
     TAG_OPEN_SLASH TAG_NAME TAG_CLOSE 
     { Node2.element ~attributes ~children tag_name } 
 
@@ -34,6 +34,7 @@ html_element :
 
   | code_block=CODE_BLOCK { Node2.Code_block code_block }
   | comment=html_comment { comment }
+  | cdata=CDATA { Node2.Cdata cdata }
 
 html_comment :
   | comment=HTML_COMMENT {Node2.Html_comment comment }
