@@ -2,9 +2,10 @@
   open Parser1
   exception Error of string
 
-  let err lexbuf = 
-    let offset = Lexing.lexeme_start lexbuf |> string_of_int in
-    failwith @@ "At offset " ^ offset ^ ": unexpected character.\n"
+  let err c lexbuf = 
+    let offset = Lexing.lexeme_start lexbuf in
+    let err = Printf.sprintf "At offset %d: unexpected character '%c'." offset c in
+    failwith err
 }
 
 let alpha = ['a'-'z'] | ['A'-'Z']
@@ -14,15 +15,20 @@ let ws = [ ' ' '\t' '\n' '\r' '\x09']
 
 rule element = parse
 | ws { element lexbuf }
-| '<' { START_ELEM }
-| '>' { ELEM_CLOSE }
-| "/>" { START_ELEM_SLASH_CLOSE }
-| "</" { END_ELEM_START }
+| '<' { TAG_OPEN }
+| "</" { TAG_OPEN_SLASH } 
 | '{' { code_block (Buffer.create 10) lexbuf }
-| '=' { EQUAL }
+| _ as c { err c lexbuf }
+
+and tag = parse
+| ws { tag lexbuf }
+| '>' { TAG_CLOSE }
+| "/>" { TAG_SLASH_CLOSE } 
+| '=' { TAG_EQUALS }
+| '{' { code_block (Buffer.create 10) lexbuf }
 | tag_name as name { TAG_NAME name }
 | eof { EOF }
-| _ { err lexbuf }
+| _ as c { err c lexbuf }
 
 and code_block buf = parse
 | '}'      { CODE_BLOCK (Buffer.contents buf) }
@@ -36,4 +42,4 @@ and attribute_val = parse
 | ws* '{' ([^ '}']* as v) '}'        { ATTR_VAL_CODE v }
 | ws* ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { ATTR_VAL v }
 | eof { EOF }
-| _ { err lexbuf }
+| _ as c { err c lexbuf }

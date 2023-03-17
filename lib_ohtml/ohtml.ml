@@ -12,15 +12,17 @@ let get_lexing_position lexbuf =
   (line_number, column)
 
 let tok_to_string = function
-  | Parser1.START_ELEM -> "START_ELEM"
+  | Parser1.TAG_OPEN -> "TAG_OPEN"
   | TAG_NAME name -> "TAG_NAME " ^ name
-  | ELEM_CLOSE -> "ELEM_CLOSE"
-  | START_ELEM_SLASH_CLOSE -> "START_ELEM_SLASH_CLOSE"
-  | END_ELEM_START -> "END_ELEM_START"
+  | TAG_CLOSE -> "TAG_CLOSE"
+  | TAG_SLASH_CLOSE -> "TAG_SLASH_CLOSE"
+  | TAG_OPEN_SLASH -> "TAG_OPEN_SLASH"
+  | TAG_EQUALS -> "TAG_EQUALS"
   | CODE_BLOCK _ -> "CODE_BLOCK"
-  | EQUAL -> "EQUAL"
+  | ATTR_VAL _ -> "ATTR_VAL"
+  | ATTR_VAL_CODE _ -> "ATTR_VAL_CODE"
+  | CODE_ATTR _ -> "CODE_ATTR"
   | EOF -> "EOF"
-  | _ -> failwith "x"
 
 type lexer = Lexing.lexbuf -> Parser1.token
 
@@ -33,15 +35,20 @@ let tokenize i =
   let f = Stack.top i.tokenizer in
   f i.lexbuf
 
+let pop i = ignore (Stack.pop i.tokenizer : lexer)
+
+let push i lexer = Stack.push lexer i.tokenizer
+
 let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = tokenize i in
     (*     Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
-    | Parser1.EQUAL -> Stack.push Lexer.attribute_val i.tokenizer
-    | Parser1.ATTR_VAL _ | ATTR_VAL_CODE _ ->
-      ignore (Stack.pop i.tokenizer : lexer)
+    | Parser1.TAG_EQUALS -> push i Lexer.attribute_val
+    | Parser1.ATTR_VAL _ | ATTR_VAL_CODE _ -> pop i
+    | Parser1.TAG_OPEN | TAG_OPEN_SLASH -> push i Lexer.tag
+    | Parser1.TAG_CLOSE | TAG_SLASH_CLOSE -> pop i
     | _ -> ());
     let startp = i.lexbuf.lex_start_p
     and endp = i.lexbuf.lex_curr_p in
