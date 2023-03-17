@@ -21,11 +21,11 @@
 %%
 
 doc :
-  root = element { root }
+  root = html_element { root }
 
-element :
+html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
-    children=element* 
+    children=html_element* 
     TAG_OPEN_SLASH TAG_NAME TAG_CLOSE 
     { Node2.element ~attributes ~children tag_name } 
 
