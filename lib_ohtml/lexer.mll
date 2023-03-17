@@ -20,6 +20,7 @@ rule element = parse
 | '{' { code_block (Buffer.create 10) lexbuf }
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
+| "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
 | _ as c { err c lexbuf }
 
 and tag = parse
