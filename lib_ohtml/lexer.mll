@@ -19,6 +19,7 @@ rule element = parse
 | "</" { TAG_OPEN_SLASH } 
 | '{' { code_block (Buffer.create 10) lexbuf }
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
+| "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
 | _ as c { err c lexbuf }
 
 and tag = parse
