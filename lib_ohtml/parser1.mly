@@ -11,6 +11,7 @@
 %token <string> ATTR_VAL_CODE
 %token <string> CODE_ATTR
 %token <string> HTML_COMMENT
+%token <string> HTML_CONDITIONAL_COMMENT
 %token EOF
 
 
@@ -31,7 +32,11 @@ element :
     { Node2.element ~attributes tag_name }
 
   | code_block=CODE_BLOCK { Node2.Code_block code_block }
-  | comment=HTML_COMMENT { Node2.Html_comment comment }
+  | comment=html_comment { comment }
+
+html_comment :
+  | comment=HTML_COMMENT {Node2.Html_comment comment }
+  | comment=HTML_CONDITIONAL_COMMENT {Node2.Html_conditional_comment comment }
 
 attribute :
   | code_block = CODE_BLOCK { Node2.Code_attribute code_block }
