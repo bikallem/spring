@@ -27,6 +27,7 @@ let tok_to_string = function
   | CDATA _ -> "CDATA"
   | DTD _ -> "DTD"
   | HTML_TEXT _ -> "HTML_TEXT"
+  | FUNC _ -> "PARAM "
   | EOF -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser1.token
@@ -48,8 +49,9 @@ let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = tokenize i in
-    (*     Printf.printf "\n%s%!" (tok_to_string token); *)
+(*         Printf.printf "\n%s%!" (tok_to_string token);  *)
     (match token with
+    | Parser1.FUNC _ -> push i Lexer.element
     | Parser1.TAG_EQUALS -> push i Lexer.attribute_val
     | Parser1.ATTR_VAL _ | ATTR_VAL_CODE _ -> pop i
     | Parser1.TAG_OPEN | TAG_OPEN_SLASH -> push i Lexer.tag
@@ -68,10 +70,18 @@ let rec loop (i : input) checkpoint =
   | I.Accepted v -> v
   | I.Rejected -> assert false
 
-let parse s =
+let parse_element s =
   let lexbuf = Lexing.from_string s in
   let tokenizer = Stack.create () in
-  Stack.push Lexer.element tokenizer;
   let i = { lexbuf; tokenizer } in
+  push i Lexer.element;
+  let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
+  loop i checkpoint
+
+let parse_doc s =
+  let lexbuf = Lexing.from_string s in
+  let tokenizer = Stack.create () in
+  let i = { lexbuf; tokenizer } in
+  push i Lexer.params;
   let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
