@@ -10,11 +10,15 @@ type element =
       ; attributes : attribute list
       ; children : element list
       }
-  | Code_block of string
+  | Code of code_element list
   | Html_text of string
   | Html_comment of string
   | Html_conditional_comment of string
   | Cdata of string
+
+and code_element =
+  | Code_block of string
+  | Code_element of element
 
 type dtd = Dtd of string
 
