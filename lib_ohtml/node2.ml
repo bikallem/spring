@@ -13,6 +13,7 @@ type element =
   | Code_block of string
   | Html_text of string
   | Html_comment of string
+  | Html_conditional_comment of string
 
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =
