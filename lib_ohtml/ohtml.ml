@@ -1,5 +1,5 @@
 module Node = Node
-module Node2 = Node2
+module Doc= Doc
 module Parser1 = Parser1
 module I = Parser1.MenhirInterpreter
 

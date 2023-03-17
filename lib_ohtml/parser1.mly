@@ -19,33 +19,33 @@
 %token EOF
 
 
-%start <Node2.doc> doc
+%start <Doc.doc> doc
 
 %%
 
 doc :
-  | fun_args=FUNC? dtd=DTD? root=html_element { {Node2.dtd; root; fun_args } }
+  | fun_args=FUNC? dtd=DTD? root=html_element { {Doc.dtd; root; fun_args } }
 
 html_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
     children=html_element*
     TAG_OPEN_SLASH TAG_NAME TAG_CLOSE 
-    { Node2.element ~attributes ~children tag_name } 
+    { Doc.element ~attributes ~children tag_name } 
 
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_SLASH_CLOSE 
-    { Node2.element ~attributes tag_name }
+    { Doc.element ~attributes tag_name }
 
-  | code_block=CODE_BLOCK { Node2.Code_block code_block }
+  | code_block=CODE_BLOCK { Doc.Code_block code_block }
   | comment=html_comment { comment }
-  | cdata=CDATA { Node2.Cdata cdata }
-  | text=HTML_TEXT { Node2.Html_text text }
+  | cdata=CDATA { Doc.Cdata cdata }
+  | text=HTML_TEXT { Doc.Html_text text }
 
 html_comment :
-  | comment=HTML_COMMENT {Node2.Html_comment comment }
-  | comment=HTML_CONDITIONAL_COMMENT {Node2.Html_conditional_comment comment }
+  | comment=HTML_COMMENT {Doc.Html_comment comment }
+  | comment=HTML_CONDITIONAL_COMMENT {Doc.Html_conditional_comment comment }
 
 attribute :
-  | code_block = CODE_BLOCK { Node2.Code_attribute code_block }
-  | name=TAG_NAME { Node2.Bool_attribute name }
-  | name=TAG_NAME TAG_EQUALS attr_val=ATTR_VAL { Node2.Name_val_attribute (name, attr_val) }
-  | name=TAG_NAME TAG_EQUALS attr_val=ATTR_VAL_CODE { Node2.Name_code_val_attribute (name, attr_val) }
+  | code_block = CODE_BLOCK { Doc.Code_attribute code_block }
+  | name=TAG_NAME { Doc.Bool_attribute name }
+  | name=TAG_NAME TAG_EQUALS attr_val=ATTR_VAL { Doc.Name_val_attribute (name, attr_val) }
+  | name=TAG_NAME TAG_EQUALS attr_val=ATTR_VAL_CODE { Doc.Name_code_val_attribute (name, attr_val) }
