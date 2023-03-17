@@ -13,6 +13,7 @@
 %token <string> HTML_COMMENT
 %token <string> HTML_CONDITIONAL_COMMENT
 %token <string> CDATA
+%token <string> DTD
 %token EOF
 
 
