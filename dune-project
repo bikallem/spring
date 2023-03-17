@@ -2,6 +2,8 @@
 
 (name spring)
 
+(using menhir 2.0)
+
 (using mdx 0.3)
 
 (generate_opam_files true)
@@ -54,9 +56,10 @@
     :with-test))))
 
 (package
- (name oml)
- (synopsis "OCaml Markup Language")
- (description "OCaml HTML authoring library.")
+ (name ohtml)
+ (synopsis "OCaml HTML template")
+ (description "OCaml HTML template and authoring library.")
  (depends
   (ocaml
-   (>= 5.0.0))))
+   (>= 5.0.0))
+  menhir))

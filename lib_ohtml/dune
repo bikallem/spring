@@ -1,0 +1,10 @@
+(library
+ (public_name ohtml)
+ (name Ohtml)
+ (libraries menhirLib))
+
+(ocamllex lexer)
+
+(menhir
+ (modules parser1)
+ (flags --unused-tokens --table))
