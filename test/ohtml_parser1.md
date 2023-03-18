@@ -56,36 +56,29 @@ let () = Printexc.record_backtrace true
 ## Element with code-block children.
 
 ```ocaml
-# Ohtml.parse_element {|<div>{Node.text "hello"}<span>    <area/></span></div>|};;
+# Ohtml.parse_element {|<div>{{Node.text "hello"} <span id="v" disabled>{Node.text "world"}<span></span></span> } <span>    <area/></span></div>|};;
 - : Doc.doc =
 {Ohtml__.Doc.fun_args = None; dtd = None;
  root =
   Ohtml__.Doc.Element
    {Ohtml__.Doc.tag_name = "div"; attributes = [];
     children =
-     [Ohtml__.Doc.Code_block "Node.text \"hello\"";
+     [Ohtml__.Doc.Code
+       [Ohtml__.Doc.Code_block "Node.text \"hello\"";
+        Ohtml__.Doc.Code_element
+         {Ohtml__.Doc.tag_name = "span";
+          attributes =
+           [Ohtml__.Doc.Name_val_attribute ("id", "v");
+            Ohtml__.Doc.Bool_attribute "disabled"];
+          children =
+           [Ohtml__.Doc.Code_block "Node.text \"world\"";
+            Ohtml__.Doc.Code_element
+             {Ohtml__.Doc.tag_name = "span"; attributes = []; children = []}]}];
       Ohtml__.Doc.Element
        {Ohtml__.Doc.tag_name = "span"; attributes = [];
         children =
          [Ohtml__.Doc.Element
            {Ohtml__.Doc.tag_name = "area"; attributes = []; children = []}]}]}}
-```
-
-## Code element with HTML mixed inside code-block.
-
-```ocaml
-# Ohtml.parse_element "<div>{ List.map (fun a -> }<section>{Ohtml.text a}</section>{) names }</div>";;
-- : Doc.doc =
-{Ohtml__.Doc.fun_args = None; dtd = None;
- root =
-  Ohtml__.Doc.Element
-   {Ohtml__.Doc.tag_name = "div"; attributes = [];
-    children =
-     [Ohtml__.Doc.Code_block " List.map (fun a -> ";
-      Ohtml__.Doc.Element
-       {Ohtml__.Doc.tag_name = "section"; attributes = [];
-        children = [Ohtml__.Doc.Code_block "Ohtml.text a"]};
-      Ohtml__.Doc.Code_block ") names "]}}
 ```
 
 ## Bool attributes
@@ -227,7 +220,7 @@ Name/Value attributes.
 ## Text element
 
 ```ocaml
-# Ohtml.parse_element "<div>  <span>\n\t Hello World { \"hello world from OCaml!\"}    </span>     Hello &Again!     </div>";;
+# Ohtml.parse_element "<div>  <span>\n\t Hello World {{ \"hello world from OCaml!\"}}    </span>     Hello &Again!     </div>";;
 - : Doc.doc =
 {Ohtml__.Doc.fun_args = None; dtd = None;
  root =
@@ -238,7 +231,8 @@ Name/Value attributes.
        {Ohtml__.Doc.tag_name = "span"; attributes = [];
         children =
          [Ohtml__.Doc.Html_text "Hello World ";
-          Ohtml__.Doc.Code_block " \"hello world from OCaml!\""]};
+          Ohtml__.Doc.Code
+           [Ohtml__.Doc.Code_block " \"hello world from OCaml!\""]]};
       Ohtml__.Doc.Html_text "Hello &Again!     "]}}
 ```
 
