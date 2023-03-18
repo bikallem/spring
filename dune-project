@@ -62,4 +62,5 @@
  (depends
   (ocaml
    (>= 5.0.0))
-  menhir))
+  (menhir
+   (>= 20220210))))
