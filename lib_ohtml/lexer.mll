@@ -66,6 +66,7 @@ and code = parse
 | '}' { CODE_CLOSE }
 | '<' { TAG_OPEN }
 | "</" { TAG_OPEN_SLASH }
+| "<text>" ((_)* as text) "</text>" { HTML_TEXT text } 
 | eof { EOF }
 
 and code_block buf = parse
