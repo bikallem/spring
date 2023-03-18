@@ -47,6 +47,7 @@ html_content :
 code :
   | code_block=CODE_BLOCK { Doc.Code_block code_block }
   | el=code_element { el }
+  | text=HTML_TEXT { Doc.Code_text text }
 
 code_element :
   | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
