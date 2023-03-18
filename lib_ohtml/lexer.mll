@@ -21,7 +21,7 @@ rule func = parse
 and element = parse
 | ws* { element lexbuf }
 | '<' { TAG_OPEN }
-| "</" { TAG_OPEN_SLASH } 
+| "</" { TAG_OPEN_SLASH }
 | '{' { CODE_OPEN }
 | "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
 | "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
@@ -60,3 +60,16 @@ and attribute_val = parse
 | eof { EOF }
 | _ as c { err c lexbuf }
 
+and code = parse
+| ws* { code lexbuf }
+| '{' { code_block (Buffer.create 20) lexbuf }
+| '}' { CODE_CLOSE }
+| '<' { TAG_OPEN }
+| "</" { TAG_OPEN_SLASH }
+| eof { EOF }
+
+and code_block buf = parse
+| '}'     { CODE_BLOCK (Buffer.contents buf) }
+| "\\}"   { Buffer.add_char buf '}'; code_block buf lexbuf }
+| _ as c  { Buffer.add_char buf c; code_block buf lexbuf }
+| eof     { EOF }
