@@ -51,7 +51,7 @@ let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = tokenize i in
-(*     Printf.printf "\n%s%!" (tok_to_string token); *)
+     (* Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
     | Parser1.FUNC _ -> push i Lexer.element
     | Parser1.CODE_OPEN -> push i Lexer.code
