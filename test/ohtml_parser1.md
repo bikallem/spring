@@ -53,10 +53,23 @@ let () = Printexc.record_backtrace true
            {Ohtml__.Doc.tag_name = "area"; attributes = []; children = []}]}]}}
 ```
 
-## Element with code-block children.
+## Element with code children.
 
 ```ocaml
-# Ohtml.parse_element {|<div>{{Node.text "hello"} <span id="v" disabled>{Node.text "world"}<span></span></span> } <span>    <area/></span></div>|};;
+let s = {|
+<div>
+  {{Node.text "hello"}
+  <span id="v" disabled>
+    {Node.text "world"}
+    <span></span>
+  </span> 
+  } 
+  <span><area/></span>
+</div>|}
+```
+
+```ocaml
+# Ohtml.parse_element s;;
 - : Doc.doc =
 {Ohtml__.Doc.fun_args = None; dtd = None;
  root =
@@ -79,6 +92,39 @@ let () = Printexc.record_backtrace true
         children =
          [Ohtml__.Doc.Element
            {Ohtml__.Doc.tag_name = "area"; attributes = []; children = []}]}]}}
+```
+
+## Code element with HTML mixed inside code-block.
+
+```ocaml
+let s ={|
+<div>
+  {{List.iter (fun a -> }
+    <section>
+      {Ohtml.text a}
+    </section>
+    <text>This is a text {}, <hell></hello> </text>
+    {) names }
+  }
+</div>
+|}
+```
+
+```ocaml
+# Ohtml.parse_element s;;
+- : Doc.doc =
+{Ohtml__.Doc.fun_args = None; dtd = None;
+ root =
+  Ohtml__.Doc.Element
+   {Ohtml__.Doc.tag_name = "div"; attributes = [];
+    children =
+     [Ohtml__.Doc.Code
+       [Ohtml__.Doc.Code_block "List.iter (fun a -> ";
+        Ohtml__.Doc.Code_element
+         {Ohtml__.Doc.tag_name = "section"; attributes = [];
+          children = [Ohtml__.Doc.Code_block "Ohtml.text a"]};
+        Ohtml__.Doc.Code_text "This is a text {}, <hell></hello> ";
+        Ohtml__.Doc.Code_block ") names "]]}}
 ```
 
 ## Bool attributes
