@@ -38,15 +38,23 @@ html_element :
     { Doc.element ~attributes tag_name }
 
 html_content :
-  | CODE_OPEN elements=code_element* CODE_CLOSE { Doc.Code elements }
+  | CODE_OPEN code=code* CODE_CLOSE { Doc.Code code }
   | comment=html_comment { comment }
   | cdata=CDATA { Doc.Cdata cdata }
   | text=HTML_TEXT { Doc.Html_text text }
   | el=html_element { el }
 
+code :
+  | code_block=CODE_BLOCK { Doc.Code_block code_block }
+  | el=code_element { el }
+
 code_element :
-  | code=CODE_BLOCK { Doc.Code_block code }
-  | el=html_element { Doc.Code_element el }
+  | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_CLOSE
+    children=code*
+    TAG_OPEN_SLASH TAG_NAME TAG_CLOSE
+    { Doc.Code_element {tag_name; attributes; children } }
+  | TAG_OPEN tag_name=TAG_NAME attributes=attribute* TAG_SLASH_CLOSE 
+    { Doc.Code_element {tag_name; attributes; children = [] } }
 
 html_comment :
   | comment=HTML_COMMENT {Doc.Html_comment comment }
