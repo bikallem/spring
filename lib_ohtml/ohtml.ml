@@ -1,5 +1,5 @@
 module Node = Node
-module Doc= Doc
+module Doc = Doc
 module Parser1 = Parser1
 module I = Parser1.MenhirInterpreter
 
@@ -18,7 +18,9 @@ let tok_to_string = function
   | TAG_SLASH_CLOSE -> "TAG_SLASH_CLOSE"
   | TAG_OPEN_SLASH -> "TAG_OPEN_SLASH"
   | TAG_EQUALS -> "TAG_EQUALS"
-  | CODE_BLOCK _ -> "CODE_BLOCK"
+  | CODE_OPEN -> "CODE_OPEN"
+  | CODE_BLOCK s -> "CODE_BLOCK " ^ s
+  | CODE_CLOSE -> "CODE_CLOSE"
   | ATTR_VAL _ -> "ATTR_VAL"
   | ATTR_VAL_CODE _ -> "ATTR_VAL_CODE"
   | CODE_ATTR _ -> "CODE_ATTR"
@@ -26,7 +28,7 @@ let tok_to_string = function
   | HTML_CONDITIONAL_COMMENT _ -> "HTML_CONDITIONAL_COMMENT"
   | CDATA _ -> "CDATA"
   | DTD _ -> "DTD"
-  | HTML_TEXT _ -> "HTML_TEXT"
+  | HTML_TEXT s -> "HTML_TEXT " ^ s
   | FUNC _ -> "PARAM "
   | EOF -> "EOF"
 
@@ -49,9 +51,11 @@ let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = tokenize i in
-(*         Printf.printf "\n%s%!" (tok_to_string token);  *)
+(*     Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
     | Parser1.FUNC _ -> push i Lexer.element
+    | Parser1.CODE_OPEN -> push i Lexer.code
+    | Parser1.CODE_CLOSE -> pop i
     | Parser1.TAG_EQUALS -> push i Lexer.attribute_val
     | Parser1.ATTR_VAL _ | ATTR_VAL_CODE _ -> pop i
     | Parser1.TAG_OPEN | TAG_OPEN_SLASH -> push i Lexer.tag
