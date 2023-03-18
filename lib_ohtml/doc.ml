@@ -18,6 +18,7 @@ type element =
 
 and code =
   | Code_block of string
+  | Code_text of string
   | Code_element of
       { tag_name : string
       ; attributes : attribute list
