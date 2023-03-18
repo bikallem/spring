@@ -20,18 +20,10 @@ and code =
   | Code_block of string
   | Code_text of string
   | Code_element of
-      { tag_name : string
-      ; attributes : attribute list
-      ; children : code list
-      }
+      { tag_name : string; attributes : attribute list; children : code list }
 
 type dtd = Dtd of string
-
-type doc =
-  { fun_args : string option
-  ; dtd : string option
-  ; root : element
-  }
+type doc = { fun_args : string option; dtd : string option; root : element }
 
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =

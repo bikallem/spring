@@ -9,9 +9,7 @@ class virtual writable =
 class none =
   object
     inherit writable
-
     method write_body _ = ()
-
     method write_header _ = ()
   end
 
@@ -37,7 +35,6 @@ let form_values_writer assoc_list =
 class virtual readable =
   object
     method virtual headers : Header.t
-
     method virtual buf_read : Eio.Buf_read.t
   end
 

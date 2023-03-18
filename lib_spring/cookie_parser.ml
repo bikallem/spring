@@ -1,7 +1,4 @@
-type state =
-  { i : string
-  ; mutable pos : int
-  }
+type state = { i : string; mutable pos : int }
 
 let accept s n = s.pos <- s.pos + n
 

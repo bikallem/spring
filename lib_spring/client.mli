@@ -12,6 +12,7 @@
 
     See {{!common} for common client use cases}. *)
 
+type t
 (** [t] is a HTTP client. It encapsulates client buffered reader/writer initial
     sizes, timeout settings for HTTP client calls, and connection reuse
     functionality.
@@ -19,8 +20,15 @@
     It is safe for concurrent usage.
 
     See {!val:make}. *)
-type t
 
+val make :
+     ?timeout:Eio.Time.Timeout.t
+  -> ?read_initial_size:int
+  -> ?write_initial_size:int
+  -> ?maximum_conns_per_host:int
+  -> Eio.Switch.t
+  -> #Eio.Net.t
+  -> t
 (** [make sw net] is [t]. [net] is used to create/establish connections to
     remote HTTP/1.1 server.
 
@@ -41,19 +49,12 @@ type t
     @param max_conns_per_host
       is the maximum number of connections cached per host,port. The default is
       [5]. *)
-val make :
-     ?timeout:Eio.Time.Timeout.t
-  -> ?read_initial_size:int
-  -> ?write_initial_size:int
-  -> ?maximum_conns_per_host:int
-  -> Eio.Switch.t
-  -> #Eio.Net.t
-  -> t
 
 (** {1:common Common Client Use-Cases}
 
     Common client use-cases optimized for convenience. *)
 
+val get : t -> Request.url -> Response.client_response
 (** [get t url] is [response] after making a HTTP GET request call to [url].
 
     {[
@@ -61,8 +62,8 @@ val make :
     ]}
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
-val get : t -> Request.url -> Response.client_response
 
+val head : t -> Request.url -> Response.client_response
 (** [head t url] is [response] after making a HTTP HEAD request call to [url].
 
     {[
@@ -70,8 +71,8 @@ val get : t -> Request.url -> Response.client_response
     ]}
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
-val head : t -> Request.url -> Response.client_response
 
+val post : t -> #Body.writable -> Request.url -> Response.client_response
 (** [post t body url] is [response] after making a HTTP POST request call with
     body [body] to [url].
 
@@ -80,8 +81,9 @@ val head : t -> Request.url -> Response.client_response
     ]}
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
-val post : t -> #Body.writable -> Request.url -> Response.client_response
 
+val post_form_values :
+  t -> (string * string list) list -> Request.url -> Response.client_response
 (** [post_form_values t form_values url] is [response] after making a HTTP POST
     request call to [url] with form values [form_values].
 
@@ -92,17 +94,17 @@ val post : t -> #Body.writable -> Request.url -> Response.client_response
     ]}
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
-val post_form_values :
-  t -> (string * string list) list -> Request.url -> Response.client_response
 
 (** {1 Call} *)
 
+val do_call : t -> Request.client_request -> Response.client_response
 (** [do_call t req] makes a HTTP request using [req] and returns
     {!type:response}.
 
     @raise Eio.Exn.Io in cases of connection errors. *)
-val do_call : t -> Request.client_request -> Response.client_response
 
+val call :
+  conn:#Eio.Flow.two_way -> Request.client_request -> Response.client_response
 (** [call conn req] makes a HTTP client call using connection [conn] and request
     [req]. It returns a {!type:response} upon a successfull call.
 
@@ -110,19 +112,17 @@ val do_call : t -> Request.client_request -> Response.client_response
     redirection or cookie functionality.
 
     @raise Eio.Exn.Io in cases of connection errors. *)
-val call :
-  conn:#Eio.Flow.two_way -> Request.client_request -> Response.client_response
 
 (** {1 Client Configuration} *)
 
-(** [buf_write_initial_size] is the buffered writer iniital size. *)
 val buf_write_initial_size : t -> int
+(** [buf_write_initial_size] is the buffered writer iniital size. *)
 
-(** [buf_read_initial_size] is the buffered reader initial size. *)
 val buf_read_initial_size : t -> int
+(** [buf_read_initial_size] is the buffered reader initial size. *)
 
+val timeout : t -> Eio.Time.Timeout.t
 (** [timeout] specifies total time limit for establishing a connection, calling
     a request and getting a response back.
 
     A client request is cancelled if the specified timeout limit is exceeded. *)
-val timeout : t -> Eio.Time.Timeout.t

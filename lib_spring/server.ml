@@ -1,5 +1,4 @@
 type handler = Request.server_request -> Response.server_response
-
 type pipeline = handler -> handler
 
 type t =
@@ -97,5 +96,4 @@ let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =
   run socket t
 
 let shutdown t = Eio.Promise.resolve t.stop_r ()
-
 let not_found_handler _ = Response.not_found

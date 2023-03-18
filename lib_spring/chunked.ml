@@ -1,16 +1,6 @@
-type t =
-  | Chunk of body
-  | Last_chunk of extension list
-
-and body =
-  { data : string
-  ; extensions : extension list
-  }
-
-and extension =
-  { name : string
-  ; value : string option
-  }
+type t = Chunk of body | Last_chunk of extension list
+and body = { data : string; extensions : extension list }
+and extension = { name : string; value : string option }
 
 let make ?(extensions = []) data =
   let extensions = List.map (fun (name, value) -> { name; value }) extensions in
@@ -191,7 +181,6 @@ let parse_chunk (total_read : int) (headers : Header.t) =
   | sz -> failwith (Format.sprintf "Invalid chunk size: %d" sz)
 
 type write_chunk = (t -> unit) -> unit
-
 type write_trailer = (Header.t -> unit) -> unit
 
 let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =

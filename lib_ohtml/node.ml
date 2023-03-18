@@ -3,16 +3,12 @@ class type ['repr] t =
   object
     (* Attribute value constructors *)
     method unquoted_attribute_value : string -> 'repr
-
     method single_quoted_attribute_value : string -> 'repr
-
     method double_quoted_attribute_value : string -> 'repr
-
     method code_attribute_value : string -> 'repr
 
     (* Attribute constructors *)
     method bool_attr : string -> 'repr (* <input disabled> *)
-
     method attribute : string -> 'repr t -> 'repr
 
     (* <input { } /> *)
@@ -21,13 +17,9 @@ class type ['repr] t =
     (* Element constructors *)
 
     method text : string -> 'repr
-
     method element : 'repr t list -> 'repr t list -> string -> 'repr
-
     method code_block : string -> 'repr
-
     method code_element : 'repr t list -> 'repr
-
     method comment : string -> 'repr
 
     (* Document constructors *)
@@ -38,17 +30,11 @@ class type ['repr] t =
 (* Attribute constructors *)
 
 let unquoted_attribute_value code ro = ro#unquoted_attribute_value code
-
 let single_quoted_attribute_value v ro = ro#single_quoted_attribute_value v
-
 let double_quoted_attribute_value v ro = ro#double_quoted_attribute_value v
-
 let code_attribute_value code ro = ro#code_attribute_value code
-
 let bool_attr name ro = ro#bool_attr name
-
 let attribute name value ro = ro#attribute name value
-
 let code_attribute code_block ro = ro#code_attribute code_block
 
 (* [t] Constructors *)
@@ -75,17 +61,13 @@ let element ?(attributes = []) ?(children = []) tag ro =
   ro#element attributes children tag
 
 let code_block code ro = ro#code_block code
-
 let code_element children ro = ro#code_element children
-
 let comment txt ro = ro#comment txt
-
 let doc pars root_el ro = ro#doc pars root_el
 
 type html_writer = Buffer.t -> unit
 
 let html_text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
-
 let raw_text txt : html_writer = fun b -> Buffer.add_string b txt
 
 (* Interpreters *)
@@ -113,13 +95,9 @@ class pp =
   in
   object (self)
     method unquoted_attribute_value v : string = v
-
     method single_quoted_attribute_value v : string = "'" ^ v ^ "'"
-
     method double_quoted_attribute_value v : string = "\"" ^ v ^ "\""
-
     method code_attribute_value code : string = "{" ^ code ^ "}"
-
     method bool_attr name : string = name
 
     method attribute name value : string =
@@ -127,7 +105,6 @@ class pp =
       name ^ "=" ^ v
 
     method code_attribute code_block : string = "{" ^ code_block ^ "}"
-
     method text s : string = s
 
     method element attributes children tag =
@@ -175,13 +152,9 @@ class ssr (f : string -> unit) (func_name : string) =
       f v
 
     method single_quoted_attribute_value v : unit = f @@ "'" ^ v ^ "'"
-
     method double_quoted_attribute_value v : unit = f @@ "\"" ^ v ^ "\""
-
     method code_attribute_value code : unit = f @@ code
-
     method bool_attr name : unit = f name
-
     method attribute (_name : string) (_value : 'a -> unit) : unit = ()
     (* f name;
        f "=";

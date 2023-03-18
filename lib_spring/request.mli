@@ -5,39 +5,35 @@
 class virtual t :
   object
     method virtual version : Version.t
-
     method virtual headers : Header.t
-
     method virtual meth : Method.t
-
     method virtual resource : string
-
     method virtual pp : Format.formatter -> unit
   end
 
-(** [host_port] is a tuple of [(host, Some port)]. *)
 type host_port = string * int option
+(** [host_port] is a tuple of [(host, Some port)]. *)
 
-(** [version t] is the HTTP version of request [t]. *)
 val version : #t -> Version.t
+(** [version t] is the HTTP version of request [t]. *)
 
-(** [headers t] is headers associated with request [t]. *)
 val headers : #t -> Header.t
+(** [headers t] is headers associated with request [t]. *)
 
-(** [meth t] is request method for [t].*)
 val meth : #t -> Method.t
+(** [meth t] is request method for [t].*)
 
-(** [resource] is request resource uri for [t], e.g. "/home/products/123". *)
 val resource : #t -> string
+(** [resource] is request resource uri for [t], e.g. "/home/products/123". *)
 
+val supports_chunked_trailers : #t -> bool
 (** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
     trailers". It is [false] otherwise. *)
-val supports_chunked_trailers : #t -> bool
 
+val keep_alive : #t -> bool
 (** [keep_alive t] is [true] if [t] has header "Connection: keep-alive" or if
     "Connection" header is missing and the HTTP version is 1.1. It is [false] if
     header "Connection: close" exists. *)
-val keep_alive : #t -> bool
 
 (** {1 Client Request}
 
@@ -46,16 +42,11 @@ val keep_alive : #t -> bool
 class virtual client_request :
   object
     inherit t
-
     inherit Body.writable
-
     method virtual host : string
-
     method virtual port : int option
   end
 
-(** [client_request ~host ~resource meth body] is an instance of
-    {!class:client_request} where [body] is a {!class:Body.writer}. *)
 val client_request :
      ?version:Version.t
   -> ?headers:Header.t
@@ -65,18 +56,21 @@ val client_request :
   -> Method.t
   -> #Body.writable
   -> client_request
+(** [client_request ~host ~resource meth body] is an instance of
+    {!class:client_request} where [body] is a {!class:Body.writer}. *)
 
+val client_host_port : #client_request -> host_port
 (** [client_host_port r] is the [host] and [port] for client_request request
     [r]. *)
-val client_host_port : #client_request -> host_port
 
+type url = string
 (** [url] is a HTTP URI value with host information.
 
     {[
       "www.example.com/products"
     ]} *)
-type url = string
 
+val get : url -> client_request
 (** [get url] is a client_request request [r] configured with HTTP request
     method {!val:Method.Get}.
 
@@ -84,8 +78,8 @@ type url = string
       let r = Request.get "www.example.com/products/a/"
     ]}
     @raise Invalid_argument if [url] is invalid. *)
-val get : url -> client_request
 
+val head : url -> client_request
 (** [head url] is a client_request request [r] configured with HTTP request
     method {!val:Method.Head}.
 
@@ -93,8 +87,8 @@ val get : url -> client_request
       let r = Request.head "www.example.com/products/"
     ]}
     @raise Invalid_argument if [url] is invalid. *)
-val head : url -> client_request
 
+val post : (#Body.writable as 'a) -> url -> client_request
 (** [post body url] is a client_request request [r] configured with HTTP request
     method {!val:Method.Post} and with request body [body]. A header
     "Content-Length" is added with suitable value in the request header.
@@ -104,8 +98,8 @@ val head : url -> client_request
       let r = Request.post body "www.example.com/product/purchase/123"
     ]}
     @raise Invalid_argument if [url] is invalid. *)
-val post : (#Body.writable as 'a) -> url -> client_request
 
+val post_form_values : (string * string list) list -> url -> client_request
 (** [post_form_values form_fields url] is a client_request request [r]
     configured with HTTP request method {!val:Method.Post}. The body
     [form_fields] is a list of form fields [(name, values)]. [form_fields] is
@@ -118,10 +112,9 @@ val post : (#Body.writable as 'a) -> url -> client_request
       Request.post_form_values form_fields "www.example.com/product/update"
     ]}
     @raise Invalid_argument if [url] is invalid. *)
-val post_form_values : (string * string list) list -> url -> client_request
 
-(** [write r buf_write] writes client_request request [r] using [buf_write]. *)
 val write : #client_request -> Eio.Buf_write.t -> unit
+(** [write r buf_write] writes client_request request [r] using [buf_write]. *)
 
 (** {1 Server Request} *)
 
@@ -132,20 +125,16 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 class virtual server_request :
   object
     inherit t
-
     inherit Body.readable
-
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
-(** [buf_read r] is a buffered reader that can read request [r] body. *)
 val buf_read : #server_request -> Eio.Buf_read.t
+(** [buf_read r] is a buffered reader that can read request [r] body. *)
 
-(** [client_addr r] is the remote client address for request [r]. *)
 val client_addr : #server_request -> Eio.Net.Sockaddr.stream
+(** [client_addr r] is the remote client address for request [r]. *)
 
-(** [server_request meth client_addr buf_read] is an instance of
-    {!class:server_request}. *)
 val server_request :
      ?version:Version.t
   -> ?headers:Header.t
@@ -154,10 +143,12 @@ val server_request :
   -> Eio.Net.Sockaddr.stream
   -> Eio.Buf_read.t
   -> server_request
+(** [server_request meth client_addr buf_read] is an instance of
+    {!class:server_request}. *)
 
+val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
 (** [parse client_addr buf_read] parses a server request [r] given a buffered
     reader [buf_read]. *)
-val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
 
 (** {1 Pretty Printer} *)
 

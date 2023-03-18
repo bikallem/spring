@@ -1,9 +1,5 @@
 type t = Ptime.t
-
-type state =
-  { i : string (* input *)
-  ; mutable pos : int
-  }
+type state = { i : string (* input *); mutable pos : int }
 
 let accept s n = s.pos <- s.pos + n
 

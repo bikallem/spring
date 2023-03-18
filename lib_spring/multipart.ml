@@ -80,7 +80,7 @@ let read_into (p : reader part) dst =
     Cstruct.blit_from_string data 0 dst 0 n;
     p.t.linger <-
       (if n < data_len then String.with_range ~first:n ~len:(data_len - n) data
-      else "");
+       else "");
     n
   in
   if not @@ String.is_empty p.t.linger then write_data p.t.linger
@@ -101,7 +101,6 @@ let read_into (p : reader part) dst =
 let reader_flow (p : reader part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
-
     method read_into = read_into p
   end
 
@@ -124,9 +123,7 @@ let next_part (t : reader) =
     | None -> failwith "multipart: \"Content-Disposition\" header not found"
 
 let file_name p = p.filename
-
 let form_name p = p.form_name
-
 let headers p = p.headers
 
 let make_part ?filename ?(headers = Header.empty) body form_name =

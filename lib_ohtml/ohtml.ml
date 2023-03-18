@@ -33,25 +33,20 @@ let tok_to_string = function
   | EOF -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser1.token
-
-type input =
-  { lexbuf : Lexing.lexbuf
-  ; tokenizer : lexer Stack.t
-  }
+type input = { lexbuf : Lexing.lexbuf; tokenizer : lexer Stack.t }
 
 let tokenize i =
   let f = Stack.top i.tokenizer in
   f i.lexbuf
 
 let pop i = ignore (Stack.pop i.tokenizer : lexer)
-
 let push i lexer = Stack.push lexer i.tokenizer
 
 let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = tokenize i in
-     (* Printf.printf "\n%s%!" (tok_to_string token); *)
+    (* Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
     | Parser1.FUNC _ -> push i Lexer.element
     | Parser1.CODE_OPEN -> push i Lexer.code
@@ -61,8 +56,7 @@ let rec loop (i : input) checkpoint =
     | Parser1.TAG_OPEN | TAG_OPEN_SLASH -> push i Lexer.tag
     | Parser1.TAG_CLOSE | TAG_SLASH_CLOSE -> pop i
     | _ -> ());
-    let startp = i.lexbuf.lex_start_p
-    and endp = i.lexbuf.lex_curr_p in
+    let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in
     let checkpoint = I.offer checkpoint (token, startp, endp) in
     loop i checkpoint
   | I.Shifting _ | I.AboutToReduce _ ->

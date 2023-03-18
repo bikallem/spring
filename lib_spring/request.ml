@@ -7,24 +7,17 @@ let host_port_to_string (host, port) =
 class virtual t =
   object
     method virtual version : Version.t
-
     method virtual headers : Header.t
-
     method virtual meth : Method.t
-
     method virtual resource : string
-
     method virtual pp : Format.formatter -> unit
   end
 
 type host_port = string * int option
 
 let version (t : #t) = t#version
-
 let headers (t : #t) = t#headers
-
 let meth (t : #t) = t#meth
-
 let resource (t : #t) = t#resource
 
 let supports_chunked_trailers (t : #t) =
@@ -48,11 +41,8 @@ let keep_alive (t : #t) =
 class virtual client_request =
   object
     inherit t
-
     inherit Body.writable
-
     method virtual host : string
-
     method virtual port : int option
   end
 
@@ -90,23 +80,14 @@ let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
     ~host ~resource (meth : Method.t) body =
   object (self)
     inherit client_request as _super
-
     val headers = headers
-
     method version = version
-
     method headers = headers
-
     method meth = meth
-
     method resource = resource
-
     method host = host
-
     method port = port
-
     method write_body = body#write_body
-
     method write_header = body#write_header
 
     method pp fmt =
@@ -191,31 +172,22 @@ let write (t : #client_request) w =
 class virtual server_request =
   object
     inherit t
-
     inherit Body.readable
-
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
 let buf_read (t : #server_request) = t#buf_read
-
 let client_addr (t : #server_request) = t#client_addr
 
 let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
     ~resource meth client_addr buf_read =
   object (self)
     inherit server_request
-
     method version = version
-
     method headers = headers
-
     method meth = meth
-
     method resource = resource
-
     method client_addr = client_addr
-
     method buf_read = buf_read
 
     method pp fmt =

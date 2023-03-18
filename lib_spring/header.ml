@@ -1,5 +1,4 @@
 type name = string
-
 type lname = string
 
 let canonical_name s =
@@ -8,25 +7,15 @@ let canonical_name s =
   |> String.concat ~sep:"-"
 
 let lname = String.Ascii.lowercase
-
 let lname_equal = String.equal
 
 type 'a encode = 'a -> string
-
 type 'a decode = string -> 'a
-
 type t = (lname * string) list
-
-type 'a header =
-  { name : lname
-  ; decode : 'a decode
-  ; encode : 'a encode
-  }
+type 'a header = { name : lname; decode : 'a decode; encode : 'a encode }
 
 let header decode encode name = { name = lname name; decode; encode }
-
 let name (type a) (hdr : a header) = canonical_name hdr.name
-
 let encode (type a) (hdr : a header) (v : a) = hdr.encode v
 
 let content_length =
@@ -63,9 +52,7 @@ let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
 
 (* TODO User-Agent spec at https://httpwg.org/specs/rfc9110.html#rfc.section.10.1.5 *)
 let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
-
 let date = { name = "date"; decode = Date.decode; encode = Date.encode }
-
 let cookie = { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
 
 let set_cookie =
@@ -75,7 +62,6 @@ let set_cookie =
   }
 
 let empty = []
-
 let singleton ~name ~value = [ (lname name, value) ]
 
 let is_empty = function
@@ -83,11 +69,8 @@ let is_empty = function
   | _ -> false
 
 let of_list t = List.map (fun (k, v) -> (lname k, v)) t
-
 let to_list = Fun.id
-
 let to_canonical_list t = List.map (fun (k, v) -> (canonical_name k, v)) t
-
 let length t = List.length t
 
 let exists t { name; _ } =
@@ -100,11 +83,8 @@ let exists t { name; _ } =
   aux t
 
 let add t { name; encode; _ } v = (name, encode v) :: t
-
 let add_unless_exists t hdr v = if exists t hdr then t else add t hdr v
-
 let append t1 t2 = t1 @ t2
-
 let append_list (t : t) l = t @ l
 
 let find t { name; decode; _ } =
@@ -179,9 +159,7 @@ let replace t { name; encode; _ } v =
   aux false t
 
 let clean_dup t = t
-
 let iter f t = List.iter (fun (k, v) -> f k v) t
-
 let filter f t = List.filter (fun (k, v) -> f k v) t
 
 open Easy_format
@@ -211,8 +189,7 @@ open Buf_read
 open Buf_read.Syntax
 
 let p_header =
-  let+ key = token <* char ':' <* ows
-  and+ value = take_while not_cr <* crlf in
+  let+ key = token <* char ':' <* ows and+ value = take_while not_cr <* crlf in
   let key = String.Ascii.lowercase key in
   (key, value)
 

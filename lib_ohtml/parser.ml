@@ -64,9 +64,7 @@ let is_alpha_num = function
   | c -> is_alpha c || is_digit c
 
 let add_c c i = Buffer.add_char i.buf c
-
 let clear i = Buffer.clear i.buf
-
 let _pf = Printf.printf
 
 let next i =

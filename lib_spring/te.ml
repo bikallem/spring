@@ -1,5 +1,4 @@
 type directive = string
-
 type q = string
 
 module M = Set.Make (struct
@@ -14,21 +13,15 @@ module M = Set.Make (struct
 end)
 
 let directive = Fun.id
-
 let trailers = "trailers"
-
 let compress = "compress"
-
 let deflate = "deflate"
-
 let gzip = "gzip"
 
 type t = M.t
 
 let singleton ?q d = M.singleton (d, q)
-
 let exists t d = M.mem (d, None) t
-
 let add ?q t d = M.add (d, q) t
 
 let get_q t d : q option =
@@ -37,7 +30,6 @@ let get_q t d : q option =
   | None -> None
 
 let remove t d = M.remove (d, None) t
-
 let iter f t = M.iter (fun (d, q) -> f d q) t
 
 let encode t =

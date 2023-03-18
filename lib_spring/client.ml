@@ -6,13 +6,10 @@
 (* Connection cache using Hashtbl. *)
 module Cache = Hashtbl.Make (struct
   type t = host * service
-
   and host = string (* eg. www.example.com *)
-
   and service = string (* port eg. 80, 8080 *)
 
   let equal (a : t) (b : t) = Stdlib.( = ) a b
-
   let hash = Hashtbl.hash
 end)
 
@@ -147,7 +144,5 @@ let call ~conn req =
   new Response.client_response version headers status buf_read
 
 let buf_write_initial_size t = t.write_initial_size
-
 let buf_read_initial_size t = t.read_initial_size
-
 let timeout t = t.timeout

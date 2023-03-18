@@ -1,22 +1,23 @@
 (** [Content_type] implements "Content-Type" header value encoding/decoding as
     specified in https://httpwg.org/specs/rfc9110.html#rfc.section.8.3 *)
 
-(** [t] is the HTTP [Content-Type] header value. *)
 type t
+(** [t] is the HTTP [Content-Type] header value. *)
 
+type media_type = private string * string
 (** [media_type] is a tuple of [(type, subtype)]. e.g. text/plain, text/html,
     multipart/formdata etc. It is in ASCII lowercase.
 
     See https://httpwg.org/specs/rfc9110.html#rfc.section.8.3.1 *)
-type media_type = private string * string
 
+val make : ?params:(string * string) list -> string * string -> t
 (** [make media_type] is [t].
 
     @param params is the list of parameters encoded in [t]. Default is [\[\]]. *)
-val make : ?params:(string * string) list -> string * string -> t
 
 (** {1 Codec} *)
 
+val decode : string -> t
 (** [decode v] decodes [v] into [t].
 
     {i example} Decode a following content type header:
@@ -27,16 +28,16 @@ val make : ?params:(string * string) list -> string * string -> t
         "multipart/form-data; boundary=------------------3862150; \
          charset=\"utf-8\""
     ]} *)
-val decode : string -> t
 
-(** [encode t] encodes [t] into a string. *)
 val encode : t -> string
+(** [encode t] encodes [t] into a string. *)
 
 (** {1 Media Type, Charset} *)
 
-(** [media_type t] is the media type of [t]. *)
 val media_type : t -> media_type
+(** [media_type t] is the media type of [t]. *)
 
+val charset : t -> string option
 (** [charset t] is [Some charset] if a character encoding is provided in [t]. It
     is [None] otherwise.
 
@@ -44,10 +45,9 @@ val media_type : t -> media_type
     [charset=utf8]. [charset] value is case-insensitive.
 
     See https://httpwg.org/specs/rfc9110.html#rfc.section.8.3.2 *)
-val charset : t -> string option
 
 (** {1 Params} *)
 
+val find_param : t -> string -> string option
 (** [find_param t param] is [Some v] is [param] exists in [t]. It is [None]
     otherwise. *)
-val find_param : t -> string -> string option
