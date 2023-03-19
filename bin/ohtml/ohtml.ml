@@ -13,25 +13,25 @@ let get_lexing_position lexbuf =
 [@@@warning "-32"]
 
 let tok_to_string = function
-  | Parser1.TAG_OPEN -> "TAG_OPEN"
-  | TAG_NAME name -> "TAG_NAME " ^ name
-  | TAG_CLOSE -> "TAG_CLOSE"
-  | TAG_SLASH_CLOSE -> "TAG_SLASH_CLOSE"
-  | TAG_OPEN_SLASH -> "TAG_OPEN_SLASH"
-  | TAG_EQUALS -> "TAG_EQUALS"
-  | CODE_OPEN -> "CODE_OPEN"
-  | CODE_BLOCK s -> "CODE_BLOCK " ^ s
-  | CODE_CLOSE -> "CODE_CLOSE"
-  | ATTR_VAL _ -> "ATTR_VAL"
-  | ATTR_VAL_CODE _ -> "ATTR_VAL_CODE"
-  | CODE_ATTR _ -> "CODE_ATTR"
-  | HTML_COMMENT _ -> "HTML_COMMENT"
-  | HTML_CONDITIONAL_COMMENT _ -> "HTML_CONDITIONAL_COMMENT"
-  | CDATA _ -> "CDATA"
-  | DTD _ -> "DTD"
-  | HTML_TEXT s -> "HTML_TEXT " ^ s
-  | FUNC _ -> "PARAM "
-  | EOF -> "EOF"
+  | Parser1.Tag_open -> "TAG_OPEN"
+  | Tag_name name -> "TAG_NAME " ^ name
+  | Tag_close -> "TAG_CLOSE"
+  | Tag_slash_close -> "TAG_SLASH_CLOSE"
+  | Tag_open_slash -> "TAG_OPEN_SLASH"
+  | Tag_equals -> "TAG_EQUALS"
+  | Code_open -> "CODE_OPEN"
+  | Code_block s -> "CODE_BLOCK " ^ s
+  | Code_close -> "CODE_CLOSE"
+  | Attr_val _ -> "ATTR_VAL"
+  | Attr_val_code _ -> "ATTR_VAL_CODE"
+  | Code_attr _ -> "CODE_ATTR"
+  | Html_comment _ -> "HTML_COMMENT"
+  | Html_conditional_comment _ -> "HTML_CONDITIONAL_COMMENT"
+  | Cdata _ -> "CDATA"
+  | Dtd _ -> "DTD"
+  | Html_text s -> "HTML_TEXT " ^ s
+  | Func _ -> "PARAM "
+  | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser1.token
 type input = { lexbuf : Lexing.lexbuf; tokenizer : lexer Stack.t }
@@ -49,13 +49,13 @@ let rec loop (i : input) checkpoint =
     let token = tokenize i in
     (* Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
-    | Parser1.FUNC _ -> push i Lexer.element
-    | Parser1.CODE_OPEN -> push i Lexer.code
-    | Parser1.CODE_CLOSE -> pop i
-    | Parser1.TAG_EQUALS -> push i Lexer.attribute_val
-    | Parser1.ATTR_VAL _ | ATTR_VAL_CODE _ -> pop i
-    | Parser1.TAG_OPEN | TAG_OPEN_SLASH -> push i Lexer.tag
-    | Parser1.TAG_CLOSE | TAG_SLASH_CLOSE -> pop i
+    | Parser1.Func _ -> push i Lexer.element
+    | Parser1.Code_open -> push i Lexer.code
+    | Parser1.Code_close -> pop i
+    | Parser1.Tag_equals -> push i Lexer.attribute_val
+    | Parser1.Attr_val _ | Attr_val_code _ -> pop i
+    | Parser1.Tag_open | Tag_open_slash -> push i Lexer.tag
+    | Parser1.Tag_close | Tag_slash_close -> pop i
     | _ -> ());
     let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in
     let checkpoint = I.offer checkpoint (token, startp, endp) in
@@ -127,7 +127,8 @@ let gen_ocaml ~fun_name ~write_ln (doc : Doc.doc) =
     | Some v -> v
   in
   let fun_decl =
-    Printf.sprintf "let %s %s : Spring.Ohtml.html_writer = \nfun b -> " fun_name fun_args
+    Printf.sprintf "let %s %s : Spring.Ohtml.html_writer = \nfun b -> " fun_name
+      fun_args
   in
   write_ln fun_decl;
   gen_element doc.root

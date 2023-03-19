@@ -16,61 +16,61 @@ let html_text = ws* ([^ '<' '{']+ as text)
 
 rule func = parse
 | ws* { func lexbuf }
-| "fun" ws* ((_)+ as params) "->" { FUNC params }
+| "fun" ws* ((_)+ as params) "->" { Func params }
 
 and element = parse
 | ws* { element lexbuf }
-| '<' { TAG_OPEN }
-| "</" { TAG_OPEN_SLASH }
-| '{' { CODE_OPEN }
-| "<!--" ((_)* as comment) "-->" { HTML_COMMENT comment }
-| "<![CDATA[" ((_)* as cdata) "]]>" { CDATA cdata }
-| "<![" ((_)* as comment) "]>" { HTML_CONDITIONAL_COMMENT comment }
+| '<' { Tag_open }
+| "</" { Tag_open_slash }
+| '{' { Code_open }
+| "<!--" ((_)* as comment) "-->" { Html_comment comment }
+| "<![CDATA[" ((_)* as cdata) "]]>" { Cdata cdata }
+| "<![" ((_)* as comment) "]>" { Html_conditional_comment comment }
 | "<!" { dtd (Buffer.create 10) lexbuf }
-| html_text { HTML_TEXT text }
-| eof { EOF }
+| html_text { Html_text text }
+| eof { Eof }
 | _ as c { err c lexbuf }
 
 and dtd buf = parse
-| '>' { DTD (Buffer.contents buf) }
+| '>' { Dtd (Buffer.contents buf) }
 | _ as c { Buffer.add_char buf c; dtd buf lexbuf } 
 
 and tag = parse
 | ws* { tag lexbuf }
-| '>' { TAG_CLOSE }
-| "/>" { TAG_SLASH_CLOSE }
-| '=' { TAG_EQUALS }
+| '>' { Tag_close }
+| "/>" { Tag_slash_close }
+| '=' { Tag_equals }
 | '{' { code_attr (Buffer.create 10) lexbuf }
-| tag_name as name { TAG_NAME name }
-| eof { EOF }
+| tag_name as name { Tag_name name }
+| eof { Eof }
 | _ as c { err c lexbuf }
 
 and code_attr buf = parse
-| '}'      { CODE_ATTR (Buffer.contents buf) }
+| '}'      { Code_attr (Buffer.contents buf) }
 | '\\' '}' { Buffer.add_char buf '}'; code_attr buf lexbuf }
 | _ as c   { Buffer.add_char buf c; code_attr buf lexbuf }
-| eof      { EOF }
+| eof      { Eof }
 
 and attribute_val = parse
 | ws* { attribute_val lexbuf }
-| '\'' ([^ '<' '\'']* as v) '\'' { ATTR_VAL v }
-| '"' ([^ '<' '"']* as v) '"'    { ATTR_VAL v }
-| '{' ([^ '}']* as v) '}'        { ATTR_VAL_CODE v }
-| ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { ATTR_VAL v }
-| eof { EOF }
+| '\'' ([^ '<' '\'']* as v) '\'' { Attr_val v }
+| '"' ([^ '<' '"']* as v) '"'    { Attr_val v }
+| '{' ([^ '}']* as v) '}'        { Attr_val_code v }
+| ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { Attr_val v }
+| eof { Eof }
 | _ as c { err c lexbuf }
 
 and code = parse
 | ws* { code lexbuf }
 | '{' { code_block (Buffer.create 20) lexbuf }
-| '}' { CODE_CLOSE }
-| '<' { TAG_OPEN }
-| "</" { TAG_OPEN_SLASH }
-| "<text>" ((_)* as text) "</text>" { HTML_TEXT text } 
-| eof { EOF }
+| '}' { Code_close }
+| '<' { Tag_open }
+| "</" { Tag_open_slash }
+| "<text>" ((_)* as text) "</text>" { Html_text text } 
+| eof { Eof }
 
 and code_block buf = parse
-| '}'     { CODE_BLOCK (Buffer.contents buf) }
+| '}'     { Code_block (Buffer.contents buf) }
 | "\\}"   { Buffer.add_char buf '}'; code_block buf lexbuf }
 | _ as c  { Buffer.add_char buf c; code_block buf lexbuf }
-| eof     { EOF }
+| eof     { Eof }
