@@ -283,7 +283,7 @@ Name/Value attributes.
 ## @param
 
 ```ocaml
-# Ohtml.parse_doc "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
+# Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
 - : Doc.doc =
 {Ohtml.Doc.fun_args = Some "a:int b:string "; dtd = None;
  root =
@@ -295,3 +295,46 @@ Name/Value attributes.
        {Ohtml.Doc.tag_name = "span"; attributes = [];
         children = [Ohtml.Doc.Html_text "world!"]}]}}
 ```
+
+# Code generation tests
+
+```ocaml
+let gen doc = 
+  let fun_name = "func1" in
+  Out_channel.with_open_gen [Open_wronly; Open_creat;Open_trunc; Open_text] 0o644 (fun_name ^ ".ml")
+    (fun out -> 
+    let write_ln s = Out_channel.output_string out ("\n" ^ s) in
+    Ohtml.gen_ocaml ~fun_name ~write_ln doc);
+  In_channel.with_open_text (fun_name ^ ".ml")
+    (fun in_ch -> Eio.traceln "%s" @@ In_channel.input_all in_ch)
+```
+
+
+```ocaml
+# let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
+val doc : Doc.doc =
+  {Ohtml.Doc.fun_args = Some "a:int b:string "; dtd = None;
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "div"; attributes = [];
+      children =
+       [Ohtml.Doc.Html_text "Hello ";
+        Ohtml.Doc.Element
+         {Ohtml.Doc.tag_name = "span"; attributes = [];
+          children = [Ohtml.Doc.Html_text "world!"]}]}}
+
+# gen doc ;;
++
++let func1 a:int b:string  : Spring.Ohtml.html_writer =
++fun b ->
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b "Hello ";
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "world!";
++Buffer.add_string b "</span>";
++Buffer.add_string b "</div>";
+- : unit = ()
+```
+

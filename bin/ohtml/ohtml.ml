@@ -11,6 +11,7 @@ let get_lexing_position lexbuf =
   (line_number, column)
 
 [@@@warning "-32"]
+
 let tok_to_string = function
   | Parser1.TAG_OPEN -> "TAG_OPEN"
   | TAG_NAME name -> "TAG_NAME " ^ name
@@ -76,10 +77,57 @@ let parse_element s =
   let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
 
-let parse_doc s =
+let parse_doc_string s =
   let lexbuf = Lexing.from_string s in
   let tokenizer = Stack.create () in
   let i = { lexbuf; tokenizer } in
   push i Lexer.func;
   let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
+
+let escape_html txt =
+  let escaped = Buffer.create 10 in
+  String.iter
+    (function
+      | '&' -> Buffer.add_string escaped "&amp;"
+      | '<' -> Buffer.add_string escaped "&lt;"
+      | '>' -> Buffer.add_string escaped "&gt;"
+      | '"' -> Buffer.add_string escaped "&quot;"
+      | '\039' -> Buffer.add_string escaped "&#x27;"
+      | '\047' -> Buffer.add_string escaped "&#x2F;"
+      | ('\x00' .. '\x1F' as c) | ('\x7F' as c) ->
+        Buffer.add_string escaped ("&#" ^ string_of_int (Char.code c) ^ ";")
+      | c -> Buffer.add_char escaped c)
+    txt;
+  Buffer.contents escaped
+
+let gen_ocaml ~fun_name ~write_ln (doc : Doc.doc) =
+  let rec gen_element el =
+    match el with
+    | Doc.Element { tag_name; children; attributes } ->
+      write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
+      List.iter (fun attr -> gen_attribute attr) attributes;
+      if [] = children then write_ln {|Buffer.add_string b "/>";|}
+      else (
+        write_ln {|Buffer.add_string b ">";|};
+        List.iter (fun child -> gen_element child) children;
+        write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
+    | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
+    | _ -> ()
+  and gen_attribute = function
+    | Doc.Bool_attribute attr ->
+      write_ln @@ {|Buffer.add_string b " |} ^ attr ^ {|";|}
+    | Doc.Name_val_attribute (nm, v) ->
+      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
+    | _ -> ()
+  in
+  let fun_args =
+    match doc.fun_args with
+    | None -> ""
+    | Some v -> v
+  in
+  let fun_decl =
+    Printf.sprintf "let %s %s : Spring.Ohtml.html_writer = \nfun b -> " fun_name fun_args
+  in
+  write_ln fun_decl;
+  gen_element doc.root

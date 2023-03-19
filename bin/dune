@@ -1,5 +1,5 @@
-(executable 
-  (public_name spring)
-  (name spring)
-  (package spring)
-  (libraries cmdliner ohtml))
+(executable
+ (public_name spring)
+ (name spring)
+ (package spring)
+ (libraries cmdliner ohtml))

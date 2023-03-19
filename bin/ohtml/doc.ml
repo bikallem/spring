@@ -28,4 +28,4 @@ type doc = { fun_args : string option; dtd : string option; root : element }
 let element :
     ?attributes:attribute list -> ?children:element list -> string -> element =
  fun ?(attributes = []) ?(children = []) tag_name ->
-  Element { tag_name; attributes; children }  
+  Element { tag_name; attributes; children }
