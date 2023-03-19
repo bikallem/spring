@@ -38,6 +38,10 @@
    (>= 0.8.5))
   (domain-name
    (>= 0.4.0))
+  (menhir
+   (>= 20220210))
+  (cmdliner
+    (>= 1.1.1))
   (eio_main
    (and
     (>= 0.8.1)
@@ -54,13 +58,3 @@
    (and
     (>= 2.2.1)
     :with-test))))
-
-(package
- (name ohtml)
- (synopsis "OCaml HTML template")
- (description "OCaml HTML template and authoring library.")
- (depends
-  (ocaml
-   (>= 5.0.0))
-  (menhir
-   (>= 20220210))))

@@ -1,6 +1,5 @@
 module Node = Node
 module Doc = Doc
-module Parser1 = Parser1
 module I = Parser1.MenhirInterpreter
 
 exception Syntax_error of int * int
@@ -11,6 +10,7 @@ let get_lexing_position lexbuf =
   let column = p.Lexing.pos_cnum - p.Lexing.pos_bol + 1 in
   (line_number, column)
 
+[@@@warning "-32"]
 let tok_to_string = function
   | Parser1.TAG_OPEN -> "TAG_OPEN"
   | TAG_NAME name -> "TAG_NAME " ^ name
