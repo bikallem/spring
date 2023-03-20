@@ -81,7 +81,7 @@ let s = {|
         Ohtml.Doc.Code_element
          {Ohtml.Doc.tag_name = "span";
           attributes =
-           [Ohtml.Doc.Name_val_attribute ("id", "v");
+           [Ohtml.Doc.Double_quoted_attribute ("id", "v");
             Ohtml.Doc.Bool_attribute "disabled"];
           children =
            [Ohtml.Doc.Code_block "Node.text \"world\"";
@@ -151,7 +151,7 @@ let s ={|
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
-    attributes = [Ohtml.Doc.Name_val_attribute ("attr1", "attrv")];
+    attributes = [Ohtml.Doc.Unquoted_attribute ("attr1", "attrv")];
     children = []}}
 ```
 
@@ -166,9 +166,9 @@ let s ={|
    {Ohtml.Doc.tag_name = "input";
     attributes =
      [Ohtml.Doc.Bool_attribute "disabled";
-      Ohtml.Doc.Name_val_attribute ("attr1", "value1");
-      Ohtml.Doc.Name_val_attribute ("attr2", "val2");
-      Ohtml.Doc.Name_val_attribute ("attr3", "val3")];
+      Ohtml.Doc.Single_quoted_attribute ("attr1", "value1");
+      Ohtml.Doc.Double_quoted_attribute ("attr2", "val2");
+      Ohtml.Doc.Unquoted_attribute ("attr3", "val3")];
     children =
      [Ohtml.Doc.Element
        {Ohtml.Doc.tag_name = "span"; attributes = []; children = []}]}}
@@ -203,9 +203,9 @@ Name/Value attributes.
     attributes =
      [Ohtml.Doc.Bool_attribute "disabled";
       Ohtml.Doc.Code_attribute "Spring_oml.attribute \"name\" \"value\"";
-      Ohtml.Doc.Name_val_attribute ("attr1", "value1");
-      Ohtml.Doc.Name_val_attribute ("attr2", "val2");
-      Ohtml.Doc.Name_val_attribute ("attr3", "val3");
+      Ohtml.Doc.Single_quoted_attribute ("attr1", "value1");
+      Ohtml.Doc.Double_quoted_attribute ("attr2", "val2");
+      Ohtml.Doc.Unquoted_attribute ("attr3", "val3");
       Ohtml.Doc.Name_code_val_attribute ("attr4", " string_of_int 100")];
     children = []}}
 ```
@@ -347,8 +347,8 @@ val doc : Doc.doc =
     Ohtml.Doc.Element
      {Ohtml.Doc.tag_name = "div";
       attributes =
-       [Ohtml.Doc.Name_val_attribute ("id", "div1");
-        Ohtml.Doc.Name_val_attribute ("class", "abc ccc aaa");
+       [Ohtml.Doc.Unquoted_attribute ("id", "div1");
+        Ohtml.Doc.Double_quoted_attribute ("class", "abc ccc aaa");
         Ohtml.Doc.Bool_attribute "disabled"];
       children =
        [Ohtml.Doc.Html_text "Hello ";
@@ -360,7 +360,7 @@ val doc : Doc.doc =
 +
 +let v a:int b:string  (b:Buffer.t) : unit =
 +Buffer.add_string b "<div";
-+Buffer.add_string b " id=\"div1\"";
++Buffer.add_string b " id=div1";
 +Buffer.add_string b " class=\"abc ccc aaa\"";
 +Buffer.add_string b " disabled";
 +Buffer.add_string b ">";
