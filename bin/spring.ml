@@ -12,7 +12,15 @@ let ohtml_cmd =
     let doc = ".ohtml filename" in
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_FILE" ~doc)
   in
-  let ohtml filepath = Printf.printf "Generating view: %s" filepath in
+  let ohtml filepath =
+    let fun_name = Fpath.v filepath |> Fpath.rem_ext |> Fpath.filename in
+    let doc = Ohtml.parse_doc filepath in
+    Out_channel.with_open_gen [ Open_wronly; Open_creat; Open_trunc; Open_text ]
+      0o644 (fun_name ^ ".ml") (fun out ->
+        let write_ln s = Out_channel.output_string out ("\n" ^ s) in
+        Ohtml.gen_ocaml ~write_ln doc);
+    Printf.printf "Generating view: %s" filepath
+  in
   let ohtml_t = Term.(const ohtml $ ohtml_file_arg) in
   Cmd.v info ohtml_t
 
