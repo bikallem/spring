@@ -127,7 +127,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     | Doc.Bool_attribute attr ->
       write_ln @@ {|Buffer.add_string b " |} ^ attr ^ {|";|}
     | Doc.Name_val_attribute (nm, v) ->
-      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
+      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"|} ^ v ^ {|\"";|}
     | _ -> ()
   in
   let fun_args =
