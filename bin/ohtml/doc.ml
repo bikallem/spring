@@ -1,7 +1,9 @@
 type attribute =
   | Code_attribute of string
   | Bool_attribute of string
-  | Name_val_attribute of (string * string)
+  | Single_quoted_attribute of (string * string)
+  | Double_quoted_attribute of (string * string)
+  | Unquoted_attribute of (string * string)
   | Name_code_val_attribute of (string * string)
 
 type element =
