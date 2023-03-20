@@ -25,7 +25,7 @@ let tok_to_string = function
   | Single_quoted_attr_val _ -> "SINGLE_QUOTED_ATTRIBUTE_VAL"
   | Double_quoted_attr_val _ -> "DOUBLE_QUOTED_ATTRIBUTE_VAL"
   | Unquoted_attr_val _ -> "UNQUOTED_ATTRIBUTE_VAL"
-  | Code_attr_val _ -> "ATTR_VAL"
+  | Code_attr_val _ -> "CODE_ATTR_VAL"
   | Code_attr _ -> "CODE_ATTR"
   | Html_comment _ -> "HTML_COMMENT"
   | Html_conditional_comment _ -> "HTML_CONDITIONAL_COMMENT"
