@@ -12,7 +12,7 @@ let ohtml_cmd =
     let doc = ".ohtml filename" in
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_FILE" ~doc)
   in
-  let ohtml filepath = Printf.printf "Generating Spring view %s" filepath in
+  let ohtml filepath = Printf.printf "Generating view: %s" filepath in
   let ohtml_t = Term.(const ohtml $ ohtml_file_arg) in
   Cmd.v info ohtml_t
 
