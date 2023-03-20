@@ -9,8 +9,10 @@
 %token Code_open "{"
 %token <string> Code_block
 %token Code_close "}"
-%token <string> Attr_val
-%token <string> Attr_val_code
+%token <string> Single_quoted_attr_val
+%token <string> Double_quoted_attr_val
+%token <string> Unquoted_attr_val
+%token <string> Code_attr_val
 %token <string> Code_attr
 %token <string> Html_comment
 %token <string> Html_conditional_comment
@@ -64,5 +66,7 @@ html_comment :
 attribute :
   | code_block = Code_attr { Doc.Code_attribute code_block }
   | name=Tag_name { Doc.Bool_attribute name }
-  | name=Tag_name Tag_equals attr_val=Attr_val { Doc.Name_val_attribute (name, attr_val) }
-  | name=Tag_name Tag_equals attr_val=Attr_val_code { Doc.Name_code_val_attribute (name, attr_val) }
+  | name=Tag_name Tag_equals attr_val=Single_quoted_attr_val { Doc.Single_quoted_attribute (name, attr_val) }
+  | name=Tag_name Tag_equals attr_val=Double_quoted_attr_val { Doc.Double_quoted_attribute (name, attr_val) }
+  | name=Tag_name Tag_equals attr_val=Unquoted_attr_val { Doc.Unquoted_attribute (name, attr_val) }
+  | name=Tag_name Tag_equals attr_val=Code_attr_val { Doc.Name_code_val_attribute (name, attr_val) }

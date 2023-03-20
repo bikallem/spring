@@ -53,10 +53,10 @@ and code_attr buf = parse
 
 and attribute_val = parse
 | ws* { attribute_val lexbuf }
-| '\'' ([^ '<' '\'']* as v) '\'' { Attr_val v }
-| '"' ([^ '<' '"']* as v) '"'    { Attr_val v }
-| '{' ([^ '}']* as v) '}'        { Attr_val_code v }
-| ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { Attr_val v }
+| '\'' ([^ '<' '\'']* as v) '\'' { Single_quoted_attr_val v }
+| '"' ([^ '<' '"']* as v) '"'    { Double_quoted_attr_val v }
+| '{' ([^ '}']* as v) '}'        { Code_attr_val v }
+| ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '=' '<' '>' '`']+ as v) { Unquoted_attr_val v }
 | eof { Eof }
 | _ as c { err c lexbuf }
 

@@ -22,8 +22,10 @@ let tok_to_string = function
   | Code_open -> "CODE_OPEN"
   | Code_block s -> "CODE_BLOCK " ^ s
   | Code_close -> "CODE_CLOSE"
-  | Attr_val _ -> "ATTR_VAL"
-  | Attr_val_code _ -> "ATTR_VAL_CODE"
+  | Single_quoted_attr_val _ -> "SINGLE_QUOTED_ATTRIBUTE_VAL"
+  | Double_quoted_attr_val _ -> "DOUBLE_QUOTED_ATTRIBUTE_VAL"
+  | Unquoted_attr_val _ -> "UNQUOTED_ATTRIBUTE_VAL"
+  | Code_attr_val _ -> "ATTR_VAL"
   | Code_attr _ -> "CODE_ATTR"
   | Html_comment _ -> "HTML_COMMENT"
   | Html_conditional_comment _ -> "HTML_CONDITIONAL_COMMENT"
@@ -50,12 +52,15 @@ let rec loop (i : input) checkpoint =
     (* Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
     | Parser1.Func _ -> push i Lexer.element
-    | Parser1.Code_open -> push i Lexer.code
-    | Parser1.Code_close -> pop i
-    | Parser1.Tag_equals -> push i Lexer.attribute_val
-    | Parser1.Attr_val _ | Attr_val_code _ -> pop i
-    | Parser1.Tag_open | Tag_open_slash -> push i Lexer.tag
-    | Parser1.Tag_close | Tag_slash_close -> pop i
+    | Code_open -> push i Lexer.code
+    | Code_close -> pop i
+    | Tag_equals -> push i Lexer.attribute_val
+    | Unquoted_attr_val _
+    | Single_quoted_attr_val _
+    | Double_quoted_attr_val _
+    | Code_attr_val _ -> pop i
+    | Tag_open | Tag_open_slash -> push i Lexer.tag
+    | Tag_close | Tag_slash_close -> pop i
     | _ -> ());
     let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in
     let checkpoint = I.offer checkpoint (token, startp, endp) in
@@ -126,9 +131,14 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
   and gen_attribute = function
     | Doc.Bool_attribute attr ->
       write_ln @@ {|Buffer.add_string b " |} ^ attr ^ {|";|}
-    | Doc.Name_val_attribute (nm, v) ->
+    | Doc.Double_quoted_attribute (nm, v) ->
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"|} ^ v ^ {|\"";|}
-    | _ -> ()
+    | Doc.Single_quoted_attribute (nm, v) ->
+      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|='|} ^ v ^ {|'";|}
+    | Doc.Unquoted_attribute (nm, v) ->
+      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
+    | Doc.Name_code_val_attribute _ -> ()
+    | Doc.Code_attribute _code -> ()
   in
   let fun_args =
     match doc.fun_args with
