@@ -309,6 +309,7 @@ let gen doc =
     (fun in_ch -> Eio.traceln "%s" @@ In_channel.input_all in_ch)
 ```
 
+## Elements
 
 ```ocaml
 # let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
@@ -337,3 +338,37 @@ val doc : Doc.doc =
 - : unit = ()
 ```
 
+## Attributes
+```ocaml
+# let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div id=div1 class=\"abc ccc aaa\" disabled>Hello <span>world!</span></div>";;
+val doc : Doc.doc =
+  {Ohtml.Doc.fun_args = Some "a:int b:string "; dtd = None;
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "div";
+      attributes =
+       [Ohtml.Doc.Name_val_attribute ("id", "div1");
+        Ohtml.Doc.Name_val_attribute ("class", "abc ccc aaa");
+        Ohtml.Doc.Bool_attribute "disabled"];
+      children =
+       [Ohtml.Doc.Html_text "Hello ";
+        Ohtml.Doc.Element
+         {Ohtml.Doc.tag_name = "span"; attributes = [];
+          children = [Ohtml.Doc.Html_text "world!"]}]}}
+
+# gen doc ;;
++
++let v a:int b:string  (b:Buffer.t) : unit =
++Buffer.add_string b "<div";
++Buffer.add_string b " id=\"div1\"";
++Buffer.add_string b " class=\"abc ccc aaa\"";
++Buffer.add_string b " disabled";
++Buffer.add_string b ">";
++Buffer.add_string b "Hello ";
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "world!";
++Buffer.add_string b "</span>";
++Buffer.add_string b "</div>";
+- : unit = ()
+```
