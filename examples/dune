@@ -1,3 +1,9 @@
+(rule
+ (deps v_hello.ohtml)
+ (target v_hello.ml)
+ (action
+  (run spring ohtml %{deps})))
+
 (executable
  (name hello)
  (libraries spring eio_main ohtml))

@@ -1,0 +1,6 @@
+fun ->
+
+<div>
+  Hello 
+  <span>world!</span>
+</div>

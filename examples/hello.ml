@@ -18,18 +18,6 @@ let products_view products : Node.html_writer =
   Buffer.add_string b "</body>";
   Buffer.add_string b "</html>"
 
-let hello_view name : Node.html_writer =
- fun b ->
-  Buffer.add_string b "<html>";
-  Buffer.add_string b "<body>";
-  Buffer.add_string b "<div>";
-
-  (fun b -> Node.html_text name b) b;
-
-  Buffer.add_string b "</div>";
-  Buffer.add_string b "</body>";
-  Buffer.add_string b "</html>"
-
 let ohtml : Node.html_writer -> Response.server_response =
  fun f ->
   let b = Buffer.create 10 in
@@ -37,7 +25,7 @@ let ohtml : Node.html_writer -> Response.server_response =
   let content = Buffer.contents b in
   Response.html content
 
-let hello _req = ohtml @@ hello_view "Bikal"
+let hello _req = ohtml @@ V_hello.v
 
 let router : Server.pipeline =
  fun next req ->
