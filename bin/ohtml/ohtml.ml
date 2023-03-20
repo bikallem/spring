@@ -85,6 +85,15 @@ let parse_doc_string s =
   let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
 
+let parse_doc filepath =
+  In_channel.with_open_text filepath (fun ch ->
+      let lexbuf = Lexing.from_channel ch in
+      let tokenizer = Stack.create () in
+      let i = { lexbuf; tokenizer } in
+      push i Lexer.func;
+      let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
+      loop i checkpoint)
+
 let escape_html txt =
   let escaped = Buffer.create 10 in
   String.iter
@@ -101,7 +110,7 @@ let escape_html txt =
     txt;
   Buffer.contents escaped
 
-let gen_ocaml ~fun_name ~write_ln (doc : Doc.doc) =
+let gen_ocaml ~write_ln (doc : Doc.doc) =
   let rec gen_element el =
     match el with
     | Doc.Element { tag_name; children; attributes } ->
@@ -126,9 +135,6 @@ let gen_ocaml ~fun_name ~write_ln (doc : Doc.doc) =
     | None -> ""
     | Some v -> v
   in
-  let fun_decl =
-    Printf.sprintf "let %s %s : Spring.Ohtml.html_writer = \nfun b -> " fun_name
-      fun_args
-  in
+  let fun_decl = Printf.sprintf "let v %s (b:Buffer.t) : unit = " fun_args in
   write_ln fun_decl;
   gen_element doc.root
