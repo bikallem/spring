@@ -280,7 +280,7 @@ Name/Value attributes.
       Ohtml.Doc.Html_text "Hello &Again!     "]}}
 ```
 
-## @param
+## Parameters
 
 ```ocaml
 # Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
