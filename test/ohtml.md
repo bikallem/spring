@@ -469,6 +469,7 @@ val doc : Doc.doc =
 +open Spring
 +open Stdlib
 +let v  a:int b:string products  (b:Buffer.t) : unit =
++Buffer.add_string b "<!DOCTYPE html>";
 +Buffer.add_string b "<html";
 +Buffer.add_string b ">";
 +Buffer.add_string b "<!--  This is a comment  -->";
