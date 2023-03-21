@@ -1,10 +1,17 @@
 fun ->
 
-<div id=div1 
-    class="abc ccc aaa" 
-    disabled 
-    { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
-    get={if true then "/products" else "/index"} >
-  Hello 
-  <span>world!</span>
-</div>
+<!DOCTYPE html>
+<html>
+  <!-- This is a comment -->
+  <![ This is a conditional comment ]>
+  <body>
+    <div id=div1 
+        class="abc ccc aaa" 
+        disabled 
+        { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+        get={if true then "/products" else "/index"} >
+      Hello 
+      <span>world!</span>
+    </div>
+  </body>
+</html>
