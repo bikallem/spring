@@ -6,4 +6,4 @@
 
 (executable
  (name hello)
- (libraries spring eio_main ohtml))
+ (libraries spring eio_main))
