@@ -16,20 +16,40 @@ let html_text = ws* ([^ '<' '{']+ as text)
 
 rule func = parse
 | ws* { func lexbuf }
-| "fun" ws* ((_)+ as params) "->" { Func params }
+| "fun" { func_params (Buffer.create 10) lexbuf }
+
+and func_params buf = parse
+| "->" { Func (Buffer.contents buf) }
+| eof { Eof }
+| _ as c { Buffer.add_char buf c; func_params buf lexbuf }
 
 and element = parse
 | ws* { element lexbuf }
 | '<' { Tag_open }
 | "</" { Tag_open_slash }
 | '{' { Code_open }
-| "<!--" ((_)* as comment) "-->" { Html_comment comment }
-| "<![CDATA[" ((_)* as cdata) "]]>" { Cdata cdata }
-| "<![" ((_)* as comment) "]>" { Html_conditional_comment comment }
+| "<!--" { html_comment (Buffer.create 20) lexbuf }
+| "<![CDATA[" { cdata (Buffer.create 10) lexbuf }
+| "<![" { html_conditional_comment (Buffer.create 10) lexbuf }
 | "<!" { dtd (Buffer.create 10) lexbuf }
 | html_text { Html_text text }
 | eof { Eof }
 | _ as c { err c lexbuf }
+
+and cdata buf = parse
+| "]]>" { Cdata (Buffer.contents buf) }
+| eof { Eof }
+| _ as c { Buffer.add_char buf c; cdata buf lexbuf }
+
+and html_conditional_comment buf = parse
+| "]>" { Html_conditional_comment (Buffer.contents buf) }
+| eof { Eof }
+| _ as c { Buffer.add_char buf c; html_conditional_comment buf lexbuf }
+
+and html_comment buf = parse
+| "-->" { Html_comment (Buffer.contents buf) }
+| eof { Eof }
+| _ as c { Buffer.add_char buf c; html_comment buf lexbuf }
 
 and dtd buf = parse
 | '>' { Dtd (Buffer.contents buf) }
