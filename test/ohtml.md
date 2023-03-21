@@ -13,14 +13,14 @@ let () = Printexc.record_backtrace true
 ```ocaml
 # Ohtml.parse_element "\t \n\r <div></div>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = []; children = []}}
 
 # Ohtml.parse_element "<div />";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = []; children = []}}
@@ -31,7 +31,7 @@ let () = Printexc.record_backtrace true
 ```ocaml
 # Ohtml.parse_element "<div><span><area/></span><span><area /></span><span><area/></span></div>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -71,7 +71,7 @@ let s = {|
 ```ocaml
 # Ohtml.parse_element s;;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -113,7 +113,7 @@ let s ={|
 ```ocaml
 # Ohtml.parse_element s;;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -132,7 +132,7 @@ let s ={|
 ```ocaml
 # Ohtml.parse_element "<input disabled attr1 attr2 attr3></input>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
@@ -147,7 +147,7 @@ let s ={|
 ```ocaml
 # Ohtml.parse_element "<input attr1 = attrv\n></input>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
@@ -160,7 +160,7 @@ let s ={|
 ```ocaml
 # Ohtml.parse_element {|<input disabled attr1='value1' attr2=   "val2"      attr3    = val3    ><span></span></input>|};;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
@@ -179,7 +179,7 @@ let s ={|
 ```ocaml
 # Ohtml.parse_element {|<input attr1=  {"value1"} attr2 = { string_of_int 100 }></input>|};;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
@@ -196,7 +196,7 @@ Name/Value attributes.
 ```ocaml
 # Ohtml.parse_element {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
@@ -215,7 +215,7 @@ Name/Value attributes.
 ```ocaml
 # Ohtml.parse_element "<html><!-- Hello world comment --></html>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -223,7 +223,7 @@ Name/Value attributes.
 
 # Ohtml.parse_element "<html><![ Hello world conditional comment ]></html>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -236,7 +236,7 @@ Name/Value attributes.
 ```ocaml
 # Ohtml.parse_element "<html><![CDATA[ This is CDATA ]]></html>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -248,14 +248,14 @@ Name/Value attributes.
 ```ocaml
 # Ohtml.parse_element "<!DOCTYPE html><html></html>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = Some "DOCTYPE html";
+{Ohtml.Doc.opens = []; fun_args = None; doctype = Some "DOCTYPE html";
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "html"; attributes = []; children = []}}
 
 # Ohtml.parse_element "<!doctype html><html></html>";;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = Some "doctype html";
+{Ohtml.Doc.opens = []; fun_args = None; doctype = Some "doctype html";
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "html"; attributes = []; children = []}}
@@ -281,7 +281,7 @@ let s = {|
 ```ocaml
 # Ohtml.parse_element s;;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = None; dtd = None;
+{Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -314,7 +314,7 @@ fun a:int b:string ->
 # Ohtml.parse_doc_string s;;
 - : Doc.doc =
 {Ohtml.Doc.opens = ["Spring"; "Stdlib"]; fun_args = Some " a:int b:string ";
- dtd = None;
+ doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -341,7 +341,7 @@ let gen doc =
 ```ocaml
 # let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
 val doc : Doc.doc =
-  {Ohtml.Doc.opens = []; fun_args = Some " a:int b:string "; dtd = None;
+  {Ohtml.Doc.opens = []; fun_args = Some " a:int b:string "; doctype = None;
    root =
     Ohtml.Doc.Element
      {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -413,7 +413,8 @@ fun a:int b:string products ->
 # let doc = Ohtml.parse_doc_string s;;
 val doc : Doc.doc =
   {Ohtml.Doc.opens = ["Spring"; "Stdlib"];
-   fun_args = Some " a:int b:string products "; dtd = Some "DOCTYPE html";
+   fun_args = Some " a:int b:string products ";
+   doctype = Some "DOCTYPE html";
    root =
     Ohtml.Doc.Element
      {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -448,7 +449,20 @@ val doc : Doc.doc =
                        {Ohtml.Doc.tag_name = "li"; attributes = [];
                         children =
                          [Ohtml.Doc.Code_block "Spring.Ohtml.text a b;"]};
-                      Ohtml.Doc.Code_block ") products "]]}]}]}]}}
+                      Ohtml.Doc.Code_block ") products "]]};
+                Ohtml.Doc.Element
+                 {Ohtml.Doc.tag_name = "h2"; attributes = [];
+                  children =
+                   [Ohtml.Doc.Html_text "Another way to specify code"]};
+                Ohtml.Doc.Element
+                 {Ohtml.Doc.tag_name = "ol"; attributes = [];
+                  children =
+                   [Ohtml.Doc.Code
+                     [Ohtml.Doc.Code_block "fun b -> List.iter (fun a ->";
+                      Ohtml.Doc.Code_element
+                       {Ohtml.Doc.tag_name = "li"; attributes = [];
+                        children = [Ohtml.Doc.Code_block "Ohtml.text a b;"]};
+                      Ohtml.Doc.Code_block ") products"]]}]}]}]}}
 
 # gen doc ;;
 +
@@ -489,6 +503,21 @@ val doc : Doc.doc =
 +) products
 +) b;
 +Buffer.add_string b "</ul>";
++Buffer.add_string b "<h2";
++Buffer.add_string b ">";
++Buffer.add_string b "Another way to specify code";
++Buffer.add_string b "</h2>";
++Buffer.add_string b "<ol";
++Buffer.add_string b ">";
++(
++fun b -> List.iter (fun a ->
++Buffer.add_string b "<li";
++Buffer.add_string b ">";
++Ohtml.text a b;
++Buffer.add_string b "</li>";
++) products
++) b;
++Buffer.add_string b "</ol>";
 +Buffer.add_string b "</div>";
 +Buffer.add_string b "</body>";
 +Buffer.add_string b "</html>";

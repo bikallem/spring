@@ -28,7 +28,7 @@
 %%
 
 doc :
-  | opens=Open* fun_args=Func? dtd=Dtd? root=html_element { {Doc.opens; fun_args; dtd; root } }
+  | opens=Open* fun_args=Func? doctype=Dtd? root=html_element { {Doc.opens; fun_args; doctype; root } }
 
 html_element :
   | Tag_open tag_name=Tag_name attributes=attribute* Tag_close

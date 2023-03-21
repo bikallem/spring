@@ -29,6 +29,6 @@ type dtd = Dtd of string
 type doc =
   { opens : string list
   ; fun_args : string option
-  ; dtd : string option
+  ; doctype : string option
   ; root : element
   }
