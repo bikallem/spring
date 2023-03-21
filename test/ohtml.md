@@ -326,8 +326,6 @@ let gen doc =
     (fun in_ch -> Eio.traceln "%s" @@ In_channel.input_all in_ch)
 ```
 
-## Elements
-
 ```ocaml
 # let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
 val doc : Doc.doc =
@@ -357,7 +355,7 @@ val doc : Doc.doc =
 
 ```ocaml
 let s ={|
-fun a:int b:string ->
+fun a:int b:string products ->
 <!DOCTYPE html>
 <html>
   <!-- This is a comment -->
@@ -371,6 +369,15 @@ fun a:int b:string ->
         get={if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
+      <ul>
+      {
+        {Spring.Ohtml.iter (fun a b -> }
+          <li>
+            {Spring.Ohtml.text a b;}
+          </li>
+        {) products }
+      }
+      </ul>
     </div>
   </body>
 </html>
@@ -380,7 +387,8 @@ fun a:int b:string ->
 ```ocaml
 # let doc = Ohtml.parse_doc_string s;;
 val doc : Doc.doc =
-  {Ohtml.Doc.fun_args = Some " a:int b:string "; dtd = Some "DOCTYPE html";
+  {Ohtml.Doc.fun_args = Some " a:int b:string products ";
+   dtd = Some "DOCTYPE html";
    root =
     Ohtml.Doc.Element
      {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -405,11 +413,21 @@ val doc : Doc.doc =
                [Ohtml.Doc.Html_text "Hello \n        ";
                 Ohtml.Doc.Element
                  {Ohtml.Doc.tag_name = "span"; attributes = [];
-                  children = [Ohtml.Doc.Html_text "world!"]}]}]}]}}
+                  children = [Ohtml.Doc.Html_text "world!"]};
+                Ohtml.Doc.Element
+                 {Ohtml.Doc.tag_name = "ul"; attributes = [];
+                  children =
+                   [Ohtml.Doc.Code
+                     [Ohtml.Doc.Code_block "Spring.Ohtml.iter (fun a b -> ";
+                      Ohtml.Doc.Code_element
+                       {Ohtml.Doc.tag_name = "li"; attributes = [];
+                        children =
+                         [Ohtml.Doc.Code_block "Spring.Ohtml.text a b;"]};
+                      Ohtml.Doc.Code_block ") products "]]}]}]}]}}
 
 # gen doc ;;
 +
-+let v  a:int b:string  (b:Buffer.t) : unit =
++let v  a:int b:string products  (b:Buffer.t) : unit =
 +Buffer.add_string b "<html";
 +Buffer.add_string b ">";
 +Buffer.add_string b "<!--  This is a comment  -->";
@@ -433,6 +451,17 @@ val doc : Doc.doc =
 +Buffer.add_string b ">";
 +Buffer.add_string b "world!";
 +Buffer.add_string b "</span>";
++Buffer.add_string b "<ul";
++Buffer.add_string b ">";
++(
++Spring.Ohtml.iter (fun a b ->
++Buffer.add_string b "<li";
++Buffer.add_string b ">";
++Spring.Ohtml.text a b;
++Buffer.add_string b "</li>";
++) products
++) b;
++Buffer.add_string b "</ul>";
 +Buffer.add_string b "</div>";
 +Buffer.add_string b "</body>";
 +Buffer.add_string b "</html>";
