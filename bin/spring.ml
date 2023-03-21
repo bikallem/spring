@@ -32,9 +32,7 @@ let spring_cmd =
     ]
   in
   let info = Cmd.info "spring" ~version:"%%VERSION%%" ~doc ~man in
-  let spring () = print_string "spring says hello" in
-  let spring_t = Term.(const spring $ const ()) in
-  Cmd.group ~default:spring_t info [ ohtml_cmd ]
+  Cmd.group info [ ohtml_cmd ]
 
 let main () = exit (Cmd.eval spring_cmd)
 let () = main ()
