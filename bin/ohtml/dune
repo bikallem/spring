@@ -1,6 +1,6 @@
 (library
  (name ohtml)
- (libraries menhirLib easy-format))
+ (libraries menhirLib))
 
 (ocamllex lexer)
 
