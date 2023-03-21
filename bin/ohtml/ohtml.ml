@@ -115,6 +115,8 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b "<!-- |} ^ comment ^ {| -->";|}
     | Html_conditional_comment comment ->
       write_ln @@ {|Buffer.add_string b "<![ |} ^ comment ^ {| ]>";|}
+    | Cdata cdata ->
+      write_ln @@ {|Buffer.add_string b "<![CDATA[ |} ^ cdata ^ {| ]]>";|}
     | _ -> ()
   and gen_attribute = function
     | Doc.Bool_attribute attr ->
