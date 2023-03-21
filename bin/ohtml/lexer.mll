@@ -16,12 +16,17 @@ let html_text = ws* ([^ '<' '{']+ as text)
 
 rule func = parse
 | ws* { func lexbuf }
+| "open" { open_t (Buffer.create 10) lexbuf } 
 | "fun" { func_params (Buffer.create 10) lexbuf }
 
 and func_params buf = parse
 | "->" { Func (Buffer.contents buf) }
 | eof { Eof }
 | _ as c { Buffer.add_char buf c; func_params buf lexbuf }
+
+and open_t buf = parse
+| '\n' { Open (Buffer.contents buf |> String.trim) }
+| _ as c { Buffer.add_char buf c; open_t buf lexbuf}
 
 and element = parse
 | ws* { element lexbuf }

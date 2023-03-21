@@ -297,12 +297,24 @@ let s = {|
       Ohtml.Doc.Html_text "Hello &Again!     \n  "]}}
 ```
 
-## Parameters
+## Parameters/open
 
 ```ocaml
-# Ohtml.parse_doc_string "fun a:int b:string ->\n<div>Hello <span>world!</span></div>";;
+let s = {|
+open Spring
+open Stdlib
+fun a:int b:string ->
+
+<div>
+  Hello <span>world!</span>
+</div>|}
+```
+
+```ocaml
+# Ohtml.parse_doc_string s;;
 - : Doc.doc =
-{Ohtml.Doc.opens = []; fun_args = Some " a:int b:string "; dtd = None;
+{Ohtml.Doc.opens = ["Spring"; "Stdlib"]; fun_args = Some " a:int b:string ";
+ dtd = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
@@ -355,6 +367,9 @@ val doc : Doc.doc =
 
 ```ocaml
 let s ={|
+open Spring
+open Stdlib
+
 fun a:int b:string products ->
 
 <!DOCTYPE html>
@@ -388,8 +403,8 @@ fun a:int b:string products ->
 ```ocaml
 # let doc = Ohtml.parse_doc_string s;;
 val doc : Doc.doc =
-  {Ohtml.Doc.opens = []; fun_args = Some " a:int b:string products ";
-   dtd = Some "DOCTYPE html";
+  {Ohtml.Doc.opens = ["Spring"; "Stdlib"];
+   fun_args = Some " a:int b:string products "; dtd = Some "DOCTYPE html";
    root =
     Ohtml.Doc.Element
      {Ohtml.Doc.tag_name = "html"; attributes = [];
@@ -428,6 +443,8 @@ val doc : Doc.doc =
 
 # gen doc ;;
 +
++open Spring
++open Stdlib
 +let v  a:int b:string products  (b:Buffer.t) : unit =
 +Buffer.add_string b "<html";
 +Buffer.add_string b ">";

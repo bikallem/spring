@@ -20,24 +20,24 @@
 %token <string> Dtd
 %token <string> Html_text
 %token <string> Func
+%token <string> Open
 %token Eof
-
 
 %start <Doc.doc> doc
 
 %%
 
 doc :
-  | fun_args=Func? dtd=Dtd? root=html_element { {Doc.dtd; root; fun_args } }
+  | opens=Open* fun_args=Func? dtd=Dtd? root=html_element { {Doc.opens; fun_args; dtd; root } }
 
 html_element :
   | Tag_open tag_name=Tag_name attributes=attribute* Tag_close
     children=html_content*
     Tag_open_slash Tag_name Tag_close 
-    { Doc.element ~attributes ~children tag_name } 
+    { Doc.Element {tag_name;attributes; children} } 
 
   | Tag_open tag_name=Tag_name attributes=attribute* Tag_slash_close 
-    { Doc.element ~attributes tag_name }
+    { Doc.Element {tag_name; attributes;children=[]} }
 
 html_content :
   | Code_open code=code* Code_close { Doc.Code code }

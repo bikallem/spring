@@ -35,6 +35,6 @@ module Client = Client
 
 module Server = Server
 
-(** {1Ohtml} *)
+(** {1 Ohtml} *)
 
 module Ohtml = Ohtml

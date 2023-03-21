@@ -158,5 +158,6 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     | Some v -> v
   in
   let fun_decl = Printf.sprintf "let v %s (b:Buffer.t) : unit = " fun_args in
+  List.iter (fun o -> write_ln @@ "open " ^ o) doc.opens;
   write_ln fun_decl;
   gen_element doc.root
