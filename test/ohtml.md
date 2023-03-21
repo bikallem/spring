@@ -264,7 +264,22 @@ Name/Value attributes.
 ## Text element
 
 ```ocaml
-# Ohtml.parse_element "<div>  <span>\n\t Hello World {{ \"hello world from OCaml!\"}}    </span>     Hello &Again!     </div>";;
+let s = {|
+<div>
+  <span>
+    Hello World 
+    { {"hello world from OCaml!" }
+      <text>Text in code1</text>
+      <text>Text in code2</text>
+    }
+  </span>
+  Hello &Again!     
+</div>
+|};;
+```
+
+```ocaml
+# Ohtml.parse_element s;;
 - : Doc.doc =
 {Ohtml.Doc.fun_args = None; dtd = None;
  root =
@@ -274,10 +289,12 @@ Name/Value attributes.
      [Ohtml.Doc.Element
        {Ohtml.Doc.tag_name = "span"; attributes = [];
         children =
-         [Ohtml.Doc.Html_text "Hello World ";
+         [Ohtml.Doc.Html_text "Hello World \n      ";
           Ohtml.Doc.Code
-           [Ohtml.Doc.Code_block " \"hello world from OCaml!\""]]};
-      Ohtml.Doc.Html_text "Hello &Again!     "]}}
+           [Ohtml.Doc.Code_block "\"hello world from OCaml!\" ";
+            Ohtml.Doc.Code_text "Text in code1";
+            Ohtml.Doc.Code_text "Text in code2"]]};
+      Ohtml.Doc.Html_text "Hello &Again!     \n  "]}}
 ```
 
 ## Parameters
