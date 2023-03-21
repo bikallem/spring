@@ -1,4 +1,4 @@
-fun ->
+fun products ->
 
 <!DOCTYPE html>
 <html>
@@ -13,6 +13,15 @@ fun ->
         get={if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
+      <ul>
+      {
+        {Spring.Ohtml.iter (fun a b -> }
+          <li>
+            {Spring.Ohtml.text a b;}
+          </li>
+        {) products }
+      }
+      </ul>
     </div>
   </body>
 </html>

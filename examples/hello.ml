@@ -2,16 +2,15 @@ let products_view products : Ohtml.Node.html_writer =
  fun b ->
   Buffer.add_string b "<html>";
   Buffer.add_string b "<body>";
-  Buffer.add_string b "<div>";
-  (fun b ->
-    List.iter
-      (fun p ->
-        Buffer.add_string b "<section>";
-        (fun b -> Ohtml.Node.html_text p b) b;
-        Buffer.add_string b "</section>")
-      products)
+  Buffer.add_string b "<ul>";
+  (Spring.Ohtml.iter
+     (fun p b ->
+       Buffer.add_string b "<li>";
+       Spring.Ohtml.text p b;
+       Buffer.add_string b "</li>")
+     products)
     b;
-  Buffer.add_string b "</div>";
+  Buffer.add_string b "</ul>";
   Buffer.add_string b "</body>";
   Buffer.add_string b "</html>"
 
@@ -22,7 +21,7 @@ let ohtml : Ohtml.Node.html_writer -> Spring.Response.server_response =
   let content = Buffer.contents b in
   Spring.Response.html content
 
-let hello _req = ohtml @@ V_hello.v
+let hello _req = ohtml @@ V_hello.v [ "apple"; "oranges"; "bananas" ]
 
 let router : Spring.Server.pipeline =
  fun next req ->
