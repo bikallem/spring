@@ -111,6 +111,10 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
         List.iter (fun child -> gen_element child) children;
         write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
     | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
+    | Html_comment comment ->
+      write_ln @@ {|Buffer.add_string b "<!-- |} ^ comment ^ {| -->";|}
+    | Html_conditional_comment comment ->
+      write_ln @@ {|Buffer.add_string b "<![ |} ^ comment ^ {| ]>";|}
     | _ -> ()
   and gen_attribute = function
     | Doc.Bool_attribute attr ->
