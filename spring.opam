@@ -10,7 +10,7 @@ bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
   "ocaml" {>= "5.0.0"}
   "eio" {>= "0.8.1"}
-  "dune" {>= "3.6" & >= "3.6"}
+  "dune" {>= "3.7" & >= "3.6"}
   "easy-format" {>= "1.3.4"}
   "uri" {>= "4.2.0"}
   "ptime" {>= "1.1.0"}

@@ -1,8 +1,8 @@
-(lang dune 3.6)
+(lang dune 3.7)
 
 (name spring)
 
-(using menhir 2.0)
+(using menhir 2.1)
 
 (using mdx 0.3)
 
