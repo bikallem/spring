@@ -8,8 +8,12 @@ val attribute : name:string -> value:string -> html_writer
 
 (** {1 Element} *)
 
-val html_text : string -> html_writer
-(** [html_text txt] HTML escapes [txt] and writes [txt]. *)
+val text : string -> html_writer
+(** [text txt] HTML escapes [txt] and writes [txt]. *)
 
 val raw_text : string -> html_writer
 (** [raw_text txt] writes [txt] without HTML escaping. *)
+
+(** {1 List} *)
+
+val iter : ('a -> html_writer) -> 'a list -> html_writer

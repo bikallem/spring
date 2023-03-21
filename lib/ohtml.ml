@@ -23,5 +23,15 @@ let attribute ~name ~value : html_writer =
   Buffer.add_string b (escape_html value);
   Buffer.add_string b {|"|}
 
-let html_text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
+let text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
 let raw_text txt : html_writer = fun b -> Buffer.add_string b txt
+
+(* list *)
+
+let iter f l : html_writer =
+ fun b ->
+  List.iter
+    (fun x ->
+      let f = f x in
+      f b)
+    l
