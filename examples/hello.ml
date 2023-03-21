@@ -1,7 +1,4 @@
-open Spring
-open Ohtml
-
-let products_view products : Node.html_writer =
+let products_view products : Ohtml.Node.html_writer =
  fun b ->
   Buffer.add_string b "<html>";
   Buffer.add_string b "<body>";
@@ -10,7 +7,7 @@ let products_view products : Node.html_writer =
     List.iter
       (fun p ->
         Buffer.add_string b "<section>";
-        (fun b -> Node.html_text p b) b;
+        (fun b -> Ohtml.Node.html_text p b) b;
         Buffer.add_string b "</section>")
       products)
     b;
@@ -18,26 +15,27 @@ let products_view products : Node.html_writer =
   Buffer.add_string b "</body>";
   Buffer.add_string b "</html>"
 
-let ohtml : Node.html_writer -> Response.server_response =
+let ohtml : Ohtml.Node.html_writer -> Spring.Response.server_response =
  fun f ->
   let b = Buffer.create 10 in
   f b;
   let content = Buffer.contents b in
-  Response.html content
+  Spring.Response.html content
 
 let hello _req = ohtml @@ V_hello.v
 
-let router : Server.pipeline =
+let router : Spring.Server.pipeline =
  fun next req ->
-  match Request.resource req with
+  match Spring.Request.resource req with
   | "/" -> hello req
   | "/products" -> ohtml @@ products_view [ "apple"; "orange"; "guava" ]
   | _ -> next req
 
 let () =
   Eio_main.run @@ fun env ->
-  let handler : Server.handler =
-    Server.strict_http env#clock @@ router @@ Server.not_found_handler
+  let handler : Spring.Server.handler =
+    Spring.Server.strict_http env#clock
+    @@ router @@ Spring.Server.not_found_handler
   in
-  let server = Server.make ~on_error:raise env#clock env#net handler in
-  Server.run_local ~port:8080 server
+  let server = Spring.Server.make ~on_error:raise env#clock env#net handler in
+  Spring.Server.run_local ~port:8080 server

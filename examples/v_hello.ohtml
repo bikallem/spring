@@ -1,6 +1,10 @@
 fun ->
 
-<div id=div1 class="abc ccc aaa" disabled>
+<div id=div1 
+    class="abc ccc aaa" 
+    disabled 
+    { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+    get={if true then "/products" else "/index"} >
   Hello 
   <span>world!</span>
 </div>
