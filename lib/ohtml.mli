@@ -17,3 +17,5 @@ val raw_text : string -> html_writer
 (** {1 List} *)
 
 val iter : ('a -> html_writer) -> 'a list -> html_writer
+(** [iter f l] writes a list of items in [l], where [f] maps the item to
+    [html_writer]. *)
