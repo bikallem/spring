@@ -1,3 +1,6 @@
+open Spring
+open Stdlib
+
 fun products ->
 
 <!DOCTYPE html>
@@ -9,15 +12,15 @@ fun products ->
     <div id=div1 
         class="abc ccc aaa" 
         disabled 
-        { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+        { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
         get={if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
       <ul>
       {
-        {Spring.Ohtml.iter (fun a b -> }
+        {Ohtml.iter (fun a b -> }
           <li>
-            {Spring.Ohtml.text a b;}
+            {Ohtml.text a b;}
           </li>
         {) products }
       }
