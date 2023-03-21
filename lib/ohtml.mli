@@ -14,6 +14,8 @@ val text : string -> html_writer
 val raw_text : string -> html_writer
 (** [raw_text txt] writes [txt] without HTML escaping. *)
 
+val int : int -> html_writer
+
 (** {1 List} *)
 
 val iter : ('a -> html_writer) -> 'a list -> html_writer

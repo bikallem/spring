@@ -25,6 +25,7 @@ let attribute ~name ~value : html_writer =
 
 let text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
 let raw_text txt : html_writer = fun b -> Buffer.add_string b txt
+let int i : html_writer = fun b -> Buffer.add_string b (string_of_int i)
 
 (* list *)
 
