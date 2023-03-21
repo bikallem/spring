@@ -110,6 +110,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
         write_ln {|Buffer.add_string b ">";|};
         List.iter (fun child -> gen_element child) children;
         write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
+    | Code l -> code l
     | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
     | Html_comment comment ->
       write_ln @@ {|Buffer.add_string b "<!-- |} ^ comment ^ {| -->";|}
@@ -117,7 +118,6 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b "<![ |} ^ comment ^ {| ]>";|}
     | Cdata cdata ->
       write_ln @@ {|Buffer.add_string b "<![CDATA[ |} ^ cdata ^ {| ]]>";|}
-    | _ -> ()
   and gen_attribute = function
     | Doc.Bool_attribute attr ->
       write_ln @@ {|Buffer.add_string b " |} ^ attr ^ {|";|}
@@ -134,7 +134,24 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     | Doc.Code_attribute code ->
       write_ln @@ {|Buffer.add_char b ' ';|};
       write_ln @@ "(" ^ code ^ " ) b;"
+  and code l =
+    let rec aux = function
+      | Doc.Code_block block -> write_ln @@ block
+      | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
+      | Code_element { tag_name; children; attributes } ->
+        write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
+        List.iter (fun attr -> gen_attribute attr) attributes;
+        if [] = children then write_ln {|Buffer.add_string b "/>";|}
+        else (
+          write_ln {|Buffer.add_string b ">";|};
+          List.iter (fun child -> aux child) children;
+          write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
+    in
+    write_ln @@ "(";
+    List.iter aux l;
+    write_ln @@ ") b;"
   in
+
   let fun_args =
     match doc.fun_args with
     | None -> ""
