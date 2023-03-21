@@ -137,8 +137,13 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|='|} ^ v ^ {|'";|}
     | Doc.Unquoted_attribute (nm, v) ->
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
-    | Doc.Name_code_val_attribute _ -> ()
-    | Doc.Code_attribute _code -> ()
+    | Doc.Name_code_val_attribute (nm, code) ->
+      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"";|};
+      write_ln @@ {|Buffer.add_string b (|} ^ code ^ {|);|};
+      write_ln @@ {|Buffer.add_string b "\"";|}
+    | Doc.Code_attribute code ->
+      write_ln @@ {|Buffer.add_char b ' ';|};
+      write_ln @@ "(" ^ code ^ " ) b;"
   in
   let fun_args =
     match doc.fun_args with
