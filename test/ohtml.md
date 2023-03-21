@@ -339,8 +339,24 @@ val doc : Doc.doc =
 ```
 
 ## Attributes
+
 ```ocaml
-# let doc = Ohtml.parse_doc_string "fun a:int b:string ->\n<div id=div1 class=\"abc ccc aaa\" disabled>Hello <span>world!</span></div>";;
+let s ={|
+fun a:int b:string ->
+
+<div id=div1 
+    class="abc ccc aaa" 
+    disabled 
+    { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+    get={if true then "/products" else "/index"} >
+  Hello 
+  <span>world!</span>
+</div>
+|}
+```
+
+```ocaml
+# let doc = Ohtml.parse_doc_string s;;
 val doc : Doc.doc =
   {Ohtml.Doc.fun_args = Some "a:int b:string "; dtd = None;
    root =
@@ -349,9 +365,13 @@ val doc : Doc.doc =
       attributes =
        [Ohtml.Doc.Unquoted_attribute ("id", "div1");
         Ohtml.Doc.Double_quoted_attribute ("class", "abc ccc aaa");
-        Ohtml.Doc.Bool_attribute "disabled"];
+        Ohtml.Doc.Bool_attribute "disabled";
+        Ohtml.Doc.Code_attribute
+         " Spring.Ohtml.attribute ~name:\"hx-swap\" ~value:\"outerHTML\" ";
+        Ohtml.Doc.Name_code_val_attribute
+         ("get", "if true then \"/products\" else \"/index\"")];
       children =
-       [Ohtml.Doc.Html_text "Hello ";
+       [Ohtml.Doc.Html_text "Hello \n    ";
         Ohtml.Doc.Element
          {Ohtml.Doc.tag_name = "span"; attributes = [];
           children = [Ohtml.Doc.Html_text "world!"]}]}}
@@ -363,8 +383,14 @@ val doc : Doc.doc =
 +Buffer.add_string b " id=div1";
 +Buffer.add_string b " class=\"abc ccc aaa\"";
 +Buffer.add_string b " disabled";
++Buffer.add_char b ' ';
++( Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
++Buffer.add_string b " get=\"";
++Buffer.add_string b (if true then "/products" else "/index");
++Buffer.add_string b "\"";
 +Buffer.add_string b ">";
-+Buffer.add_string b "Hello ";
++Buffer.add_string b "Hello
++    ";
 +Buffer.add_string b "<span";
 +Buffer.add_string b ">";
 +Buffer.add_string b "world!";
