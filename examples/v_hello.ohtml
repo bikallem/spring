@@ -4,6 +4,7 @@ fun ->
 <html>
   <!-- This is a comment -->
   <![ This is a conditional comment ]>
+  <![CDATA[ This is cdata ]]>
   <body>
     <div id=div1 
         class="abc ccc aaa" 
