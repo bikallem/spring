@@ -25,9 +25,10 @@ and code =
       { tag_name : string; attributes : attribute list; children : code list }
 
 type dtd = Dtd of string
-type doc = { fun_args : string option; dtd : string option; root : element }
 
-let element :
-    ?attributes:attribute list -> ?children:element list -> string -> element =
- fun ?(attributes = []) ?(children = []) tag_name ->
-  Element { tag_name; attributes; children }
+type doc =
+  { opens : string list
+  ; fun_args : string option
+  ; dtd : string option
+  ; root : element
+  }
