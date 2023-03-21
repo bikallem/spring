@@ -13,6 +13,7 @@ let num = ['0'-'9']
 let tag_name = (alpha | '_') (alpha | num | '_' | '\'' | '.')*
 let ws = [' ' '\t' '\n' '\r' '\x09']
 let html_text = ws* ([^ '<' '{']+ as text)
+let attr_name = [^ '\x7F'-'\x9F' '\x20' '"' '\'' '>' '/' '=' '{']+
 
 rule func = parse
 | ws* { func lexbuf }
@@ -60,13 +61,18 @@ and dtd buf = parse
 | '>' { Dtd (Buffer.contents buf) }
 | _ as c { Buffer.add_char buf c; dtd buf lexbuf } 
 
-and tag = parse
-| ws* { tag lexbuf }
+and tag_name = parse
+| ws* { tag_name lexbuf }
+| tag_name as name { Tag_name name }
+| _ as c { err c lexbuf }
+
+and start_tag = parse
+| ws* { start_tag lexbuf }
 | '>' { Tag_close }
 | "/>" { Tag_slash_close }
 | '=' { Tag_equals }
 | '{' { code_attr (Buffer.create 10) lexbuf }
-| tag_name as name { Tag_name name }
+| attr_name as name { Attr_name name }
 | eof { Eof }
 | _ as c { err c lexbuf }
 

@@ -21,6 +21,7 @@ let tok_to_string = function
   | Code_open -> "CODE_OPEN"
   | Code_block s -> "CODE_BLOCK " ^ s
   | Code_close -> "CODE_CLOSE"
+  | Attr_name _ -> "ATTR_NAME"
   | Single_quoted_attr_val _ -> "SINGLE_QUOTED_ATTRIBUTE_VAL"
   | Double_quoted_attr_val _ -> "DOUBLE_QUOTED_ATTRIBUTE_VAL"
   | Unquoted_attr_val _ -> "UNQUOTED_ATTRIBUTE_VAL"
@@ -59,7 +60,10 @@ let rec loop (i : input) checkpoint =
     | Single_quoted_attr_val _
     | Double_quoted_attr_val _
     | Code_attr_val _ -> pop i
-    | Tag_open | Tag_open_slash -> push i Lexer.tag
+    | Tag_open | Tag_open_slash -> push i Lexer.tag_name
+    | Tag_name _ ->
+      pop i;
+      push i Lexer.start_tag
     | Tag_close | Tag_slash_close -> pop i
     | _ -> ());
     let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in

@@ -145,13 +145,13 @@ let s ={|
 ## Unquoted attribute value
 
 ```ocaml
-# Ohtml.parse_element "<input attr1 = attrv\n></input>";;
+# Ohtml.parse_element "<input attr1-get = attrv\n></input>";;
 - : Doc.doc =
 {Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "input";
-    attributes = [Ohtml.Doc.Unquoted_attribute ("attr1", "attrv")];
+    attributes = [Ohtml.Doc.Unquoted_attribute ("attr1-get", "attrv")];
     children = []}}
 ```
 
