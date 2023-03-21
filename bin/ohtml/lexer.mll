@@ -1,5 +1,5 @@
 {
-  open Parser1
+  open Parser
   exception Error of string
 
   let err c lexbuf = 

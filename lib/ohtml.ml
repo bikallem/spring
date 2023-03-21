@@ -17,7 +17,7 @@ let escape_html txt =
   Buffer.contents escaped
 
 let attribute ~name ~value : html_writer =
-  fun b ->
+ fun b ->
   Buffer.add_string b (escape_html name);
   Buffer.add_string b {|="|};
   Buffer.add_string b (escape_html value);

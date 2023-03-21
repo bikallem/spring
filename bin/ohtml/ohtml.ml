@@ -1,6 +1,5 @@
-module Node = Node
 module Doc = Doc
-module I = Parser1.MenhirInterpreter
+module I = Parser.MenhirInterpreter
 
 exception Syntax_error of int * int
 
@@ -13,7 +12,7 @@ let get_lexing_position lexbuf =
 [@@@warning "-32"]
 
 let tok_to_string = function
-  | Parser1.Tag_open -> "TAG_OPEN"
+  | Parser.Tag_open -> "TAG_OPEN"
   | Tag_name name -> "TAG_NAME " ^ name
   | Tag_close -> "TAG_CLOSE"
   | Tag_slash_close -> "TAG_SLASH_CLOSE"
@@ -35,7 +34,7 @@ let tok_to_string = function
   | Func _ -> "PARAM "
   | Eof -> "EOF"
 
-type lexer = Lexing.lexbuf -> Parser1.token
+type lexer = Lexing.lexbuf -> Parser.token
 type input = { lexbuf : Lexing.lexbuf; tokenizer : lexer Stack.t }
 
 let tokenize i =
@@ -51,7 +50,7 @@ let rec loop (i : input) checkpoint =
     let token = tokenize i in
     (* Printf.printf "\n%s%!" (tok_to_string token); *)
     (match token with
-    | Parser1.Func _ -> push i Lexer.element
+    | Parser.Func _ -> push i Lexer.element
     | Code_open -> push i Lexer.code
     | Code_close -> pop i
     | Tag_equals -> push i Lexer.attribute_val
@@ -79,7 +78,7 @@ let parse_element s =
   let tokenizer = Stack.create () in
   let i = { lexbuf; tokenizer } in
   push i Lexer.element;
-  let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
+  let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
 
 let parse_doc_string s =
@@ -87,7 +86,7 @@ let parse_doc_string s =
   let tokenizer = Stack.create () in
   let i = { lexbuf; tokenizer } in
   push i Lexer.func;
-  let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
+  let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
 
 let parse_doc filepath =
@@ -96,7 +95,7 @@ let parse_doc filepath =
       let tokenizer = Stack.create () in
       let i = { lexbuf; tokenizer } in
       push i Lexer.func;
-      let checkpoint = Parser1.Incremental.doc lexbuf.lex_curr_p in
+      let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
       loop i checkpoint)
 
 let gen_ocaml ~write_ln (doc : Doc.doc) =

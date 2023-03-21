@@ -1,4 +1,6 @@
-let products_view products : Ohtml.Node.html_writer =
+open Spring
+
+let products_view products : Ohtml.html_writer =
  fun b ->
   Buffer.add_string b "<html>";
   Buffer.add_string b "<body>";
@@ -14,7 +16,7 @@ let products_view products : Ohtml.Node.html_writer =
   Buffer.add_string b "</body>";
   Buffer.add_string b "</html>"
 
-let ohtml : Ohtml.Node.html_writer -> Spring.Response.server_response =
+let ohtml : Ohtml.html_writer -> Spring.Response.server_response =
  fun f ->
   let b = Buffer.create 10 in
   f b;
