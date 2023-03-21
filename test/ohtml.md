@@ -394,6 +394,15 @@ fun a:int b:string products ->
         {) products }
       }
       </ul>
+      <h2>Another way to specify code</h2>
+      <ol>
+      {{fun b -> List.iter (fun a ->}
+        <li>
+          {Ohtml.text a b;}
+        </li>
+        {) products}
+      }
+      </ol>
     </div>
   </body>
 </html>
