@@ -22,3 +22,6 @@ module Request = Request
 module Response = Response
 module Client = Client
 module Server = Server
+
+(* Ohtml *)
+module Ohtml = Ohtml
