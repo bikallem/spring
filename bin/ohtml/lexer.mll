@@ -101,8 +101,12 @@ and code = parse
 | '}' { Code_close }
 | '<' { Tag_open }
 | "</" { Tag_open_slash }
-| "<text>" ((_)* as text) "</text>" { Html_text text } 
+| "<text>" { text (Buffer.create 10) lexbuf } 
 | eof { Eof }
+
+and text buf = parse
+| "</text>" { Html_text (Buffer.contents buf) }
+| _ as c { Buffer.add_char buf c; text buf lexbuf }
 
 and code_block buf = parse
 | '}'     { Code_block (Buffer.contents buf) }
