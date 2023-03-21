@@ -345,6 +345,7 @@ fun a:int b:string ->
 <html>
   <!-- This is a comment -->
   <![ This is a conditional comment ]>
+  <![CDATA[ This is cdata ]]>
   <body>
     <div id=div1 
         class="abc ccc aaa" 
@@ -369,6 +370,7 @@ val doc : Doc.doc =
       children =
        [Ohtml.Doc.Html_comment " This is a comment ";
         Ohtml.Doc.Html_conditional_comment " This is a conditional comment ";
+        Ohtml.Doc.Cdata " This is cdata ";
         Ohtml.Doc.Element
          {Ohtml.Doc.tag_name = "body"; attributes = [];
           children =
@@ -395,6 +397,7 @@ val doc : Doc.doc =
 +Buffer.add_string b ">";
 +Buffer.add_string b "<!--  This is a comment  -->";
 +Buffer.add_string b "<![  This is a conditional comment  ]>";
++Buffer.add_string b "<![CDATA[  This is cdata  ]]>";
 +Buffer.add_string b "<body";
 +Buffer.add_string b ">";
 +Buffer.add_string b "<div";
