@@ -30,8 +30,9 @@ let tok_to_string = function
   | Html_conditional_comment _ -> "HTML_CONDITIONAL_COMMENT"
   | Cdata _ -> "CDATA"
   | Dtd _ -> "DTD"
-  | Html_text s -> "HTML_TEXT " ^ s
-  | Func _ -> "PARAM "
+  | Html_text _ -> "HTML_TEXT"
+  | Func _ -> "PARAM"
+  | Open _ -> "OPENS"
   | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser.token
