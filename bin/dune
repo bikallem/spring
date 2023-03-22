@@ -2,4 +2,4 @@
  (public_name spring)
  (name spring)
  (package spring)
- (libraries cmdliner ohtml fpath))
+ (libraries cmdliner ohtml))

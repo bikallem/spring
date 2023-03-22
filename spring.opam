@@ -18,7 +18,6 @@ depends: [
   "domain-name" {>= "0.4.0"}
   "menhir" {>= "20220210"}
   "cmdliner" {>= "1.1.1"}
-  "fpath" {>= "0.7.3"}
   "eio_main" {>= "0.8.1" & with-test}
   "fmt" {>= "0.9.0" & with-test}
   "cstruct" {>= "6.1.1" & with-test}

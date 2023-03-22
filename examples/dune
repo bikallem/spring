@@ -1,8 +1,7 @@
 (rule
- (deps v_hello.ohtml)
  (target v_hello.ml)
  (action
-  (run spring ohtml %{deps})))
+  (run spring ohtml %{project_root}/examples)))
 
 (executable
  (name hello)
