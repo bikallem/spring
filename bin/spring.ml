@@ -1,6 +1,6 @@
 open Cmdliner
 
-let ohtml_file_cmd =
+let ohtml_cmd =
   let doc = "Generates Spring Ohtml views (.ml) from .ohtml files" in
   let man =
     [ `S Manpage.s_bugs
@@ -38,7 +38,7 @@ let spring_cmd =
     ]
   in
   let info = Cmd.info "spring" ~version:"%%VERSION%%" ~doc ~man in
-  Cmd.group info [ ohtml_file_cmd ]
+  Cmd.group info [ ohtml_cmd ]
 
 let main () = exit (Cmd.eval spring_cmd)
 let () = main ()
