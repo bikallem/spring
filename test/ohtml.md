@@ -58,12 +58,11 @@ let () = Printexc.record_backtrace true
 ```ocaml
 let s = {|
 <div>
-  {{Node.text "hello"}
+  {Node.text "hello"}
   <span id="v" disabled>
     {Node.text "world"}
-    <span></span>
-  </span> 
-  } 
+    <span>text</span>
+  </span>
   <span><area/></span>
 </div>|}
 ```
@@ -76,17 +75,17 @@ let s = {|
   Ohtml.Doc.Element
    {Ohtml.Doc.tag_name = "div"; attributes = [];
     children =
-     [Ohtml.Doc.Code
-       [Ohtml.Doc.Code_block "Node.text \"hello\"";
-        Ohtml.Doc.Code_element
-         {Ohtml.Doc.tag_name = "span";
-          attributes =
-           [Ohtml.Doc.Double_quoted_attribute ("id", "v");
-            Ohtml.Doc.Bool_attribute "disabled"];
-          children =
-           [Ohtml.Doc.Code_block "Node.text \"world\"";
-            Ohtml.Doc.Code_element
-             {Ohtml.Doc.tag_name = "span"; attributes = []; children = []}]}];
+     [Ohtml.Doc.Code [Ohtml.Doc.Code_block "Node.text \"hello\""];
+      Ohtml.Doc.Element
+       {Ohtml.Doc.tag_name = "span";
+        attributes =
+         [Ohtml.Doc.Double_quoted_attribute ("id", "v");
+          Ohtml.Doc.Bool_attribute "disabled"];
+        children =
+         [Ohtml.Doc.Code [Ohtml.Doc.Code_block "Node.text \"world\""];
+          Ohtml.Doc.Element
+           {Ohtml.Doc.tag_name = "span"; attributes = [];
+            children = [Ohtml.Doc.Html_text "text"]}]};
       Ohtml.Doc.Element
        {Ohtml.Doc.tag_name = "span"; attributes = [];
         children =
@@ -99,12 +98,14 @@ let s = {|
 ```ocaml
 let s ={|
 <div>
-  {{List.iter (fun a -> }
-    <section>
-      {Ohtml.text a}
-    </section>
-    <text>This is a text {}, <hell></hello> </text>
-    {) names }
+  {List.iter 
+    (fun a ->
+      <section>
+        Ohtml.text a
+      </section>
+      <text>This is a text {}, <hell></hello> </text>
+    ) 
+    names
   }
 </div>
 |}
@@ -119,12 +120,14 @@ let s ={|
    {Ohtml.Doc.tag_name = "div"; attributes = [];
     children =
      [Ohtml.Doc.Code
-       [Ohtml.Doc.Code_block "List.iter (fun a -> ";
+       [Ohtml.Doc.Code_block "List.iter \n      (fun a ->\n        ";
         Ohtml.Doc.Code_element
          {Ohtml.Doc.tag_name = "section"; attributes = [];
-          children = [Ohtml.Doc.Code_block "Ohtml.text a"]};
+          children =
+           [Ohtml.Doc.Code_block "\n          Ohtml.text a\n        "]};
+        Ohtml.Doc.Code_block "\n        ";
         Ohtml.Doc.Code_text "This is a text {}, <hell></hello> ";
-        Ohtml.Doc.Code_block ") names "]]}}
+        Ohtml.Doc.Code_block "\n      ) \n      names\n    "]]}}
 ```
 
 ## Bool attributes
@@ -268,9 +271,10 @@ let s = {|
 <div>
   <span>
     Hello World 
-    { {"hello world from OCaml!" }
-      <text>Text in code1</text>
-      <text>Text in code2</text>
+    { if true then
+        <text>true text</text>
+      else 
+        <text>false text</text>
     }
   </span>
   Hello &Again!     
@@ -291,9 +295,11 @@ let s = {|
         children =
          [Ohtml.Doc.Html_text "Hello World \n      ";
           Ohtml.Doc.Code
-           [Ohtml.Doc.Code_block "\"hello world from OCaml!\" ";
-            Ohtml.Doc.Code_text "Text in code1";
-            Ohtml.Doc.Code_text "Text in code2"]]};
+           [Ohtml.Doc.Code_block " if true then\n          ";
+            Ohtml.Doc.Code_text "true text";
+            Ohtml.Doc.Code_block "\n        else \n          ";
+            Ohtml.Doc.Code_text "false text";
+            Ohtml.Doc.Code_block "\n      "]]};
       Ohtml.Doc.Html_text "Hello &Again!     \n  "]}}
 ```
 
@@ -370,7 +376,7 @@ let s ={|
 open Spring
 open Stdlib
 
-fun a:int b:string products ->
+fun products ->
 
 <!DOCTYPE html>
 <html>
@@ -381,26 +387,26 @@ fun a:int b:string products ->
     <div id=div1 
         class="abc ccc aaa" 
         disabled 
-        { Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+        { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
         get={if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
       <ul>
       {
-        {Spring.Ohtml.iter (fun a b -> }
+        Ohtml.iter (fun a b ->
           <li>
-            {Spring.Ohtml.text a b;}
+            Ohtml.text a b;
           </li>
-        {) products }
+        ) products
       }
       </ul>
       <h2>Another way to specify code</h2>
       <ol>
-      {{fun b -> List.iter (fun a ->}
+      {fun b -> List.iter (fun a ->
         <li>
-          {Ohtml.text a b;}
+          Ohtml.text a b;
         </li>
-        {) products}
+        ) products
       }
       </ol>
     </div>
@@ -412,8 +418,7 @@ fun a:int b:string products ->
 ```ocaml
 # let doc = Ohtml.parse_doc_string s;;
 val doc : Doc.doc =
-  {Ohtml.Doc.opens = ["Spring"; "Stdlib"];
-   fun_args = Some " a:int b:string products ";
+  {Ohtml.Doc.opens = ["Spring"; "Stdlib"]; fun_args = Some " products ";
    doctype = Some "DOCTYPE html";
    root =
     Ohtml.Doc.Element
@@ -432,7 +437,7 @@ val doc : Doc.doc =
                 Ohtml.Doc.Double_quoted_attribute ("class", "abc ccc aaa");
                 Ohtml.Doc.Bool_attribute "disabled";
                 Ohtml.Doc.Code_attribute
-                 " Spring.Ohtml.attribute ~name:\"hx-swap\" ~value:\"outerHTML\" ";
+                 " Ohtml.attribute ~name:\"hx-swap\" ~value:\"outerHTML\" ";
                 Ohtml.Doc.Name_code_val_attribute
                  ("get", "if true then \"/products\" else \"/index\"")];
               children =
@@ -444,12 +449,14 @@ val doc : Doc.doc =
                  {Ohtml.Doc.tag_name = "ul"; attributes = [];
                   children =
                    [Ohtml.Doc.Code
-                     [Ohtml.Doc.Code_block "Spring.Ohtml.iter (fun a b -> ";
+                     [Ohtml.Doc.Code_block
+                       "\n          Ohtml.iter (fun a b ->\n            ";
                       Ohtml.Doc.Code_element
                        {Ohtml.Doc.tag_name = "li"; attributes = [];
                         children =
-                         [Ohtml.Doc.Code_block "Spring.Ohtml.text a b;"]};
-                      Ohtml.Doc.Code_block ") products "]]};
+                         [Ohtml.Doc.Code_block
+                           "\n              Ohtml.text a b;\n            "]};
+                      Ohtml.Doc.Code_block "\n          ) products\n        "]]};
                 Ohtml.Doc.Element
                  {Ohtml.Doc.tag_name = "h2"; attributes = [];
                   children =
@@ -458,17 +465,20 @@ val doc : Doc.doc =
                  {Ohtml.Doc.tag_name = "ol"; attributes = [];
                   children =
                    [Ohtml.Doc.Code
-                     [Ohtml.Doc.Code_block "fun b -> List.iter (fun a ->";
+                     [Ohtml.Doc.Code_block
+                       "fun b -> List.iter (fun a ->\n          ";
                       Ohtml.Doc.Code_element
                        {Ohtml.Doc.tag_name = "li"; attributes = [];
-                        children = [Ohtml.Doc.Code_block "Ohtml.text a b;"]};
-                      Ohtml.Doc.Code_block ") products"]]}]}]}]}}
+                        children =
+                         [Ohtml.Doc.Code_block
+                           "\n            Ohtml.text a b;\n          "]};
+                      Ohtml.Doc.Code_block "\n          ) products\n        "]]}]}]}]}}
 
 # gen doc ;;
 +
 +open Spring
 +open Stdlib
-+let v  a:int b:string products  (b:Buffer.t) : unit =
++let v  products  (b:Buffer.t) : unit =
 +Buffer.add_string b "<!DOCTYPE html>";
 +Buffer.add_string b "<html";
 +Buffer.add_string b ">";
@@ -482,7 +492,7 @@ val doc : Doc.doc =
 +Buffer.add_string b " class=\"abc ccc aaa\"";
 +Buffer.add_string b " disabled";
 +Buffer.add_char b ' ';
-+( Spring.Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
++( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
 +Buffer.add_string b " get=\"";
 +Buffer.add_string b (if true then "/products" else "/index");
 +Buffer.add_string b "\"";
@@ -496,12 +506,18 @@ val doc : Doc.doc =
 +Buffer.add_string b "<ul";
 +Buffer.add_string b ">";
 +(
-+Spring.Ohtml.iter (fun a b ->
++
++          Ohtml.iter (fun a b ->
++
 +Buffer.add_string b "<li";
 +Buffer.add_string b ">";
-+Spring.Ohtml.text a b;
++
++              Ohtml.text a b;
++
 +Buffer.add_string b "</li>";
-+) products
++
++          ) products
++
 +) b;
 +Buffer.add_string b "</ul>";
 +Buffer.add_string b "<h2";
@@ -512,11 +528,16 @@ val doc : Doc.doc =
 +Buffer.add_string b ">";
 +(
 +fun b -> List.iter (fun a ->
++
 +Buffer.add_string b "<li";
 +Buffer.add_string b ">";
-+Ohtml.text a b;
++
++            Ohtml.text a b;
++
 +Buffer.add_string b "</li>";
-+) products
++
++          ) products
++
 +) b;
 +Buffer.add_string b "</ol>";
 +Buffer.add_string b "</div>";

@@ -9,6 +9,10 @@
 %token Code_open "{"
 %token <string> Code_block
 %token Code_close "}"
+%token <string> Code_close_block
+%token <string> Code_tag_open
+%token <string> Code_tag_open_slash
+%token <string * string> Code_block_text
 %token <string> Attr_name
 %token <string> Single_quoted_attr_val
 %token <string> Double_quoted_attr_val

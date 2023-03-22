@@ -21,6 +21,11 @@ let tok_to_string = function
   | Code_open -> "CODE_OPEN"
   | Code_block s -> "CODE_BLOCK " ^ s
   | Code_close -> "CODE_CLOSE"
+  | Code_close_block s -> "CODE_CLOSE_BLOCK " ^ s
+  | Code_tag_open _ -> "CODE_TAG_OPEN"
+  | Code_tag_open_slash _ -> "CODE_TAG_OPEN_SLASH"
+  | Code_block_text (code_block, text) ->
+    "CODE_TEXT (" ^ code_block ^ ", " ^ text ^ ")"
   | Attr_name _ -> "ATTR_NAME"
   | Single_quoted_attr_val _ -> "SINGLE_QUOTED_ATTRIBUTE_VAL"
   | Double_quoted_attr_val _ -> "DOUBLE_QUOTED_ATTRIBUTE_VAL"
@@ -37,11 +42,21 @@ let tok_to_string = function
   | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser.token
-type input = { lexbuf : Lexing.lexbuf; tokenizer : lexer Stack.t }
+
+type input =
+  { lexbuf : Lexing.lexbuf
+  ; tokenizer : lexer Stack.t
+  ; mutable next_tok : Parser.token option
+  }
 
 let tokenize i =
-  let f = Stack.top i.tokenizer in
-  f i.lexbuf
+  match i.next_tok with
+  | Some tok ->
+    i.next_tok <- None;
+    tok
+  | None ->
+    let f = Stack.top i.tokenizer in
+    f i.lexbuf
 
 let pop i = ignore (Stack.pop i.tokenizer : lexer)
 let push i lexer = Stack.push lexer i.tokenizer
@@ -49,12 +64,24 @@ let push i lexer = Stack.push lexer i.tokenizer
 let rec loop (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
-    let token = tokenize i in
-    (* Printf.printf "\n%s%!" (tok_to_string token); *)
-    (match token with
+    let token = ref (tokenize i) in
+    (* Printf.printf "\n%s%!" (tok_to_string !token); *)
+    (match !token with
     | Parser.Func _ -> push i Lexer.element
-    | Code_open -> push i Lexer.code
+    | Code_open -> push i @@ Lexer.code (Buffer.create 10)
     | Code_close -> pop i
+    | Code_close_block code_block ->
+      token := Code_block code_block;
+      i.next_tok <- Some Code_close
+    | Code_tag_open code_block ->
+      token := Code_block code_block;
+      i.next_tok <- Some Tag_open
+    | Code_tag_open_slash code_block ->
+      token := Code_block code_block;
+      i.next_tok <- Some Tag_open_slash
+    | Code_block_text (code_block, text) ->
+      token := Code_block code_block;
+      i.next_tok <- Some (Html_text text)
     | Tag_equals -> push i Lexer.attribute_val
     | Unquoted_attr_val _
     | Single_quoted_attr_val _
@@ -67,7 +94,7 @@ let rec loop (i : input) checkpoint =
     | Tag_close | Tag_slash_close -> pop i
     | _ -> ());
     let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in
-    let checkpoint = I.offer checkpoint (token, startp, endp) in
+    let checkpoint = I.offer checkpoint (!token, startp, endp) in
     loop i checkpoint
   | I.Shifting _ | I.AboutToReduce _ ->
     let checkpoint = I.resume checkpoint in
@@ -81,7 +108,7 @@ let rec loop (i : input) checkpoint =
 let parse_element s =
   let lexbuf = Lexing.from_string s in
   let tokenizer = Stack.create () in
-  let i = { lexbuf; tokenizer } in
+  let i = { lexbuf; tokenizer; next_tok = None } in
   push i Lexer.element;
   let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
@@ -89,7 +116,7 @@ let parse_element s =
 let parse_doc_string s =
   let lexbuf = Lexing.from_string s in
   let tokenizer = Stack.create () in
-  let i = { lexbuf; tokenizer } in
+  let i = { lexbuf; tokenizer; next_tok = None } in
   push i Lexer.func;
   let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
   loop i checkpoint
@@ -98,7 +125,7 @@ let parse_doc filepath =
   In_channel.with_open_text filepath (fun ch ->
       let lexbuf = Lexing.from_channel ch in
       let tokenizer = Stack.create () in
-      let i = { lexbuf; tokenizer } in
+      let i = { lexbuf; tokenizer; next_tok = None } in
       push i Lexer.func;
       let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
       loop i checkpoint)

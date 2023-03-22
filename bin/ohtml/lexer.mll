@@ -106,21 +106,31 @@ and code_attr_val buf = parse
 | eof { Eof }
 | _ as c { Buffer.add_char buf c; code_attr_val buf lexbuf }
 
-and code = parse
-| ws* { code lexbuf }
-| '{' { code_block (Buffer.create 20) lexbuf }
-| '}' { Code_close }
-| '<' { Tag_open }
-| "</" { Tag_open_slash }
-| "<text>" { text (Buffer.create 10) lexbuf } 
+and code buf = parse
+(* | ws* { code buf lexbuf } *)
+| "\\}" { Buffer.add_char buf '}'; code buf lexbuf }
+| "\\<" { Buffer.add_char buf '<'; code buf lexbuf } 
+| '}' { 
+  let code_block = Buffer.contents buf in
+  Buffer.clear buf;
+  Code_close_block code_block }
+| '<' { 
+  let code_block = Buffer.contents buf in
+  Buffer.clear buf;
+  Code_tag_open code_block }
+| "</" { 
+  let code_block = Buffer.contents buf in
+  Buffer.clear buf;
+  Code_tag_open_slash code_block }
+| "<text>" { 
+  let code_block = Buffer.contents buf in
+  Buffer.clear buf;
+  let text = text (Buffer.create 10) lexbuf in
+  Code_block_text (code_block, text)
+  }
+| _ as c  { Buffer.add_char buf c; code buf lexbuf }
 | eof { Eof }
 
 and text buf = parse
-| "</text>" { Html_text (Buffer.contents buf) }
+| "</text>" { Buffer.contents buf }
 | _ as c { Buffer.add_char buf c; text buf lexbuf }
-
-and code_block buf = parse
-| '}'     { Code_block (Buffer.contents buf) }
-| "\\}"   { Buffer.add_char buf '}'; code_block buf lexbuf }
-| _ as c  { Buffer.add_char buf c; code_block buf lexbuf }
-| eof     { Eof }
