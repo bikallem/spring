@@ -25,7 +25,9 @@ let ohtml_cmd =
     in
     Sys.readdir dir |> Array.to_list
     |> List.filter (fun x -> Filename.extension x = ".ohtml")
-    |> List.iter (fun x -> generate_file x)
+    |> List.iter (fun x ->
+           let filename = dir ^ Filename.dir_sep ^ x in
+           generate_file filename)
   in
   let ohtml_t = Term.(const ohtml $ ohtml_file_arg) in
   Cmd.v info ohtml_t
