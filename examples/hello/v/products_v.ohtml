@@ -1,39 +1,30 @@
 open Spring
-open Stdlib
 
 fun products ->
 
-<!DOCTYPE html>
-<html>
-  <!-- This is a comment -->
-  <![ This is a conditional comment ]>
-  <![CDATA[ This is cdata ]]>
-  <body>
-    <div id=div1 
-        class="abc ccc aaa" 
-        disabled 
-        { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
-        get={if true then "/products" else "/index"} >
-      Hello 
-      <span>world!</span>
-      <ul>
-      {
-        Ohtml.iter (fun a b ->
-          <li>
-            Ohtml.text a b;
-          </li>
-        ) products
-      }
-      </ul>
-      <h2>Another way to specify code</h2>
-      <ol>
-      {fun b -> List.iter (fun a ->
-        <li>
-          Ohtml.text a b;
-        </li>
-        ) products
-      }
-      </ol>
-    </div>
-  </body>
-</html>
+<div id=div1 
+    class="abc ccc aaa" 
+    disabled 
+    { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+    get={if true then "/products" else "/index"} >
+  Hello 
+  <span>world!</span>
+  <ul>
+  {
+    Ohtml.iter (fun a b ->
+      <li>
+        Ohtml.text a b;
+      </li>
+    ) products
+  }
+  </ul>
+  <h2>Another way to specify code</h2>
+  <ol>
+  {fun b -> List.iter (fun a ->
+    <li>
+      Ohtml.text a b;
+    </li>
+    ) products
+  }
+  </ol>
+</div>
