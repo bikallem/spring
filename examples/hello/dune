@@ -1,8 +1,3 @@
-(rule
- (target v_hello.ml)
- (action
-  (run spring ohtml %{project_root}/examples)))
-
 (executable
  (name hello)
- (libraries spring eio_main))
+ (libraries spring eio_main v))

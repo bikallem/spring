@@ -1,0 +1,10 @@
+(rule
+ (deps
+  (glob_files *.ohtml))
+ (target products_v.ml)
+ (action
+  (run spring ohtml %{project_root}/v)))
+
+(library
+ (name v)
+ (libraries spring))

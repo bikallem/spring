@@ -23,7 +23,7 @@ let ohtml : Ohtml.html_writer -> Spring.Response.server_response =
   let content = Buffer.contents b in
   Spring.Response.html content
 
-let hello _req = ohtml @@ V_hello.v [ "apple"; "oranges"; "bananas" ]
+let hello _req = ohtml @@ V.products_v [ "apple"; "oranges"; "bananas" ]
 
 let router : Spring.Server.pipeline =
  fun next req ->
