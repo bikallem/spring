@@ -1,7 +1,7 @@
 (rule
  (deps
   (glob_files *.ohtml))
- (targets products_v.ml layout_v.ml)
+ (targets products_v.ml layout_v.ml hello_v.ml)
  (action
   (run spring ohtml %{project_root}/v)))
 

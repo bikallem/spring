@@ -1,21 +1,5 @@
 open Spring
 
-let products_view products : Ohtml.html_writer =
- fun b ->
-  Buffer.add_string b "<html>";
-  Buffer.add_string b "<body>";
-  Buffer.add_string b "<ul>";
-  (Spring.Ohtml.iter
-     (fun p b ->
-       Buffer.add_string b "<li>";
-       Spring.Ohtml.text p b;
-       Buffer.add_string b "</li>")
-     products)
-    b;
-  Buffer.add_string b "</ul>";
-  Buffer.add_string b "</body>";
-  Buffer.add_string b "</html>"
-
 let ohtml : Ohtml.html_writer -> Spring.Response.server_response =
  fun f ->
   let b = Buffer.create 10 in
@@ -24,14 +8,16 @@ let ohtml : Ohtml.html_writer -> Spring.Response.server_response =
   Spring.Response.html content
 
 let hello _req =
-  let v = V.layout_v @@ V.products_v [ "apple"; "oranges"; "bananas" ] in
+  let v = V.layout_v V.hello_v in
   ohtml v
 
 let router : Spring.Server.pipeline =
  fun next req ->
   match Spring.Request.resource req with
   | "/" -> hello req
-  | "/products" -> ohtml @@ products_view [ "apple"; "orange"; "guava" ]
+  | "/products" ->
+    let v = V.layout_v @@ V.products_v [ "apple"; "oranges"; "bananas" ] in
+    ohtml v
   | _ -> next req
 
 let () =
