@@ -107,7 +107,6 @@ and code_attr_val buf = parse
 | _ as c { Buffer.add_char buf c; code_attr_val buf lexbuf }
 
 and code buf = parse
-(* | ws* { code buf lexbuf } *)
 | "\\}" { Buffer.add_char buf '}'; code buf lexbuf }
 | "\\<" { Buffer.add_char buf '<'; code buf lexbuf } 
 | '}' { 
