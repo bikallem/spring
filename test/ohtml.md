@@ -494,7 +494,7 @@ val doc : Doc.doc =
 +Buffer.add_char b ' ';
 +( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
 +Buffer.add_string b " get=\"";
-+Buffer.add_string b (if true then "/products" else "/index");
++Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
 +Buffer.add_string b "\"";
 +Buffer.add_string b ">";
 +Buffer.add_string b "Hello
