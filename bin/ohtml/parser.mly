@@ -35,6 +35,7 @@
 
 doc :
   | opens=Open* fun_args=Func? doctype=Dtd? root=html_element { {Doc.opens; fun_args; doctype; root } }
+  | Eof { failwith "empty view not allowwed" }
 
 html_element :
   | Tag_open tag_name=Tag_name attributes=attribute* Tag_close
