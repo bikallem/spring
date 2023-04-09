@@ -1,5 +1,8 @@
 type html_writer = Buffer.t -> unit
 
+val escape_html : string -> string
+(** [escape_html s] is a XSS attack safe version of string [s]. *)
+
 (** {1 Attribute} *)
 
 val attribute : name:string -> value:string -> html_writer
