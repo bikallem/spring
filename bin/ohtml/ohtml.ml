@@ -160,7 +160,8 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
     | Doc.Name_code_val_attribute (nm, code) ->
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"";|};
-      write_ln @@ {|Buffer.add_string b @@ Spring.Ohtml.escape_html (|} ^ code ^ {|);|};
+      write_ln @@ {|Buffer.add_string b @@ Spring.Ohtml.escape_html (|} ^ code
+      ^ {|);|};
       write_ln @@ {|Buffer.add_string b "\"";|}
     | Doc.Code_attribute code ->
       write_ln @@ {|Buffer.add_char b ' ';|};
