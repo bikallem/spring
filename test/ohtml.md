@@ -545,3 +545,30 @@ val doc : Doc.doc =
 +Buffer.add_string b "</html>";
 - : unit = ()
 ```
+
+## `fun -> ` is optional in .ohtml file
+
+```ocaml
+let s ={|
+<span>Hello, world!</span>
+|}
+```
+
+```ocaml
+# let doc = Ohtml.parse_doc_string s;;
+val doc : Doc.doc =
+  {Ohtml.Doc.opens = []; fun_args = Some ""; doctype = None;
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "span"; attributes = [];
+      children = [Ohtml.Doc.Html_text "Hello, world!"]}}
+
+# gen doc;;
++
++let v  (b:Buffer.t) : unit =
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "Hello, world!";
++Buffer.add_string b "</span>";
+- : unit = ()
+```

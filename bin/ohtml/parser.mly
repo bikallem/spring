@@ -26,6 +26,7 @@
 %token <string> Html_text
 %token <string> Func
 %token <string> Open
+%token <token> Func_empty
 %token Eof
 
 %start <Doc.doc> doc

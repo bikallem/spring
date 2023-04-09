@@ -38,6 +38,7 @@ let tok_to_string = function
   | Dtd _ -> "DTD"
   | Html_text _ -> "HTML_TEXT"
   | Func _ -> "PARAM"
+  | Func_empty _ -> "FUNC_CLOSE"
   | Open _ -> "OPENS"
   | Eof -> "EOF"
 
@@ -67,7 +68,14 @@ let rec loop (i : input) checkpoint =
     let token = ref (tokenize i) in
     (* Printf.printf "\n%s%!" (tok_to_string !token); *)
     (match !token with
-    | Parser.Func _ -> push i Lexer.element
+    | Parser.Func _ ->
+      pop i;
+      push i Lexer.element
+    | Func_empty tok ->
+      pop i;
+      push i Lexer.element;
+      token := Func "";
+      i.next_tok <- Some tok
     | Code_open -> push i @@ Lexer.code (Buffer.create 10)
     | Code_close -> pop i
     | Code_close_block code_block ->
@@ -183,7 +191,6 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     List.iter aux l;
     write_ln @@ ") b;"
   in
-
   let fun_args =
     match doc.fun_args with
     | None -> ""

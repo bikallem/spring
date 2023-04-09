@@ -19,6 +19,12 @@ rule func = parse
 | ws* { func lexbuf }
 | "open" { open_t (Buffer.create 10) lexbuf } 
 | "fun" { func_params (Buffer.create 10) lexbuf }
+| '<' { Func_empty (Tag_open) }
+| "<!--" { Func_empty (html_comment (Buffer.create 20) lexbuf) }
+| "<![CDATA[" { Func_empty (cdata (Buffer.create 10) lexbuf) }
+| "<![" { Func_empty (html_conditional_comment (Buffer.create 10) lexbuf) }
+| "<!" { Func_empty (dtd (Buffer.create 10) lexbuf) }
+| eof { Eof }
 
 and func_params buf = parse
 | "->" { Func (Buffer.contents buf) }
