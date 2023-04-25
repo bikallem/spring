@@ -9,21 +9,12 @@ fun products ->
     get={if true then "/products" else "/index"} >
   Hello 
   <span>world!</span>
-  <ul>
-  {
-    Ohtml.iter (fun a b ->
-      <li>
-        Ohtml.text a b;
-      </li>
-    ) products
-  }
-  </ul>
-  <h2>Another way to specify code</h2>
+	<h2>Products for sale</h2>
   <ol>
-  {fun b -> List.iter (fun a ->
-    <li>
-      Ohtml.text a b;
-    </li>
+  { List.iter (fun product ->
+			<li>
+				@product
+			</li>
     ) products
   }
   </ol>

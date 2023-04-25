@@ -9,6 +9,7 @@
 %token Code_open "{"
 %token <string> Apply_view "{{ ... }}"
 %token <string> Code_block
+%token <string> Code_at "@ or @{}"
 %token Code_close "}"
 %token <string> Code_close_block
 %token <string> Code_tag_open
@@ -57,6 +58,7 @@ html_content :
 code :
   | code_block=Code_block { Doc.Code_block code_block }
   | el=code_element { el }
+  | string_val=Code_at { Doc.Code_at string_val }
   | text=Html_text { Doc.Code_text text }
 
 code_element :

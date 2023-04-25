@@ -133,6 +133,7 @@ and code buf = parse
   let code_block = Buffer.contents buf in
   Buffer.clear buf;
   Code_tag_open_slash code_block }
+| '@' { code_at_inline (Buffer.create 10) lexbuf }
 | "<text>" { 
   let code_block = Buffer.contents buf in
   Buffer.clear buf;
@@ -141,6 +142,10 @@ and code buf = parse
   }
 | _ as c  { Buffer.add_char buf c; code buf lexbuf }
 | eof { Eof }
+
+and code_at_inline buf = parse
+| ws+ { Code_at (Buffer.contents buf) }
+| _ as c { Buffer.add_char buf c; code_at_inline buf lexbuf }
 
 and text buf = parse
 | "</text>" { Buffer.contents buf }

@@ -23,9 +23,12 @@ and view_name = string
 
 and code =
   | Code_block of string
+  | Code_at of string_val
   | Code_text of string
   | Code_element of
       { tag_name : string; attributes : attribute list; children : code list }
+
+and string_val = string
 
 type dtd = Dtd of string
 

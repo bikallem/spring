@@ -41,6 +41,7 @@ let tok_to_string = function
   | Func_empty _ -> "FUNC_EMPTY"
   | Open _ -> "OPEN"
   | Apply_view _ -> "APPLY_VIEW"
+  | Code_at _ -> "CODE_AT"
   | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser.token
@@ -179,6 +180,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
   and code l =
     let rec aux = function
       | Doc.Code_block block -> write_ln @@ block
+      | Code_at string_val -> write_ln @@ {|Buffer.add_string b (|} ^ string_val ^ {|);|}
       | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
       | Code_element { tag_name; children; attributes } ->
         write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
@@ -191,7 +193,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     in
     write_ln @@ "(";
     List.iter aux l;
-    write_ln @@ ") b;"
+    write_ln @@ ");"
   in
   let fun_args =
     match doc.fun_args with

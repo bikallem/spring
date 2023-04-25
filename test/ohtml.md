@@ -391,21 +391,11 @@ fun products ->
         get={if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
-      <ul>
-      {
-        Ohtml.iter (fun a b ->
-          <li>
-            Ohtml.text a b;
-          </li>
-        ) products
-      }
-      </ul>
-      <h2>Another way to specify code</h2>
       <ol>
-      {fun b -> List.iter (fun a ->
-        <li>
-          Ohtml.text a b;
-        </li>
+      { List.iter (fun product ->
+                <li>
+                    @product
+                </li>
         ) products
       }
       </ol>
@@ -446,32 +436,16 @@ val doc : Doc.doc =
                  {Ohtml.Doc.tag_name = "span"; attributes = [];
                   children = [Ohtml.Doc.Html_text "world!"]};
                 Ohtml.Doc.Element
-                 {Ohtml.Doc.tag_name = "ul"; attributes = [];
-                  children =
-                   [Ohtml.Doc.Code
-                     [Ohtml.Doc.Code_block
-                       "\n          Ohtml.iter (fun a b ->\n            ";
-                      Ohtml.Doc.Code_element
-                       {Ohtml.Doc.tag_name = "li"; attributes = [];
-                        children =
-                         [Ohtml.Doc.Code_block
-                           "\n              Ohtml.text a b;\n            "]};
-                      Ohtml.Doc.Code_block "\n          ) products\n        "]]};
-                Ohtml.Doc.Element
-                 {Ohtml.Doc.tag_name = "h2"; attributes = [];
-                  children =
-                   [Ohtml.Doc.Html_text "Another way to specify code"]};
-                Ohtml.Doc.Element
                  {Ohtml.Doc.tag_name = "ol"; attributes = [];
                   children =
                    [Ohtml.Doc.Code
                      [Ohtml.Doc.Code_block
-                       "fun b -> List.iter (fun a ->\n          ";
+                       " List.iter (fun product ->\n                  ";
                       Ohtml.Doc.Code_element
                        {Ohtml.Doc.tag_name = "li"; attributes = [];
                         children =
-                         [Ohtml.Doc.Code_block
-                           "\n            Ohtml.text a b;\n          "]};
+                         [Ohtml.Doc.Code_at "product";
+                          Ohtml.Doc.Code_block "\n                      "]};
                       Ohtml.Doc.Code_block "\n          ) products\n        "]]}]}]}]}}
 
 # gen doc ;;
@@ -503,42 +477,21 @@ val doc : Doc.doc =
 +Buffer.add_string b ">";
 +Buffer.add_string b "world!";
 +Buffer.add_string b "</span>";
-+Buffer.add_string b "<ul";
-+Buffer.add_string b ">";
-+(
-+
-+          Ohtml.iter (fun a b ->
-+
-+Buffer.add_string b "<li";
-+Buffer.add_string b ">";
-+
-+              Ohtml.text a b;
-+
-+Buffer.add_string b "</li>";
-+
-+          ) products
-+
-+) b;
-+Buffer.add_string b "</ul>";
-+Buffer.add_string b "<h2";
-+Buffer.add_string b ">";
-+Buffer.add_string b "Another way to specify code";
-+Buffer.add_string b "</h2>";
 +Buffer.add_string b "<ol";
 +Buffer.add_string b ">";
 +(
-+fun b -> List.iter (fun a ->
++ List.iter (fun product ->
 +
 +Buffer.add_string b "<li";
 +Buffer.add_string b ">";
++Buffer.add_string b (product);
 +
-+            Ohtml.text a b;
 +
 +Buffer.add_string b "</li>";
 +
 +          ) products
 +
-+) b;
++);
 +Buffer.add_string b "</ol>";
 +Buffer.add_string b "</div>";
 +Buffer.add_string b "</body>";
