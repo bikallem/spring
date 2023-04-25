@@ -572,3 +572,23 @@ val doc : Doc.doc =
 +Buffer.add_string b "</span>";
 - : unit = ()
 ```
+
+# Apply_view 
+```ocaml
+# let doc = Ohtml.parse_element "<html>{{view1 products}} </html>";;
+val doc : Doc.doc =
+  {Ohtml.Doc.opens = []; fun_args = None; doctype = None;
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "html"; attributes = [];
+      children = [Ohtml.Doc.Apply_view "view1 products"]}}
+# gen doc ;;
++
++let v  (b:Buffer.t) : unit =
++Buffer.add_string b "<html";
++Buffer.add_string b ">";
++(view1 products) b;
++Buffer.add_string b "</html>";
+- : unit = ()
+```
+

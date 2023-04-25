@@ -37,9 +37,10 @@ let tok_to_string = function
   | Cdata _ -> "CDATA"
   | Dtd _ -> "DTD"
   | Html_text _ -> "HTML_TEXT"
-  | Func _ -> "PARAM"
-  | Func_empty _ -> "FUNC_CLOSE"
-  | Open _ -> "OPENS"
+  | Func _ -> "FUNC"
+  | Func_empty _ -> "FUNC_EMPTY"
+  | Open _ -> "OPEN"
+  | Apply_view _ -> "APPLY_VIEW"
   | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser.token
@@ -150,6 +151,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
         List.iter (fun child -> gen_element child) children;
         write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
     | Code l -> code l
+    | Apply_view view_name -> write_ln @@ "(" ^ view_name ^ ") b;"
     | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
     | Html_comment comment ->
       write_ln @@ {|Buffer.add_string b "<!-- |} ^ comment ^ {| -->";|}

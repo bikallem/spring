@@ -40,6 +40,7 @@ and element = parse
 | '<' { Tag_open }
 | "</" { Tag_open_slash }
 | '{' { Code_open }
+| "{{" { use_view (Buffer.create 20) lexbuf }
 | "<!--" { html_comment (Buffer.create 20) lexbuf }
 | "<![CDATA[" { cdata (Buffer.create 10) lexbuf }
 | "<![" { html_conditional_comment (Buffer.create 10) lexbuf }
@@ -47,6 +48,11 @@ and element = parse
 | html_text { Html_text text }
 | eof { Eof }
 | _ as c { err c lexbuf }
+
+and use_view buf = parse
+| "}}" { Apply_view (Buffer.contents buf) }
+| eof { Eof }
+| _ as c { Buffer.add_char buf c; use_view buf lexbuf }
 
 and cdata buf = parse
 | "]]>" { Cdata (Buffer.contents buf) }

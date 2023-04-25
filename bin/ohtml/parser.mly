@@ -7,6 +7,7 @@
 %token Tag_open_slash "</"
 %token Tag_equals "="
 %token Code_open "{"
+%token <string> Apply_view "{{ ... }}"
 %token <string> Code_block
 %token Code_close "}"
 %token <string> Code_close_block
@@ -42,12 +43,12 @@ html_element :
     children=html_content*
     Tag_open_slash Tag_name Tag_close 
     { Doc.Element {tag_name;attributes; children} } 
-
   | Tag_open tag_name=Tag_name attributes=attribute* Tag_slash_close 
     { Doc.Element {tag_name; attributes;children=[]} }
 
 html_content :
   | Code_open code=code* Code_close { Doc.Code code }
+  | view_name=Apply_view { Doc.Apply_view view_name }
   | comment=html_comment { comment }
   | cdata=Cdata { Doc.Cdata cdata }
   | text=Html_text { Doc.Html_text text }

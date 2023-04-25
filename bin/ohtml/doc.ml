@@ -13,10 +13,13 @@ type element =
       ; children : element list
       }
   | Code of code list
+  | Apply_view of view_name
   | Html_text of string
   | Html_comment of string
   | Html_conditional_comment of string
   | Cdata of string
+
+and view_name = string
 
 and code =
   | Code_block of string
