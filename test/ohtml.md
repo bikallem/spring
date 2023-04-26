@@ -484,7 +484,7 @@ val doc : Doc.doc =
 +
 +Buffer.add_string b "<li";
 +Buffer.add_string b ">";
-+Buffer.add_string b (product);
++Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
 +
 +
 +Buffer.add_string b "</li>";
@@ -661,7 +661,7 @@ val doc : Doc.doc =
 +
 +Buffer.add_string b "<li";
 +Buffer.add_string b ">";
-+Buffer.add_string b (if product = "apple" then "red apple" else product);
++Buffer.add_string b (Spring.Ohtml.escape_html @@ if product = "apple" then "red apple" else product);
 +
 +
 +
