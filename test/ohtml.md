@@ -699,3 +699,37 @@ val doc : Doc.doc =
 +Buffer.add_string b "</html>";
 - : unit = ()
 ```
+
+# Code_at not inside { ... }
+
+```ocaml
+# let doc = Ohtml.parse_element {|<html><div>@view1</div><div>@{if true then "a" else "b"}</div></html>|};;
+val doc : Doc.doc =
+  {Ohtml.Doc.opens = []; fun_args = None; doctype = None;
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "html"; attributes = [];
+      children =
+       [Ohtml.Doc.Element
+         {Ohtml.Doc.tag_name = "div"; attributes = [];
+          children = [Ohtml.Doc.Element_code_at "view1"]};
+        Ohtml.Doc.Element
+         {Ohtml.Doc.tag_name = "div"; attributes = [];
+          children =
+           [Ohtml.Doc.Element_code_at "if true then \"a\" else \"b\""]}]}}
+# gen doc ;;
++
++let v  (b:Buffer.t) : unit =
++Buffer.add_string b "<html";
++Buffer.add_string b ">";
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b (Spring.Ohtml.escape_html @@ view1);
++Buffer.add_string b "</div>";
++Buffer.add_string b "<div";
++Buffer.add_string b ">";
++Buffer.add_string b (Spring.Ohtml.escape_html @@ if true then "a" else "b");
++Buffer.add_string b "</div>";
++Buffer.add_string b "</html>";
+- : unit = ()
+```

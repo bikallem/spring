@@ -52,6 +52,7 @@ html_element :
 html_content :
   | Code_open code=code* Code_close { Doc.Code code }
   | view_name=Apply_view { Doc.Apply_view view_name }
+  | string_val=Code_at { Doc.Element_code_at string_val }
   | comment=html_comment { comment }
   | cdata=Cdata { Doc.Cdata cdata }
   | text=Html_text { Doc.Html_text text }

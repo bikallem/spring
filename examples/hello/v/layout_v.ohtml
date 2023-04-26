@@ -1,9 +1,12 @@
-fun main_v ->
+fun title body_v ->
 
 <!DOCTYPE html>
 <html>
+	<head>
+		<title>@title</title>
+	</head>
   <body>
-    {{ main_v }}
+    {{ body_v }}
   </body>
 </html>
 

@@ -13,6 +13,7 @@ type element =
       ; children : element list
       }
   | Code of code list
+  | Element_code_at of string_val
   | Apply_view of view_name
   | Html_text of string
   | Html_comment of string

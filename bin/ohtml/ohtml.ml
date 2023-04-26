@@ -161,6 +161,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
         List.iter (fun child -> gen_element child) children;
         write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
     | Code l -> code l
+    | Element_code_at string_val -> gen_code_at string_val
     | Apply_view view_name -> write_ln @@ "(" ^ view_name ^ ") b;"
     | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
     | Html_comment comment ->
@@ -189,9 +190,7 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
   and code l =
     let rec aux = function
       | Doc.Code_block block -> write_ln @@ block
-      | Code_at string_val ->
-        write_ln @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
-        ^ string_val ^ {|);|}
+      | Code_at string_val -> gen_code_at string_val
       | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
       | Code_element { tag_name; children; attributes } ->
         write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
@@ -205,6 +204,9 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     write_ln @@ "(";
     List.iter aux l;
     write_ln @@ ");"
+  and gen_code_at string_val =
+    write_ln @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
+    ^ string_val ^ {|);|}
   in
   let fun_args =
     match doc.fun_args with

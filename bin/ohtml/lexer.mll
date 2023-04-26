@@ -12,7 +12,7 @@ let alpha = ['a'-'z'] | ['A'-'Z']
 let num = ['0'-'9']
 let tag_name = (alpha | '_') (alpha | num | '_' | '\'' | '.')*
 let ws = [' ' '\t' '\n' '\r' '\x09']
-let html_text = ws* ([^ '<' '{']+ as text)
+let html_text = ws* ([^ '<' '{' '@']+ as text)
 let attr_name = [^ '\x7F'-'\x9F' '\x20' '"' '\'' '>' '/' '=' '{']+
 
 rule func = parse
@@ -40,6 +40,8 @@ and element = parse
 | '<' { Tag_open }
 | "</" { Tag_open_slash }
 | '{' { Code_open }
+| '@' { code_at_inline (Buffer.create 10) lexbuf }
+| "@{" { code_at_bracket (Buffer.create 10) lexbuf }
 | "{{" { use_view (Buffer.create 20) lexbuf }
 | "<!--" { html_comment (Buffer.create 20) lexbuf }
 | "<![CDATA[" { cdata (Buffer.create 10) lexbuf }
