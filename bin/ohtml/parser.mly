@@ -20,6 +20,7 @@
 %token <string> Double_quoted_attr_val
 %token <string> Unquoted_attr_val
 %token <string> Code_attr_val
+%token <string * token> Code_attr_val_internal
 %token <string> Code_attr
 %token <string> Html_comment
 %token <string> Html_conditional_comment

@@ -30,7 +30,8 @@ let tok_to_string = function
   | Single_quoted_attr_val _ -> "SINGLE_QUOTED_ATTRIBUTE_VAL"
   | Double_quoted_attr_val _ -> "DOUBLE_QUOTED_ATTRIBUTE_VAL"
   | Unquoted_attr_val _ -> "UNQUOTED_ATTRIBUTE_VAL"
-  | Code_attr_val _ -> "CODE_ATTR_VAL"
+  | Code_attr_val v -> "CODE_ATTR_VAL " ^ v
+  | Code_attr_val_internal _ -> "CODE_ATTR_VAL_INTERNAL"
   | Code_attr _ -> "CODE_ATTR"
   | Html_comment _ -> "HTML_COMMENT"
   | Html_conditional_comment _ -> "HTML_CONDITIONAL_COMMENT"
@@ -93,6 +94,10 @@ let rec loop (i : input) checkpoint =
       token := Code_block code_block;
       i.next_tok <- Some (Html_text text)
     | Tag_equals -> push i Lexer.attribute_val
+    | Code_attr_val_internal (code, tok) ->
+      token := Code_attr_val code;
+      i.next_tok <- Some tok;
+      pop i
     | Unquoted_attr_val _
     | Single_quoted_attr_val _
     | Double_quoted_attr_val _
@@ -176,12 +181,13 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b "\"";|}
     | Doc.Code_attribute code ->
       write_ln @@ {|Buffer.add_char b ' ';|};
-      write_ln @@ "(" ^ code ^ " ) b;"
+      write_ln @@ {|Spring.Ohtml.write_attribute (|} ^ code ^ {| ) b;|}
   and code l =
     let rec aux = function
       | Doc.Code_block block -> write_ln @@ block
       | Code_at string_val ->
-        write_ln @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |} ^ string_val ^ {|);|}
+        write_ln @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
+        ^ string_val ^ {|);|}
       | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
       | Code_element { tag_name; children; attributes } ->
         write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};

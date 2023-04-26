@@ -180,7 +180,7 @@ let s ={|
 ## Code attribute value
 
 ```ocaml
-# Ohtml.parse_element {|<input attr1=  {"value1"} attr2 = { string_of_int 100 }></input>|};;
+# Ohtml.parse_element {|<input attr1=  @"value1" attr2 = @{ string_of_int 100 }></input>|};;
 - : Doc.doc =
 {Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
@@ -197,7 +197,7 @@ let s ={|
 Name/Value attributes.
 
 ```ocaml
-# Ohtml.parse_element {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4={ string_of_int 100} ></input> |};;
+# Ohtml.parse_element {|<input disabled {Spring_oml.attribute "name" "value"} attr1='value1' attr2=   "val2"      attr3    = val3    attr4=@{ string_of_int 100} ></input> |};;
 - : Doc.doc =
 {Ohtml.Doc.opens = []; fun_args = None; doctype = None;
  root =
@@ -388,7 +388,7 @@ fun products ->
         class="abc ccc aaa" 
         disabled 
         { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
-        get={if true then "/products" else "/index"} >
+        get=@{if true then "/products" else "/index"} >
       Hello 
       <span>world!</span>
       <ol>
@@ -466,7 +466,7 @@ val doc : Doc.doc =
 +Buffer.add_string b " class=\"abc ccc aaa\"";
 +Buffer.add_string b " disabled";
 +Buffer.add_char b ' ';
-+( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
++Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
 +Buffer.add_string b " get=\"";
 +Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
 +Buffer.add_string b "\"";
@@ -564,7 +564,8 @@ fun products ->
         class="abc ccc aaa" 
         disabled 
         { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
-        get={if true then "/products" else "/index"} >
+        get=@{if true then "/products" else "/index"} 
+		hx-sse=@"connect:/news_update">
       Hello 
       <span>world!</span>
       <ol>
@@ -605,7 +606,9 @@ val doc : Doc.doc =
                 Ohtml.Doc.Code_attribute
                  " Ohtml.attribute ~name:\"hx-swap\" ~value:\"outerHTML\" ";
                 Ohtml.Doc.Name_code_val_attribute
-                 ("get", "if true then \"/products\" else \"/index\"")];
+                 ("get", "if true then \"/products\" else \"/index\"");
+                Ohtml.Doc.Name_code_val_attribute
+                 ("hx-sse", "\"connect:/news_update\"")];
               children =
                [Ohtml.Doc.Html_text "Hello \n        ";
                 Ohtml.Doc.Element
@@ -643,9 +646,12 @@ val doc : Doc.doc =
 +Buffer.add_string b " class=\"abc ccc aaa\"";
 +Buffer.add_string b " disabled";
 +Buffer.add_char b ' ';
-+( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
++Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
 +Buffer.add_string b " get=\"";
 +Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
++Buffer.add_string b "\"";
++Buffer.add_string b " hx-sse=\"";
++Buffer.add_string b @@ Spring.Ohtml.escape_html ("connect:/news_update");
 +Buffer.add_string b "\"";
 +Buffer.add_string b ">";
 +Buffer.add_string b "Hello

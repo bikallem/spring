@@ -98,7 +98,8 @@ and attribute_val = parse
 | ws* { attribute_val lexbuf }
 | "'" { single_quoted_attr_val (Buffer.create 10) lexbuf }
 | '"' { double_quoted_attr_val (Buffer.create 10) lexbuf }
-| '{' { code_attr_val (Buffer.create 10) lexbuf }
+| "@{" { code_attr_val (Buffer.create 10) lexbuf }
+| '@' { code_attr_val_inline (Buffer.create 10) lexbuf }
 | ([^ ' ''\t' '\n' '\r' '\x09' '\'' '"' '{' '=' '<' '>' '`']+ as v) { Unquoted_attr_val v }
 | eof { Eof }
 | _ as c { err c lexbuf }
@@ -117,6 +118,12 @@ and code_attr_val buf = parse
 | '}' { Code_attr_val (Buffer.contents buf) }
 | eof { Eof }
 | _ as c { Buffer.add_char buf c; code_attr_val buf lexbuf }
+
+and code_attr_val_inline buf = parse
+| ws+ { Code_attr_val (Buffer.contents buf) }
+| '>' { Code_attr_val_internal (Buffer.contents buf, Tag_close) }
+| "/>" { Code_attr_val_internal (Buffer.contents buf, Tag_slash_close) }
+| _ as c { Buffer.add_char buf c; code_attr_val_inline buf lexbuf }
 
 and code buf = parse
 | "\\}" { Buffer.add_char buf '}'; code buf lexbuf }

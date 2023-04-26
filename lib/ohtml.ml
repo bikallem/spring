@@ -1,5 +1,10 @@
 type html_writer = Buffer.t -> unit
 
+(*
+   HTML Escaping guidance -
+   https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+*)
+
 let escape_html txt =
   let escaped = Buffer.create 10 in
   String.iter
@@ -7,26 +12,36 @@ let escape_html txt =
       | '&' -> Buffer.add_string escaped "&amp;"
       | '<' -> Buffer.add_string escaped "&lt;"
       | '>' -> Buffer.add_string escaped "&gt;"
-      | '"' -> Buffer.add_string escaped "&quot;"
-      | '\039' -> Buffer.add_string escaped "&#x27;"
-      | '\047' -> Buffer.add_string escaped "&#x2F;"
-      | ('\x00' .. '\x1F' as c) | ('\x7F' as c) ->
-        Buffer.add_string escaped ("&#" ^ string_of_int (Char.code c) ^ ";")
       | c -> Buffer.add_char escaped c)
     txt;
   Buffer.contents escaped
 
-let attribute ~name ~value : html_writer =
+let escape_attr attr_val =
+  let escaped = Buffer.create 10 in
+  String.iter
+    (function
+      | '"' -> Buffer.add_string escaped "&quot;"
+      | '\'' -> Buffer.add_string escaped "&#x27;"
+      | c -> Buffer.add_char escaped c)
+    attr_val;
+  Buffer.contents escaped
+
+type attribute =
+  | Name_val of { name : string; value : string }
+  | Bool of string
+  | Null
+
+let attribute ~name ~value = Name_val { name; value }
+let bool_attribute name = Bool name
+let null_attribute = Null
+
+let write_attribute attr : html_writer =
  fun b ->
-  Buffer.add_string b (escape_html name);
-  Buffer.add_string b {|="|};
-  Buffer.add_string b (escape_html value);
-  Buffer.add_string b {|"|}
-
-let text txt : html_writer = fun b -> Buffer.add_string b (escape_html txt)
-let raw_text txt : html_writer = fun b -> Buffer.add_string b txt
-let int i : html_writer = fun b -> Buffer.add_string b (string_of_int i)
-
-(* list *)
-
-let iter f l : html_writer = fun b -> List.iter (fun x -> f x b) l
+  match attr with
+  | Name_val { name; value } ->
+    Buffer.add_string b (escape_attr name);
+    Buffer.add_string b {|="|};
+    Buffer.add_string b (escape_attr value);
+    Buffer.add_string b {|"|}
+  | Bool name -> Buffer.add_string b (escape_attr name)
+  | Null -> ()

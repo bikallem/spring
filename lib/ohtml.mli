@@ -1,26 +1,22 @@
 type html_writer = Buffer.t -> unit
 
 val escape_html : string -> string
-(** [escape_html s] is a XSS attack safe version of string [s]. *)
+(** [escape_html s] is a XSS attack safe version of HTML text value [s]. *)
+
+val escape_attr : string -> string
+(** [escape_attr s] is a XSS attack safe version of HTML attribute value [s]. *)
 
 (** {1 Attribute} *)
 
-val attribute : name:string -> value:string -> html_writer
-(** [attribute ~name ~value] writes HTML attribute with [name] and [value]. Both
-    [name] and [value] are HTML escaped. *)
+type attribute
 
-(** {1 Element} *)
+val attribute : name:string -> value:string -> attribute
+(** [attribute ~name ~value] is a html attribute with [name] and [value]. *)
 
-val text : string -> html_writer
-(** [text txt] HTML escapes [txt] and writes [txt]. *)
+val bool_attribute : string -> attribute
+(** [bool_attribute name] is a [name] only attribute, eg. disabled. *)
 
-val raw_text : string -> html_writer
-(** [raw_text txt] writes [txt] without HTML escaping. *)
+val null_attribute : attribute
+(** [null_attribute] is a no-op attribute. It outpus nothing. *)
 
-val int : int -> html_writer
-
-(** {1 List} *)
-
-val iter : ('a -> html_writer) -> 'a list -> html_writer
-(** [iter f l] writes a list of items in [l], where [f] maps the item to
-    [html_writer]. *)
+val write_attribute : attribute -> html_writer

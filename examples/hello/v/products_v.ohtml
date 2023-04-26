@@ -5,8 +5,9 @@ fun products ->
 <div id=div1 
     class="abc ccc aaa" 
     disabled 
-    { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
-    get={if true then "/products" else "/index"} >
+    { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" }
+    get=@{if true then "/products" else "/index"} 
+		hx-sse=@"connect:/news_update">
   Hello 
   <span>world!</span>
 	<h2>Products for sale</h2>
