@@ -545,3 +545,134 @@ val doc : Doc.doc =
 - : unit = ()
 ```
 
+# Code_at 
+
+```ocaml
+let s ={|
+open Spring
+open Stdlib
+
+fun products ->
+
+<!DOCTYPE html>
+<html>
+  <!-- This is a comment -->
+  <![ This is a conditional comment ]>
+  <![CDATA[ This is cdata ]]>
+  <body>
+    <div id=div1 
+        class="abc ccc aaa" 
+        disabled 
+        { Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML" } 
+        get={if true then "/products" else "/index"} >
+      Hello 
+      <span>world!</span>
+      <ol>
+      { List.iter (fun product ->
+        <li>
+		    @{if product = "apple" then "red apple" else product}
+         </li>
+        ) products
+      }
+      </ol>
+    </div>
+  </body>
+</html>
+|}
+```
+
+```ocaml
+# let doc = Ohtml.parse_doc_string s;;
+val doc : Doc.doc =
+  {Ohtml.Doc.opens = ["Spring"; "Stdlib"]; fun_args = Some " products ";
+   doctype = Some "DOCTYPE html";
+   root =
+    Ohtml.Doc.Element
+     {Ohtml.Doc.tag_name = "html"; attributes = [];
+      children =
+       [Ohtml.Doc.Html_comment " This is a comment ";
+        Ohtml.Doc.Html_conditional_comment " This is a conditional comment ";
+        Ohtml.Doc.Cdata " This is cdata ";
+        Ohtml.Doc.Element
+         {Ohtml.Doc.tag_name = "body"; attributes = [];
+          children =
+           [Ohtml.Doc.Element
+             {Ohtml.Doc.tag_name = "div";
+              attributes =
+               [Ohtml.Doc.Unquoted_attribute ("id", "div1");
+                Ohtml.Doc.Double_quoted_attribute ("class", "abc ccc aaa");
+                Ohtml.Doc.Bool_attribute "disabled";
+                Ohtml.Doc.Code_attribute
+                 " Ohtml.attribute ~name:\"hx-swap\" ~value:\"outerHTML\" ";
+                Ohtml.Doc.Name_code_val_attribute
+                 ("get", "if true then \"/products\" else \"/index\"")];
+              children =
+               [Ohtml.Doc.Html_text "Hello \n        ";
+                Ohtml.Doc.Element
+                 {Ohtml.Doc.tag_name = "span"; attributes = [];
+                  children = [Ohtml.Doc.Html_text "world!"]};
+                Ohtml.Doc.Element
+                 {Ohtml.Doc.tag_name = "ol"; attributes = [];
+                  children =
+                   [Ohtml.Doc.Code
+                     [Ohtml.Doc.Code_block
+                       " List.iter (fun product ->\n          ";
+                      Ohtml.Doc.Code_element
+                       {Ohtml.Doc.tag_name = "li"; attributes = [];
+                        children =
+                         [Ohtml.Doc.Code_at
+                           "if product = \"apple\" then \"red apple\" else product";
+                          Ohtml.Doc.Code_block "\n  \t\t    \n           "]};
+                      Ohtml.Doc.Code_block "\n          ) products\n        "]]}]}]}]}}
+
+# gen doc;;
++
++open Spring
++open Stdlib
++let v  products  (b:Buffer.t) : unit =
++Buffer.add_string b "<!DOCTYPE html>";
++Buffer.add_string b "<html";
++Buffer.add_string b ">";
++Buffer.add_string b "<!--  This is a comment  -->";
++Buffer.add_string b "<![  This is a conditional comment  ]>";
++Buffer.add_string b "<![CDATA[  This is cdata  ]]>";
++Buffer.add_string b "<body";
++Buffer.add_string b ">";
++Buffer.add_string b "<div";
++Buffer.add_string b " id=div1";
++Buffer.add_string b " class=\"abc ccc aaa\"";
++Buffer.add_string b " disabled";
++Buffer.add_char b ' ';
++( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
++Buffer.add_string b " get=\"";
++Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
++Buffer.add_string b "\"";
++Buffer.add_string b ">";
++Buffer.add_string b "Hello
++        ";
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b "world!";
++Buffer.add_string b "</span>";
++Buffer.add_string b "<ol";
++Buffer.add_string b ">";
++(
++ List.iter (fun product ->
++
++Buffer.add_string b "<li";
++Buffer.add_string b ">";
++Buffer.add_string b (if product = "apple" then "red apple" else product);
++
++
++
++Buffer.add_string b "</li>";
++
++          ) products
++
++);
++Buffer.add_string b "</ol>";
++Buffer.add_string b "</div>";
++Buffer.add_string b "</body>";
++Buffer.add_string b "</html>";
+- : unit = ()
+```

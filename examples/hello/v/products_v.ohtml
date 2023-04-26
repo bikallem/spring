@@ -13,7 +13,7 @@ fun products ->
   <ol>
   { List.iter (fun product ->
 			<li>
-				@product
+				@{if product = "apple" then "red apple" else product}
 			</li>
     ) products
   }

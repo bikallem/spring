@@ -180,7 +180,8 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
   and code l =
     let rec aux = function
       | Doc.Code_block block -> write_ln @@ block
-      | Code_at string_val -> write_ln @@ {|Buffer.add_string b (|} ^ string_val ^ {|);|}
+      | Code_at string_val ->
+        write_ln @@ {|Buffer.add_string b (|} ^ string_val ^ {|);|}
       | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
       | Code_element { tag_name; children; attributes } ->
         write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
