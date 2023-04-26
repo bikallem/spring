@@ -572,7 +572,8 @@ fun products ->
       { List.iter (fun product ->
         <li>
 		    @{if product = "apple" then "red apple" else product}
-         </li>
+            <span>@product<text> hello</text></span>
+            @product</li>
         ) products
       }
       </ol>
@@ -625,8 +626,16 @@ val doc : Doc.doc =
                         children =
                          [Ohtml.Doc.Code_at
                            "if product = \"apple\" then \"red apple\" else product";
-                          Ohtml.Doc.Code_block "\n  \t\t    \n           "]};
-                      Ohtml.Doc.Code_block "\n          ) products\n        "]]}]}]}]}}
+                          Ohtml.Doc.Code_block "\n  \t\t    \n              ";
+                          Ohtml.Doc.Code_element
+                           {Ohtml.Doc.tag_name = "span"; attributes = [];
+                            children =
+                             [Ohtml.Doc.Code_at "product";
+                              Ohtml.Doc.Code_text " hello";
+                              Ohtml.Doc.Code_block ""]};
+                          Ohtml.Doc.Code_at "product"]};
+                      Ohtml.Doc.Code_block
+                       "\n              \n          ) products\n        "]]}]}]}]}}
 
 # gen doc;;
 +
@@ -671,7 +680,15 @@ val doc : Doc.doc =
 +
 +
 +
++Buffer.add_string b "<span";
++Buffer.add_string b ">";
++Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
++Buffer.add_string b " hello";
++
++Buffer.add_string b "</span>";
++Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
 +Buffer.add_string b "</li>";
++
 +
 +          ) products
 +

@@ -15,6 +15,8 @@ fun products ->
   { List.iter (fun product ->
 			<li>
 				@{if product = "apple" then "red apple" else product}
+				<span>@product<text> hello</text>
+				@product</span>
 			</li>
     ) products
   }

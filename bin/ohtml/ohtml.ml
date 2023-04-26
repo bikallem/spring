@@ -43,6 +43,7 @@ let tok_to_string = function
   | Open _ -> "OPEN"
   | Apply_view _ -> "APPLY_VIEW"
   | Code_at _ -> "CODE_AT"
+  | Code_at_internal _ -> "CODE_AT_INTERNAL"
   | Eof -> "EOF"
 
 type lexer = Lexing.lexbuf -> Parser.token
@@ -94,6 +95,9 @@ let rec loop (i : input) checkpoint =
       token := Code_block code_block;
       i.next_tok <- Some (Html_text text)
     | Tag_equals -> push i Lexer.attribute_val
+    | Code_at_internal (code, tok) ->
+      token := Code_at code;
+      i.next_tok <- Some tok
     | Code_attr_val_internal (code, tok) ->
       token := Code_attr_val code;
       i.next_tok <- Some tok;

@@ -153,6 +153,13 @@ and code buf = parse
 
 and code_at_inline buf = parse
 | ws+ { Code_at (Buffer.contents buf) }
+| '<' { Code_at_internal ((Buffer.contents buf), Tag_open) }
+| "</" { Code_at_internal ((Buffer.contents buf), Tag_open_slash) } 
+| "<text>" {
+  let code = Buffer.contents buf in
+  let text = text (Buffer.create 10) lexbuf in
+  Code_at_internal (code, Html_text text)
+  }
 | _ as c { Buffer.add_char buf c; code_at_inline buf lexbuf }
 
 and code_at_bracket buf = parse

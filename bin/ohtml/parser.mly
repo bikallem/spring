@@ -10,6 +10,7 @@
 %token <string> Apply_view "{{ ... }}"
 %token <string> Code_block
 %token <string> Code_at "@ or @{}"
+%token <string * token> Code_at_internal 
 %token Code_close "}"
 %token <string> Code_close_block
 %token <string> Code_tag_open
