@@ -1,6 +1,6 @@
 open Spring
 
-let ohtml : Ohtml.html_writer -> Spring.Response.server_response =
+let ohtml : Ohtml.t -> Spring.Response.server_response =
  fun f ->
   let b = Buffer.create 10 in
   f b;
