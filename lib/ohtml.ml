@@ -1,4 +1,4 @@
-type html_writer = Buffer.t -> unit
+type t = Buffer.t -> unit
 
 (*
    HTML Escaping guidance -
@@ -32,10 +32,10 @@ type attribute =
   | Null
 
 let attribute ~name ~value = Name_val { name; value }
-let bool_attribute name = Bool name
-let null_attribute = Null
+let bool name = Bool name
+let null = Null
 
-let write_attribute attr : html_writer =
+let write_attribute attr : t =
  fun b ->
   match attr with
   | Name_val { name; value } ->
