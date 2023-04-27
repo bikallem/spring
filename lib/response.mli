@@ -88,6 +88,10 @@ val html : string -> server_response
     "Content-Type: text/html" and "Content-Length" header set to a suitable
     value. *)
 
+val ohtml : Ohtml.t -> server_response
+(** [ohtml view] is an Ohtml [view] based HTTP 200 server response. Its
+    [Content-Type] header is set to [text/html]. *)
+
 val not_found : server_response
 (** [not_found] returns a HTTP/1.1, 404 status response. *)
 

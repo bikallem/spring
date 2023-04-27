@@ -107,6 +107,12 @@ let html content =
   let body = Body.content_writer content_type content in
   server_response body
 
+let ohtml o =
+  let buf = Buffer.create 10 in
+  o buf;
+  let content = Buffer.contents buf in
+  html content
+
 let none_body_response status =
   let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
   server_response ~headers ~status Body.none
