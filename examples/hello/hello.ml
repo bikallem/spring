@@ -1,15 +1,8 @@
 open Spring
 
-let ohtml : Ohtml.t -> Spring.Response.server_response =
- fun f ->
-  let b = Buffer.create 10 in
-  f b;
-  let content = Buffer.contents b in
-  Spring.Response.html content
-
 let hello _req =
   let v = V.layout_v "Hello Page" V.hello_v in
-  ohtml v
+  Response.ohtml v
 
 let router : Spring.Server.pipeline =
  fun next req ->
@@ -20,7 +13,7 @@ let router : Spring.Server.pipeline =
       V.layout_v "Products Page"
       @@ V.products_v [ "apple"; "oranges"; "bananas" ]
     in
-    ohtml v
+    Response.ohtml v
   | _ -> next req
 
 let () =
