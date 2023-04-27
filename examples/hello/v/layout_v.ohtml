@@ -1,4 +1,4 @@
-fun title body_v ->
+fun ~title ~body ->
 
 <!DOCTYPE html>
 <html>
@@ -6,7 +6,7 @@ fun title body_v ->
 		<title>@title</title>
 	</head>
   <body>
-    {{ body_v }}
+    {{ body }}
   </body>
 </html>
 

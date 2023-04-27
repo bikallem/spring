@@ -1,7 +1,7 @@
 open Spring
 
 let hello _req =
-  let v = V.layout_v "Hello Page" V.hello_v in
+  let v = V.layout_v ~title:"Hello Page" ~body:V.hello_v in
   Response.ohtml v
 
 let router : Spring.Server.pipeline =
@@ -9,10 +9,8 @@ let router : Spring.Server.pipeline =
   match Spring.Request.resource req with
   | "/" -> hello req
   | "/products" ->
-    let v =
-      V.layout_v "Products Page"
-      @@ V.products_v [ "apple"; "oranges"; "bananas" ]
-    in
+    let body = V.products_v [ "apple"; "oranges"; "bananas" ] in
+    let v = V.layout_v ~title:"Products Page" ~body in
     Response.ohtml v
   | _ -> next req
 
