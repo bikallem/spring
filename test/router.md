@@ -129,53 +129,53 @@ HEAD/home/:int/:int32/:int64/:Fruit?q1=hello&f=:Fruit&b=:bool&f=:float
 ## Uri_router.pp
 
 ```ocaml
-# Eio.traceln "%a" Uri_router.pp router;;
-+GET
-+  /home
-+    /about
-+      /:int
-+    /:float
-+      /
-+    /:string
-+      /**
-+  /contact
-+    /:string
-+      /:int
-+      /:bool
-+  /product
-+    /:string
-+      ?section=:int
-+        &q1=yes
-+      ?section=:string
-+        &q1=yes
-+  /fruit
-+    /:Fruit
-+  /
-+  /public
-+    /**
-+POST
-+  /home
-+    /about
-+      /:int
-+    /products
-+      /**
-+  /product
-+    /:string
-+      ?section=:int
-+        &q=:bool
-+HEAD
-+  /home
-+    /:int
-+      /
-+  /numbers
-+    /:int32
-+      /code
-+        /:int64
-+          /
-+DELETE
-+  /home
-+    /:int
-+      /
+# Format.fprintf fmt "%a%!" Uri_router.pp router;;
+GET
+  /home
+    /about
+      /:int
+    /:float
+      /
+    /:string
+      /**
+  /contact
+    /:string
+      /:int
+      /:bool
+  /product
+    /:string
+      ?section=:int
+        &q1=yes
+      ?section=:string
+        &q1=yes
+  /fruit
+    /:Fruit
+  /
+  /public
+    /**
+POST
+  /home
+    /about
+      /:int
+    /products
+      /**
+  /product
+    /:string
+      ?section=:int
+        &q=:bool
+HEAD
+  /home
+    /:int
+      /
+  /numbers
+    /:int32
+      /code
+        /:int64
+          /
+DELETE
+  /home
+    /:int
+      /
 - : unit = ()
 ```
 
