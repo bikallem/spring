@@ -22,6 +22,7 @@ module Request = Request
 module Response = Response
 module Client = Client
 module Server = Server
+module Uri_router = Uri_router
 
 (* Ohtml *)
 module Ohtml = Ohtml
