@@ -53,13 +53,15 @@ let router =
   Uri_router.(
     router
       [ route Method.get {%r| /home/about/:int |} about_page
-      ; route Method.get {%r| /home/:int/ |} home_int_page
+      ; route Method.post {%r| /home/about/:int |} about_page
+      ; route Method.head {%r| /home/:int/ |} home_int_page
+      ; route Method.delete {%r| /home/:int/ |} home_int_page
       ; route Method.get {%r| /home/:float/ |} home_float_page
       ; route Method.get {%r| /contact/*/:int|} contact_page
-      ; route Method.get {%r| /home/products/**|} full_rest_page
+      ; route Method.post {%r| /home/products/**|} full_rest_page
       ; route Method.get {%r| /home/*/** |} wildcard_page
       ; route Method.get {%r| /contact/:string/:bool|} contact_page2
-      ; route Method.get {%r| /product/:string?section=:int&q=:bool |}
+      ; route Method.post {%r| /product/:string?section=:int&q=:bool |}
           product_page
       ; route Method.get {%r| /product/:string?section=:int&q1=yes |}
           product_page2
@@ -68,12 +70,48 @@ let router =
       ; route Method.get {%r| /fruit/:Fruit|} fruit_page
       ; route Method.get {%r| / |} root_page
       ; route Method.get {%r| /public/** |} public
-      ; route Method.get {%r| /numbers/:int32/code/:int64/ |} numbers_page
+      ; route Method.head {%r| /numbers/:int32/code/:int64/ |} numbers_page
       ])
 
 let pp_route r = List.hd r |> Uri_router.pp_route Format.std_formatter
+let pp_match method' uri = Uri_router.match' method' uri router
 
-let pp_match method' uri =
-  Uri_router.match' method' uri router |> function
-  | Some s -> Printf.printf {|"%s%!"|} s
-  | None -> Printf.printf "None%!"
+let route1 =
+  Uri_router.route Method.get {%r|/home/about/:bool?h=:int&b=:bool&e=hello|}
+    (fun _ _ _ -> ())
+
+let route2 =
+  Uri_router.route Method.post {%r|/home/about/:int/:string/:Fruit|}
+    (fun _ _ _ -> ())
+
+let route3 =
+  Uri_router.route Method.head
+    {%r|/home/:int/:int32/:int64/:Fruit?q1=hello&f=:Fruit&b=:bool&f=:float |}
+    (fun _ _ _ _ _ _ _ -> ())
+
+let get = Method.get
+
+let top_1_first () =
+  Uri_router.(
+    router
+      [ route get {%r| /home/:float |} (fun f -> Format.sprintf "Float: %f" f)
+      ; route get {%r| /home/:int |} (fun i -> Format.sprintf "Int  : %d" i)
+      ])
+  |> Uri_router.match' Method.get "/home/12"
+
+let top_1_first_2 () =
+  Uri_router.(
+    router
+      [ route get {%r| /home/:int |} (fun i -> Format.sprintf "Int  : %d" i)
+      ; route get {%r| /home/:float |} (fun f -> Format.sprintf "Float: %f" f)
+      ])
+  |> Uri_router.match' Method.get "/home/12"
+
+let longest_match () =
+  Uri_router.(
+    router
+      [ route get {%r| /home/:int |} (fun i -> Format.sprintf "Int  : %d" i)
+      ; route get {%r| /home/:int/:string |} (fun i _ ->
+            Format.sprintf "longest: %i" i)
+      ])
+  |> Uri_router.match' Method.get "/home/12/hello"
