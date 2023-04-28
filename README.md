@@ -2,9 +2,6 @@
 
 A Delightful OCaml web programming library.
 
-
-Perhaps a continuation of `cohttp-eio` - https://github.com/mirage/ocaml-cohttp/tree/master/cohttp-eio 
-
 # Hello world in Spring
 
 ```ocaml
