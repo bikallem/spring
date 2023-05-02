@@ -180,7 +180,7 @@ let rec make_request_target ~loc query_tokens path_tokens =
         [%e Ast_builder.estring ~loc path_token]
         [%e make_request_target ~loc query_tokens path_tokens]]
 
-let make_routes ~loc ~path:_ uri =
+let make_route ~loc ~path:_ uri =
   let uri = String.trim uri in
   match request_target_tokens uri with
   | Ok (path_tokens, query_tokens) ->
@@ -188,12 +188,11 @@ let make_routes ~loc ~path:_ uri =
     [%expr [%e uri]]
   | Error msg -> Location.raise_errorf ~loc "wtr: %s" msg
 
-let routes_ppx_name = "r"
+let route_ppx_name = "r"
 
-let routes_ppx =
-  Extension.declare routes_ppx_name Extension.Context.Expression
+let route_ppx =
+  Extension.declare route_ppx_name Extension.Context.Expression
     Ast_pattern.(single_expr_payload (estring __))
-    make_routes
+    make_route
 
-let () =
-  Driver.register_transformation routes_ppx_name ~extensions:[ routes_ppx ]
+let () = Driver.register_transformation route_ppx_name ~extensions:[ route_ppx ]
