@@ -5,10 +5,10 @@ open Router_test
 open Spring
 
 let () = Printexc.record_backtrace true
-let test_get uri = Uri_router.match' Method.get uri router
-let test_head uri = Uri_router.match' Method.head uri router
-let test_post uri = Uri_router.match' Method.post uri router
-let test_delete uri = Uri_router.match' Method.delete uri router
+let test_get uri = Uri_router.match' (make_request Method.get uri) router
+let test_head uri = Uri_router.match' (make_request Method.head uri) router
+let test_post uri = Uri_router.match' (make_request Method.post uri) router
+let test_delete uri = Uri_router.match' (make_request Method.delete uri) router
 
 let fmt = Format.std_formatter
 ```

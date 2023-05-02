@@ -128,11 +128,11 @@ val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 val router : 'a route list -> 'a router
 (** [router routes] is a {!type:router} that is composed of [routes]. *)
 
-val match' : Method.t -> string -> 'a router -> 'a option
-(** [match' method' uri router] is [Some a] if [method'] and [request_target]
-    together matches one of the routes defined in [router]. Otherwise it is
-    None. The value [Some a] is returned by the {i route handler} of the matched
-    {i route}.
+val match' : #Request.server_request -> 'a router -> 'a option
+(** [match' req router] is [Some a] if [Request.meth req] and
+    [Request.resource req] together matches one of the routes defined in
+    [router]. Otherwise it is None. The value [Some a] is returned by the
+    {i route handler} of the matched {i route}.
 
     The routes are matched based on the lexical order of the routes. This means
     they are matched from {i top to bottom}, {i left to right} and to the
@@ -152,9 +152,9 @@ val pp : Format.formatter -> 'a router -> unit
 
 (** Used by wtr/request_target ppx *)
 module Private : sig
-  val nil : ('b, 'b) request_target
-  val rest : (rest -> 'b, 'b) request_target
-  val slash : ('b, 'b) request_target
+  val nil : (Request.server_request -> 'b, 'b) request_target
+  val rest : (rest -> Request.server_request -> 'b, 'b) request_target
+  val slash : (Request.server_request -> 'b, 'b) request_target
   val exact : string -> ('a, 'b) request_target -> ('a, 'b) request_target
 
   val query_exact :

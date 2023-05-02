@@ -48,9 +48,9 @@ and 'a node =
   { route' : 'a route option; node_types' : (node_type * 'a node) list }
 
 and ('a, 'b) request_target =
-  | Nil : ('b, 'b) request_target
-  | Rest : (rest -> 'b, 'b) request_target
-  | Slash : ('b, 'b) request_target
+  | Nil : (Request.server_request -> 'b, 'b) request_target
+  | Rest : (rest -> Request.server_request -> 'b, 'b) request_target
+  | Slash : (Request.server_request -> 'b, 'b) request_target
   | Exact : string * ('a, 'b) request_target -> ('a, 'b) request_target
   | Query_exact :
       string * string * ('a, 'b) request_target
@@ -184,8 +184,11 @@ let rec drop : 'a list -> int -> 'a list =
   | _ :: tl when n > 0 -> drop tl (n - 1)
   | t -> t
 
-let rec match' : Method.t -> string -> 'a router -> 'a option =
- fun method' request_target t ->
+let rec match' : #Request.server_request -> 'a router -> 'a option =
+ fun req t ->
+  let req = (req :> Request.server_request) in
+  let request_target = Request.resource req in
+  let method' = Request.meth req in
   (* split request_target into path and query tokens *)
   let request_target' = request_target |> String.trim |> Uri.of_string in
   let path_tokens =
@@ -208,7 +211,7 @@ let rec match' : Method.t -> string -> 'a router -> 'a option =
     | [] ->
       Option.map
         (fun (Route (_, request_target, f)) ->
-          exec_route_handler f (request_target, List.rev arg_values))
+          exec_route_handler req f (request_target, List.rev arg_values))
         t.route
     | request_target_token :: request_target_tokens ->
       let continue = ref true in
@@ -276,27 +279,29 @@ let rec match' : Method.t -> string -> 'a router -> 'a option =
   else None
 
 and exec_route_handler :
-    type a b. a -> (a, b) request_target * arg_value list -> b =
- fun f -> function
-  | Nil, [] -> f
+    type a b.
+    #Request.server_request -> a -> (a, b) request_target * arg_value list -> b
+    =
+ fun req f -> function
+  | Nil, [] -> f req
   | Rest, [ Arg_value (d, v) ] -> (
     match eq string_d.id d.id with
-    | Some Eq -> f v
+    | Some Eq -> f v req
     | None -> assert false)
-  | Slash, [] -> f
+  | Slash, [] -> f req
   | Exact (_, request_target), arg_values ->
-    exec_route_handler f (request_target, arg_values)
+    exec_route_handler req f (request_target, arg_values)
   | Query_exact (_, _, request_target), arg_values ->
-    exec_route_handler f (request_target, arg_values)
+    exec_route_handler req f (request_target, arg_values)
   | ( Arg ({ id; _ }, request_target)
     , Arg_value ({ id = id'; _ }, v) :: arg_values ) -> (
     match eq id id' with
-    | Some Eq -> exec_route_handler (f v) (request_target, arg_values)
+    | Some Eq -> exec_route_handler req (f v) (request_target, arg_values)
     | None -> assert false)
   | ( Query_arg (_, { id; _ }, request_target)
     , Arg_value ({ id = id'; _ }, v) :: arg_values ) -> (
     match eq id id' with
-    | Some Eq -> exec_route_handler (f v) (request_target, arg_values)
+    | Some Eq -> exec_route_handler req (f v) (request_target, arg_values)
     | None -> assert false)
   | _, _ -> assert false
 
