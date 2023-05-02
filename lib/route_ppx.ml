@@ -79,10 +79,10 @@ let request_target_tokens target =
 
 let rec make_query ~loc query_tokens =
   match query_tokens with
-  | [] -> [%expr Spring.Uri_router.Private.nil]
+  | [] -> [%expr Spring.Router.Private.nil]
   | (name, "*") :: query_tokens ->
     [%expr
-      Spring.Uri_router.Private.(
+      Spring.Router.Private.(
         query_arg
           [%e Ast_builder.estring ~loc name]
           string
@@ -95,38 +95,38 @@ let rec make_query ~loc query_tokens =
     match query_token with
     | "int" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] int [%e make_query ~loc query_tokens])]
     | "int32" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] int32 [%e make_query ~loc query_tokens])]
     | "int64" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] int64 [%e make_query ~loc query_tokens])]
     | "float" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] float [%e make_query ~loc query_tokens])]
     | "string" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] string [%e make_query ~loc query_tokens])]
     | "bool" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           query_arg [%e name_expr] bool [%e make_query ~loc query_tokens])]
     | custom_arg when capitalized custom_arg ->
       let longident_loc = { txt = Longident.parse (custom_arg ^ ".t"); loc } in
       [%expr
-        Spring.Uri_router.Private.query_arg [%e name_expr]
+        Spring.Router.Private.query_arg [%e name_expr]
           [%e Ast_builder.pexp_ident ~loc longident_loc]
           [%e make_query ~loc query_tokens]]
     | x -> Location.raise_errorf ~loc "wtr: Invalid query component '%s'" x)
   | (name, query_token) :: query_tokens ->
     [%expr
-      Spring.Uri_router.Private.query_exact
+      Spring.Router.Private.query_exact
         [%e Ast_builder.estring ~loc name]
         [%e Ast_builder.estring ~loc query_token]
         [%e make_query ~loc query_tokens]]
@@ -134,49 +134,49 @@ let rec make_query ~loc query_tokens =
 let rec make_request_target ~loc query_tokens path_tokens =
   match path_tokens with
   | [] -> make_query ~loc query_tokens
-  | [ "" ] -> [%expr Spring.Uri_router.Private.slash]
-  | [ "**" ] -> [%expr Spring.Uri_router.Private.rest]
+  | [ "" ] -> [%expr Spring.Router.Private.slash]
+  | [ "**" ] -> [%expr Spring.Router.Private.rest]
   | "*" :: path_tokens ->
     [%expr
-      Spring.Uri_router.Private.(
+      Spring.Router.Private.(
         arg string [%e make_request_target ~loc query_tokens path_tokens])]
   | path_token :: path_tokens when Char.equal path_token.[0] ':' -> (
     let path_token = String.sub path_token 1 (String.length path_token - 1) in
     match path_token with
     | "int" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg int [%e make_request_target ~loc query_tokens path_tokens])]
     | "int32" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg int32 [%e make_request_target ~loc query_tokens path_tokens])]
     | "int64" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg int64 [%e make_request_target ~loc query_tokens path_tokens])]
     | "float" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg float [%e make_request_target ~loc query_tokens path_tokens])]
     | "string" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg string [%e make_request_target ~loc query_tokens path_tokens])]
     | "bool" ->
       [%expr
-        Spring.Uri_router.Private.(
+        Spring.Router.Private.(
           arg bool [%e make_request_target ~loc query_tokens path_tokens])]
     | custom_arg when capitalized custom_arg ->
       let longident_loc = { txt = Longident.parse (custom_arg ^ ".t"); loc } in
       [%expr
-        Spring.Uri_router.Private.arg
+        Spring.Router.Private.arg
           [%e Ast_builder.pexp_ident ~loc longident_loc]
           [%e make_request_target ~loc query_tokens path_tokens]]
     | x -> Location.raise_errorf ~loc "wtr: Invalid path component '%s'." x)
   | path_token :: path_tokens ->
     [%expr
-      Spring.Uri_router.Private.exact
+      Spring.Router.Private.exact
         [%e Ast_builder.estring ~loc path_token]
         [%e make_request_target ~loc query_tokens path_tokens]]
 

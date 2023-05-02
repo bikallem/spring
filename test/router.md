@@ -5,10 +5,10 @@ open Router_test
 open Spring
 
 let () = Printexc.record_backtrace true
-let test_get uri = Uri_router.match' (make_request Method.get uri) router
-let test_head uri = Uri_router.match' (make_request Method.head uri) router
-let test_post uri = Uri_router.match' (make_request Method.post uri) router
-let test_delete uri = Uri_router.match' (make_request Method.delete uri) router
+let test_get uri = Router.match' (make_request Method.get uri) router
+let test_head uri = Router.match' (make_request Method.head uri) router
+let test_post uri = Router.match' (make_request Method.post uri) router
+let test_delete uri = Router.match' (make_request Method.delete uri) router
 
 let fmt = Format.std_formatter
 ```
@@ -110,26 +110,26 @@ Some "Product detail - dyson350. Section: 2. Display questions? false"
 - : string option = None
 ```
 
-## Uri_router.pp_route
+## Router.pp_route
 
 ```ocaml
-# Uri_router.pp_route fmt route1;; 
+# Router.pp_route fmt route1;; 
 GET/home/about/:bool?h=:int&b=:bool&e=hello
 - : unit = ()
 
-# Uri_router.pp_route fmt route2;;
+# Router.pp_route fmt route2;;
 POST/home/about/:int/:string/:Fruit
 - : unit = ()
 
-# Uri_router.pp_route fmt route3;;
+# Router.pp_route fmt route3;;
 HEAD/home/:int/:int32/:int64/:Fruit?q1=hello&f=:Fruit&b=:bool&f=:float
 - : unit = ()
 ```
 
-## Uri_router.pp
+## Router.pp
 
 ```ocaml
-# Format.fprintf fmt "%a%!" Uri_router.pp router;;
+# Format.fprintf fmt "%a%!" Router.pp router;;
 GET
   /home
     /about
@@ -179,7 +179,7 @@ DELETE
 - : unit = ()
 ```
 
-## Uri_router.match' - match the top 1 first if more than one route is matched
+## Router.match' - match the top 1 first if more than one route is matched
 
 ```ocaml
 # Router_test.top_1_first () ;;
@@ -189,7 +189,7 @@ DELETE
 - : string option = Some "Int  : 12"
 ```
 
-## Uri_router.match' - longest match wins if more than one route is matched
+## Router.match' - longest match wins if more than one route is matched
 
 ```ocaml
 # Router_test.longest_match ();;

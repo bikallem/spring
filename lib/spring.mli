@@ -34,7 +34,7 @@ module Client = Client
 (** {1 Server} *)
 
 module Server = Server
-module Uri_router = Uri_router
+module Router = Router
 
 (** {1 Ohtml} *)
 
