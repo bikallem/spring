@@ -37,9 +37,6 @@ let new_id (type a) () =
 let eq : type a b. a id -> b id -> (a, b) eq option =
  fun (module TyA) (module TyB) -> TyB.eq TyA.witness
 
-(* Types *)
-
-(* Unoptimized/un-compiled router type. *)
 type 'a t = { root : 'a route option; routes : (node * 'a t) list }
 
 and ('a, 'b) request_target =
