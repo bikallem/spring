@@ -40,7 +40,7 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
 (* Types *)
 
 (* Unoptimized/un-compiled router type. *)
-type 'a t = { root : 'a route option; routes : (node_type * 'a t) list }
+type 'a t = { root : 'a route option; routes : (node * 'a t) list }
 
 and ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
@@ -56,14 +56,14 @@ and ('a, 'b) request_target =
       -> ('c -> 'a, 'b) request_target
 
 (** Existential to encode request_target component/node type. *)
-and node_type =
-  | NSlash : node_type
-  | NRest : node_type
-  | NExact : string -> node_type
-  | NQuery_exact : string * string -> node_type
-  | NMethod : Method.t -> node_type
-  | NArg : 'c arg -> node_type
-  | NQuery_arg : string * 'c arg -> node_type
+and node =
+  | NSlash : node
+  | NRest : node
+  | NExact : string -> node
+  | NQuery_exact : string * string -> node
+  | NMethod : Method.t -> node
+  | NArg : 'c arg -> node
+  | NQuery_arg : string * 'c arg -> node
 
 and 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
 and rest = string
@@ -120,7 +120,7 @@ let node_type_equal a b =
   | _ -> false
 
 let rec node_type_of_request_target :
-    type a b. (a, b) request_target -> node_type list = function
+    type a b. (a, b) request_target -> node list = function
   | Nil -> []
   | Slash -> [ NSlash ]
   | Rest -> [ NRest ]
