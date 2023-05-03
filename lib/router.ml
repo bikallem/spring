@@ -136,11 +136,11 @@ let add_route : 'a route -> 'a t -> 'a t =
     match nodes with
     | [] -> { t with root = Some route }
     | node :: nodes ->
-      let node'' =
+      let root =
         List.find_opt (fun (node', _) -> node_equal node node') t.routes
       in
       let routes =
-        match node'' with
+        match root with
         | Some _ ->
           List.map
             (fun (node', t') ->
