@@ -37,7 +37,7 @@ let new_id (type a) () =
 let eq : type a b. a id -> b id -> (a, b) eq option =
  fun (module TyA) (module TyB) -> TyB.eq TyA.witness
 
-type 'a t = { root : 'a route option; routes : (node * 'a t) list }
+type 'a t = { route : 'a route option; routes : (node * 'a t) list }
 
 and ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
@@ -94,7 +94,7 @@ external rest_to_string : rest -> string = "%identity"
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
-let empty = { root = None; routes = [] }
+let empty = { route = None; routes = [] }
 
 let node_equal a b =
   match (a, b) with
@@ -134,13 +134,13 @@ let add_route : 'a route -> 'a t -> 'a t =
  fun (Route (method', request_target, _) as route) t ->
   let rec loop t nodes =
     match nodes with
-    | [] -> { t with root = Some route }
+    | [] -> { t with route = Some route }
     | node :: nodes ->
-      let root =
+      let route =
         List.find_opt (fun (node', _) -> node_equal node node') t.routes
       in
       let routes =
-        match root with
+        match route with
         | Some _ ->
           List.map
             (fun (node', t') ->
@@ -197,7 +197,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       Option.map
         (fun (Route (_, request_target, f)) ->
           exec_route_handler req f (request_target, List.rev arg_values))
-        t.root
+        t.route
     | tok :: request_target_tokens ->
       let rest_matched, matched_token_count, matched_node =
         match_request_path tok arg_values matched_token_count t.routes
