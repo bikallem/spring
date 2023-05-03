@@ -264,13 +264,13 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
             (try_match [@tailcall]) t' arg_values request_target_tokens
               matched_tok_count)
   in
-  let rec match_tokens = function
+  let rec match_method = function
     | [] -> None
     | (NMethod method'', t) :: _ when Method.equal method' method'' ->
       try_match t [] request_target_tokens 0
-    | _ :: nodes -> (match_tokens [@tailcall]) nodes
+    | _ :: nodes -> (match_method [@tailcall]) nodes
   in
-  match_tokens @@ Array.to_list t.node_types
+  match_method @@ Array.to_list t.node_types
 
 and exec_route_handler :
     type a b.
