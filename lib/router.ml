@@ -157,9 +157,7 @@ let add_route : 'a t -> 'a route -> 'a t =
 let rec compile : 'a t -> 'a t =
  fun t ->
   { t with
-    routes =
-      List.rev t.routes
-      |> List.map (fun (node_type, t) -> (node_type, compile t))
+    routes = List.rev t.routes |> List.map (fun (node, t) -> (node, compile t))
   }
 
 let make routes = List.fold_left add_route empty routes |> compile
@@ -309,8 +307,8 @@ let pp_request_target fmt request_target =
   in
   loop false fmt request_target
 
-let pp_node_type fmt node_type =
-  match node_type with
+let pp_node fmt node =
+  match node with
   | NRest -> Format.fprintf fmt "/**"
   | NSlash -> Format.fprintf fmt "/"
   | NExact exact -> Format.fprintf fmt "/%s" exact
@@ -329,21 +327,21 @@ let pp fmt t =
     let len = List.length nodes in
     Format.pp_print_list
       ~pp_sep:(if len > 1 then Format.pp_force_newline else fun _ () -> ())
-      (fun fmt (node_type, t') ->
+      (fun fmt (node, t') ->
         Format.pp_open_vbox fmt 2;
-        (match node_type with
+        (match node with
         | NQuery_exact _ | NQuery_arg _ ->
           let qmark_printed =
             if not qmark_printed then (
-              Format.fprintf fmt "?%a" pp_node_type node_type;
+              Format.fprintf fmt "?%a" pp_node node;
               true)
             else (
-              Format.fprintf fmt "&%a" pp_node_type node_type;
+              Format.fprintf fmt "&%a" pp_node node;
               false)
           in
           (pp' qmark_printed) fmt t'
         | node ->
-          Format.fprintf fmt "%a" pp_node_type node;
+          Format.fprintf fmt "%a" pp_node node;
           (pp' qmark_printed) fmt t');
         Format.pp_close_box fmt ())
       fmt nodes
