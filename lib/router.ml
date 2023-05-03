@@ -40,7 +40,7 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
 (* Types *)
 
 (* Unoptimized/un-compiled router type. *)
-type 'a t = { route : 'a route option; routes : (node_type * 'a t) list }
+type 'a t = { root : 'a route option; routes : (node_type * 'a t) list }
 
 and ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
@@ -97,7 +97,7 @@ external rest_to_string : rest -> string = "%identity"
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
-let empty = { route = None; routes = [] }
+let empty = { root = None; routes = [] }
 
 let node_type_equal a b =
   match (a, b) with
@@ -137,7 +137,7 @@ let node : 'a t -> 'a route -> 'a t =
  fun node' (Route (method', request_target, _) as route) ->
   let rec loop node node_types =
     match node_types with
-    | [] -> { node with route = Some route }
+    | [] -> { node with root = Some route }
     | node_type :: node_types ->
       let node'' =
         List.find_opt
@@ -164,8 +164,8 @@ let node : 'a t -> 'a route -> 'a t =
 
 let rec compile : 'a t -> 'a t =
  fun t ->
-  { route = t.route
-  ; routes =
+  { t with
+    routes =
       List.rev t.routes
       |> List.map (fun (node_type, t) -> (node_type, compile t))
   }
@@ -206,7 +206,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       Option.map
         (fun (Route (_, request_target, f)) ->
           exec_route_handler req f (request_target, List.rev arg_values))
-        t.route
+        t.root
     | tok :: request_target_tokens ->
       let rest_matched, matched_token_count, matched_node =
         match_request_path tok arg_values matched_token_count t.routes
