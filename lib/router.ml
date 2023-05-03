@@ -119,19 +119,19 @@ let node_equal a b =
     | None -> false)
   | _ -> false
 
-let rec node_type_of_request_target :
-    type a b. (a, b) request_target -> node list = function
+let rec node_of_request_target : type a b. (a, b) request_target -> node list =
+  function
   | Nil -> []
   | Slash -> [ NSlash ]
   | Rest -> [ NRest ]
   | Exact (exact1, request_target) ->
-    NExact exact1 :: node_type_of_request_target request_target
+    NExact exact1 :: node_of_request_target request_target
   | Query_exact (name, value, request_target) ->
-    NQuery_exact (name, value) :: node_type_of_request_target request_target
+    NQuery_exact (name, value) :: node_of_request_target request_target
   | Arg (arg, request_target) ->
-    NArg arg :: node_type_of_request_target request_target
+    NArg arg :: node_of_request_target request_target
   | Query_arg (name, arg, request_target) ->
-    NQuery_arg (name, arg) :: node_type_of_request_target request_target
+    NQuery_arg (name, arg) :: node_of_request_target request_target
 
 let add_route : 'a t -> 'a route -> 'a t =
  fun node' (Route (method', request_target, _) as route) ->
@@ -157,9 +157,7 @@ let add_route : 'a t -> 'a route -> 'a t =
       in
       { node with routes }
   in
-  let node_types =
-    NMethod method' :: node_type_of_request_target request_target
-  in
+  let node_types = NMethod method' :: node_of_request_target request_target in
   loop node' node_types
 
 let rec compile : 'a t -> 'a t =
