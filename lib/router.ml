@@ -264,18 +264,13 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
             (try_match [@tailcall]) t' arg_values request_target_tokens
               matched_tok_count)
   in
-  if List.length request_target_tokens > 0 then
-    let n = Array.length t.node_types in
-    let rec loop i =
-      if i = n then None
-      else
-        match t.node_types.(i) with
-        | NMethod method'', t' when Method.equal method' method'' ->
-          try_match t' [] request_target_tokens 0
-        | _ -> (loop [@tailcall]) (i + 1)
-    in
-    loop 0
-  else None
+  let rec match_tokens = function
+    | [] -> None
+    | (NMethod method'', t) :: _ when Method.equal method' method'' ->
+      try_match t [] request_target_tokens 0
+    | _ :: nodes -> (match_tokens [@tailcall]) nodes
+  in
+  match_tokens @@ Array.to_list t.node_types
 
 and exec_route_handler :
     type a b.
