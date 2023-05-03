@@ -40,7 +40,7 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
 (* Types *)
 
 (* Unoptimized/un-compiled router type. *)
-type 'a t = { route : 'a route option; node_types : (node_type * 'a t) list }
+type 'a t = { route : 'a route option; routes : (node_type * 'a t) list }
 
 and ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
@@ -97,7 +97,7 @@ external rest_to_string : rest -> string = "%identity"
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
-let empty = { route = None; node_types = [] }
+let empty = { route = None; routes = [] }
 
 let node_type_equal a b =
   match (a, b) with
@@ -142,9 +142,9 @@ let node : 'a t -> 'a route -> 'a t =
       let node'' =
         List.find_opt
           (fun (node_type', _) -> node_type_equal node_type node_type')
-          node.node_types
+          node.routes
       in
-      let node_types =
+      let routes =
         match node'' with
         | Some _ ->
           List.map
@@ -152,10 +152,10 @@ let node : 'a t -> 'a route -> 'a t =
               if node_type_equal node_type node_type' then
                 (node_type', loop t' node_types)
               else (node_type', t'))
-            node.node_types
-        | None -> (node_type, loop empty node_types) :: node.node_types
+            node.routes
+        | None -> (node_type, loop empty node_types) :: node.routes
       in
-      { node with node_types }
+      { node with routes }
   in
   let node_types =
     NMethod method' :: node_type_of_request_target request_target
@@ -165,8 +165,8 @@ let node : 'a t -> 'a route -> 'a t =
 let rec compile : 'a t -> 'a t =
  fun t ->
   { route = t.route
-  ; node_types =
-      List.rev t.node_types
+  ; routes =
+      List.rev t.routes
       |> List.map (fun (node_type, t) -> (node_type, compile t))
   }
 
@@ -209,7 +209,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
         t.route
     | tok :: request_target_tokens ->
       let rest_matched, matched_token_count, matched_node =
-        match_request_path tok arg_values matched_token_count t.node_types
+        match_request_path tok arg_values matched_token_count t.routes
       in
       Option.bind matched_node (fun (t', arg_values) ->
           let matched_tok_count = matched_token_count + 1 in
@@ -259,7 +259,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       try_match t [] request_target_tokens 0
     | _ :: nodes -> (match_method [@tailcall]) nodes
   in
-  match_method t.node_types
+  match_method t.routes
 
 and exec_route_handler :
     type a b.
@@ -333,7 +333,7 @@ let pp_route : Format.formatter -> 'b route -> unit =
 
 let pp fmt t =
   let rec loop qmark_printed fmt t =
-    let nodes = t.node_types in
+    let nodes = t.routes in
     let len = List.length nodes in
     Format.pp_print_list
       ~pp_sep:(if len > 1 then Format.pp_force_newline else fun _ () -> ())
@@ -356,7 +356,7 @@ let pp fmt t =
         Format.pp_close_box fmt ())
       fmt nodes
   and pp' qmark_printed fmt t' =
-    if List.length t'.node_types > 0 then (
+    if List.length t'.routes > 0 then (
       Format.pp_print_break fmt 0 0;
       (loop qmark_printed) fmt t')
   in
