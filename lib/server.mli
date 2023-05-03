@@ -4,8 +4,15 @@ type t
 (** [t] represents a HTTP/1.1 server instance configured with some specific
     server parameters. *)
 
+(** {1 Handler} *)
+
 type handler = Request.server_request -> Response.server_response
 (** [handler] is a HTTP request handler. *)
+
+val not_found_handler : handler
+(** [not_found_handler] return HTTP 404 response. *)
+
+(** {1 Pipeline}*)
 
 type pipeline = handler -> handler
 (** [pipeline] is the HTTP request processsing pipeline. It is usually used with
@@ -65,6 +72,8 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
+(** {1 Create Server}*)
+
 val make :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
@@ -86,6 +95,8 @@ val make :
     @param max_connections
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
+
+(** {1 Running Servers} *)
 
 val run : Eio.Net.listening_socket -> t -> unit
 (** [run socket t] runs a HTTP/1.1 server listening on socket [socket].
@@ -126,8 +137,3 @@ val connection_handler :
 val shutdown : t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
     inflight connections to complete. *)
-
-(** {1 Basic Handlers} *)
-
-val not_found_handler : handler
-(** [not_found_handler] return HTTP 404 response. *)
