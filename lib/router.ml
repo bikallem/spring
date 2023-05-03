@@ -131,15 +131,15 @@ let rec node_of_request_target : type a b. (a, b) request_target -> node list =
     NQuery_arg (name, arg) :: node_of_request_target request_target
 
 let add_route : 'a t -> 'a route -> 'a t =
- fun node' (Route (method', request_target, _) as route) ->
-  let rec loop node node_types =
+ fun t (Route (method', request_target, _) as route) ->
+  let rec loop t node_types =
     match node_types with
-    | [] -> { node with root = Some route }
+    | [] -> { t with root = Some route }
     | node_type :: node_types ->
       let node'' =
         List.find_opt
           (fun (node_type', _) -> node_equal node_type node_type')
-          node.routes
+          t.routes
       in
       let routes =
         match node'' with
@@ -149,13 +149,13 @@ let add_route : 'a t -> 'a route -> 'a t =
               if node_equal node_type node_type' then
                 (node_type', loop t' node_types)
               else (node_type', t'))
-            node.routes
-        | None -> (node_type, loop empty node_types) :: node.routes
+            t.routes
+        | None -> (node_type, loop empty node_types) :: t.routes
       in
-      { node with routes }
+      { t with routes }
   in
   let node_types = NMethod method' :: node_of_request_target request_target in
-  loop node' node_types
+  loop t node_types
 
 let rec compile : 'a t -> 'a t =
  fun t ->
