@@ -26,8 +26,6 @@
     - [\[%routes ""\]] - ppx based which is provided by a separate opam package
       [wtr-ppx]. *)
 
-(** {1 Types} *)
-
 type 'a t
 (** A {!type:t} consists of one or many HTTP request {!type:route}s which are
     used to match a given HTTP request target.
@@ -78,8 +76,6 @@ and 'a arg
 val rest_to_string : rest -> string
 (** [rest_to_string rest] converts [rest] to string. *)
 
-(** {1:arg_func Arg} *)
-
 val arg : string -> (string -> 'a option) -> 'a arg
 (** [arg name convert] is {!type:arg} with name [name] and [convert] as the
     function which will convert/decode a string value to an OCaml value of type
@@ -120,8 +116,6 @@ val arg : string -> (string -> 'a option) -> 'a arg
     See {!val:parg} and {!val:qarg} for usage in {i path} and {i query}
     components. *)
 
-(** {1 Routes and t} *)
-
 val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 (** [route method' request_target handler] is a {!type:route}. *)
 
@@ -138,11 +132,6 @@ val match' : #Request.server_request -> 'a t -> 'a option
     they are matched from {i top to bottom}, {i left to right} and to the
     {i longest match}. See {!val:pp} to visualize the t and the route matching
     mechanism. *)
-
-(** {1:pp Pretty Printers and Debugging}
-
-    Pretty printers can be useful during debugging of routing and/or route
-    related issues. *)
 
 val pp_request_target : Format.formatter -> ('a, 'b) request_target -> unit
 val pp_route : Format.formatter -> 'b route -> unit
