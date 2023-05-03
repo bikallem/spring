@@ -147,21 +147,14 @@ let add_route : 'a route -> 'a t -> 'a t =
               if node_equal node node' then (node', loop t' nodes)
               else (node', t'))
             t.routes
-        | None -> (node, loop empty nodes) :: t.routes
+        | None -> t.routes @ [ (node, loop empty nodes) ]
       in
       { t with routes }
   in
   let nodes = NMethod method' :: node_of_request_target request_target in
   loop t nodes
 
-let rec compile : 'a t -> 'a t =
- fun t ->
-  { t with
-    routes = List.rev t.routes |> List.map (fun (node, t) -> (node, compile t))
-  }
-
-let make routes =
-  List.fold_left (fun a r -> add_route r a) empty routes |> compile
+let make routes = List.fold_left (fun a r -> add_route r a) empty routes
 
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
