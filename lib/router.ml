@@ -130,8 +130,8 @@ let rec node_of_request_target : type a b. (a, b) request_target -> node list =
   | Query_arg (name, arg, request_target) ->
     NQuery_arg (name, arg) :: node_of_request_target request_target
 
-let add_route : 'a t -> 'a route -> 'a t =
- fun t (Route (method', request_target, _) as route) ->
+let add_route : 'a route -> 'a t -> 'a t =
+ fun (Route (method', request_target, _) as route) t ->
   let rec loop t nodes =
     match nodes with
     | [] -> { t with root = Some route }
@@ -160,7 +160,8 @@ let rec compile : 'a t -> 'a t =
     routes = List.rev t.routes |> List.map (fun (node, t) -> (node, compile t))
   }
 
-let make routes = List.fold_left add_route empty routes |> compile
+let make routes =
+  List.fold_left (fun a r -> add_route r a) empty routes |> compile
 
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
