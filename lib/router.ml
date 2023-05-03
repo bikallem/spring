@@ -39,12 +39,8 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
 
 (* Types *)
 
-(* We use an array for node_types so that we get better cache locality. *)
-type 'a t = { route : 'a route option; node_types : (node_type * 'a t) array }
-
 (* Unoptimized/un-compiled router type. *)
-and 'a node =
-  { route' : 'a route option; node_types' : (node_type * 'a node) list }
+type 'a t = { route : 'a route option; node_types : (node_type * 'a t) list }
 
 and ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
@@ -135,18 +131,18 @@ let rec node_type_of_request_target :
   | Query_arg (name, arg, request_target) ->
     NQuery_arg (name, arg) :: node_type_of_request_target request_target
 
-let rec node : 'a node -> 'a route -> 'a node =
+let rec node : 'a t -> 'a route -> 'a t =
  fun node' (Route (method', request_target, _) as route) ->
   let rec loop node node_types =
     match node_types with
-    | [] -> { node with route' = Some route }
+    | [] -> { node with route = Some route }
     | node_type :: node_types ->
       let node'' =
         List.find_opt
           (fun (node_type', _) -> node_type_equal node_type node_type')
-          node.node_types'
+          node.node_types
       in
-      let node_types' =
+      let node_types =
         match node'' with
         | Some _ ->
           List.map
@@ -154,25 +150,24 @@ let rec node : 'a node -> 'a route -> 'a node =
               if node_type_equal node_type node_type' then
                 (node_type', loop t' node_types)
               else (node_type', t'))
-            node.node_types'
-        | None -> (node_type, loop empty_node node_types) :: node.node_types'
+            node.node_types
+        | None -> (node_type, loop empty_node node_types) :: node.node_types
       in
-      { node with node_types' }
+      { node with node_types }
   in
   let node_types =
     NMethod method' :: node_type_of_request_target request_target
   in
   loop node' node_types
 
-and empty_node : 'a node = { route' = None; node_types' = [] }
+and empty_node : 'a t = { route = None; node_types = [] }
 
-let rec compile : 'a node -> 'a t =
+let rec compile : 'a t -> 'a t =
  fun t ->
-  { route = t.route'
+  { route = t.route
   ; node_types =
-      List.rev t.node_types'
+      List.rev t.node_types
       |> List.map (fun (node_type, t) -> (node_type, compile t))
-      |> Array.of_list
   }
 
 let make routes = List.fold_left node empty_node routes |> compile
@@ -214,8 +209,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
         t.route
     | tok :: request_target_tokens ->
       let rest_matched, matched_token_count, matched_node =
-        match_request_path tok arg_values matched_token_count
-          (Array.to_list t.node_types)
+        match_request_path tok arg_values matched_token_count t.node_types
       in
       Option.bind matched_node (fun (t', arg_values) ->
           let matched_tok_count = matched_token_count + 1 in
@@ -265,7 +259,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       try_match t [] request_target_tokens 0
     | _ :: nodes -> (match_method [@tailcall]) nodes
   in
-  match_method @@ Array.to_list t.node_types
+  match_method t.node_types
 
 and exec_route_handler :
     type a b.
@@ -339,7 +333,7 @@ let pp_route : Format.formatter -> 'b route -> unit =
 
 let pp fmt t =
   let rec loop qmark_printed fmt t =
-    let nodes = t.node_types |> Array.to_list in
+    let nodes = t.node_types in
     let len = List.length nodes in
     Format.pp_print_list
       ~pp_sep:(if len > 1 then Format.pp_force_newline else fun _ () -> ())
@@ -362,7 +356,7 @@ let pp fmt t =
         Format.pp_close_box fmt ())
       fmt nodes
   and pp' qmark_printed fmt t' =
-    if Array.length t'.node_types > 0 then (
+    if List.length t'.node_types > 0 then (
       Format.pp_print_break fmt 0 0;
       (loop qmark_printed) fmt t')
   in
