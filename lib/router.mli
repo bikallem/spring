@@ -120,6 +120,7 @@ val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 (** [route method' request_target handler] is a {!type:route}. *)
 
 val empty : 'a t
+(** [empty] is a router without any [route]. *)
 
 val make : 'a route list -> 'a t
 (** [make routes] is [t] composed of [routes]. *)
