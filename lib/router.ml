@@ -212,57 +212,52 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
         (fun (Route (_, request_target, f)) ->
           exec_route_handler req f (request_target, List.rev arg_values))
         t.route
-    | request_target_token :: request_target_tokens ->
-      let continue = ref true in
-      let index = ref 0 in
-      let matched_node = ref None in
-      let rest_matched = ref false in
-      while !continue && !index < Array.length t.node_types do
-        match (request_target_token, t.node_types.(!index)) with
-        | `Path v, (NArg arg, t') -> (
-          match arg.convert v with
-          | Some v ->
-            matched_node := Some (t', Arg_value (arg, v) :: arg_values);
-            continue := false
-          | None -> incr index)
-        | `Path v, (NExact exact, t') when String.equal exact v ->
-          matched_node := Some (t', arg_values);
-          continue := false
-        | `Path v, (NSlash, t') when String.equal "" v ->
-          matched_node := Some (t', arg_values);
-          continue := false
-        | `Path _, (NRest, t') ->
-          let path =
-            drop path_tokens matched_token_count
-            |> List.map (fun (`Path tok) -> tok)
-            |> String.concat "/"
-          in
-          let rest_url =
-            String.split_on_char '?' request_target |> fun l ->
-            if List.length l > 1 then path ^ "?" ^ List.nth l 1 else path
-          in
-          matched_node := Some (t', Arg_value (string_d, rest_url) :: arg_values);
-          continue := false;
-          rest_matched := true
-        | `Query (name, value), (NQuery_arg (name', arg), t') -> (
-          match arg.convert value with
-          | Some v when String.equal name name' ->
-            matched_node := Some (t', Arg_value (arg, v) :: arg_values);
-            continue := false
-          | _ -> incr index)
-        | `Query (name1, value1), (NQuery_exact (name2, value2), t')
-          when String.equal name1 name2 && String.equal value1 value2 ->
-          matched_node := Some (t', arg_values);
-          continue := false
-        | _ -> incr index
-      done;
-      Option.bind !matched_node (fun (t', arg_values) ->
+    | tok :: request_target_tokens ->
+      let rest_matched, matched_token_count, matched_node =
+        match_request_path tok arg_values matched_token_count
+          (Array.to_list t.node_types)
+      in
+      Option.bind matched_node (fun (t', arg_values) ->
           let matched_tok_count = matched_token_count + 1 in
-          if !rest_matched then
+          if rest_matched then
             (try_match [@tailcall]) t' arg_values [] matched_tok_count
           else
             (try_match [@tailcall]) t' arg_values request_target_tokens
               matched_tok_count)
+  and match_request_path tok arg_values (matched_tok_count : int) nodes =
+    match (tok, nodes) with
+    | _, [] -> (false, matched_tok_count, None)
+    | `Path v, (NArg arg, t') :: nodes -> (
+      match arg.convert v with
+      | Some v ->
+        (false, matched_tok_count, Some (t', Arg_value (arg, v) :: arg_values))
+      | None -> match_request_path tok arg_values matched_tok_count nodes)
+    | `Path v, (NExact exact, t') :: _ when String.equal exact v ->
+      (false, matched_tok_count, Some (t', arg_values))
+    | `Path v, (NSlash, t') :: _ when String.equal "" v ->
+      (false, matched_tok_count, Some (t', arg_values))
+    | `Path _, (NRest, t') :: _ ->
+      let path =
+        drop path_tokens matched_tok_count
+        |> List.map (fun (`Path tok) -> tok)
+        |> String.concat "/"
+      in
+      let rest_url =
+        String.split_on_char '?' request_target |> fun l ->
+        if List.length l > 1 then path ^ "?" ^ List.nth l 1 else path
+      in
+      ( true
+      , matched_tok_count
+      , Some (t', Arg_value (string_d, rest_url) :: arg_values) )
+    | `Query (name, value), (NQuery_arg (name', arg), t') :: nodes -> (
+      match arg.convert value with
+      | Some v when String.equal name name' ->
+        (false, matched_tok_count, Some (t', Arg_value (arg, v) :: arg_values))
+      | _ -> match_request_path tok arg_values matched_tok_count nodes)
+    | `Query (name1, value1), (NQuery_exact (name2, value2), t') :: _
+      when String.equal name1 name2 && String.equal value1 value2 ->
+      (false, matched_tok_count, Some (t', arg_values))
+    | _, _ :: nodes -> match_request_path tok arg_values matched_tok_count nodes
   in
   let rec match_method = function
     | [] -> None
