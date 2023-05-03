@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  *-------------------------------------------------------------------------*)
 
-(** {i Router} - is a HTTP request routing library for OCaml web applications.
+(** [Router] - is a HTTP request routing library for OCaml web applications.
 
     Given a HTTP {i request_target} and a HTTP {i method}, [Wtr] attempts to
     match the two properties to a pre-defined set of {i route}s. If a match is
@@ -28,9 +28,9 @@
 
 (** {1 Types} *)
 
-type 'a router
-(** A {!type:router} consists of one or many HTTP request {!type:route}s which
-    are used to match a given HTTP request target.
+type 'a t
+(** A {!type:t} consists of one or many HTTP request {!type:route}s which are
+    used to match a given HTTP request target.
 
     ['a] is a value which is returned by a {i route handler} of the matched
     {i route}. *)
@@ -120,24 +120,24 @@ val arg : string -> (string -> 'a option) -> 'a arg
     See {!val:parg} and {!val:qarg} for usage in {i path} and {i query}
     components. *)
 
-(** {1 Routes and Router} *)
+(** {1 Routes and t} *)
 
 val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 (** [route method' request_target handler] is a {!type:route}. *)
 
-val router : 'a route list -> 'a router
-(** [router routes] is a {!type:router} that is composed of [routes]. *)
+val make : 'a route list -> 'a t
+(** [make routes] is [t] composed of [routes]. *)
 
-val match' : #Request.server_request -> 'a router -> 'a option
-(** [match' req router] is [Some a] if [Request.meth req] and
-    [Request.resource req] together matches one of the routes defined in
-    [router]. Otherwise it is None. The value [Some a] is returned by the
-    {i route handler} of the matched {i route}.
+val match' : #Request.server_request -> 'a t -> 'a option
+(** [match' req t] is [Some a] if [Request.meth req] and [Request.resource req]
+    together matches one of the routes defined in [t]. Otherwise it is None. The
+    value [Some a] is returned by the {i route handler} of the matched
+    {i route}.
 
     The routes are matched based on the lexical order of the routes. This means
     they are matched from {i top to bottom}, {i left to right} and to the
-    {i longest match}. See {!val:pp} to visualize the router and the route
-    matching mechanism. *)
+    {i longest match}. See {!val:pp} to visualize the t and the route matching
+    mechanism. *)
 
 (** {1:pp Pretty Printers and Debugging}
 
@@ -146,7 +146,7 @@ val match' : #Request.server_request -> 'a router -> 'a option
 
 val pp_request_target : Format.formatter -> ('a, 'b) request_target -> unit
 val pp_route : Format.formatter -> 'b route -> unit
-val pp : Format.formatter -> 'a router -> unit
+val pp : Format.formatter -> 'a t -> unit
 
 (**/**)
 

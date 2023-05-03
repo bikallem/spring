@@ -56,7 +56,7 @@ let public url _req =
 
 let router =
   Router.(
-    router
+    make
       [ route Method.get {%r| /home/about/:int |} about_page
       ; route Method.post {%r| /home/about/:int |} about_page
       ; route Method.head {%r| /home/:int/ |} home_int_page
@@ -102,7 +102,7 @@ let make_request meth resource : Request.server_request =
 
 let top_1_first () =
   Router.(
-    router
+    make
       [ route get {%r| /home/:float |} (fun f _req ->
             Format.sprintf "Float: %f" f)
       ; route get {%r| /home/:int |} (fun i _req ->
@@ -112,7 +112,7 @@ let top_1_first () =
 
 let top_1_first_2 () =
   Router.(
-    router
+    make
       [ route get {%r| /home/:int |} (fun i _req ->
             Format.sprintf "Int  : %d" i)
       ; route get {%r| /home/:float |} (fun f _req ->
@@ -122,7 +122,7 @@ let top_1_first_2 () =
 
 let longest_match () =
   Router.(
-    router
+    make
       [ route get {%r| /home/:int |} (fun i _req ->
             Format.sprintf "Int  : %d" i)
       ; route get {%r| /home/:int/:string |} (fun i _ _req ->

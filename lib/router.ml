@@ -40,8 +40,7 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
 (* Types *)
 
 (* We use an array for node_types so that we get better cache locality. *)
-type 'a router =
-  { route : 'a route option; node_types : (node_type * 'a router) array }
+type 'a t = { route : 'a route option; node_types : (node_type * 'a t) array }
 
 (* Unoptimized/un-compiled router type. *)
 and 'a node =
@@ -167,7 +166,7 @@ let rec node : 'a node -> 'a route -> 'a node =
 
 and empty_node : 'a node = { route' = None; node_types' = [] }
 
-let rec compile : 'a node -> 'a router =
+let rec compile : 'a node -> 'a t =
  fun t ->
   { route = t.route'
   ; node_types =
@@ -176,7 +175,7 @@ let rec compile : 'a node -> 'a router =
       |> Array.of_list
   }
 
-let router routes = List.fold_left node empty_node routes |> compile
+let make routes = List.fold_left node empty_node routes |> compile
 
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
@@ -184,7 +183,7 @@ let rec drop : 'a list -> int -> 'a list =
   | _ :: tl when n > 0 -> drop tl (n - 1)
   | t -> t
 
-let rec match' : #Request.server_request -> 'a router -> 'a option =
+let rec match' : #Request.server_request -> 'a t -> 'a option =
  fun req t ->
   let req = (req :> Request.server_request) in
   let request_target = Request.resource req in
