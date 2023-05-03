@@ -133,7 +133,7 @@ let rec node_type_of_request_target :
   | Query_arg (name, arg, request_target) ->
     NQuery_arg (name, arg) :: node_type_of_request_target request_target
 
-let node : 'a t -> 'a route -> 'a t =
+let add_route : 'a t -> 'a route -> 'a t =
  fun node' (Route (method', request_target, _) as route) ->
   let rec loop node node_types =
     match node_types with
@@ -170,7 +170,7 @@ let rec compile : 'a t -> 'a t =
       |> List.map (fun (node_type, t) -> (node_type, compile t))
   }
 
-let make routes = List.fold_left node empty routes |> compile
+let make routes = List.fold_left add_route empty routes |> compile
 
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
