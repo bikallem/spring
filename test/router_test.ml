@@ -57,25 +57,25 @@ let public url _req =
 let router =
   Router.(
     make
-      [ route Method.get {%r| /home/about/:int |} about_page
-      ; route Method.post {%r| /home/about/:int |} about_page
-      ; route Method.head {%r| /home/:int/ |} home_int_page
-      ; route Method.delete {%r| /home/:int/ |} home_int_page
-      ; route Method.get {%r| /home/:float/ |} home_float_page
-      ; route Method.get {%r| /contact/*/:int|} contact_page
-      ; route Method.post {%r| /home/products/**|} full_rest_page
-      ; route Method.get {%r| /home/*/** |} wildcard_page
-      ; route Method.get {%r| /contact/:string/:bool|} contact_page2
-      ; route Method.post {%r| /product/:string?section=:int&q=:bool |}
+      [ route Method.get [%r "/home/about/:int"] about_page
+      ; route Method.post [%r "/home/about/:int"] about_page
+      ; route Method.head [%r "/home/:int/"] home_int_page
+      ; route Method.delete [%r "/home/:int/"] home_int_page
+      ; route Method.get [%r "/home/:float/"] home_float_page
+      ; route Method.get [%r "/contact/*/:int"] contact_page
+      ; route Method.post [%r "/home/products/**"] full_rest_page
+      ; route Method.get [%r "/home/*/**"] wildcard_page
+      ; route Method.get [%r "/contact/:string/:bool"] contact_page2
+      ; route Method.post [%r "/product/:string?section=:int&q=:bool"]
           product_page
-      ; route Method.get {%r| /product/:string?section=:int&q1=yes |}
+      ; route Method.get [%r "/product/:string?section=:int&q1=yes"]
           product_page2
-      ; route Method.get {%r| /product/:string?section=:string&q1=yes|}
+      ; route Method.get [%r "/product/:string?section=:string&q1=yes"]
           product_page3
-      ; route Method.get {%r| /fruit/:Fruit|} fruit_page
-      ; route Method.get {%r| / |} root_page
-      ; route Method.get {%r| /public/** |} public
-      ; route Method.head {%r| /numbers/:int32/code/:int64/ |} numbers_page
+      ; route Method.get [%r "/fruit/:Fruit"] fruit_page
+      ; route Method.get [%r "/"] root_page
+      ; route Method.get [%r "/public/**"] public
+      ; route Method.head [%r "/numbers/:int32/code/:int64/"] numbers_page
       ])
 
 let pp_route r = List.hd r |> Router.pp_route Format.std_formatter
@@ -99,24 +99,23 @@ let make_request meth resource : Request.server_request =
   Request.server_request ~resource meth client_addr (Eio.Buf_read.of_string "")
 
 let top_1_first () =
-  Router.get {%r| /home/:float |}
+  Router.get [%r "/home/:float"]
     (fun f _req -> Format.sprintf "Float: %f" f)
     Router.empty
-  |> Router.get {%r| /home/:int |} (fun i _req -> Format.sprintf "Int  : %d" i)
+  |> Router.get [%r "/home/:int"] (fun i _req -> Format.sprintf "Int  : %d" i)
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let top_1_first_2 () =
-  Router.get {%r| /home/:int |}
+  Router.get [%r "/home/:int"]
     (fun i _req -> Format.sprintf "Int  : %d" i)
     Router.empty
-  |> Router.get {%r| /home/:float |} (fun f _req ->
-         Format.sprintf "Float: %f" f)
+  |> Router.get [%r "/home/:float"] (fun f _req -> Format.sprintf "Float: %f" f)
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let longest_match () =
-  Router.get {%r| /home/:int |}
+  Router.get [%r "/home/:int"]
     (fun i _req -> Format.sprintf "Int  : %d" i)
     Router.empty
-  |> Router.get {%r| /home/:int/:string |} (fun i _ _req ->
+  |> Router.get [%r "/home/:int/:string"] (fun i _ _req ->
          Format.sprintf "longest: %i" i)
   |> Router.match' @@ make_request Method.get "/home/12/hello"
