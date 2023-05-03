@@ -99,7 +99,7 @@ let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
 
 let empty = { root = None; routes = [] }
 
-let node_type_equal a b =
+let node_equal a b =
   match (a, b) with
   | NSlash, NSlash -> true
   | NRest, NRest -> true
@@ -141,7 +141,7 @@ let add_route : 'a t -> 'a route -> 'a t =
     | node_type :: node_types ->
       let node'' =
         List.find_opt
-          (fun (node_type', _) -> node_type_equal node_type node_type')
+          (fun (node_type', _) -> node_equal node_type node_type')
           node.routes
       in
       let routes =
@@ -149,7 +149,7 @@ let add_route : 'a t -> 'a route -> 'a t =
         | Some _ ->
           List.map
             (fun (node_type', t') ->
-              if node_type_equal node_type node_type' then
+              if node_equal node_type node_type' then
                 (node_type', loop t' node_types)
               else (node_type', t'))
             node.routes
