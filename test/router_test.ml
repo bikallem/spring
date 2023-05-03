@@ -94,41 +94,29 @@ let route3 =
     {%r|/home/:int/:int32/:int64/:Fruit?q1=hello&f=:Fruit&b=:bool&f=:float |}
     (fun _ _ _ _ _ _ _ _ -> ())
 
-let get = Method.get
-
 let make_request meth resource : Request.server_request =
   let client_addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, 8080) in
   Request.server_request ~resource meth client_addr (Eio.Buf_read.of_string "")
 
 let top_1_first () =
-  Router.add_route
-    (Router.route get {%r| /home/:float |} (fun f _req ->
-         Format.sprintf "Float: %f" f))
+  Router.get {%r| /home/:float |}
+    (fun f _req -> Format.sprintf "Float: %f" f)
     Router.empty
-  |> Router.add_route
-     @@ Router.route get {%r| /home/:int |} (fun i _req ->
-            Format.sprintf "Int  : %d" i)
+  |> Router.get {%r| /home/:int |} (fun i _req -> Format.sprintf "Int  : %d" i)
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let top_1_first_2 () =
-  let route1 =
-    Router.route get {%r| /home/:int |} (fun i _req ->
-        Format.sprintf "Int  : %d" i)
-  in
-  let route2 =
-    Router.route get {%r| /home/:float |} (fun f _req ->
-        Format.sprintf "Float: %f" f)
-  in
-  Router.add_route route1 Router.empty
-  |> Router.add_route route2
+  Router.get {%r| /home/:int |}
+    (fun i _req -> Format.sprintf "Int  : %d" i)
+    Router.empty
+  |> Router.get {%r| /home/:float |} (fun f _req ->
+         Format.sprintf "Float: %f" f)
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let longest_match () =
-  Router.(
-    make
-      [ route get {%r| /home/:int |} (fun i _req ->
-            Format.sprintf "Int  : %d" i)
-      ; route get {%r| /home/:int/:string |} (fun i _ _req ->
-            Format.sprintf "longest: %i" i)
-      ])
+  Router.get {%r| /home/:int |}
+    (fun i _req -> Format.sprintf "Int  : %d" i)
+    Router.empty
+  |> Router.get {%r| /home/:int/:string |} (fun i _ _req ->
+         Format.sprintf "longest: %i" i)
   |> Router.match' @@ make_request Method.get "/home/12/hello"
