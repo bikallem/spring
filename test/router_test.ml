@@ -101,23 +101,26 @@ let make_request meth resource : Request.server_request =
   Request.server_request ~resource meth client_addr (Eio.Buf_read.of_string "")
 
 let top_1_first () =
-  Router.(
-    make
-      [ route get {%r| /home/:float |} (fun f _req ->
-            Format.sprintf "Float: %f" f)
-      ; route get {%r| /home/:int |} (fun i _req ->
+  Router.add_route
+    (Router.route get {%r| /home/:float |} (fun f _req ->
+         Format.sprintf "Float: %f" f))
+    Router.empty
+  |> Router.add_route
+     @@ Router.route get {%r| /home/:int |} (fun i _req ->
             Format.sprintf "Int  : %d" i)
-      ])
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let top_1_first_2 () =
-  Router.(
-    make
-      [ route get {%r| /home/:int |} (fun i _req ->
-            Format.sprintf "Int  : %d" i)
-      ; route get {%r| /home/:float |} (fun f _req ->
-            Format.sprintf "Float: %f" f)
-      ])
+  let route1 =
+    Router.route get {%r| /home/:int |} (fun i _req ->
+        Format.sprintf "Int  : %d" i)
+  in
+  let route2 =
+    Router.route get {%r| /home/:float |} (fun f _req ->
+        Format.sprintf "Float: %f" f)
+  in
+  Router.add_route route1 Router.empty
+  |> Router.add_route route2
   |> Router.match' @@ make_request Method.get "/home/12"
 
 let longest_match () =
