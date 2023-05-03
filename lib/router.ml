@@ -97,6 +97,8 @@ external rest_to_string : rest -> string = "%identity"
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
+let empty = { route = None; node_types = [] }
+
 let node_type_equal a b =
   match (a, b) with
   | NSlash, NSlash -> true
@@ -131,7 +133,7 @@ let rec node_type_of_request_target :
   | Query_arg (name, arg, request_target) ->
     NQuery_arg (name, arg) :: node_type_of_request_target request_target
 
-let rec node : 'a t -> 'a route -> 'a t =
+let node : 'a t -> 'a route -> 'a t =
  fun node' (Route (method', request_target, _) as route) ->
   let rec loop node node_types =
     match node_types with
@@ -151,7 +153,7 @@ let rec node : 'a t -> 'a route -> 'a t =
                 (node_type', loop t' node_types)
               else (node_type', t'))
             node.node_types
-        | None -> (node_type, loop empty_node node_types) :: node.node_types
+        | None -> (node_type, loop empty node_types) :: node.node_types
       in
       { node with node_types }
   in
@@ -159,8 +161,6 @@ let rec node : 'a t -> 'a route -> 'a t =
     NMethod method' :: node_type_of_request_target request_target
   in
   loop node' node_types
-
-and empty_node : 'a t = { route = None; node_types = [] }
 
 let rec compile : 'a t -> 'a t =
  fun t ->
@@ -170,7 +170,7 @@ let rec compile : 'a t -> 'a t =
       |> List.map (fun (node_type, t) -> (node_type, compile t))
   }
 
-let make routes = List.fold_left node empty_node routes |> compile
+let make routes = List.fold_left node empty routes |> compile
 
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
