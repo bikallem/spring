@@ -135,22 +135,19 @@ let add_route : 'a t -> 'a route -> 'a t =
   let rec loop t nodes =
     match nodes with
     | [] -> { t with root = Some route }
-    | node_type :: node_types ->
+    | node :: nodes ->
       let node'' =
-        List.find_opt
-          (fun (node_type', _) -> node_equal node_type node_type')
-          t.routes
+        List.find_opt (fun (node', _) -> node_equal node node') t.routes
       in
       let routes =
         match node'' with
         | Some _ ->
           List.map
-            (fun (node_type', t') ->
-              if node_equal node_type node_type' then
-                (node_type', loop t' node_types)
-              else (node_type', t'))
+            (fun (node', t') ->
+              if node_equal node node' then (node', loop t' nodes)
+              else (node', t'))
             t.routes
-        | None -> (node_type, loop empty node_types) :: t.routes
+        | None -> (node, loop empty nodes) :: t.routes
       in
       { t with routes }
   in
