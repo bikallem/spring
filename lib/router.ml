@@ -132,8 +132,8 @@ let rec node_of_request_target : type a b. (a, b) request_target -> node list =
 
 let add_route : 'a t -> 'a route -> 'a t =
  fun t (Route (method', request_target, _) as route) ->
-  let rec loop t node_types =
-    match node_types with
+  let rec loop t nodes =
+    match nodes with
     | [] -> { t with root = Some route }
     | node_type :: node_types ->
       let node'' =
@@ -154,8 +154,8 @@ let add_route : 'a t -> 'a route -> 'a t =
       in
       { t with routes }
   in
-  let node_types = NMethod method' :: node_of_request_target request_target in
-  loop t node_types
+  let nodes = NMethod method' :: node_of_request_target request_target in
+  loop t nodes
 
 let rec compile : 'a t -> 'a t =
  fun t ->
