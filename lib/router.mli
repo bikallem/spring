@@ -128,6 +128,12 @@ val make : 'a route list -> 'a t
 val add_route : 'a route -> 'a t -> 'a t
 (** [add_route route t] is [t] with [route] added to it. *)
 
+val get : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+val head : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+val delete : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+val post : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+val put : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+
 val match' : #Request.server_request -> 'a t -> 'a option
 (** [match' req t] is [Some a] if [Request.meth req] and [Request.resource req]
     together matches one of the routes defined in [t]. Otherwise it is None. The
