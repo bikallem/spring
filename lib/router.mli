@@ -122,6 +122,9 @@ val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 val empty : 'a t
 (** [empty] is a router without any [route]. *)
 
+val add_route : 'a route -> 'a t -> 'a t
+(** [add_route route t] is [t] with [route] added to it. *)
+
 val make : 'a route list -> 'a t
 (** [make routes] is [t] composed of [routes]. *)
 
