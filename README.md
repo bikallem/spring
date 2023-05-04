@@ -2,7 +2,7 @@
 
 A Delightful OCaml web programming library.
 
-### Some hightlights:
+### Hightlights:
 
 - [x] `ohtml` - a fast, compiled view engine allowing you to mix HTML with OCaml code
 - [x] Type safe url routing engine utilizing ppx - `[%r "/home/:int"]`
