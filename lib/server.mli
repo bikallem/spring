@@ -70,7 +70,7 @@ val strict_http : #Eio.Time.clock -> pipeline
 
 val router_pipeline : Response.server_response Router.t -> pipeline
 
-(** {1 Server}*)
+(** {1 Servers}*)
 
 (** [t] represents a HTTP/1.1 server instance configured with some specific
     server parameters. *)
@@ -84,15 +84,6 @@ class virtual t :
       Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
 
     method virtual stop : unit
-  end
-
-type 'a request_target = ('a, Response.server_response) Router.request_target
-
-class virtual routed_server :
-  object ('a)
-    inherit t
-    method virtual router : Response.server_response Router.t
-    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
 
 val make :
@@ -117,20 +108,39 @@ val make :
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
 
-val routed_server :
+type 'a request_target = ('a, Response.server_response) Router.request_target
+
+(** [app_server] is a HTTP/1.1 web server with the following pipelines
+    preconfigured for convenience:
+
+    - [router_pipeline]
+    - [strict_http] *)
+class virtual app_server :
+  object ('a)
+    inherit t
+    method virtual router : Response.server_response Router.t
+    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
+  end
+
+val app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
   -> on_error:(exn -> unit)
   -> #Eio.Time.clock
   -> #Eio.Net.t
-  -> routed_server
+  -> app_server
+(** [app_server ~on_error clock net] is an [app_server].
 
-val get : 'f request_target -> 'f -> #routed_server -> routed_server
-val head : 'f request_target -> 'f -> #routed_server -> routed_server
-val delete : 'f request_target -> 'f -> #routed_server -> routed_server
-val post : 'f request_target -> 'f -> #routed_server -> routed_server
-val put : 'f request_target -> 'f -> #routed_server -> routed_server
+    @param handler
+      specifies handler to be added after [router_pipeline] is executed. The
+      default value is {!val:not_found_handler} *)
+
+val get : 'f request_target -> 'f -> #app_server -> app_server
+val head : 'f request_target -> 'f -> #app_server -> app_server
+val delete : 'f request_target -> 'f -> #app_server -> app_server
+val post : 'f request_target -> 'f -> #app_server -> app_server
+val put : 'f request_target -> 'f -> #app_server -> app_server
 
 (** {1 Running Servers} *)
 

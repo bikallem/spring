@@ -78,14 +78,14 @@ let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
 
 type 'a request_target = ('a, Response.server_response) Router.request_target
 
-class virtual routed_server =
+class virtual app_server =
   object (_ : 'a)
     inherit t
     method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
-let routed_server ?(max_connections = Int.max_int) ?additional_domains
+let app_server ?(max_connections = Int.max_int) ?additional_domains
     ?(handler = not_found_handler) ~on_error (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
   let stop, stop_r = Eio.Promise.create () in
@@ -105,29 +105,29 @@ let routed_server ?(max_connections = Int.max_int) ?additional_domains
     method stop = Eio.Promise.resolve stop_r ()
     method router = router
 
-    method add_route : type f.
-        Method.t -> f request_target -> f -> #routed_server =
+    method add_route : type f. Method.t -> f request_target -> f -> #app_server
+        =
       fun meth rt f -> {<router = Router.add meth rt f router>}
   end
 
-let get rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
+let get rt f (t : #app_server) =
+  let t = (t :> app_server) in
   t#add_route Method.get rt f
 
-let head rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
+let head rt f (t : #app_server) =
+  let t = (t :> app_server) in
   t#add_route Method.head rt f
 
-let delete rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
+let delete rt f (t : #app_server) =
+  let t = (t :> app_server) in
   t#add_route Method.delete rt f
 
-let post rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
+let post rt f (t : #app_server) =
+  let t = (t :> app_server) in
   t#add_route Method.post rt f
 
-let put rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
+let put rt f (t : #app_server) =
+  let t = (t :> app_server) in
   t#add_route Method.put rt f
 
 let rec handle_request clock client_addr reader writer flow handler =
