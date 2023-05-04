@@ -1,80 +1,8 @@
 type handler = Request.server_request -> Response.server_response
+
+let not_found_handler _ = Response.not_found
+
 type pipeline = handler -> handler
-
-class virtual t =
-  object
-    method virtual clock : Eio.Time.clock
-    method virtual net : Eio.Net.t
-    method virtual handler : handler
-
-    method virtual run
-        : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
-
-    method virtual stop : unit
-  end
-
-let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
-    (clock : #Eio.Time.clock) (net : #Eio.Net.t) handler =
-  let stop, stop_r = Eio.Promise.create () in
-  let run =
-    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
-  in
-  object
-    method clock = (clock :> Eio.Time.clock)
-    method net = (net :> Eio.Net.t)
-    method handler = handler
-    method run = run
-    method stop = Eio.Promise.resolve stop_r ()
-  end
-
-type 'a request_target = ('a, Response.server_response) Router.request_target
-
-class virtual routed_server =
-  object (_ : 'a)
-    inherit t
-    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
-  end
-
-(* let _router_pipeline : pipeline = fun next req -> next req *)
-
-let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
-    (clock : #Eio.Time.clock) (net : #Eio.Net.t) (handler : handler) =
-  let stop, stop_r = Eio.Promise.create () in
-  let run =
-    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
-  in
-  object
-    val router = Router.empty
-    method clock = (clock :> Eio.Time.clock)
-    method net = (net :> Eio.Net.t)
-    method handler = handler
-    method run = run
-    method stop = Eio.Promise.resolve stop_r ()
-
-    method add_route : type f.
-        Method.t -> f request_target -> f -> #routed_server =
-      fun meth rt f -> {<router = Router.add meth rt f router>}
-  end
-
-let get rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
-  t#add_route Method.get rt f
-
-let head rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
-  t#add_route Method.head rt f
-
-let delete rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
-  t#add_route Method.delete rt f
-
-let post rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
-  t#add_route Method.post rt f
-
-let put rt f (t : #routed_server) =
-  let t = (t :> routed_server) in
-  t#add_route Method.put rt f
 
 (* RFC 9112 states that host is required in server requests and server MUST
     send bad request if Host header value is not correct.
@@ -116,6 +44,79 @@ let response_date : #Eio.Time.clock -> pipeline =
 
 let strict_http clock next = response_date clock @@ host_header @@ next
 
+class virtual t =
+  object
+    method virtual clock : Eio.Time.clock
+    method virtual net : Eio.Net.t
+    method virtual handler : handler
+
+    method virtual run
+        : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
+
+    method virtual stop : unit
+  end
+
+let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
+    (clock : #Eio.Time.clock) (net : #Eio.Net.t) handler =
+  let stop, stop_r = Eio.Promise.create () in
+  let run =
+    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+  in
+  object
+    method clock = (clock :> Eio.Time.clock)
+    method net = (net :> Eio.Net.t)
+    method handler = handler
+    method run = run
+    method stop = Eio.Promise.resolve stop_r ()
+  end
+
+type 'a request_target = ('a, Response.server_response) Router.request_target
+
+class virtual routed_server =
+  object (_ : 'a)
+    inherit t
+    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
+  end
+
+let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
+    (clock : #Eio.Time.clock) (net : #Eio.Net.t) (handler : handler) =
+  let stop, stop_r = Eio.Promise.create () in
+  let run =
+    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+  in
+  object
+    val router = Router.empty
+    method clock = (clock :> Eio.Time.clock)
+    method net = (net :> Eio.Net.t)
+    method handler = handler
+    method run = run
+    method stop = Eio.Promise.resolve stop_r ()
+
+    method add_route : type f.
+        Method.t -> f request_target -> f -> #routed_server =
+      fun meth rt f -> {<router = Router.add meth rt f router>}
+  end
+
+let get rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.get rt f
+
+let head rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.head rt f
+
+let delete rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.delete rt f
+
+let post rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.post rt f
+
+let put rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.put rt f
+
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
   | request ->
@@ -151,4 +152,3 @@ let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) (t : #t)
   run socket t
 
 let shutdown (t : #t) = t#stop
-let not_found_handler _ = Response.not_found
