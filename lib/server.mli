@@ -84,14 +84,12 @@ class virtual t :
     method virtual stop : unit
   end
 
-type ('a, 'b) request_target
+type 'a request_target = ('a, Response.server_response) Router.request_target
 
 class virtual routed_server :
   object ('a)
     inherit t
-
-    method virtual add_route :
-      Method.t -> ('f, Response.server_response) request_target -> 'f -> 'a
+    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
 
 val make :
@@ -125,11 +123,7 @@ val routed_server :
   -> handler
   -> routed_server
 
-val get :
-     ('a, Response.server_response) request_target
-  -> 'a
-  -> #routed_server
-  -> routed_server
+val get : 'f request_target -> 'f -> #routed_server -> routed_server
 
 (** {1 Running Servers} *)
 

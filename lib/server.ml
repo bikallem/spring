@@ -27,15 +27,12 @@ let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
     method stop = Eio.Promise.resolve stop_r ()
   end
 
-type ('a, 'b) request_target = ('a, 'b) Router.request_target
+type 'a request_target = ('a, Response.server_response) Router.request_target
 
 class virtual routed_server =
   object (_ : 'a)
     inherit t
-
-    method virtual add_route
-        : 'f.
-          Method.t -> ('f, Response.server_response) request_target -> 'f -> 'a
+    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
 (* let _router_pipeline : pipeline = fun next req -> next req *)
@@ -52,15 +49,11 @@ let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
     method net = (net :> Eio.Net.t)
     method handler = handler
     method run = run
+    method stop = Eio.Promise.resolve stop_r ()
 
     method add_route : type f.
-           Method.t
-        -> (f, Response.server_response) request_target
-        -> f
-        -> #routed_server =
+        Method.t -> f request_target -> f -> #routed_server =
       fun meth rt f -> {<router = Router.add meth rt f router>}
-
-    method stop = Eio.Promise.resolve stop_r ()
   end
 
 let get rt f (t : #routed_server) =
