@@ -68,6 +68,8 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
+val router_pipeline : Response.server_response Router.t -> pipeline
+
 (** {1 Server}*)
 
 (** [t] represents a HTTP/1.1 server instance configured with some specific

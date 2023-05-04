@@ -44,6 +44,12 @@ let response_date : #Eio.Time.clock -> pipeline =
 
 let strict_http clock next = response_date clock @@ host_header @@ next
 
+let router_pipeline : Response.server_response Router.t -> pipeline =
+ fun router next req ->
+  match Router.match' req router with
+  | Some response -> response
+  | None -> next req
+
 class virtual t =
   object
     method virtual clock : Eio.Time.clock
