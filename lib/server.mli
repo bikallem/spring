@@ -120,10 +120,10 @@ val make :
 val routed_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
+  -> ?handler:handler
   -> on_error:(exn -> unit)
   -> #Eio.Time.clock
   -> #Eio.Net.t
-  -> handler
   -> routed_server
 
 val get : 'f request_target -> 'f -> #routed_server -> routed_server

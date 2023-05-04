@@ -85,17 +85,22 @@ class virtual routed_server =
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
-let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
-    (clock : #Eio.Time.clock) (net : #Eio.Net.t) (handler : handler) =
+let routed_server ?(max_connections = Int.max_int) ?additional_domains
+    ?(handler = not_found_handler) ~on_error (clock : #Eio.Time.clock)
+    (net : #Eio.Net.t) =
   let stop, stop_r = Eio.Promise.create () in
   let run =
     Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
   in
-  object
+  object (self)
     val router = Router.empty
     method clock = (clock :> Eio.Time.clock)
     method net = (net :> Eio.Net.t)
-    method handler = handler
+
+    method handler =
+      let r = self#router in
+      strict_http clock @@ router_pipeline r @@ handler
+
     method run = run
     method stop = Eio.Promise.resolve stop_r ()
     method router = router
