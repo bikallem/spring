@@ -127,6 +127,7 @@ val get : 'f request_target -> 'f -> #routed_server -> routed_server
 val head : 'f request_target -> 'f -> #routed_server -> routed_server
 val delete : 'f request_target -> 'f -> #routed_server -> routed_server
 val post : 'f request_target -> 'f -> #routed_server -> routed_server
+val put : 'f request_target -> 'f -> #routed_server -> routed_server
 
 (** {1 Running Servers} *)
 
