@@ -4,7 +4,7 @@ module Fruit = struct
   type t = Apple | Orange | Pineapple
 
   let t : t Router.arg =
-    Router.arg "Fruit" (function
+    Router.make_arg "Fruit" (function
       | "apple" -> Some Apple
       | "orange" -> Some Orange
       | "pineapple" -> Some Pineapple
@@ -20,8 +20,7 @@ let fruit_page fruit (_req : #Request.server_request) =
 let about_page i (_req : #Request.server_request) =
   Format.sprintf "about_page - %d" i
 
-let full_rest_page url _req =
-  Format.sprintf "full rest page: %s" @@ Router.rest_to_string url
+let full_rest_page url _req = Format.sprintf "full rest page: %s" url
 
 let home_int_page i (_req : #Request.server_request) =
   Printf.sprintf "Product Page. Product Id : %d" i
@@ -29,8 +28,7 @@ let home_int_page i (_req : #Request.server_request) =
 let home_float_page f _req = Printf.sprintf "Float page. number : %f" f
 
 let wildcard_page s url _req =
-  Printf.sprintf "Wildcard page. %s. Remaining url: %s" s
-  @@ Router.rest_to_string url
+  Printf.sprintf "Wildcard page. %s. Remaining url: %s" s url
 
 let numbers_page id code _req = Printf.sprintf "int32: %ld, int64: %Ld." id code
 let root_page (_req : #Request.server_request) = "Root page"
@@ -51,8 +49,7 @@ let product_page2 name section_id _req =
 let product_page3 name section_id _req =
   Printf.sprintf "Product detail 2 - %s. Section: %s." name section_id
 
-let public url _req =
-  Format.sprintf "file path: %s" @@ Router.rest_to_string url
+let public url _req = Format.sprintf "file path: %s" url
 
 let router =
   Router.(

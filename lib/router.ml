@@ -37,9 +37,28 @@ let new_id (type a) () =
 let eq : type a b. a id -> b id -> (a, b) eq option =
  fun (module TyA) (module TyB) -> TyB.eq TyA.witness
 
-type 'a t = { route : 'a route option; routes : (node * 'a t) list }
+(* Arg *)
+type 'a arg =
+  { name : string
+  ; (* name e.g. int, float, bool, string etc *)
+    convert : string -> 'a option
+  ; id : 'a id
+  }
 
-and ('a, 'b) request_target =
+let make_arg name convert =
+  let id = new_id () in
+  { name; convert; id }
+
+let int = make_arg "int" int_of_string_opt
+let int32 = make_arg "int32" Int32.of_string_opt
+let int64 = make_arg "int64" Int64.of_string_opt
+let float = make_arg "float" float_of_string_opt
+let string = make_arg "string" (fun a -> Some a)
+let bool = make_arg "bool" bool_of_string_opt
+
+type rest = string
+
+type ('a, 'b) request_target =
   | Nil : (Request.server_request -> 'b, 'b) request_target
   | Rest : (rest -> Request.server_request -> 'b, 'b) request_target
   | Slash : (Request.server_request -> 'b, 'b) request_target
@@ -52,8 +71,22 @@ and ('a, 'b) request_target =
       string * 'c arg * ('a, 'b) request_target
       -> ('c -> 'a, 'b) request_target
 
+type 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
+
 (** Existential to encode request_target component/node type. *)
-and node =
+
+let nil = Nil
+let rest = Rest
+let slash = Slash
+let exact s request_target = Exact (s, request_target)
+
+let query_exact name value request_target =
+  Query_exact (name, value, request_target)
+
+let arg d request_target = Arg (d, request_target)
+let query_arg name d request_target = Query_arg (name, d, request_target)
+
+type node =
   | NSlash : node
   | NRest : node
   | NExact : string -> node
@@ -62,32 +95,8 @@ and node =
   | NArg : 'c arg -> node
   | NQuery_arg : string * 'c arg -> node
 
-and 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
-and rest = string
-
-and 'a arg =
-  { name : string
-  ; (* name e.g. int, float, bool, string etc *)
-    convert : string -> 'a option
-  ; id : 'a id
-  }
-
-and arg_value = Arg_value : 'c arg * 'c -> arg_value
-
-(* Arg *)
-
-let arg name convert =
-  let id = new_id () in
-  { name; convert; id }
-
-let int_d = arg "int" int_of_string_opt
-let int32_d = arg "int32" Int32.of_string_opt
-let int64_d = arg "int64" Int64.of_string_opt
-let float_d = arg "float" float_of_string_opt
-let string_d = arg "string" (fun a -> Some a)
-let bool_d = arg "bool" bool_of_string_opt
-
-external rest_to_string : rest -> string = "%identity"
+type arg_value = Arg_value : 'c arg * 'c -> arg_value
+type 'a t = { route : 'a route option; routes : (node * 'a t) list }
 
 (* Routes and Router *)
 
@@ -237,7 +246,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       in
       ( true
       , matched_tok_count
-      , Some (t', Arg_value (string_d, rest_url) :: arg_values) )
+      , Some (t', Arg_value (string, rest_url) :: arg_values) )
     | `Query (name, value), (NQuery_arg (name', arg), t') :: nodes -> (
       match arg.convert value with
       | Some v when String.equal name name' ->
@@ -263,7 +272,7 @@ and exec_route_handler :
  fun req f -> function
   | Nil, [] -> f req
   | Rest, [ Arg_value (d, v) ] -> (
-    match eq string_d.id d.id with
+    match eq string.id d.id with
     | Some Eq -> f v req
     | None -> assert false)
   | Slash, [] -> f req
@@ -356,24 +365,3 @@ let pp fmt t =
       (loop qmark_printed) fmt t')
   in
   loop false fmt t
-
-(* Used by wtr/request_target ppx *)
-
-module Private = struct
-  let nil = Nil
-  let rest = Rest
-  let slash = Slash
-  let exact s request_target = Exact (s, request_target)
-
-  let query_exact name value request_target =
-    Query_exact (name, value, request_target)
-
-  let arg d request_target = Arg (d, request_target)
-  let query_arg name d request_target = Query_arg (name, d, request_target)
-  let int = int_d
-  let int32 = int32_d
-  let int64 = int64_d
-  let float = float_d
-  let string = string_d
-  let bool = bool_d
-end

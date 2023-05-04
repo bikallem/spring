@@ -26,65 +26,29 @@
     - [\[%routes ""\]] - ppx based which is provided by a separate opam package
       [wtr-ppx]. *)
 
-type 'a t
-(** A {!type:t} consists of one or many HTTP request {!type:route}s which are
-    used to match a given HTTP request target.
+(* {1 Arg} *)
 
-    ['a] is a value which is returned by a {i route handler} of the matched
-    {i route}. *)
-
-and 'a route
-(** {!type:route} is a HTTP request route. A route encapsulates a HTTP
-    {!type:method'}, a {!type:request_target} and a {i route handler}. A
-    {i route handler} is either of the following:
-
-    - a value of type ['a]
-    - or a function which returns a value of type ['a]. *)
-
-and ('a, 'b) request_target
-(** {!type:request_target} is a HTTP request target value to be matched. It
-    consists of either just a {!type:path} value or a combination of
-    {!type:path} and {!type:query} values.
-
-    Example {i request_target} values:
-
-    - [/home/about/] - path only
-    - [/home/contact] - path only
-    - [/home/contact?name=a&no=123] - path ([/home/contact]) and query
-      ([name=a&no=123]). Path and query are delimited by [?] character token if
-      both are specified.
-
-    Consult {{!section:request_target_dsl} Request Target DSL} for creating
-    values of this type.
-
-    See
-    {{:https://datatracker.ietf.org/doc/html/rfc7230#section-5.3} HTTP RFC 7230
-      \- request target}. *)
-
-and rest
-(** {!type:rest} represents a part of {i request target} from a given path
-    component to the rest of a {i request_target}.
-
-    Use {!val:rest_to_string} to convert to string representation. *)
-
-and 'a arg
+type 'a arg
 (** {!type:arg} is a component which can convert a {b path component} or a
     {b query component} [value] token into an OCaml typed value represented by
     ['a]. The successfully converted value is then fed to a {i route handler}
     function as an argument. *)
 
-val rest_to_string : rest -> string
-(** [rest_to_string rest] converts [rest] to string. *)
+val int : int arg
+val int32 : int32 arg
+val int64 : int64 arg
+val float : float arg
+val bool : bool arg
+val string : string arg
 
-val arg : string -> (string -> 'a option) -> 'a arg
-(** [arg name convert] is {!type:arg} with name [name] and [convert] as the
-    function which will convert/decode a string value to an OCaml value of type
-    ['a].
+val make_arg : string -> (string -> 'a option) -> 'a arg
+(** [make_arg name decoder] is {!type:arg} with name [name] and [decoder] as the
+    function which will decode a string value to an OCaml value of type ['a].
 
     [name] is used during the pretty-printing of {i request_target} by
     {!val:pp_request_target}.
 
-    [convert v] is [Some a] if [convert] can successfully convert [v] to [a].
+    [decoder v] is [Some a] if [decoder] can successfully convert [v] to [a].
     Otherwise it is [None].
 
     Although not strictly necessary if we are only working with
@@ -116,8 +80,67 @@ val arg : string -> (string -> 'a option) -> 'a arg
     See {!val:parg} and {!val:qarg} for usage in {i path} and {i query}
     components. *)
 
+(** {1 Request Target} *)
+
+type ('a, 'b) request_target
+(** {!type:request_target} is a HTTP request target value to be matched. It
+    consists of either just a {!type:path} value or a combination of
+    {!type:path} and {!type:query} values.
+
+    Example {i request_target} values:
+
+    - [/home/about/] - path only
+    - [/home/contact] - path only
+    - [/home/contact?name=a&no=123] - path ([/home/contact]) and query
+      ([name=a&no=123]). Path and query are delimited by [?] character token if
+      both are specified.
+
+    Consult {{!section:request_target_dsl} Request Target DSL} for creating
+    values of this type.
+
+    See
+    {{:https://datatracker.ietf.org/doc/html/rfc7230#section-5.3} HTTP RFC 7230
+      \- request target}. *)
+
+type rest = string
+(** {!type:rest} represents a part of {i request target} from a given path
+    component to the rest of a {i request_target}.
+
+    Use {!val:rest_to_string} to convert to string representation. *)
+
+val nil : (Request.server_request -> 'b, 'b) request_target
+val rest : (rest -> Request.server_request -> 'b, 'b) request_target
+val slash : (Request.server_request -> 'b, 'b) request_target
+val exact : string -> ('a, 'b) request_target -> ('a, 'b) request_target
+val arg : 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
+
+val query_arg :
+  string -> 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
+
+val query_exact :
+  string -> string -> ('a, 'b) request_target -> ('a, 'b) request_target
+
+(** {1 Route} *)
+
+type 'a route
+(** {!type:route} is a HTTP request route. A route encapsulates a HTTP
+    {!type:method'}, a {!type:request_target} and a {i route handler}. A
+    {i route handler} is either of the following:
+
+    - a value of type ['a]
+    - or a function which returns a value of type ['a]. *)
+
 val route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route
 (** [route method' request_target handler] is a {!type:route}. *)
+
+(* {1 Router}*)
+
+type 'a t
+(** A {!type:t} consists of one or many HTTP request {!type:route}s which are
+    used to match a given HTTP request target.
+
+    ['a] is a value which is returned by a {i route handler} of the matched
+    {i route}. *)
 
 val empty : 'a t
 (** [empty] is a router without any [route]. *)
@@ -129,10 +152,24 @@ val add_route : 'a route -> 'a t -> 'a t
 (** [add_route route t] is [t] with [route] added to it. *)
 
 val get : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [get request_target f t] is [t] with a route that matches HTTP GET method
+    and [request_target] *)
+
 val head : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [head request_target f t] is [t] with a route that matches HTTP HEAD method
+    and [request_target]. *)
+
 val delete : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [delete request_target f t] is [t] with a route that matches HTTP DELETE
+    method and [request_target]. *)
+
 val post : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [post request_target f t] is [t] with a route that matches HTTP POST method
+    and [request_target]. *)
+
 val put : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [put request_target f t] is [t] with a route that matches HTTP PUT method
+    and [request_target]. *)
 
 val match' : #Request.server_request -> 'a t -> 'a option
 (** [match' req t] is [Some a] if [Request.meth req] and [Request.resource req]
@@ -145,33 +182,8 @@ val match' : #Request.server_request -> 'a t -> 'a option
     {i longest match}. See {!val:pp} to visualize the t and the route matching
     mechanism. *)
 
+(* {1 Pretty Printers} *)
+
 val pp_request_target : Format.formatter -> ('a, 'b) request_target -> unit
 val pp_route : Format.formatter -> 'b route -> unit
 val pp : Format.formatter -> 'a t -> unit
-
-(**/**)
-
-(** Used by wtr/request_target ppx *)
-module Private : sig
-  val nil : (Request.server_request -> 'b, 'b) request_target
-  val rest : (rest -> Request.server_request -> 'b, 'b) request_target
-  val slash : (Request.server_request -> 'b, 'b) request_target
-  val exact : string -> ('a, 'b) request_target -> ('a, 'b) request_target
-
-  val query_exact :
-    string -> string -> ('a, 'b) request_target -> ('a, 'b) request_target
-
-  val arg : 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
-
-  val query_arg :
-    string -> 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
-
-  val int : int arg
-  val int32 : int32 arg
-  val int64 : int64 arg
-  val float : float arg
-  val bool : bool arg
-  val string : string arg
-end
-
-(**/**)
