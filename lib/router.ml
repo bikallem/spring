@@ -38,16 +38,11 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
  fun (module TyA) (module TyB) -> TyB.eq TyA.witness
 
 (* Arg *)
-type 'a arg =
-  { name : string
-  ; (* name e.g. int, float, bool, string etc *)
-    convert : string -> 'a option
-  ; id : 'a id
-  }
+type 'a arg = { name : string; decode : string -> 'a option; id : 'a id }
 
-let make_arg name convert =
+let make_arg name decode =
   let id = new_id () in
-  { name; convert; id }
+  { name; decode; id }
 
 let int = make_arg "int" int_of_string_opt
 let int32 = make_arg "int32" Int32.of_string_opt
@@ -226,7 +221,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
     match (tok, nodes) with
     | _, [] -> (false, matched_tok_count, None)
     | `Path v, (NArg arg, t') :: nodes -> (
-      match arg.convert v with
+      match arg.decode v with
       | Some v ->
         (false, matched_tok_count, Some (t', Arg_value (arg, v) :: arg_values))
       | None -> match_request_path tok arg_values matched_tok_count nodes)
@@ -248,7 +243,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
       , matched_tok_count
       , Some (t', Arg_value (string, rest_url) :: arg_values) )
     | `Query (name, value), (NQuery_arg (name', arg), t') :: nodes -> (
-      match arg.convert value with
+      match arg.decode value with
       | Some v when String.equal name name' ->
         (false, matched_tok_count, Some (t', Arg_value (arg, v) :: arg_values))
       | _ -> match_request_path tok arg_values matched_tok_count nodes)
