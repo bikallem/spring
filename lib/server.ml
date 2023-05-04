@@ -81,6 +81,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 class virtual routed_server =
   object (_ : 'a)
     inherit t
+    method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
@@ -97,6 +98,7 @@ let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
     method handler = handler
     method run = run
     method stop = Eio.Promise.resolve stop_r ()
+    method router = router
 
     method add_route : type f.
         Method.t -> f request_target -> f -> #routed_server =

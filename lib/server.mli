@@ -91,6 +91,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 class virtual routed_server :
   object ('a)
     inherit t
+    method virtual router : Response.server_response Router.t
     method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
 
