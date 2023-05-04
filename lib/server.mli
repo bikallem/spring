@@ -84,6 +84,16 @@ class virtual t :
     method virtual stop : unit
   end
 
+type ('a, 'b) request_target
+
+class virtual routed_server :
+  object ('a)
+    inherit t
+
+    method virtual add_route :
+      Method.t -> ('f, Response.server_response) request_target -> 'f -> 'a
+  end
+
 val make :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
@@ -105,6 +115,21 @@ val make :
     @param max_connections
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
+
+val routed_server :
+     ?max_connections:int
+  -> ?additional_domains:#Eio.Domain_manager.t * int
+  -> on_error:(exn -> unit)
+  -> #Eio.Time.clock
+  -> #Eio.Net.t
+  -> handler
+  -> routed_server
+
+val get :
+     ('a, Response.server_response) request_target
+  -> 'a
+  -> #routed_server
+  -> routed_server
 
 (** {1 Running Servers} *)
 

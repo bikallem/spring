@@ -27,6 +27,48 @@ let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
     method stop = Eio.Promise.resolve stop_r ()
   end
 
+type ('a, 'b) request_target = ('a, 'b) Router.request_target
+
+class virtual routed_server =
+  object (_ : 'a)
+    inherit t
+
+    method virtual add_route
+        : 'f.
+          Method.t -> ('f, Response.server_response) request_target -> 'f -> 'a
+  end
+
+(* let _router_pipeline : pipeline = fun next req -> next req *)
+
+let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
+    (clock : #Eio.Time.clock) (net : #Eio.Net.t) (handler : handler) =
+  let stop, stop_r = Eio.Promise.create () in
+  let run =
+    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+  in
+  object
+    val router = Router.empty
+    method clock = (clock :> Eio.Time.clock)
+    method net = (net :> Eio.Net.t)
+    method handler = handler
+    method run = run
+
+    method add_route : type f.
+           Method.t
+        -> (f, Response.server_response) request_target
+        -> f
+        -> #routed_server =
+      fun meth rt f ->
+        let route = Router.route meth rt f in
+        {<router = Router.add_route route router>}
+
+    method stop = Eio.Promise.resolve stop_r ()
+  end
+
+let get rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.get rt f
+
 (* RFC 9112 states that host is required in server requests and server MUST
     send bad request if Host header value is not correct.
 
