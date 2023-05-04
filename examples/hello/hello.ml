@@ -8,7 +8,7 @@ let display_products _req =
 
 let () =
   Eio_main.run @@ fun env ->
-  Server.routed_server ~on_error:raise env#clock env#net
+  Server.app_server ~on_error:raise env#clock env#net
   |> Server.get [%r "/"] say_hello
   |> Server.get [%r "/products"] display_products
   |> Server.run_local ~port:8080
