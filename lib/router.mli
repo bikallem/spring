@@ -152,26 +152,6 @@ val add : Method.t -> ('a, 'b) request_target -> 'a -> 'b t -> 'b t
 (** [add meth request_target f t] is [t] with route - created from
     [meth],[request_target] and [f] - added to it. *)
 
-val get : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
-(** [get request_target f t] is [t] with a route that matches HTTP GET method
-    and [request_target] *)
-
-val head : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
-(** [head request_target f t] is [t] with a route that matches HTTP HEAD method
-    and [request_target]. *)
-
-val delete : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
-(** [delete request_target f t] is [t] with a route that matches HTTP DELETE
-    method and [request_target]. *)
-
-val post : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
-(** [post request_target f t] is [t] with a route that matches HTTP POST method
-    and [request_target]. *)
-
-val put : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
-(** [put request_target f t] is [t] with a route that matches HTTP PUT method
-    and [request_target]. *)
-
 val match' : #Request.server_request -> 'a t -> 'a option
 (** [match' req t] is [Some a] if [Request.meth req] and [Request.resource req]
     together matches one of the routes defined in [t]. Otherwise it is None. The

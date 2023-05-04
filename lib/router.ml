@@ -163,12 +163,6 @@ let add : type a b. Method.t -> (a, b) request_target -> a -> b t -> b t =
   let r = route meth rt f in
   add_route r t
 
-let get rt f t = add Method.get rt f t
-let post rt f t = add Method.post rt f t
-let head rt f t = add Method.head rt f t
-let delete rt f t = add Method.delete rt f t
-let put rt f t = add Method.put rt f t
-
 let rec drop : 'a list -> int -> 'a list =
  fun l n ->
   match l with
