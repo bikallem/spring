@@ -2,7 +2,22 @@
 
 A Delightful OCaml web programming library.
 
-# Hello world in Spring
+### Some hightlights:
+
+- [x] Fast, compiled view engine. You can intermix HTML with OCaml code. The view engine is `ohtml`
+- [x] Type safe url routing engine utilizing ppx - `[%r "/home/:int"]`
+- [x] Multicore capable HTTP/1.1 server builtin with all the required goodness
+- [x] Form handling functionality builtin, impelements RFC 9110 for standards compliance and interoperability
+- [ ] Cookie based session support
+- [ ] SQL database based session support
+- [x] Cookie handling builtin
+- [ ] TLS HTTPS server builtin
+- [x] Type-safe HTTP header manipulation builtin
+- [x] HTTP standards based - RFC 9112
+- [x] Closely aligned with `eio`
+- [ ] Builtin file serving HTTP server
+
+### Hello world in Spring
 
 ```hello_v.ohtml```
 
