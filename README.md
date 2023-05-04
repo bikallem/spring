@@ -41,14 +41,14 @@ fun products ->
 		hx-sse=@"connect:/news_update">
   Hello 
   <span>world!</span>
-	<h2>Products for sale</h2>
+  <h2>Products for sale</h2>
   <ol>
   { List.iter (fun product ->
-			<li>
-				@{if product = "apple" then "red apple" else product}
-				<span>@product<text> hello</text>
-				@product</span>
-			</li>
+        <li>
+		    @{if product = "apple" then "red apple" else product}
+		    <span>@product<text> hello</text>
+		    @product</span>
+		</li>
     ) products
   }
   </ol>
