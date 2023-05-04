@@ -1,13 +1,10 @@
 open Spring
 
-let say_hello _req =
-  let v = V.layout_v ~title:"Hello Page" ~body:V.hello_v in
-  Response.ohtml v
+let say_hello _req = V.view ~title:"Hello Page" V.hello_v
 
 let display_products _req =
-  let body = V.products_v [ "apple"; "oranges"; "bananas" ] in
-  let v = V.layout_v ~title:"Products Page" ~body in
-  Response.ohtml v
+  V.products_v [ "apple"; "oranges"; "bananas" ]
+  |> V.view ~title:"Products Page"
 
 let () =
   Eio_main.run @@ fun env ->
