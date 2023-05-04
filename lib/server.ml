@@ -130,6 +130,10 @@ let put rt f (t : #app_server) =
   let t = (t :> app_server) in
   t#add_route Method.put rt f
 
+let add_route meth request_target f (t : #app_server) =
+  let t = (t :> app_server) in
+  t#add_route meth request_target f
+
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
   | request ->

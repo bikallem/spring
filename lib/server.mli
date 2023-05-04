@@ -137,10 +137,28 @@ val app_server :
       default value is {!val:not_found_handler} *)
 
 val get : 'f request_target -> 'f -> #app_server -> app_server
+(** [get request_target f t] is [t] with a route that matches HTTP GET method
+    and [request_target] *)
+
 val head : 'f request_target -> 'f -> #app_server -> app_server
+(** [head request_target f t] is [t] with a route that matches HTTP HEAD method
+    and [request_target]. *)
+
 val delete : 'f request_target -> 'f -> #app_server -> app_server
+(** [delete request_target f t] is [t] with a route that matches HTTP DELETE
+    method and [request_target]. *)
+
 val post : 'f request_target -> 'f -> #app_server -> app_server
+(** [post request_target f t] is [t] with a route that matches HTTP POST method
+    and [request_target]. *)
+
 val put : 'f request_target -> 'f -> #app_server -> app_server
+(** [put request_target f t] is [t] with a route that matches HTTP PUT method
+    and [request_target]. *)
+
+val add_route : Method.t -> 'f request_target -> 'f -> #app_server -> app_server
+(** [add_route meth request_target f t] adds route made from
+    [meth],[request_target] and [f] to [t]. *)
 
 (** {1 Running Servers} *)
 
