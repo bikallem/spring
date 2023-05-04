@@ -68,6 +68,10 @@ let delete rt f (t : #routed_server) =
   let t = (t :> routed_server) in
   t#add_route Method.delete rt f
 
+let post rt f (t : #routed_server) =
+  let t = (t :> routed_server) in
+  t#add_route Method.post rt f
+
 (* RFC 9112 states that host is required in server requests and server MUST
     send bad request if Host header value is not correct.
 
