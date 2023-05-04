@@ -66,10 +66,6 @@ type ('a, 'b) request_target =
       string * 'c arg * ('a, 'b) request_target
       -> ('c -> 'a, 'b) request_target
 
-type 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
-
-(** Existential to encode request_target component/node type. *)
-
 let nil = Nil
 let rest = Rest
 let slash = Slash
@@ -81,6 +77,7 @@ let query_exact name value request_target =
 let arg d request_target = Arg (d, request_target)
 let query_arg name d request_target = Query_arg (name, d, request_target)
 
+(* Existential to encode request_target component/node type. *)
 type node =
   | NSlash : node
   | NRest : node
@@ -90,10 +87,11 @@ type node =
   | NArg : 'c arg -> node
   | NQuery_arg : string * 'c arg -> node
 
-type arg_value = Arg_value : 'c arg * 'c -> arg_value
-type 'a t = { route : 'a route option; routes : (node * 'a t) list }
-
 (* Routes and Router *)
+
+type arg_value = Arg_value : 'c arg * 'c -> arg_value
+type 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
+type 'a t = { route : 'a route option; routes : (node * 'a t) list }
 
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
