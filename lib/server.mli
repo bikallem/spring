@@ -1,9 +1,5 @@
 (** [Server] is a HTTP 1.1 server. *)
 
-type t
-(** [t] represents a HTTP/1.1 server instance configured with some specific
-    server parameters. *)
-
 (** {1 Handler} *)
 
 type handler = Request.server_request -> Response.server_response
@@ -72,7 +68,21 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
-(** {1 Create Server}*)
+(** {1 Server}*)
+
+(** [t] represents a HTTP/1.1 server instance configured with some specific
+    server parameters. *)
+class virtual t :
+  object
+    method virtual clock : Eio.Time.clock
+    method virtual net : Eio.Net.t
+    method virtual handler : handler
+
+    method virtual run :
+      Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
+
+    method virtual stop : unit
+  end
 
 val make :
      ?max_connections:int
@@ -98,7 +108,7 @@ val make :
 
 (** {1 Running Servers} *)
 
-val run : Eio.Net.listening_socket -> t -> unit
+val run : Eio.Net.listening_socket -> #t -> unit
 (** [run socket t] runs a HTTP/1.1 server listening on socket [socket].
 
     {[
@@ -112,7 +122,7 @@ val run : Eio.Net.listening_socket -> t -> unit
     ]} *)
 
 val run_local :
-  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> t -> unit
+  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> #t -> unit
 (** [run_local t] runs server on TCP/IP address [localhost] and by default on
     port [80].
 
@@ -134,6 +144,6 @@ val connection_handler :
 (** [connection_handler handler clock] is a connection handler, suitable for
     passing to {!Eio.Net.accept_fork}. *)
 
-val shutdown : t -> unit
+val shutdown : #t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
     inflight connections to complete. *)

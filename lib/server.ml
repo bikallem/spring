@@ -1,13 +1,17 @@
 type handler = Request.server_request -> Response.server_response
 type pipeline = handler -> handler
 
-type t =
-  { clock : Eio.Time.clock
-  ; net : Eio.Net.t
-  ; handler : handler
-  ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
-  ; stop_r : unit Eio.Promise.u
-  }
+class virtual t =
+  object
+    method virtual clock : Eio.Time.clock
+    method virtual net : Eio.Net.t
+    method virtual handler : handler
+
+    method virtual run
+        : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
+
+    method virtual stop : unit
+  end
 
 let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
     (clock : #Eio.Time.clock) (net : #Eio.Net.t) handler =
@@ -15,12 +19,13 @@ let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
   let run =
     Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
   in
-  { clock = (clock :> Eio.Time.clock)
-  ; net = (net :> Eio.Net.t)
-  ; handler
-  ; run
-  ; stop_r
-  }
+  object
+    method clock = (clock :> Eio.Time.clock)
+    method net = (net :> Eio.Net.t)
+    method handler = handler
+    method run = run
+    method stop = Eio.Promise.resolve stop_r ()
+  end
 
 (* RFC 9112 states that host is required in server requests and server MUST
     send bad request if Host header value is not correct.
@@ -83,17 +88,18 @@ let connection_handler handler clock flow client_addr =
   Eio.Buf_write.with_flow flow (fun writer ->
       handle_request clock client_addr reader writer flow handler)
 
-let run socket t =
-  let connection_handler = connection_handler t.handler t.clock in
-  t.run socket connection_handler
+let run socket (t : #t) =
+  let connection_handler = connection_handler t#handler t#clock in
+  t#run socket connection_handler
 
-let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =
+let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) (t : #t)
+    =
   Eio.Switch.run @@ fun sw ->
   let addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, port) in
   let socket =
-    Eio.Net.listen ~reuse_addr ~backlog:socket_backlog ~sw t.net addr
+    Eio.Net.listen ~reuse_addr ~backlog:socket_backlog ~sw t#net addr
   in
   run socket t
 
-let shutdown t = Eio.Promise.resolve t.stop_r ()
+let shutdown (t : #t) = t#stop
 let not_found_handler _ = Response.not_found
