@@ -148,8 +148,9 @@ val empty : 'a t
 val make : 'a route list -> 'a t
 (** [make routes] is [t] composed of [routes]. *)
 
-val add_route : 'a route -> 'a t -> 'a t
-(** [add_route route t] is [t] with [route] added to it. *)
+val add : Method.t -> ('a, 'b) request_target -> 'a -> 'b t -> 'b t
+(** [add meth request_target f t] is [t] with route - created from
+    [meth],[request_target] and [f] - added to it. *)
 
 val get : ('a, 'b) request_target -> 'a -> 'b t -> 'b t
 (** [get request_target f t] is [t] with a route that matches HTTP GET method

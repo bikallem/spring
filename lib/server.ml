@@ -58,9 +58,7 @@ let routed_server ?(max_connections = Int.max_int) ?additional_domains ~on_error
         -> (f, Response.server_response) request_target
         -> f
         -> #routed_server =
-      fun meth rt f ->
-        let route = Router.route meth rt f in
-        {<router = Router.add_route route router>}
+      fun meth rt f -> {<router = Router.add meth rt f router>}
 
     method stop = Eio.Promise.resolve stop_r ()
   end
