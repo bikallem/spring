@@ -32,51 +32,37 @@ let make ?expires ?max_age ?domain ?path ?(secure = true) ?(http_only = true)
   ; same_site
   }
 
-include Cookie_parser
+let av_value r =
+  Buf_read.take_while
+    (function
+      | ';' -> false
+      | _ -> true)
+    r
 
-let av_value s =
-  let v =
-    String.take
-      ~sat:(function
-        | ';' -> false
-        | _ -> true)
-      (String.with_range ~first:s.pos s.i)
-  in
-  let len = String.length v in
-  if len = 0 then failwith "av_value: attribute value missing" else accept s len;
-  v
-
-let space s =
-  match String.get s.i s.pos with
-  | ' ' -> accept s 1
-  | x -> failwith @@ "space: expected ' '(space), got '" ^ Char.escaped x ^ "'"
-
-let cookie_attributes s =
+let cookie_attributes r =
   let rec aux () =
-    if s.pos < String.length s.i then
-      match String.get s.i s.pos with
-      | ';' ->
-        accept s 1;
-        space s;
-        let attr_nm =
-          String.take
-            ~sat:(function
-              | ';' | '=' -> false
-              | _ -> true)
-            (String.with_range ~first:s.pos s.i)
-          |> String.Ascii.lowercase
-        in
-        accept s (String.length attr_nm);
-        let attr_val =
-          match attr_nm with
-          | "expires" | "max-age" | "domain" | "path" | "samesite" ->
-            eq s;
-            av_value s
-          | _ -> ""
-        in
-        (attr_nm, attr_val) :: aux ()
-      | _ -> []
-    else []
+    let c = Buf_read.peek_char r in
+    match c with
+    | Some ';' ->
+      Buf_read.char ';' r;
+      Buf_read.space r;
+      let attr_nm =
+        Buf_read.take_while
+          (function
+            | ';' | '=' -> false
+            | _ -> true)
+          r
+        |> String.Ascii.lowercase
+      in
+      let attr_val =
+        match attr_nm with
+        | "expires" | "max-age" | "domain" | "path" | "samesite" ->
+          Buf_read.char '=' r;
+          av_value r
+        | _ -> ""
+      in
+      (attr_nm, attr_val) :: aux ()
+    | _ -> []
   in
   aux ()
 
@@ -89,11 +75,9 @@ let is_av_octet v =
 
 (* eg . Set-Cookie: lang=en-US; Expires=Wed, 09 Jun 2021 10:18:14 GMT *)
 let decode v =
-  let s = { i = v; pos = 0 } in
-  let name = token s in
-  eq s;
-  let value = cookie_value s in
-  let attributes = cookie_attributes s in
+  let r = Buf_read.of_string v in
+  let name, value = Buf_read.cookie_pair r in
+  let attributes = cookie_attributes r in
   let t =
     { name
     ; value
