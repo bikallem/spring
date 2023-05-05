@@ -311,3 +311,29 @@ val req : Request.server_request = <obj>
 }
 - : unit = ()
 ```
+
+## Request.find_cookie
+
+```ocaml
+# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
+val headers : Header.t = <abstr>
+
+# let req =
+    Request.server_request
+        ~headers
+        ~resource:"/details"
+        Method.get
+        client_addr 
+        (Eio.Buf_read.of_string "")
+        ;;
+val req : Request.server_request = <obj>
+
+# Request.find_cookie ~name:"SID" req;;
+- : string option = Some "31d4d96e407aad42"
+
+# Request.find_cookie ~name:"lang" req;;
+- : string option = Some "en"
+
+# Request.find_cookie ~name:"blah" req;;
+- : string option = None
+```
