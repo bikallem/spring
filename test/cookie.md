@@ -49,4 +49,7 @@ val t : Cookie.t = <abstr>
 
 # Cookie.find t "id";;
 - : string option = Some "value1"
+
+# Cookie.encode t;;
+- : string = "id=value1; SID=31d4d96e407aad42; lang=en"
 ```
