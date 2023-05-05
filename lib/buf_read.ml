@@ -95,3 +95,22 @@ let rec parameters r =
     let param = parameter r in
     param :: parameters r
   | Some _ | None -> []
+
+let cookie_octet =
+  let is_octet = function
+    | '\x21'
+    | '\x23' .. '\x2B'
+    | '\x2D' .. '\x3A'
+    | '\x3C' .. '\x5B'
+    | '\x5D' .. '\x7E' -> true
+    | _ -> false
+  in
+  take_while is_octet
+
+let cookie_value : string parser =
+  let* c = peek_char in
+  match c with
+  | Some '"' -> char '"' *> cookie_octet <* char '"'
+  | Some _ | None -> cookie_octet
+
+let cookie_pair : (string * string) parser = token <* char '=' <*> cookie_value
