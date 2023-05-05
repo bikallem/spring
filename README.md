@@ -11,7 +11,7 @@ A Delightful OCaml web programming library.
 - [ ] SQLite/Postgres/Mysql database based session 
 - [x] HTTP Cookies (RFC 6265)
 - [x] Type-safe HTTP header manipulation
-- [ ] Builtin file serving HTTP server
+- [ ] HTTP file server - host/serve static web assets such as `.css, .js, .jpg, .png` etc 
 - [x] HTTP/1.1 (RFC 9112) compliant server
 - [x] Parallel/Multicore capable HTTP/1.1 server
 - [x] HTTP/1.1 client
