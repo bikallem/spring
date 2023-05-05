@@ -7,8 +7,8 @@ A Delightful OCaml web programming library.
 - [x] `ohtml` - a fast, compiled view engine allowing you to mix HTML with OCaml code
 - [x] Type safe, radix-tree based url routing engine. Use ppx to specify route path, e.g. `[%r "/store/products/:int"]`
 - [x] Form handling/data upload (multipart/formdata protocol - RFC 9110 - for standards compliance and interoperability)
-- [ ] Cookie based session
-- [ ] SQLite/Postgres/Mysql database based session 
+- [ ] Secure HTTP session based on encrypted cookie
+- [ ] Secure HTTP session based on SQLite/Postgres/Mysql
 - [x] HTTP Cookies (RFC 6265)
 - [x] Type-safe HTTP header manipulation
 - [x] Fullly compliant (RFC 7230) HTTP chunked transfer protocol (both client and server)
