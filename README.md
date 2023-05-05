@@ -9,7 +9,7 @@ A Delightful OCaml web programming library.
 - [x] Form handling/data upload (multipart/formdata protocol - RFC 9110 - for standards compliance and interoperability)
 - [ ] Cookie based session
 - [ ] SQLite/Postgres/Mysql database based session 
-- [x] Cookie handling
+- [x] HTTP Cookies (RFC 6265)
 - [x] Type-safe HTTP header manipulation
 - [ ] Builtin file serving HTTP server
 - [x] HTTP/1.1 (RFC 9112) compliant server
