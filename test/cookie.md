@@ -3,17 +3,21 @@
 ```ocaml
 open Spring
 ```
-## Cookie.decode
+## Cookie.decode - supports both " .. " and without
 
 ```ocaml
 # let t = Cookie.decode "SID=31d4d96e407aad42; lang=en";;
 val t : Cookie.t = <abstr>
 
+# let t = Cookie.decode {|SID="31d4d96e407aad42"; lang="en"|};;
+```
+
+```ocaml
 # Cookie.decode "";; 
-Exception: Invalid_argument "[Cookie.decode] argument [v] is empty".
+Exception: End_of_file.
 
 # Cookie.decode "a";; 
-Exception: Invalid_argument "[Cookie.decode] argument [v] is invalid".
+Exception: End_of_file.
 ```
 
 ## Cookie.find
@@ -33,5 +37,5 @@ Exception: Invalid_argument "[Cookie.decode] argument [v] is invalid".
 
 ```ocaml
 # Cookie.encode t;;
-- : string = "lang=en; SID=31d4d96e407aad42"
+- : string = "SID=31d4d96e407aad42; lang=en"
 ```
