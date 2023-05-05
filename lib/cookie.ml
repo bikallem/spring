@@ -18,6 +18,8 @@ let rec skip_ws s =
   else ()
 
 let decode v =
+  if String.length v = 0 then
+    raise (Invalid_argument "[Cookie.decode] argument [v] is empty");
   let s = { i = v; pos = 0 } in
   let rec aux cookies =
     if s.pos < String.length s.i then
@@ -30,8 +32,11 @@ let decode v =
       | _ -> cookies
     else cookies
   in
-  let cookie = cookie_pair s in
-  aux [ cookie ]
+  try
+    let cookie = cookie_pair s in
+    aux [ cookie ]
+  with Invalid_argument _ ->
+    raise (Invalid_argument "[Cookie.decode] argument [v] is invalid")
 
 let encode t = List.map (fun (k, v) -> k ^ "=" ^ v) t |> String.concat ~sep:"; "
 let find t cookie_name = List.assoc_opt cookie_name t
