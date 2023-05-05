@@ -6,18 +6,17 @@ A Delightful OCaml web programming library.
 
 - [x] `ohtml` - a fast, compiled view engine allowing you to mix HTML with OCaml code
 - [x] Type safe url routing engine utilizing ppx - `[%r "/home/:int"]`
-- [x] Multicore capable HTTP/1.1 server
 - [x] Form handling (impelements RFC 9110 for standards compliance and interoperability)
 - [ ] Cookie based session
 - [ ] SQLite/Postgres/Mysql database based session 
 - [x] Cookie handling
-- [ ] HTTPS server - TLS/1.3 based
 - [x] Type-safe HTTP header manipulation
-- [x] HTTP standards based - RFC 9112
-- [x] Closely aligned with `eio`
 - [ ] Builtin file serving HTTP server
+- [x] HTTP/1.1 (RFC 9112) compliant server
+- [x] Parallel/Multicore capable HTTP/1.1 server
 - [x] HTTP/1.1 client
 - [ ] HTTPS client - TLS/1.3 based
+- [x] Closely aligned with `eio` io library
 
 ### Hello world in Spring
 
