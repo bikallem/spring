@@ -8,6 +8,12 @@ open Spring
 ```ocaml
 # let t = Cookie.decode "SID=31d4d96e407aad42; lang=en";;
 val t : Cookie.t = <abstr>
+
+# Cookie.decode "";; 
+Exception: Invalid_argument "[Cookie.decode] argument [v] is empty".
+
+# Cookie.decode "a";; 
+Exception: Invalid_argument "[Cookie.decode] argument [v] is invalid".
 ```
 
 ## Cookie.find
