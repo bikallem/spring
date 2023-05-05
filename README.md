@@ -19,7 +19,8 @@ A Delightful OCaml web programming library.
 - [ ] HTTPS client - TLS/1.3 based
 - [x] Closely aligned with `eio` io library
 
-### Hello world in Spring
+### Hello world in Spring [^1]
+[^1]: See https://github.com/bikallem/spring/tree/main/examples/hello for full sample
 
 ```hello.ml```
 
