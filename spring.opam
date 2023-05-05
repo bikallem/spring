@@ -9,20 +9,20 @@ homepage: "https://github.com/gbikal/spring"
 bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
   "ocaml" {>= "5.0.0"}
-  "eio" {>= "0.8.1"}
-  "dune" {>= "3.7" & >= "3.6"}
+  "eio" {>= "0.9"}
+  "dune" {>= "3.7" & >= "3.7.1"}
   "easy-format" {>= "1.3.4"}
   "uri" {>= "4.2.0"}
   "ptime" {>= "1.1.0"}
   "astring" {>= "0.8.5"}
   "domain-name" {>= "0.4.0"}
-  "menhir" {>= "20220210"}
+  "menhir" {>= "20230415"}
   "cmdliner" {>= "1.1.1"}
   "ppxlib" {>= "0.29.1"}
-  "eio_main" {>= "0.8.1" & with-test}
+  "eio_main" {>= "0.9" & with-test}
   "fmt" {>= "0.9.0" & with-test}
   "cstruct" {>= "6.1.1" & with-test}
-  "mdx" {>= "2.2.1" & with-test}
+  "mdx" {>= "2.3.0" & with-test}
   "odoc" {with-doc}
 ]
 build: [

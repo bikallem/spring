@@ -25,9 +25,9 @@
   (ocaml
    (>= 5.0.0))
   (eio
-   (>= 0.8.1))
+   (>= 0.9))
   (dune
-   (>= 3.6))
+   (>= 3.7.1))
   (easy-format
    (>= 1.3.4))
   (uri
@@ -39,14 +39,14 @@
   (domain-name
    (>= 0.4.0))
   (menhir
-   (>= 20220210))
+   (>= 20230415))
   (cmdliner
    (>= 1.1.1))
   (ppxlib
    (>= 0.29.1))
   (eio_main
    (and
-    (>= 0.8.1)
+    (>= 0.9)
     :with-test))
   (fmt
    (and
@@ -58,5 +58,5 @@
     :with-test))
   (mdx
    (and
-    (>= 2.2.1)
+    (>= 2.3.0)
     :with-test))))
