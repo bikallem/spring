@@ -35,6 +35,10 @@ val keep_alive : #t -> bool
     "Connection" header is missing and the HTTP version is 1.1. It is [false] if
     header "Connection: close" exists. *)
 
+val find_cookie : name:string -> #t -> string option
+(** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in
+    [t]. Otherwise it is [None]. [v] is the value of the cookie. *)
+
 (** {1 Client Request}
 
     A HTTP client_request request that is primarily constructed and used by

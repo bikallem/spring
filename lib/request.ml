@@ -38,6 +38,11 @@ let keep_alive (t : #t) =
     | None -> false)
   | _ -> false
 
+let find_cookie ~name (t : #t) =
+  let open Option.Syntax in
+  let* cookie = Header.(find_opt t#headers cookie) in
+  Cookie.find cookie name
+
 class virtual client_request =
   object
     inherit t
