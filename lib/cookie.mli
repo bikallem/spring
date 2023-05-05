@@ -9,9 +9,11 @@ val decode : string -> t
 (** [decode s] decodes [s] into [t]. *)
 
 val encode : t -> string
-
-(** {1 Find Cookies} *)
+(** [encode t] encodes [t] into a string representation. *)
 
 val find : t -> string -> string option
 (** [find t cookie_name] is [Some v] if [cookie_name] exists in [t]. It is
     [None] otherwise. *)
+
+val add : name:string -> value:string -> t -> t
+(** [add ~name ~value t] adds a cookie [name] and [value] pair to [t] *)

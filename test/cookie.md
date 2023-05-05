@@ -40,3 +40,13 @@ Exception: End_of_file.
 # Cookie.encode t;;
 - : string = "SID=31d4d96e407aad42; lang=en"
 ```
+
+## Cookie.add
+
+```ocaml
+# let t = Cookie.add ~name:"id" ~value:"value1" t;;
+val t : Cookie.t = <abstr>
+
+# Cookie.find t "id";;
+- : string option = Some "value1"
+```
