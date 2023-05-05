@@ -5,7 +5,7 @@ A Delightful OCaml web programming library.
 ### Hightlights:
 
 - [x] `ohtml` - a fast, compiled view engine allowing you to mix HTML with OCaml code
-- [x] Type safe url routing engine utilizing ppx - `[%r "/home/:int"]`
+- [x] Type safe, radix-tree based url routing engine. Use ppx to specify route path, e.g. `[%r "/store/products/:int"]`
 - [x] Form handling/data upload (multipart/formdata protocol - RFC 9110 - for standards compliance and interoperability)
 - [ ] Cookie based session
 - [ ] SQLite/Postgres/Mysql database based session 
