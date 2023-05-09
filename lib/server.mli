@@ -69,6 +69,8 @@ val strict_http : #Eio.Time.clock -> pipeline
     ]} *)
 
 val router_pipeline : Response.server_response Router.t -> pipeline
+(** [router_pipeline router] is a pipeline which multiplexes incoming requests
+    based on [router]. *)
 
 (** {1 Servers}*)
 
