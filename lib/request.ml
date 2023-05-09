@@ -211,40 +211,11 @@ let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
 
 open Eio.Buf_read.Syntax
 
-let take_while1 p r =
-  match Buf_read.take_while p r with
-  | "" -> raise End_of_file
-  | x -> x
-
-let token =
-  take_while1 (function
-    | '0' .. '9'
-    | 'a' .. 'z'
-    | 'A' .. 'Z'
-    | '!'
-    | '#'
-    | '$'
-    | '%'
-    | '&'
-    | '\''
-    | '*'
-    | '+'
-    | '-'
-    | '.'
-    | '^'
-    | '_'
-    | '`'
-    | '|'
-    | '~' -> true
-    | _ -> false)
-
-let space = Buf_read.char '\x20'
-
 let http_meth =
-  let+ meth = token <* space in
+  let+ meth = Buf_read.(token <* space) in
   Method.make meth
 
-let http_resource = take_while1 (fun c -> c != ' ') <* space
+let http_resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space)
 
 let parse client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
