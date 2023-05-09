@@ -23,3 +23,4 @@ let encode t =
 
 let find t cookie_name = Map.find_opt cookie_name t
 let add ~name ~value t = Map.add name value t
+let remove ~name t = Map.remove name t

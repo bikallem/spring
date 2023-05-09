@@ -17,3 +17,6 @@ val find : t -> string -> string option
 
 val add : name:string -> value:string -> t -> t
 (** [add ~name ~value t] adds a cookie [name] and [value] pair to [t] *)
+
+val remove : name:string -> t -> t
+(** [remove ~name t] is [t] with cookie [name] removed from [t]. *)

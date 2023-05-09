@@ -53,3 +53,13 @@ val t : Cookie.t = <abstr>
 # Cookie.encode t;;
 - : string = "SID=31d4d96e407aad42; id=value1; lang=en"
 ```
+
+## Cookie.remove
+
+```ocaml
+# let t = Cookie.remove ~name:"id" t;;
+val t : Cookie.t = <abstr>
+
+# Cookie.find t "id";; 
+- : string option = None
+```
