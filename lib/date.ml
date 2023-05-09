@@ -1,58 +1,48 @@
 type t = Ptime.t
-type state = { i : string (* input *); mutable pos : int }
 
-let accept s n = s.pos <- s.pos + n
+open Buf_read.Syntax
 
-let day_name s =
-  let v = String.with_range ~first:s.pos ~len:3 s.i in
-  (match v with
+let day_name =
+  let+ dn = Buf_read.take 3 in
+  match dn with
   | "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun" -> ()
-  | x -> failwith @@ "day_name : unrecognized day name '" ^ x ^ "'");
-  accept s 3
+  | x -> failwith @@ "day_name : unrecognized day name '" ^ x ^ "'"
 
-let digit n s =
-  let v = String.with_range ~first:s.pos ~len:n s.i in
+let digit n =
+  let+ v = Buf_read.take n in
   if
     String.for_all
       (function
         | '0' .. '9' -> true
         | _ -> false)
       v
-  then (
-    accept s n;
-    int_of_string v)
+  then int_of_string v
   else failwith @@ "digit: unrecognized integer '" ^ v ^ "'"
 
-let comma s =
-  match String.get s.i s.pos with
-  | ',' -> accept s 1
-  | ch -> failwith @@ "comma: expected ',', got '" ^ Char.escaped ch ^ "'"
+let comma = Buf_read.char ','
 
-let space s =
-  match String.get s.i s.pos with
-  | ' ' -> accept s 1
-  | x -> failwith @@ "space: expected ' '(space), got '" ^ Char.escaped x ^ "'"
+let day_l =
+  let+ day =
+    Buf_read.take_while (function
+      | 'a' .. 'z' | 'A' .. 'Z' -> true
+      | _ -> false)
+  in
+  if
+    List.exists (String.equal day)
+      [ "Monday"
+      ; "Tuesday"
+      ; "Wednesday"
+      ; "Thursday"
+      ; "Friday"
+      ; "Saturday"
+      ; "Sunday"
+      ]
+  then ()
+  else failwith "day_l : expected long day name"
 
-let day_l s =
-  [ "Monday"
-  ; "Tuesday"
-  ; "Wednesday"
-  ; "Thursday"
-  ; "Friday"
-  ; "Saturday"
-  ; "Sunday"
-  ]
-  |> List.find_opt (fun v ->
-         let v1 = String.with_range ~first:s.pos ~len:(String.length v) s.i in
-         String.equal v v1)
-  |> function
-  | Some v -> accept s (String.length v)
-  | None -> failwith "day_l : expected long day name"
-
-let month s =
-  let v = String.with_range ~first:s.pos ~len:3 s.i in
-  List.find_opt
-    (fun (v1, _) -> String.equal v v1)
+let month =
+  let+ m = Buf_read.take 3 in
+  List.assoc_opt m
     [ ("Jan", 1)
     ; ("Feb", 2)
     ; ("Mar", 3)
@@ -67,112 +57,75 @@ let month s =
     ; ("Dec", 12)
     ]
   |> function
-  | Some (v, m) ->
-    accept s (String.length v);
-    m
+  | Some m -> m
   | None -> failwith "month: expected month"
 
-let gmt s =
-  let v = String.with_range ~first:s.pos ~len:3 s.i in
-  if String.equal "GMT" v then accept s 3 else failwith "gmt: expected GMT"
+let gmt = Buf_read.string "GMT"
+let space = Buf_read.space
 
-let date1 s =
-  let d = digit 2 s in
-  space s;
-  let m = month s in
-  space s;
-  let y = digit 4 s in
+let date1 =
+  let* d = digit 2 <* space in
+  let* m = month <* space in
+  let+ y = digit 4 in
   (y, m, d)
 
-let colon s =
-  match String.get s.i s.pos with
-  | ':' -> accept s 1
-  | ch -> failwith @@ "colon: expected ':', got '" ^ Char.escaped ch ^ "'"
+let colon = Buf_read.char ':'
 
-let time_of_day s =
-  let hour = digit 2 s in
-  colon s;
-  let minute = digit 2 s in
-  colon s;
-  let second = digit 2 s in
+let time_of_day =
+  let* hour = digit 2 <* colon in
+  let* minute = digit 2 <* colon in
+  let+ second = digit 2 in
   (hour, minute, second)
 
-let fix_date s =
-  day_name s;
-  comma s;
-  space s;
-  let date1 = date1 s in
-  space s;
-  let tod = time_of_day s in
-  space s;
-  gmt s;
+let fix_date =
+  let* date1 = day_name *> comma *> space *> date1 <* space in
+  let+ tod = time_of_day <* space <* gmt in
   (date1, tod)
 
-let dash s =
-  match String.get s.i s.pos with
-  | '-' -> accept s 1
-  | ch -> failwith @@ "dash: expected '-', got '" ^ Char.escaped ch ^ "'"
+let dash = Buf_read.char '-'
 
-let date2 s =
-  let d = digit 2 s in
-  dash s;
-  let m = month s in
-  dash s;
-  let y = digit 2 s in
+let date2 =
+  let* d = digit 2 <* dash in
+  let* m = month <* dash in
+  let+ y = digit 2 in
   let y = if y >= 50 then 1900 + y else 2000 + y in
   (y, m, d)
 
-let rfc850_date s =
-  day_l s;
-  comma s;
-  space s;
-  let date2 = date2 s in
-  space s;
-  let tod = time_of_day s in
-  space s;
-  gmt s;
+let rfc850_date =
+  let* date2 = day_l *> comma *> space *> date2 <* space in
+  let+ tod = time_of_day <* space <* gmt in
   (date2, tod)
 
-let date3 s =
-  let m = month s in
-  space s;
-  let day =
-    match String.get s.i s.pos with
-    | ('0' .. '9' | ' ') as c1 ->
-      let d =
-        match String.get s.i (s.pos + 1) with
-        | '0' .. '9' as c2 ->
-          Char.escaped c1 ^ Char.escaped c2 |> String.trim |> int_of_string
-        | _ -> int_of_string (Char.escaped c1)
-      in
-      accept s 2;
-      d
-    | x -> failwith @@ "date3: expected digit, got '" ^ Char.escaped x ^ "'"
+let date3 =
+  let* m = month <* space in
+  let+ day =
+    let+ s = Buf_read.take 2 in
+    let buf =
+      String.fold_left
+        (fun buf c ->
+          match c with
+          | '0' .. '9' ->
+            Buffer.add_char buf c;
+            buf
+          | ' ' -> buf
+          | _ -> failwith "Invalid date3 value")
+        (Buffer.create 2) s
+    in
+    int_of_string (Buffer.contents buf)
   in
   (m, day)
 
-let asctime_date s =
-  day_name s;
-  space s;
-  let m, d = date3 s in
-  Eio.traceln "m:%d, d:%d" m d;
-  space s;
-  let tod = time_of_day s in
-  space s;
-  Eio.traceln "y";
-  let y = digit 4 s in
+let asctime_date =
+  let* m, d = day_name *> space *> date3 <* space in
+  let* tod = time_of_day <* space in
+  let+ y = digit 4 in
   ((y, m, d), tod)
 
 let decode v =
-  let s = { i = v; pos = 0 } in
+  let r () = Buf_read.of_string v in
   let date, time =
-    try fix_date s
-    with _ -> (
-      s.pos <- 0;
-      try rfc850_date s
-      with _ ->
-        s.pos <- 0;
-        asctime_date s)
+    try fix_date @@ r ()
+    with _ -> ( try rfc850_date @@ r () with _ -> asctime_date @@ r ())
   in
   Ptime.of_date_time (date, (time, 0)) |> Option.get
 

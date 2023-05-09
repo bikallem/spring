@@ -22,8 +22,6 @@ val date2 : Ptime.t = <abstr>
 - : unit = ()
 
 # let date3 = Date.decode "Sun Nov  6 08:49:37 1994";;
-+m:11, d:6
-+y
 val date3 : Ptime.t = <abstr>
 
 # Eio.traceln "%a" Ptime.pp date3 ;;
