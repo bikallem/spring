@@ -110,29 +110,15 @@ let app_server ?(max_connections = Int.max_int) ?additional_domains
       fun meth rt f -> {<router = Router.add meth rt f router>}
   end
 
-let get rt f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route Method.get rt f
-
-let head rt f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route Method.head rt f
-
-let delete rt f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route Method.delete rt f
-
-let post rt f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route Method.post rt f
-
-let put rt f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route Method.put rt f
-
 let add_route meth request_target f (t : #app_server) =
   let t = (t :> app_server) in
   t#add_route meth request_target f
+
+let get rt f (t : #app_server) = add_route Method.get rt f t
+let head rt f (t : #app_server) = add_route Method.head rt f t
+let delete rt f (t : #app_server) = add_route Method.delete rt f t
+let post rt f (t : #app_server) = add_route Method.post rt f t
+let put rt f (t : #app_server) = add_route Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
