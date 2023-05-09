@@ -1,20 +1,25 @@
-type t = (string * string) list
+module Map = Map.Make (String)
+
+type t = string Map.t
 
 let decode v =
   let r = Buf_read.of_string v in
-  let rec aux () : (string * string) list =
+  let rec aux m =
     let name, value = Buf_read.cookie_pair r in
-    (name, value)
-    ::
-    (match Buf_read.peek_char r with
+    let m = Map.add name value m in
+    match Buf_read.peek_char r with
     | Some ';' ->
       Buf_read.char ';' r;
       Buf_read.ows r;
-      aux ()
-    | Some _ | None -> [])
+      aux m
+    | Some _ | None -> m
   in
-  aux ()
+  aux Map.empty
 
-let encode t = List.map (fun (k, v) -> k ^ "=" ^ v) t |> String.concat ~sep:"; "
-let find t cookie_name = List.assoc_opt cookie_name t
-let add ~name ~value t = (name, value) :: t
+let encode t =
+  Map.to_seq t |> List.of_seq
+  |> List.map (fun (k, v) -> k ^ "=" ^ v)
+  |> String.concat ~sep:"; "
+
+let find t cookie_name = Map.find_opt cookie_name t
+let add ~name ~value t = Map.add name value t

@@ -51,5 +51,5 @@ val t : Cookie.t = <abstr>
 - : string option = Some "value1"
 
 # Cookie.encode t;;
-- : string = "id=value1; SID=31d4d96e407aad42; lang=en"
+- : string = "SID=31d4d96e407aad42; id=value1; lang=en"
 ```
