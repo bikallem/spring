@@ -27,34 +27,6 @@ let hex_digit = function
   | 'A' .. 'F' -> true
   | _ -> false
 
-let quoted_char =
-  let open Buf_read.Syntax in
-  let+ c = Buf_read.any_char in
-  match c with
-  | ' ' | '\t' | '\x21' .. '\x7E' -> c
-  | c -> failwith (Printf.sprintf "Invalid escape \\%C" c)
-
-(*-- qdtext = HTAB / SP /%x21 / %x23-5B / %x5D-7E / obs-text -- *)
-let qdtext = function
-  | ('\t' | ' ' | '\x21' | '\x23' .. '\x5B' | '\x5D' .. '\x7E') as c -> c
-  | c -> failwith (Printf.sprintf "Invalid quoted character %C" c)
-
-(*-- quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE --*)
-let quoted_string r =
-  Buf_read.char '"' r;
-  let buf = Buffer.create 100 in
-  let rec aux () =
-    match Buf_read.any_char r with
-    | '"' -> Buffer.contents buf
-    | '\\' ->
-      Buffer.add_char buf (quoted_char r);
-      aux ()
-    | c ->
-      Buffer.add_char buf (qdtext c);
-      aux ()
-  in
-  aux ()
-
 let optional c x r =
   let c2 = Buf_read.peek_char r in
   if Some c = c2 then (
@@ -67,7 +39,7 @@ let chunk_ext_val =
   let open Buf_read.Syntax in
   let* c = Buf_read.peek_char in
   match c with
-  | Some '"' -> quoted_string
+  | Some '"' -> Buf_read.quoted_string
   | _ -> Buf_read.token
 
 let rec chunk_exts r =
