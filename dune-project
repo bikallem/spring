@@ -44,10 +44,14 @@
    (>= 1.1.1))
   (ppxlib
    (>= 0.29.1))
+  (cstruct
+   (>= 6.2.0))
+  (base64
+   (>= 3.5.1))
   (eio_main
-   (and
-    (>= 0.9)
-    :with-test))
+   (>= 0.9))
+  (mirage-crypto-rng-eio
+   (>= 0.11.1))
   (fmt
    (and
     (>= 0.9.0)

@@ -2,4 +2,11 @@
  (public_name spring)
  (name spring)
  (package spring)
- (libraries cmdliner ohtml))
+ (libraries
+  cmdliner
+  ohtml
+  base64
+  cstruct
+  mirage-crypto-rng
+  mirage-crypto-rng-eio
+  eio_main))
