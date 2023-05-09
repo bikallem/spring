@@ -2,8 +2,8 @@
     https://datatracker.ietf.org/doc/html/rfc6265#section-4.2 *)
 
 type t
-(** [t] represents a HTTP cookie. A cookie can hold one or more values indexed via
-    a case-sensitive cookie name. *)
+(** [t] represents a HTTP cookie. A cookie can hold one or more values indexed
+    via a case-sensitive cookie name. *)
 
 val decode : string -> t
 (** [decode s] decodes [s] into [t]. *)
