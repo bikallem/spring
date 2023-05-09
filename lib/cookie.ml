@@ -21,6 +21,6 @@ let encode t =
   |> List.map (fun (k, v) -> k ^ "=" ^ v)
   |> String.concat ~sep:"; "
 
-let find t cookie_name = Map.find_opt cookie_name t
+let find cookie_name t = Map.find_opt cookie_name t
 let add ~name ~value t = Map.add name value t
 let remove ~name t = Map.remove name t
