@@ -1,14 +1,20 @@
 class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
-  object (_ : 'a)
+  object (self : 'a)
     val headers = headers
     method version = version
     method headers = headers
     method status = status
+
+    method add_header : 'h. 'h Header.header -> 'h -> 'a =
+      fun hdr v ->
+        let headers = Header.add self#headers hdr v in
+        {<headers>}
   end
 
 let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let status (t : #t) = t#status
+let add_header hdr v (t : #t) = t#add_header hdr v
 
 exception Closed
 

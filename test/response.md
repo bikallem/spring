@@ -189,3 +189,22 @@ Pretty print `Response.server`
 # let txt_response = Response.html "hello, world" ;;
 val txt_response : Response.server_response = <obj>
 ```
+
+## Response.update_headers
+
+```ocaml
+# let id_cookie = Set_cookie.make ("ID", "1234") ;;
+val id_cookie : Set_cookie.t = <abstr>
+
+# let t = Response.add_header Header.set_cookie id_cookie txt_response ;; 
+val t : Response.server_response = <obj>
+
+# test_server_response @@ t ;;
++HTTP/1.1 200 OK
++Content-Length: 12
++Content-Type: text/html; charset=uf-8
++Set-Cookie: ID=1234; Secure; HttpOnly
++
++hello, world
+- : unit = ()
+```
