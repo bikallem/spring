@@ -141,7 +141,9 @@ let call ~conn req =
   Request.write req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
   let version, headers, status = Response.parse buf_read in
-  new Response.client_response version headers status buf_read
+  object
+    inherit Response.client_response version headers status buf_read
+  end
 
 let buf_write_initial_size t = t.write_initial_size
 let buf_read_initial_size t = t.read_initial_size
