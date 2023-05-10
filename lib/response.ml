@@ -1,8 +1,9 @@
-class virtual t =
-  object
-    method virtual version : Version.t
-    method virtual headers : Header.t
-    method virtual status : Status.t
+class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
+  object (_ : 'a)
+    val headers = headers
+    method version = version
+    method headers = headers
+    method status = status
   end
 
 let version (t : #t) = t#version
@@ -11,14 +12,11 @@ let status (t : #t) = t#status
 
 exception Closed
 
-class client_response version headers status buf_read =
+class virtual client_response version headers status buf_read =
   let closed = ref false in
   object
-    inherit t
+    inherit t version headers status
     inherit Body.readable
-    method version = version
-    method headers = headers
-    method status = status
     method buf_read = if !closed then raise Closed else buf_read
     method body_closed = !closed
     method close_body = closed := true
@@ -52,18 +50,16 @@ let parse buf_read =
 let close_body (t : #client_response) = t#close_body
 let body_closed (t : #client_response) = t#body_closed
 
-class virtual server_response =
+class virtual server_response version headers status =
   object
-    inherit t
+    inherit t version headers status
     inherit Body.writable
   end
 
 let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
     ?(status = Status.ok) (body : #Body.writable) : server_response =
   object
-    method version = version
-    method headers = headers
-    method status = status
+    inherit server_response version headers status
     method write_body = body#write_body
     method write_header = body#write_header
   end

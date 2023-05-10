@@ -3,11 +3,14 @@
 (** [t] is a common response abstraction for response types
     {!class:server_response} and {!class:client_response}. *)
 class virtual t :
-  object
-    method virtual version : Version.t
-    method virtual headers : Header.t
-    method virtual status : Status.t
-  end
+  Version.t
+  -> Header.t
+  -> Status.t
+  -> object ('a)
+       method version : Version.t
+       method headers : Header.t
+       method status : Status.t
+     end
 
 val version : #t -> Version.t
 (** [version t] is HTTP version of response [t]. *)
@@ -22,7 +25,7 @@ val status : #t -> Status.t
 
 exception Closed
 
-class client_response :
+class virtual client_response :
   Version.t
   -> Header.t
   -> Status.t
@@ -30,9 +33,6 @@ class client_response :
   -> object
        inherit t
        inherit Body.readable
-       method version : Version.t
-       method headers : Header.t
-       method status : Status.t
        method buf_read : Eio.Buf_read.t
        method body_closed : bool
        method close_body : unit
@@ -52,10 +52,13 @@ val body_closed : #client_response -> bool
 (** {1 Server Response} *)
 
 class virtual server_response :
-  object
-    inherit t
-    inherit Body.writable
-  end
+  Version.t
+  -> Header.t
+  -> Status.t
+  -> object
+       inherit t
+       inherit Body.writable
+     end
 
 val server_response :
      ?version:Version.t
