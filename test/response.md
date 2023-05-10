@@ -190,7 +190,7 @@ Pretty print `Response.server`
 val txt_response : Response.server_response = <obj>
 ```
 
-## Response.update_headers
+## Response.add_header
 
 ```ocaml
 # let id_cookie = Set_cookie.make ("ID", "1234") ;;
