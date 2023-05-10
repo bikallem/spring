@@ -208,3 +208,16 @@ val t : Response.server_response = <obj>
 +hello, world
 - : unit = ()
 ```
+
+## Response.add_set_cookie
+
+```ocaml
+# Response.add_set_cookie id_cookie txt_response |> test_server_response ;;
++HTTP/1.1 200 OK
++Content-Length: 12
++Content-Type: text/html; charset=uf-8
++Set-Cookie: ID=1234; Secure; HttpOnly
++
++hello, world
+- : unit = ()
+```
