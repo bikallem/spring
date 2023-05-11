@@ -129,6 +129,7 @@ val find_all : t -> 'a header -> 'a list
     [t]. *)
 
 val exists : t -> 'a header -> bool
+(** [exists t hdr] is [true] if [hdr] exists in [t]. It is [false] otherwise. *)
 
 (** {1 Update/Remove} *)
 
