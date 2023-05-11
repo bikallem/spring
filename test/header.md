@@ -314,7 +314,7 @@ val req : Header.headerable = <obj>
 # Header.(find_opt req#headers cookie);;
 - : Cookie.t option = Some <abstr>
 
-# let req = Header.(remove_header cookie req);;
+# let req = Header.(remove_first_header cookie req);;
 val req : Header.headerable = <obj>
 
 # Header.(find_opt req#headers cookie);;
