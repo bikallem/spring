@@ -98,6 +98,9 @@ let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
       pp_fields fmt fields
   end
 
+let add_cookie ~name ~value (t : #client_request) =
+  Header.add_cookie ~name ~value t
+
 let client_host_port (t : #client_request) = (t#host, t#port)
 
 let parse_url url =

@@ -68,6 +68,8 @@ val client_host_port : #client_request -> host_port
 (** [client_host_port r] is the [host] and [port] for client_request request
     [r]. *)
 
+val add_cookie : name:string -> value:string -> (#client_request as 'a) -> 'a
+
 type url = string
 (** [url] is a HTTP URI value with host information.
 
