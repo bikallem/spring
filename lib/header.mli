@@ -172,6 +172,10 @@ val add_cookie : name:string -> value:string -> (#headerable as 'a) -> 'a
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
     [t]. *)
 
+val add_set_cookie : Set_cookie.t -> (#headerable as 'a) -> 'a
+(** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
+    [set_cookie] added to it. *)
+
 val remove_header : 'a header -> (#headerable as 't) -> 't
 (** [remove_header hdr t] is [t] with HTTP header defined by [hdr] removed. *)
 
