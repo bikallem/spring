@@ -11,6 +11,9 @@ val decode : string -> t
 val encode : t -> string
 (** [encode t] encodes [t] into a string representation. *)
 
+val empty : t
+(** [empty] is an HTTP Cookie header with zero cookie pair (name, value) *)
+
 val find : string -> t -> string option
 (** [find cookie_name t] is [Some v] if [cookie_name] exists in [t]. It is
     [None] otherwise. *)
