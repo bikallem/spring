@@ -138,6 +138,22 @@ val h1 : Header.t = <abstr>
 - : string list = []
 ```
 
+# Header.remove_first
+
+```ocaml
+# let h1 = Header.of_list ["user-agent", "234"; "user-agent", "123"];;
+val h1 : Header.t = <abstr>
+
+# Header.(find_all h1 user_agent);;
+- : string list = ["234"; "123"]
+
+# let h1 = Header.(remove_first h1 user_agent);;
+val h1 : Header.t = <abstr>
+
+# Header.(find_all h1 user_agent);;
+- : string list = ["123"]
+```
+
 ## Header.parse
 
 ```ocaml
