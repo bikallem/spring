@@ -153,6 +153,10 @@ val find_cookie : string -> #headerable -> string option
 (** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in
     [t]. Otherwise it is [None]. [v] is the value of the cookie. *)
 
+val add_cookie : name:string -> value:string -> (#headerable as 'a) -> 'a
+(** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
+    [t]. *)
+
 (** {1 Pretty Printer} *)
 
 val easy_fmt : t -> Easy_format.t

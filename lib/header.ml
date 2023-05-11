@@ -174,6 +174,16 @@ let find_cookie name (t : #headerable) =
   let* cookie = find_opt t#headers cookie in
   Cookie.find name cookie
 
+let add_cookie ~name ~value (t : #headerable) =
+  let cookie_hdr =
+    match find_opt t#headers cookie with
+    | Some cookie_hdr -> cookie_hdr
+    | None -> Cookie.empty
+  in
+  let cookie_hdr = Cookie.add ~name ~value cookie_hdr in
+  let headers = replace t#headers cookie cookie_hdr in
+  t#update headers
+
 open Easy_format
 
 let field lbl v =

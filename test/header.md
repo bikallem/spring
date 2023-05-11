@@ -217,3 +217,19 @@ val req : Header.headerable = <obj>
 # Header.find_cookie "blah" req;;
 - : string option = None
 ```
+
+## Header.add_cookie
+
+```ocaml
+# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42"] ;;
+val headers : Header.t = <abstr>
+
+# let req = object inherit Header.headerable headers end ;;
+val req : Header.headerable = <obj>
+
+# let req = Header.add_cookie ~name:"lang" ~value:"en" req ;;
+val req : Header.headerable = <obj>
+
+# Header.find_cookie "lang" req;;
+- : string option = Some "en"
+```
