@@ -7,10 +7,9 @@ class virtual t :
   -> Header.t
   -> Status.t
   -> object ('a)
+       inherit Header.headerable
        method version : Version.t
-       method headers : Header.t
        method status : Status.t
-       method add_header : 'h. 'h Header.header -> 'h -> 'a
      end
 
 val version : #t -> Version.t
@@ -22,15 +21,8 @@ val headers : #t -> Header.t
 val status : #t -> Status.t
 (** [status t] is HTTP status code for response [t]. *)
 
-val add_header : 'h Header.header -> 'h -> (#t as 'a) -> 'a
-(** [add_header hdr hdr_value t] is [t] with HTTP header [hdr,hdr_value] added
-    to [t].
-
-    {[
-      let response = Response.html "hello, world" in
-      let id_cookie = Set_cookie.make ("ID", "1234") in
-      Response.add_header Header.set_cookie id_cookie response
-    ]} *)
+val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
+(** [add_header] is [Header.add_header]. *)
 
 (** {1 Client Response} *)
 
