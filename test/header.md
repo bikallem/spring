@@ -360,3 +360,37 @@ val req : Header.headerable = <obj>
 +}
 - : unit = ()
 ```
+
+## Header.remove_set_cookie
+
+```ocaml
+# let sc1 = Set_cookie.make ("ID", "1234") ;;
+val sc1 : Set_cookie.t = <abstr>
+
+# let sc2 = Set_cookie.make ("SC2", "1234") ;;
+val sc2 : Set_cookie.t = <abstr>
+
+# let h1 = Header.(add empty set_cookie sc1);;
+val h1 : Header.t = <abstr>
+
+# let h2 = Header.(add h1 set_cookie sc2);;
+val h2 : Header.t = <abstr>
+
+# let req = 
+  object
+    inherit Header.headerable h2
+  end;;
+val req : Header.headerable = <obj>
+
+# Header.find_set_cookie "ID" req;;
+- : Set_cookie.t option = Some <abstr>
+
+# let req = Header.remove_set_cookie "ID" req;;
+val req : Header.headerable = <obj>
+
+# Header.find_set_cookie "ID" req;;
+- : Set_cookie.t option = None
+
+# Header.find_set_cookie "SC2" req;;
+- : Set_cookie.t option = Some <abstr>
+```

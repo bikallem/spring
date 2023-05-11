@@ -202,6 +202,20 @@ let find_set_cookie name (t : #headerable) =
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
 
 let add_set_cookie v (t : #headerable) = add_header set_cookie v t
+
+let remove_set_cookie name (t : #headerable) =
+  let[@tail_mod_cons] rec aux = function
+    | [] -> []
+    | ((hdr_name, v) as x) :: tl ->
+      if
+        String.equal hdr_name set_cookie.name
+        && (String.equal name @@ Set_cookie.(decode v |> name))
+      then tl
+      else x :: aux tl
+  in
+  let headers = aux t#headers in
+  update_headers t headers
+
 let remove_first_header hdr t = remove t#headers hdr |> update_headers t
 
 open Easy_format
