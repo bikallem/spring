@@ -68,6 +68,7 @@ let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
   end
 
 let add_set_cookie = Header.add_set_cookie
+let remove_set_cookie = Header.remove_set_cookie
 
 let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked.writable ~ua_supports_trailer write_chunk write_trailer

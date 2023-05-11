@@ -83,6 +83,9 @@ val server_response :
 val add_set_cookie : Set_cookie.t -> (#server_response as 'a) -> 'a
 (** [add_set_cookie] is [Header.add_set_cookie]. *)
 
+val remove_set_cookie : string -> (#server_response as 'a) -> 'a
+(** [remove_set_cookie] is [Header.remove_set_cookie]. *)
+
 val chunked_response :
      ua_supports_trailer:bool
   -> Chunked.write_chunk
