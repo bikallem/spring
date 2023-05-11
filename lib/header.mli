@@ -162,6 +162,10 @@ val find_header : 'a header -> #headerable -> 'a
 (** [find_header hdr t] is [v] if [hdr] exists in [t]. [v] is the header value
     as defined by [hdr]. *)
 
+val find_headers : 'a header -> #headerable -> 'a list
+(** [find_headers hdr t] is [l] - a list of headers matching the definition
+    [hdr] in [t]. *)
+
 val find_header_opt : 'a header -> #headerable -> 'a option
 (** [find_header_opt hdr t] is [Some v] if [hdr] exists in [t]. Otherwise it is
     [None]. [v] is the value as defined by [hdr]. *)
