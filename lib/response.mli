@@ -84,8 +84,7 @@ val server_response :
 (** [server_response body] is a server response with body [body]. *)
 
 val add_set_cookie : Set_cookie.t -> (#server_response as 'a) -> 'a
-(** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
-    [set_cookie] added to it. *)
+(** [add_set_cookie] is [Header.add_set_cookie]. *)
 
 val chunked_response :
      ua_supports_trailer:bool

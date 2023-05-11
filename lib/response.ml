@@ -68,7 +68,7 @@ let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
     method write_header = body#write_header
   end
 
-let add_set_cookie set_cookie t = add_header Header.set_cookie set_cookie t
+let add_set_cookie = Header.add_set_cookie
 
 let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked.writable ~ua_supports_trailer write_chunk write_trailer
