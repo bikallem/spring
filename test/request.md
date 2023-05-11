@@ -328,12 +328,12 @@ val headers : Header.t = <abstr>
         ;;
 val req : Request.server_request = <obj>
 
-# Request.find_cookie ~name:"SID" req;;
+# Request.find_cookie "SID" req;;
 - : string option = Some "31d4d96e407aad42"
 
-# Request.find_cookie ~name:"lang" req;;
+# Request.find_cookie "lang" req;;
 - : string option = Some "en"
 
-# Request.find_cookie ~name:"blah" req;;
+# Request.find_cookie "blah" req;;
 - : string option = None
 ```

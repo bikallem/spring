@@ -4,10 +4,10 @@ let host_port_to_string (host, port) =
   | Some p -> Format.sprintf "%s:%d" host p
   | None -> host
 
-class virtual t =
+class virtual t headers =
   object
+    inherit Header.headerable headers
     method virtual version : Version.t
-    method virtual headers : Header.t
     method virtual meth : Method.t
     method virtual resource : string
     method virtual pp : Format.formatter -> unit
@@ -38,14 +38,11 @@ let keep_alive (t : #t) =
     | None -> false)
   | _ -> false
 
-let find_cookie ~name (t : #t) =
-  let open Option.Syntax in
-  let* cookie = Header.(find_opt t#headers cookie) in
-  Cookie.find name cookie
+let find_cookie name (t : #t) = Header.find_cookie name t
 
-class virtual client_request =
+class virtual client_request headers =
   object
-    inherit t
+    inherit t headers
     inherit Body.writable
     method virtual host : string
     method virtual port : int option
@@ -84,10 +81,8 @@ let pp_fields fmt fields =
 let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
     ~host ~resource (meth : Method.t) body =
   object (self)
-    inherit client_request as _super
-    val headers = headers
+    inherit client_request headers as _super
     method version = version
-    method headers = headers
     method meth = meth
     method resource = resource
     method host = host
@@ -174,9 +169,9 @@ let write (t : #client_request) w =
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 
-class virtual server_request =
+class virtual server_request headers =
   object
-    inherit t
+    inherit t headers
     inherit Body.readable
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
@@ -187,9 +182,8 @@ let client_addr (t : #server_request) = t#client_addr
 let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
     ~resource meth client_addr buf_read =
   object (self)
-    inherit server_request
+    inherit server_request headers
     method version = version
-    method headers = headers
     method meth = meth
     method resource = resource
     method client_addr = client_addr

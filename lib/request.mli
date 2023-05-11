@@ -3,13 +3,14 @@
 (** [t] is a common request abstraction for {!type:server_request} and
     {!type:client_request}. *)
 class virtual t :
-  object
-    method virtual version : Version.t
-    method virtual headers : Header.t
-    method virtual meth : Method.t
-    method virtual resource : string
-    method virtual pp : Format.formatter -> unit
-  end
+  Header.t
+  -> object
+       inherit Header.headerable
+       method virtual version : Version.t
+       method virtual meth : Method.t
+       method virtual resource : string
+       method virtual pp : Format.formatter -> unit
+     end
 
 type host_port = string * int option
 (** [host_port] is a tuple of [(host, Some port)]. *)
@@ -35,21 +36,21 @@ val keep_alive : #t -> bool
     "Connection" header is missing and the HTTP version is 1.1. It is [false] if
     header "Connection: close" exists. *)
 
-val find_cookie : name:string -> #t -> string option
-(** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in
-    [t]. Otherwise it is [None]. [v] is the value of the cookie. *)
+val find_cookie : string -> #t -> string option
+(** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
 
 (** {1 Client Request}
 
     A HTTP client_request request that is primarily constructed and used by
     {!module:Client}. *)
 class virtual client_request :
-  object
-    inherit t
-    inherit Body.writable
-    method virtual host : string
-    method virtual port : int option
-  end
+  Header.t
+  -> object
+       inherit t
+       inherit Body.writable
+       method virtual host : string
+       method virtual port : int option
+     end
 
 val client_request :
      ?version:Version.t
@@ -127,11 +128,12 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 
     A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
-  object
-    inherit t
-    inherit Body.readable
-    method virtual client_addr : Eio.Net.Sockaddr.stream
-  end
+  Header.t
+  -> object
+       inherit t
+       inherit Body.readable
+       method virtual client_addr : Eio.Net.Sockaddr.stream
+     end
 
 val buf_read : #server_request -> Eio.Buf_read.t
 (** [buf_read r] is a buffered reader that can read request [r] body. *)
