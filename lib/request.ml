@@ -42,7 +42,7 @@ let add_header = Header.add_header
 let find_header = Header.find_header
 let find_header_opt = Header.find_header_opt
 let find_cookie = Header.find_cookie
-let remove_header = Header.remove_header
+let remove_first_header = Header.remove_first_header
 
 class virtual client_request headers =
   object

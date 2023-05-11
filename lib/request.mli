@@ -48,8 +48,8 @@ val find_header_opt : 'a Header.header -> #t -> 'a option
 val find_cookie : string -> #t -> string option
 (** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
 
-val remove_header : 'a Header.header -> (#t as 'a) -> 'a
-(** [remove_header] is [Header.remove_header] *)
+val remove_first_header : 'a Header.header -> (#t as 'a) -> 'a
+(** [remove_first_header] is [Header.remove_first_header] *)
 
 (** {1 Client Request}
 

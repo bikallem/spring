@@ -30,8 +30,8 @@ val find_header : 'a Header.header -> #t -> 'a
 val find_header_opt : 'a Header.header -> #t -> 'a option
 (** [find_header_opt] is [Header.find_header_opt] *)
 
-val remove_header : 'a Header.header -> (#t as 'a) -> 'a
-(** [remove_header] is [Header.remove_header] *)
+val remove_first_header : 'a Header.header -> (#t as 'a) -> 'a
+(** [remove_first_header] is [Header.remove_first_header] *)
 
 (** {1 Client Response} *)
 
