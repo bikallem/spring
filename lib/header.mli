@@ -172,6 +172,9 @@ val add_cookie : name:string -> value:string -> (#headerable as 'a) -> 'a
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
     [t]. *)
 
+val remove_header : 'a header -> (#headerable as 't) -> 't
+(** [remove_header hdr t] is [t] with HTTP header defined by [hdr] removed. *)
+
 (** {1 Pretty Printer} *)
 
 val easy_fmt : t -> Easy_format.t

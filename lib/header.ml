@@ -189,6 +189,8 @@ let add_cookie ~name ~value (t : #headerable) =
   let headers = replace t#headers cookie cookie_hdr in
   t#update headers
 
+let remove_header hdr t = remove t#headers hdr |> update t
+
 open Easy_format
 
 let field lbl v =
