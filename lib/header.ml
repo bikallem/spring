@@ -171,6 +171,8 @@ class virtual headerable (headers : t) =
 
 let update (t : #headerable) headers = t#update headers
 let add_header hdr v (t : #headerable) = add t#headers hdr v |> update t
+let find_header hdr (t : #headerable) = find t#headers hdr
+let find_header_opt hdr (t : #headerable) = find_opt t#headers hdr
 
 let find_cookie name (t : #headerable) =
   let open Option.Syntax in
