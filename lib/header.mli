@@ -125,6 +125,9 @@ val find_opt : t -> 'a header -> 'a option
 (** [find_opt t hdr] is [Some v] is [hdr] exists in [t]. It is [None] otherwise. *)
 
 val find_all : t -> 'a header -> 'a list
+(** [find_all t hdr] is [l] - a list of headers matching the definition [hdr] in
+    [t]. *)
+
 val exists : t -> 'a header -> bool
 
 (** {1 Update/Remove} *)
