@@ -197,6 +197,10 @@ let add_cookie ~name ~value (t : #headerable) =
   let headers = replace t#headers cookie cookie_hdr in
   t#update headers
 
+let find_set_cookie name (t : #headerable) =
+  find_all t#headers set_cookie
+  |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
+
 let add_set_cookie v (t : #headerable) = add_header set_cookie v t
 let remove_first_header hdr t = remove t#headers hdr |> update_headers t
 
