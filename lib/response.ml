@@ -9,6 +9,10 @@ let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let status (t : #t) = t#status
 let add_header = Header.add_header
+let find_header = Header.find_header
+let find_header_opt = Header.find_header_opt
+let find_cookie = Header.find_cookie
+let remove_header = Header.remove_header
 
 exception Closed
 

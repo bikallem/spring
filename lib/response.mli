@@ -24,6 +24,18 @@ val status : #t -> Status.t
 val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
 (** [add_header] is [Header.add_header]. *)
 
+val find_header : 'a Header.header -> #t -> 'a
+(** [find_header] is [Header.find_header] *)
+
+val find_header_opt : 'a Header.header -> #t -> 'a option
+(** [find_header_opt] is [Header.find_header_opt] *)
+
+val find_cookie : string -> #t -> string option
+(** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
+
+val remove_header : 'a Header.header -> (#t as 'a) -> 'a
+(** [remove_header] is [Header.remove_header] *)
+
 (** {1 Client Response} *)
 
 exception Closed
