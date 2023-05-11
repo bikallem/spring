@@ -38,10 +38,11 @@ let keep_alive (t : #t) =
     | None -> false)
   | _ -> false
 
-let find_cookie name (t : #t) = Header.find_cookie name t
 let add_header = Header.add_header
 let find_header = Header.find_header
 let find_header_opt = Header.find_header_opt
+let find_cookie = Header.find_cookie
+let remove_header = Header.remove_header
 
 class virtual client_request headers =
   object
@@ -101,9 +102,7 @@ let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
       pp_fields fmt fields
   end
 
-let add_cookie ~name ~value (t : #client_request) =
-  Header.add_cookie ~name ~value t
-
+let add_cookie = Header.add_cookie
 let client_host_port (t : #client_request) = (t#host, t#port)
 
 let parse_url url =
