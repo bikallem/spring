@@ -30,6 +30,9 @@ val find_header : 'a Header.header -> #t -> 'a
 val find_header_opt : 'a Header.header -> #t -> 'a option
 (** [find_header_opt] is [Header.find_header_opt] *)
 
+val find_set_cookie : string -> #t -> Set_cookie.t option
+(** [find_set_cookie] is [Header.find_set_cookie]. *)
+
 val remove_first_header : 'a Header.header -> (#t as 'a) -> 'a
 (** [remove_first_header] is [Header.remove_first_header] *)
 
