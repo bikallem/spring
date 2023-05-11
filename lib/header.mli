@@ -138,6 +138,17 @@ val clean_dup : t -> t
 val iter : (lname -> string -> unit) -> t -> unit
 val filter : (lname -> string -> bool) -> t -> t
 
+(** {1 Headerable} *)
+
+(** [headerable] donotes that certain header specific operations are supported
+    on them. *)
+class virtual headerable :
+  t
+  -> object ('a)
+       method headers : t
+       method update : t -> 'a
+     end
+
 (** {1 Pretty Printer} *)
 
 val easy_fmt : t -> Easy_format.t
