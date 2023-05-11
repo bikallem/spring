@@ -169,6 +169,8 @@ class virtual headerable (headers : t) =
     method update headers = {<headers>}
   end
 
+let update (t : #headerable) headers = t#update headers
+
 let find_cookie name (t : #headerable) =
   let open Option.Syntax in
   let* cookie = find_opt t#headers cookie in

@@ -149,6 +149,9 @@ class virtual headerable :
        method update : t -> 'a
      end
 
+val update : (#headerable as 'a) -> t -> 'a
+(** [update headerable t] is a [headerable] updated with [t]. *)
+
 val find_cookie : string -> #headerable -> string option
 (** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in
     [t]. Otherwise it is [None]. [v] is the value of the cookie. *)
