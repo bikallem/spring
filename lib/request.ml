@@ -39,6 +39,7 @@ let keep_alive (t : #t) =
   | _ -> false
 
 let find_cookie name (t : #t) = Header.find_cookie name t
+let add_header = Header.add_header
 
 class virtual client_request headers =
   object

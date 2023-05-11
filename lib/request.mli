@@ -39,6 +39,9 @@ val keep_alive : #t -> bool
 val find_cookie : string -> #t -> string option
 (** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
 
+val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
+(** [add_header] is [Header.add_header] *)
+
 (** {1 Client Request}
 
     A HTTP client_request request that is primarily constructed and used by
