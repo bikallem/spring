@@ -94,7 +94,7 @@ val h : Header.t = <abstr>
 - : bool = true
 ```
 
-## Update/Remove
+## Header.replace 
 
 ```ocaml
 # let h1 = Header.(remove headers content_length) ;;
@@ -122,8 +122,23 @@ val h2 : Header.t = <abstr>
 - : int list = [300]
 ```
 
-## Header.parse
+## Header.remove_all
 
+```ocaml
+# let h1 = Header.of_list ["user-agent", "234"; "user-agent", "123"];;
+val h1 : Header.t = <abstr>
+
+# Header.(find_all h1 user_agent);;
+- : string list = ["234"; "123"]
+
+# let h1 = Header.(remove h1 user_agent);;
+val h1 : Header.t = <abstr>
+
+# Header.(find_all h1 user_agent);;
+- : string list = []
+```
+
+## Header.parse
 
 ```ocaml
 # let hdr = "Host: localhost:1234\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-GB,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nContent-Type: multipart/form-data; boundary=---------------------------39502568731012728120453570260\r\nContent-Length: 10063\r\nDNT: 1\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\n\r\n" ;;

@@ -130,6 +130,14 @@ let find_all t { name; decode; _ } =
   in
   aux t
 
+let remove_first t { name; _ } =
+  let[@tail_mod_cons] rec aux = function
+    | [] -> []
+    | ((name', _) as x) :: tl ->
+      if String.equal name name' then aux tl else x :: tl
+  in
+  aux t
+
 let remove t { name; _ } =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
