@@ -169,6 +169,11 @@ class virtual headerable (headers : t) =
     method update headers = {<headers>}
   end
 
+let find_cookie name (t : #headerable) =
+  let open Option.Syntax in
+  let* cookie = find_opt t#headers cookie in
+  Cookie.find name cookie
+
 open Easy_format
 
 let field lbl v =
