@@ -45,6 +45,9 @@ val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
 val find_header : 'a Header.header -> #t -> 'a
 (** [find_header] is [Header.find_header] *)
 
+val find_header_opt : 'a Header.header -> #t -> 'a option
+(** [find_header_opt] is [Header.find_header_opt] *)
+
 (** {1 Client Request}
 
     A HTTP client_request request that is primarily constructed and used by
