@@ -199,7 +199,7 @@ val b : Buffer.t = <abstr>
 "Content-Type: text/html\r\nAge: 40\r\nTransfer-Encoding: chunked\r\nContent-Length: 2000\r\n"
 ```
 
-## Header.update
+## Header.update_headers
 
 ```ocaml
 # let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
@@ -208,7 +208,7 @@ val headers : Header.t = <abstr>
 # let req = object inherit Header.headerable Header.empty end ;;
 val req : Header.headerable = <obj>
 
-# let req = Header.update req headers;;
+# let req = Header.update_headers req headers;;
 val req : Header.headerable = <obj>
 
 # Header.(find req#headers cookie) |> Cookie.encode ;;

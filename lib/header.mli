@@ -161,8 +161,8 @@ val find_header_opt : 'a header -> #headerable -> 'a option
 (** [find_header_opt hdr t] is [Some v] if [hdr] exists in [t]. Otherwise it is
     [None]. [v] is the value as defined by [hdr]. *)
 
-val update : (#headerable as 'a) -> t -> 'a
-(** [update headerable t] is a [headerable] updated with [t]. *)
+val update_headers : (#headerable as 'a) -> t -> 'a
+(** [update_headers headerable t] is a [headerable] updated with [t]. *)
 
 val find_cookie : string -> #headerable -> string option
 (** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in

@@ -169,8 +169,8 @@ class virtual headerable (headers : t) =
     method update headers = {<headers>}
   end
 
-let update (t : #headerable) headers = t#update headers
-let add_header hdr v (t : #headerable) = add t#headers hdr v |> update t
+let update_headers (t : #headerable) headers = t#update headers
+let add_header hdr v (t : #headerable) = add t#headers hdr v |> update_headers t
 let find_header hdr (t : #headerable) = find t#headers hdr
 let find_header_opt hdr (t : #headerable) = find_opt t#headers hdr
 
@@ -189,7 +189,7 @@ let add_cookie ~name ~value (t : #headerable) =
   let headers = replace t#headers cookie cookie_hdr in
   t#update headers
 
-let remove_header hdr t = remove t#headers hdr |> update t
+let remove_header hdr t = remove t#headers hdr |> update_headers t
 
 open Easy_format
 
