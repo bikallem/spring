@@ -215,6 +215,21 @@ val req : Header.headerable = <obj>
 - : string = "SID=31d4d96e407aad42; lang=en"
 ```
 
+## Header.add_header
+
+```ocaml
+# let req = object 
+  inherit Header.headerable (Header.empty)
+  end;;
+val req : Header.headerable = <obj>
+
+# let req = Header.(add_header user_agent "spring-client/1.1" req) ;;
+val req : Header.headerable = <obj>
+
+# Header.(find_opt req#headers user_agent);;
+- : string option = Some "spring-client/1.1"
+```
+
 ## Header.find_cookie
 
 ```ocaml

@@ -149,6 +149,10 @@ class virtual headerable :
        method update : t -> 'a
      end
 
+val add_header : 'a header -> 'a -> (#headerable as 'h) -> 'h
+(** [add_header hdr v h] is [h] with HTTP header defined by [hdr] and value [v]
+    added to it. *)
+
 val update : (#headerable as 'a) -> t -> 'a
 (** [update headerable t] is a [headerable] updated with [t]. *)
 
