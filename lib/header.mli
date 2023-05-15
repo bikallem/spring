@@ -134,7 +134,7 @@ val exists : t -> 'a header -> bool
 (** {1 Update/Remove} *)
 
 val remove_first : t -> 'a header -> t
-(** [remove_first t hdr] removes the first header [hdr] in [t]. *)
+(** [remove_first t hdr] removes the first header [hdr] found in [t]. *)
 
 val remove : t -> 'a header -> t
 (** [remove_all t hdr] removes all headers in [t] defined by [hdr]. *)
