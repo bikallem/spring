@@ -23,6 +23,7 @@ val lname : string -> lname
 (** [lname s] converts [s] to {!type:lname} *)
 
 val lname_equal : lname -> lname -> bool
+val lname_of_name : name -> lname
 
 (** {1 Codecs} *)
 
@@ -176,18 +177,6 @@ val find_header_opt : 'a header -> #headerable -> 'a option
 
 val update_headers : (#headerable as 'a) -> t -> 'a
 (** [update_headers headerable t] is a [headerable] updated with [t]. *)
-
-val find_set_cookie : string -> #headerable -> Set_cookie.t option
-(** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
-    [name] exists in [t]. It is [None] otherwise. *)
-
-val add_set_cookie : Set_cookie.t -> (#headerable as 'a) -> 'a
-(** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
-    [set_cookie] added to it. *)
-
-val remove_set_cookie : string -> (#headerable as 'a) -> 'a
-(** [remove_set_cookie name t] is [t] after removing HTTP [Set-Cookie] header
-    with name [name] from [t]. *)
 
 val remove_first_header : 'a header -> (#headerable as 't) -> 't
 (** [remove_first_header hdr t] is [t] with HTTP header defined by [hdr]

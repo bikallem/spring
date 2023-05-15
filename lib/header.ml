@@ -8,6 +8,7 @@ let canonical_name s =
 
 let lname = String.Ascii.lowercase
 let lname_equal = String.equal
+let lname_of_name = String.Ascii.lowercase
 
 type 'a encode = 'a -> string
 type 'a decode = string -> 'a
@@ -182,26 +183,6 @@ let add_header hdr v (t : #headerable) = add t#headers hdr v |> update_headers t
 let find_header hdr (t : #headerable) = find t#headers hdr
 let find_headers hdr (t : #headerable) = find_all t#headers hdr
 let find_header_opt hdr (t : #headerable) = find_opt t#headers hdr
-
-let find_set_cookie name (t : #headerable) =
-  find_all t#headers set_cookie
-  |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
-
-let add_set_cookie v (t : #headerable) = add_header set_cookie v t
-
-let remove_set_cookie name (t : #headerable) =
-  let[@tail_mod_cons] rec aux = function
-    | [] -> []
-    | ((hdr_name, v) as x) :: tl ->
-      if
-        String.equal hdr_name set_cookie.name
-        && (String.equal name @@ Set_cookie.(decode v |> name))
-      then tl
-      else x :: aux tl
-  in
-  let headers = aux t#headers in
-  update_headers t headers
-
 let remove_first_header hdr t = remove t#headers hdr |> update_headers t
 
 open Easy_format
