@@ -36,20 +36,8 @@ val keep_alive : #t -> bool
     "Connection" header is missing and the HTTP version is 1.1. It is [false] if
     header "Connection: close" exists. *)
 
-val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
-(** [add_header] is [Header.add_header] *)
-
-val find_header : 'a Header.header -> #t -> 'a
-(** [find_header] is [Header.find_header] *)
-
-val find_header_opt : 'a Header.header -> #t -> 'a option
-(** [find_header_opt] is [Header.find_header_opt] *)
-
 val find_cookie : string -> #t -> string option
 (** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
-
-val remove_first_header : 'a Header.header -> (#t as 'a) -> 'a
-(** [remove_first_header] is [Header.remove_first_header] *)
 
 (** {1 Client Request}
 
@@ -81,7 +69,12 @@ val client_host_port : #client_request -> host_port
     [r]. *)
 
 val add_cookie : name:string -> value:string -> (#client_request as 'a) -> 'a
-(** [add_cookie] is [Header.add_cookie] *)
+(** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
+    [t]. *)
+
+val remove_cookie : string -> (#client_request as 'a) -> 'a
+(** [remove_cookie name t] is [t] with cookie pair with name [name] removed from
+    [t]. *)
 
 type url = string
 (** [url] is a HTTP URI value with host information.

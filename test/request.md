@@ -318,14 +318,15 @@ val req : Request.server_request = <obj>
 # let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
 val headers : Header.t = <abstr>
 
-# let req =
+# let req = 
     Request.server_request
-        ~headers
-        ~resource:"/details"
-        Method.get
-        client_addr 
-        (Eio.Buf_read.of_string "")
-        ;;
+      ~version:Version.http1_1 
+      ~headers 
+      ~resource:"/update" 
+      Method.get
+      client_addr
+      (Eio.Buf_read.of_string "")
+       ;;
 val req : Request.server_request = <obj>
 
 # Request.find_cookie "SID" req;;
@@ -335,5 +336,62 @@ val req : Request.server_request = <obj>
 - : string option = Some "en"
 
 # Request.find_cookie "blah" req;;
+- : string option = None
+```
+
+## Request.add_cookie
+
+```ocaml
+# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42"] ;;
+val headers : Header.t = <abstr>
+
+# let req = 
+    Request.client_request 
+      ~version:Version.http1_1 
+      ~headers 
+      ~port:8080 
+      ~host:"www.example.com" 
+      ~resource:"/update" 
+      Method.get 
+      Body.none ;;
+val req : Request.client_request = <obj>
+
+# Request.find_cookie "lang" req;;
+- : string option = None
+
+# let req = Request.add_cookie ~name:"lang" ~value:"en" req ;;
+val req : Request.client_request = <obj>
+
+# Request.find_cookie "lang" req;;
+- : string option = Some "en"
+```
+
+## Request.remove_cookie
+
+```ocaml
+# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42;lang=en"] ;;
+val headers : Header.t = <abstr>
+
+# let req = 
+    Request.client_request 
+      ~version:Version.http1_1 
+      ~headers 
+      ~port:8080 
+      ~host:"www.example.com" 
+      ~resource:"/update" 
+      Method.get 
+      Body.none ;;
+val req : Request.client_request = <obj>
+
+# Request.find_cookie "lang" req;;
+- : string option = Some "en"
+
+# Request.find_cookie "SID" req;;
+- : string option = Some "31d4d96e407aad42"
+
+# let req = Request.remove_cookie "SID" req;;
+val req : Request.client_request = <obj>
+
+# Request.find_cookie "SID" req;;
 - : string option = None
 ```
