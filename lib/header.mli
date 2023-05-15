@@ -185,6 +185,10 @@ val add_cookie : name:string -> value:string -> (#headerable as 'a) -> 'a
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
     [t]. *)
 
+val remove_cookie : string -> (#headerable as 'a) -> 'a
+(** [remove_cookie name t] is [t] with cookie pair with name [name] removed from
+    [t]. *)
+
 val find_set_cookie : string -> #headerable -> Set_cookie.t option
 (** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
     [name] exists in [t]. It is [None] otherwise. *)
