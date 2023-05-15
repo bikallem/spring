@@ -183,31 +183,6 @@ let find_header hdr (t : #headerable) = find t#headers hdr
 let find_headers hdr (t : #headerable) = find_all t#headers hdr
 let find_header_opt hdr (t : #headerable) = find_opt t#headers hdr
 
-let find_cookie name (t : #headerable) =
-  let open Option.Syntax in
-  let* cookie = find_opt t#headers cookie in
-  Cookie.find name cookie
-
-let add_cookie ~name ~value (t : #headerable) =
-  let cookie_hdr =
-    match find_opt t#headers cookie with
-    | Some cookie_hdr -> cookie_hdr
-    | None -> Cookie.empty
-  in
-  let cookie_hdr = Cookie.add ~name ~value cookie_hdr in
-  let headers = replace t#headers cookie cookie_hdr in
-  t#update headers
-
-let remove_cookie cookie_name (t : #headerable) =
-  let cookie' =
-    match find_opt t#headers cookie with
-    | Some cookie' -> cookie'
-    | None -> Cookie.empty
-  in
-  let cookie' = Cookie.remove ~name:cookie_name cookie' in
-  let headers = replace t#headers cookie cookie' in
-  t#update headers
-
 let find_set_cookie name (t : #headerable) =
   find_all t#headers set_cookie
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)

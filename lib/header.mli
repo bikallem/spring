@@ -177,18 +177,6 @@ val find_header_opt : 'a header -> #headerable -> 'a option
 val update_headers : (#headerable as 'a) -> t -> 'a
 (** [update_headers headerable t] is a [headerable] updated with [t]. *)
 
-val find_cookie : string -> #headerable -> string option
-(** [find_cookie ~name t] is [Some v] if a cookie with name [name] is found in
-    [t]. Otherwise it is [None]. [v] is the value of the cookie. *)
-
-val add_cookie : name:string -> value:string -> (#headerable as 'a) -> 'a
-(** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
-    [t]. *)
-
-val remove_cookie : string -> (#headerable as 'a) -> 'a
-(** [remove_cookie name t] is [t] with cookie pair with name [name] removed from
-    [t]. *)
-
 val find_set_cookie : string -> #headerable -> Set_cookie.t option
 (** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
     [name] exists in [t]. It is [None] otherwise. *)
