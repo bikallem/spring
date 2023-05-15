@@ -190,16 +190,16 @@ Pretty print `Response.server`
 val txt_response : Response.server_response = <obj>
 ```
 
-## Response.add_header
+## Response.add_set_cookie
 
 ```ocaml
 # let id_cookie = Set_cookie.make ("ID", "1234") ;;
 val id_cookie : Set_cookie.t = <abstr>
 
-# let t = Response.add_header Header.set_cookie id_cookie txt_response ;; 
-val t : Response.server_response = <obj>
+# let res = Response.add_set_cookie id_cookie txt_response ;;
+val res : Response.server_response = <obj>
 
-# test_server_response @@ t ;;
+# test_server_response res;;
 +HTTP/1.1 200 OK
 +Content-Length: 12
 +Content-Type: text/html; charset=uf-8
@@ -209,15 +209,25 @@ val t : Response.server_response = <obj>
 - : unit = ()
 ```
 
-## Response.add_set_cookie
+## Response.find_set_cookie
 
 ```ocaml
-# Response.add_set_cookie id_cookie txt_response |> test_server_response ;;
-+HTTP/1.1 200 OK
-+Content-Length: 12
-+Content-Type: text/html; charset=uf-8
-+Set-Cookie: ID=1234; Secure; HttpOnly
-+
-+hello, world
+# Response.find_set_cookie "ID" res |> Option.iter (Eio.traceln "%a" Set_cookie.pp) ;;
++{
++  Name:  ID;
++  Value:  1234;
++  Secure;
++  HttpOnly
++}
 - : unit = ()
+```
+
+## Response.remove_set_cookie
+
+```ocaml
+# let res = Response.remove_set_cookie "ID" res;;
+val res : Response.server_response = <obj>
+
+# Response.find_set_cookie "ID" res ;;
+- : Set_cookie.t option = None
 ```

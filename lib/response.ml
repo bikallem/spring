@@ -8,7 +8,10 @@ class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
 let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let status (t : #t) = t#status
-let find_set_cookie = Header.find_set_cookie
+
+let find_set_cookie name (t : #t) =
+  Header.(find_all t#headers set_cookie)
+  |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
 
 exception Closed
 
@@ -64,8 +67,22 @@ let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
     method write_header = body#write_header
   end
 
-let add_set_cookie = Header.add_set_cookie
-let remove_set_cookie = Header.remove_set_cookie
+let add_set_cookie v (t : #server_response) = Header.(add_header set_cookie v t)
+
+let remove_set_cookie name (t : #server_response) =
+  let[@tail_mod_cons] rec aux = function
+    | [] -> []
+    | ((hdr_name, v) as x) :: tl ->
+      let nm = Header.(name set_cookie |> lname_of_name) in
+      if
+        Header.lname_equal hdr_name nm
+        && (String.equal name @@ Set_cookie.(decode v |> name))
+      then tl
+      else x :: aux tl
+  in
+  let headers = aux (Header.to_list t#headers) in
+  let headers = (headers :> (string * string) list) in
+  Header.update_headers t (Header.of_list headers)
 
 let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked.writable ~ua_supports_trailer write_chunk write_trailer

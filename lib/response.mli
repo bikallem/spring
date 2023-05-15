@@ -22,7 +22,8 @@ val status : #t -> Status.t
 (** [status t] is HTTP status code for response [t]. *)
 
 val find_set_cookie : string -> #t -> Set_cookie.t option
-(** [find_set_cookie] is [Header.find_set_cookie]. *)
+(** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
+    [name] exists in [t]. It is [None] otherwise. *)
 
 (** {1 Client Response} *)
 
@@ -72,10 +73,12 @@ val server_response :
 (** [server_response body] is a server response with body [body]. *)
 
 val add_set_cookie : Set_cookie.t -> (#server_response as 'a) -> 'a
-(** [add_set_cookie] is [Header.add_set_cookie]. *)
+(** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
+    [set_cookie] added to it. *)
 
 val remove_set_cookie : string -> (#server_response as 'a) -> 'a
-(** [remove_set_cookie] is [Header.remove_set_cookie]. *)
+(** [remove_set_cookie name t] is [t] after removing HTTP [Set-Cookie] header
+    with name [name] from [t]. *)
 
 val chunked_response :
      ua_supports_trailer:bool
