@@ -21,20 +21,8 @@ val headers : #t -> Header.t
 val status : #t -> Status.t
 (** [status t] is HTTP status code for response [t]. *)
 
-val add_header : 'a Header.header -> 'a -> (#t as 't) -> 't
-(** [add_header] is [Header.add_header]. *)
-
-val find_header : 'a Header.header -> #t -> 'a
-(** [find_header] is [Header.find_header] *)
-
-val find_header_opt : 'a Header.header -> #t -> 'a option
-(** [find_header_opt] is [Header.find_header_opt] *)
-
 val find_set_cookie : string -> #t -> Set_cookie.t option
 (** [find_set_cookie] is [Header.find_set_cookie]. *)
-
-val remove_first_header : 'a Header.header -> (#t as 'a) -> 'a
-(** [remove_first_header] is [Header.remove_first_header] *)
 
 (** {1 Client Response} *)
 

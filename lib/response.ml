@@ -8,11 +8,7 @@ class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
 let version (t : #t) = t#version
 let headers (t : #t) = t#headers
 let status (t : #t) = t#status
-let add_header = Header.add_header
-let find_header = Header.find_header
-let find_header_opt = Header.find_header_opt
 let find_set_cookie = Header.find_set_cookie
-let remove_first_header = Header.remove_first_header
 
 exception Closed
 
