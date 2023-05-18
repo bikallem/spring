@@ -18,8 +18,16 @@ type name_value = string * string
 let strict = "Strict"
 let lax = "Lax"
 
-let make ?expires ?max_age ?domain ?path ?(secure = true) ?(http_only = true)
-    ?(extensions = []) ?same_site (name, value) =
+let make
+    ?expires
+    ?max_age
+    ?domain
+    ?path
+    ?(secure = true)
+    ?(http_only = true)
+    ?(extensions = [])
+    ?same_site
+    (name, value) =
   { name
   ; value
   ; expires

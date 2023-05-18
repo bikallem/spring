@@ -62,8 +62,13 @@ class virtual t =
     method virtual stop : unit
   end
 
-let make ?(max_connections = Int.max_int) ?additional_domains ~on_error
-    (clock : #Eio.Time.clock) (net : #Eio.Net.t) handler =
+let make
+    ?(max_connections = Int.max_int)
+    ?additional_domains
+    ~on_error
+    (clock : #Eio.Time.clock)
+    (net : #Eio.Net.t)
+    handler =
   let stop, stop_r = Eio.Promise.create () in
   let run =
     Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
@@ -85,8 +90,12 @@ class virtual app_server =
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
-let app_server ?(max_connections = Int.max_int) ?additional_domains
-    ?(handler = not_found_handler) ~on_error (clock : #Eio.Time.clock)
+let app_server
+    ?(max_connections = Int.max_int)
+    ?additional_domains
+    ?(handler = not_found_handler)
+    ~on_error
+    (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
   let stop, stop_r = Eio.Promise.create () in
   let run =

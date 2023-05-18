@@ -32,8 +32,12 @@ type t =
   ; cache : connection_stream Cache.t
   }
 
-let make ?(timeout = Eio.Time.Timeout.none) ?(read_initial_size = 0x1000)
-    ?(write_initial_size = 0x1000) ?(maximum_conns_per_host = 5) sw
+let make
+    ?(timeout = Eio.Time.Timeout.none)
+    ?(read_initial_size = 0x1000)
+    ?(write_initial_size = 0x1000)
+    ?(maximum_conns_per_host = 5)
+    sw
     (net : #Eio.Net.t) =
   { timeout
   ; read_initial_size

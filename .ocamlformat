@@ -4,4 +4,5 @@ break-separators=before
 dock-collection-brackets=false
 cases-exp-indent=2
 break-cases=fit-or-vertical
+break-fun-decl=fit-or-vertical
 parse-docstrings=true

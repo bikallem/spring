@@ -81,8 +81,14 @@ let pp_fields fmt fields =
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
-let client_request ?(version = Version.http1_1) ?(headers = Header.empty) ?port
-    ~host ~resource (meth : Method.t) body =
+let client_request
+    ?(version = Version.http1_1)
+    ?(headers = Header.empty)
+    ?port
+    ~host
+    ~resource
+    (meth : Method.t)
+    body =
   object (self)
     inherit client_request headers as _super
     method version = version
@@ -202,8 +208,13 @@ class virtual server_request headers =
 let buf_read (t : #server_request) = t#buf_read
 let client_addr (t : #server_request) = t#client_addr
 
-let server_request ?(version = Version.http1_1) ?(headers = Header.empty)
-    ~resource meth client_addr buf_read =
+let server_request
+    ?(version = Version.http1_1)
+    ?(headers = Header.empty)
+    ~resource
+    meth
+    client_addr
+    buf_read =
   object (self)
     inherit server_request headers
     method version = version

@@ -59,8 +59,11 @@ class virtual server_response version headers status =
     inherit Body.writable
   end
 
-let server_response ?(version = Version.http1_1) ?(headers = Header.empty)
-    ?(status = Status.ok) (body : #Body.writable) : server_response =
+let server_response
+    ?(version = Version.http1_1)
+    ?(headers = Header.empty)
+    ?(status = Status.ok)
+    (body : #Body.writable) : server_response =
   object
     inherit server_response version headers status
     method write_body = body#write_body
