@@ -181,7 +181,9 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
     | Doc.Name_code_val_attribute (nm, code) ->
       write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"";|};
-      write_ln @@ {|Buffer.add_string b @@ Spring.Ohtml.escape_html (|} ^ code
+      write_ln
+      @@ {|Buffer.add_string b @@ Spring.Ohtml.escape_html (|}
+      ^ code
       ^ {|);|};
       write_ln @@ {|Buffer.add_string b "\"";|}
     | Doc.Code_attribute code ->
@@ -205,8 +207,10 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     List.iter aux l;
     write_ln @@ ");"
   and gen_code_at string_val =
-    write_ln @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
-    ^ string_val ^ {|);|}
+    write_ln
+    @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
+    ^ string_val
+    ^ {|);|}
   in
   let fun_args =
     match doc.fun_args with

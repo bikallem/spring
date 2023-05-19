@@ -28,6 +28,7 @@ let iter = M.iter
 let encode t = M.to_seq t |> List.of_seq |> String.concat ~sep:", "
 
 let decode v =
-  String.cuts ~sep:"," v |> List.map String.trim
+  String.cuts ~sep:"," v
+  |> List.map String.trim
   |> List.filter (fun s -> s <> "")
   |> List.fold_left (fun t te -> M.add te t) M.empty

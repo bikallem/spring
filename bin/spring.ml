@@ -23,7 +23,8 @@ let ohtml_cmd =
           Ohtml.gen_ocaml ~write_ln doc);
       Printf.printf "\nGenerating view: %s" filepath
     in
-    Sys.readdir dir |> Array.to_list
+    Sys.readdir dir
+    |> Array.to_list
     |> List.filter (fun x -> Filename.extension x = ".ohtml")
     |> List.iter (fun x ->
            let filename = dir ^ Filename.dir_sep ^ x in
@@ -44,7 +45,8 @@ let key_cmd =
   let key_cmd_arg =
     let doc = "name of the master key file. Default is 'master.key'." in
     Arg.(
-      value & opt string "master.key"
+      value
+      & opt string "master.key"
       & info [ "f"; "file" ] ~docv:"MASTER_KEY_FILENAME" ~doc)
   in
   let master_key filename =

@@ -177,7 +177,9 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
   (* split request_target into path and query tokens *)
   let request_target' = request_target |> String.trim |> Uri.of_string in
   let path_tokens =
-    Uri.path request_target' |> String.split_on_char '/' |> List.tl
+    Uri.path request_target'
+    |> String.split_on_char '/'
+    |> List.tl
     |> List.map (fun tok -> `Path tok)
   in
   let query_tokens =

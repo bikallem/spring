@@ -17,7 +17,8 @@ let decode v =
   aux Map.empty
 
 let encode t =
-  Map.to_seq t |> List.of_seq
+  Map.to_seq t
+  |> List.of_seq
   |> List.map (fun (k, v) -> k ^ "=" ^ v)
   |> String.concat ~sep:"; "
 

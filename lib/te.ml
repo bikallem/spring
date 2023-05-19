@@ -37,7 +37,8 @@ let encode t =
     | Some q -> ";q=" ^ q
     | None -> ""
   in
-  M.to_seq t |> List.of_seq
+  M.to_seq t
+  |> List.of_seq
   |> List.map (fun (d, q) -> d ^ q_to_str q)
   |> String.concat ~sep:", "
 
