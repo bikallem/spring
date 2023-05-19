@@ -6,7 +6,7 @@ let empty : t = Map.empty
 let of_list l = List.to_seq l |> Map.of_seq
 let[@inline] err () = failwith "Invalid session data"
 
-let decode key session_data : t =
+let decode ~key session_data : t =
   let csexp =
     match Secret.decrypt_base64 key session_data |> Csexp.parse_string with
     | Ok v -> v
@@ -21,7 +21,7 @@ let decode key session_data : t =
       Map.empty key_values
   | _ -> err ()
 
-let encode nonce key t =
+let encode ~nonce ~key t =
   Map.to_seq t
   |> Seq.map (fun (key, v) -> Csexp.(List [ Atom key; Atom v ]))
   |> List.of_seq
