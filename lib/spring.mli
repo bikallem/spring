@@ -38,4 +38,5 @@ module Router = Router
 
 (** {1 Ohtml} *)
 
+module Session = Session
 module Ohtml = Ohtml

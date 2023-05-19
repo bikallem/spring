@@ -23,6 +23,7 @@ module Response = Response
 module Client = Client
 module Server = Server
 module Router = Router
+module Session = Session
 
 (* Ohtml *)
 module Ohtml = Ohtml

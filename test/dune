@@ -10,6 +10,7 @@
   ptime
   domain-name
   spring
+  base64
   ohtml
   router_test))
 
