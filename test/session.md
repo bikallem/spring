@@ -11,9 +11,9 @@ let nonce = Cstruct.of_string "aaaaaaaaaaaa"
 
 ```ocaml
 # let t = Session.of_list ["a", "a_val"; "b", "b_val"];;
-val t : string Session.Map.t = <abstr>
+val t : Session.t = <abstr>
 
-# let session_data = Session.encode nonce key t;;
+# let session_data = Session.encode ~nonce ~key t;;
 val session_data : string =
   "YWFhYWFhYWFhYWFhYHOdvSHL4fyIGWh0ayUSVBXbIUXq5NdJtENq4iTIX1doh_MkW46wor8-"
 ```
@@ -21,7 +21,7 @@ val session_data : string =
 ## Session.decode
 
 ```ocaml
-# let t' = Session.decode key session_data;;
+# let t' = Session.decode ~key session_data;;
 val t' : Session.t = <abstr>
 
 # Session.find_opt "a" t';;
