@@ -37,7 +37,8 @@ val keep_alive : #t -> bool
     header "Connection: close" exists. *)
 
 val find_cookie : string -> #t -> string option
-(** [find_cookie cookie_name t] is [Header.find_cookie cookie_name t] *)
+(** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
+    [cookie_name] exists in [t]. Otherwise is [None]. *)
 
 (** {1 Client Request}
 
