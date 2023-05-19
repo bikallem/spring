@@ -30,3 +30,13 @@ val t' : Session.t = <abstr>
 # Session.find_opt "b" t';;
 - : string option = Some "b_val"
 ```
+
+## Session.add 
+
+```ocaml
+# let t = Session.add ~name:"c" ~value:"c_val" t;;
+val t : Session.t = <abstr>
+
+# Session.find_opt "c" t;;
+- : string option = Some "c_val"
+```

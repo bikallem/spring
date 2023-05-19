@@ -21,3 +21,7 @@ val encode : nonce:Cstruct.t -> key:string -> t -> string
 val find_opt : string -> t -> string option
 (** [find_opt name t] is [Some v] where [v] is the session data indexed to id
     [name]. It is otherwise [None]. *)
+
+val add : name:string -> value:string -> t -> t
+(** [add ~name ~value t] is [t] with session data tuple of [name,value] added to
+    it. *)

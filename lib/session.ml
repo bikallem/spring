@@ -28,3 +28,4 @@ let encode ~nonce ~key t =
   |> fun l -> Csexp.List l |> Csexp.to_string |> Secret.encrypt_base64 nonce key
 
 let find_opt name t = Map.find_opt name t
+let add ~name ~value t = Map.add name value t
