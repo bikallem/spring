@@ -72,6 +72,15 @@ val router_pipeline : Response.server_response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
+val cookie_session : cookie_name:string -> key:string -> pipeline
+(** [cookie_session ~cookie_name ~key] is a pipeline implementing HTTP request
+    session functionality in spring. [key] is the secret key used to
+    encrypt/decrypt session data. [cookie_name] is the name of the session
+    cookie.
+
+    @param cookie_name
+      is the name of the session cookie. By default this value is [__ID__]. *)
+
 (** {1 Servers}*)
 
 (** [t] represents a HTTP/1.1 server instance configured with some specific

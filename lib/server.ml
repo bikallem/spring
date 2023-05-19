@@ -50,6 +50,23 @@ let router_pipeline : Response.server_response Router.t -> pipeline =
   | Some response -> response
   | None -> next req
 
+let cookie_session ~cookie_name ~key next req =
+  let req =
+    match Request.find_cookie cookie_name req with
+    | Some v ->
+      let session = Session.decode ~key v in
+      req#update_session session
+    | None -> req
+  in
+  let response = next req in
+  let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
+  let encrypted_session = Session.encode ~nonce ~key req#session in
+  let cookie =
+    Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
+      (cookie_name, encrypted_session)
+  in
+  Response.add_set_cookie cookie response
+
 class virtual t =
   object
     method virtual clock : Eio.Time.clock
