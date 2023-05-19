@@ -7,6 +7,7 @@
   ohtml
   base64
   cstruct
+  mirage-crypto
   mirage-crypto-rng
   mirage-crypto-rng-eio
   eio_main))
