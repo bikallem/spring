@@ -50,6 +50,12 @@
    (>= 3.5.1))
   (eio_main
    (>= 0.9))
+  (csexp
+   (>= 1.5.2))
+  (mirage-crypto
+   (>= 0.11.1))
+  (mirage-crypto-rng
+   (>= 0.11.1))
   (mirage-crypto-rng-eio
    (>= 0.11.1))
   (fmt
