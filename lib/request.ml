@@ -202,6 +202,9 @@ class virtual server_request headers =
   object
     inherit t headers
     inherit Body.readable
+    val session = Session.empty
+    method session = session
+    method update_session session = {<session>}
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
@@ -252,4 +255,5 @@ let parse client_addr (r : Buf_read.t) : server_request =
   let headers = Header.parse r in
   server_request ~version ~headers ~resource meth client_addr r
 
+let find_session name (t : #server_request) = Session.find_opt name t#session
 let pp fmt (t : #t) = t#pp fmt
