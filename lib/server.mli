@@ -78,8 +78,7 @@ val cookie_session : cookie_name:string -> key:string -> pipeline
     encrypt/decrypt session data. [cookie_name] is the name of the session
     cookie.
 
-    @param cookie_name
-      is the name of the session cookie. By default this value is [__ID__]. *)
+    @param cookie_name is the name of the session cookie. *)
 
 (** {1 Servers}*)
 
