@@ -100,9 +100,10 @@ let make
 
 type 'a request_target = ('a, Response.server_response) Router.request_target
 
-class virtual app_server =
+class virtual app_server ~session_cookie_name =
   object (_ : 'a)
     inherit t
+    method session_cookie_name : string = session_cookie_name
     method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -111,6 +112,7 @@ let app_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ?(handler = not_found_handler)
+    ?(session_cookie_name = "___SPRING_SESSION___")
     ~on_error
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
@@ -120,6 +122,7 @@ let app_server
   in
   object (self)
     val router = Router.empty
+    method session_cookie_name = session_cookie_name
     method clock = (clock :> Eio.Time.clock)
     method net = (net :> Eio.Net.t)
 

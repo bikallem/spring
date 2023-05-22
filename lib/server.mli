@@ -126,16 +126,19 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
     - [router_pipeline]
     - [strict_http] *)
 class virtual app_server :
-  object ('a)
-    inherit t
-    method virtual router : Response.server_response Router.t
-    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
-  end
+  session_cookie_name:string
+  -> object ('a)
+       inherit t
+       method session_cookie_name : string
+       method virtual router : Response.server_response Router.t
+       method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
+     end
 
 val app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
+  -> ?session_cookie_name:string
   -> on_error:(exn -> unit)
   -> #Eio.Time.clock
   -> #Eio.Net.t
