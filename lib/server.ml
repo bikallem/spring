@@ -113,12 +113,19 @@ let app_server
     ?additional_domains
     ?(handler = not_found_handler)
     ?(session_cookie_name = "___SPRING_SESSION___")
+    ?master_key
     ~on_error
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
   let stop, stop_r = Eio.Promise.create () in
   let run =
     Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+  in
+  let key =
+    match master_key with
+    | Some key -> key
+    | None ->
+      In_channel.with_open_text "master.key" (fun ic -> In_channel.input_all ic)
   in
   object (self)
     val router = Router.empty
@@ -128,7 +135,10 @@ let app_server
 
     method handler =
       let r = self#router in
-      strict_http clock @@ router_pipeline r @@ handler
+      strict_http clock
+      @@ cookie_session ~cookie_name:session_cookie_name ~key
+      @@ router_pipeline r
+      @@ handler
 
     method run = run
     method stop = Eio.Promise.resolve stop_r ()

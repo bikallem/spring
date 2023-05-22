@@ -139,6 +139,7 @@ val app_server :
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
   -> ?session_cookie_name:string
+  -> ?master_key:string
   -> on_error:(exn -> unit)
   -> #Eio.Time.clock
   -> #Eio.Net.t
