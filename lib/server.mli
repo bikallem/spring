@@ -122,7 +122,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 
 (** [app_server] is a HTTP/1.1 web server with the following pipelines
     preconfigured for convenience:
-    
+
     - [cookie_session]
     - [router_pipeline]
     - [strict_http] *)
@@ -148,6 +148,13 @@ val app_server :
   -> app_server
 (** [app_server ~secure_random ~on_error clock net] is an [app_server].
 
+    @param master_key
+      is a randomly generated unique key which is used to decrypt/encrypt data.
+      If a value is not provided, it is set to a value from one of the options
+      below:
+
+      - environment variable [___SPRING_MASTER_KEY___]
+      - file [master.key]
     @param secure_random
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random].
