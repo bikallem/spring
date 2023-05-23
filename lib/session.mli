@@ -14,8 +14,8 @@ val of_list : (string * string) list -> t
 val decode : key:string -> string -> t
 (** [decode ~key session_data] decodes encrypted [session_data] using [key]. *)
 
-val encode : nonce:Cstruct.t -> key:string -> t -> string
-(** [encode ~nonce ~key] encrypts session [t] with key [key] and a nonce value
+val encode : key:string -> t -> string
+(** [encode ~key t] encrypts session [t] with key [key] and a nonce value
     [nonce]. *)
 
 val find_opt : string -> t -> string option
