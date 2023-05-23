@@ -145,8 +145,14 @@ val app_server :
   -> #Eio.Time.clock
   -> #Eio.Net.t
   -> app_server
-(** [app_server ~on_error clock net] is an [app_server].
+(** [app_server ~secure_random ~on_error clock net] is an [app_server].
 
+    @param secure_random
+      in the OS dependent secure random number generator. It is usually
+      [Eio.Stdenv.secure_random].
+    @param session_cookie_name
+      is the cookie name used by [cookie_session] pipeline. The default value is
+      [___SPRING_SESSION___].
     @param handler
       specifies handler to be added after [router_pipeline] is executed. The
       default value is {!val:not_found_handler} *)
