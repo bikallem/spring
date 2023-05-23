@@ -1,10 +1,9 @@
 let nonce_size = 12
 
-let encrypt_base64 key contents =
+let encrypt_base64 nonce key contents =
   assert (String.length contents > 0);
   let key = Cstruct.of_string key in
   let key = Mirage_crypto.Chacha20.of_secret key in
-  let nonce = Mirage_crypto_rng.generate nonce_size in
   let encrypted =
     Mirage_crypto.Chacha20.authenticate_encrypt ~key ~nonce
       (Cstruct.of_string contents)
