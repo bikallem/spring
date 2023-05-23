@@ -1,5 +1,7 @@
 (executable
  (name hello)
  (libraries spring eio_main v)
+ (preprocessor_deps
+  (file master.key))
  (preprocess
   (pps spring)))
