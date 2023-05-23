@@ -59,8 +59,7 @@ let cookie_session ~cookie_name ~key next req =
     | None -> req
   in
   let response = next req in
-  let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
-  let encrypted_session = Session.encode ~nonce ~key req#session in
+  let encrypted_session = Session.encode ~key req#session in
   let cookie =
     Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
       (cookie_name, encrypted_session)
@@ -115,17 +114,21 @@ let app_server
     ?(session_cookie_name = "___SPRING_SESSION___")
     ?master_key
     ~on_error
+    ~secure_random
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
   let stop, stop_r = Eio.Promise.create () in
-  let run =
-    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
-  in
   let key =
     match master_key with
     | Some key -> key
     | None ->
-      In_channel.with_open_text "master.key" (fun ic -> In_channel.input_all ic)
+      let key =
+        match Sys.getenv_opt "SPRING_MASTER_KEY" with
+        | Some key -> key
+        | None ->
+          In_channel.(with_open_text "master.key" (fun ic -> input_all ic))
+      in
+      Base64.decode_exn ~pad:false key
   in
   object (self)
     val router = Router.empty
@@ -140,7 +143,21 @@ let app_server
       @@ router_pipeline r
       @@ handler
 
-    method run = run
+    method run socket handler =
+      let env =
+        (object
+           method clock = clock
+           method secure_random = (secure_random :> Eio.Flow.source)
+         end
+          :> Mirage_crypto_rng_eio.env)
+      in
+      Mirage_crypto_rng_eio.run
+        (module Mirage_crypto_rng.Fortuna)
+        env
+        (fun () ->
+          Eio.Net.run_server ~max_connections ?additional_domains ~stop
+            ~on_error socket handler)
+
     method stop = Eio.Promise.resolve stop_r ()
     method router = router
 

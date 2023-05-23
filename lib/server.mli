@@ -141,6 +141,7 @@ val app_server :
   -> ?session_cookie_name:string
   -> ?master_key:string
   -> on_error:(exn -> unit)
+  -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
   -> #Eio.Net.t
   -> app_server
