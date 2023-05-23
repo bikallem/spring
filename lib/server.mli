@@ -122,7 +122,8 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 
 (** [app_server] is a HTTP/1.1 web server with the following pipelines
     preconfigured for convenience:
-
+    
+    - [cookie_session]
     - [router_pipeline]
     - [strict_http] *)
 class virtual app_server :
