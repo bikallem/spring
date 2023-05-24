@@ -175,6 +175,7 @@ val find_session : string -> #server_request -> string option
     with name [name] and exists in [t]. Otherwise it is [None]. *)
 
 val update_session : #Session.t -> (#server_request as 'a) -> 'a
+(** [update_session session t] adds/replaces [t] with [session] value. *)
 
 (** {1 Pretty Printer} *)
 
