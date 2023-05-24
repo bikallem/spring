@@ -50,10 +50,12 @@ let router_pipeline : Response.server_response Router.t -> pipeline =
   | Some response -> response
   | None -> next req
 
-let cookie_session ~cookie_name ~key next req =
+let session_pipeline (session : #Session.t) next req =
+  let session = (session :> Session.t) in
+  let cookie_name = Session.cookie_name session in
   match Request.find_cookie cookie_name req with
   | Some data ->
-    let session = Session.cookie_session ~data key in
+    let session = Session.decode data session in
     let req = req#update_session session in
     let response = next req in
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
@@ -99,10 +101,10 @@ let make
 
 type 'a request_target = ('a, Response.server_response) Router.request_target
 
-class virtual app_server ~session_cookie_name =
+class virtual app_server =
   object (_ : 'a)
     inherit t
-    method session_cookie_name : string = session_cookie_name
+    method virtual session : Session.t
     method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -111,7 +113,7 @@ let app_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ?(handler = not_found_handler)
-    ?(session_cookie_name = "___SPRING_SESSION___")
+    ?session
     ?master_key
     ~on_error
     ~secure_random
@@ -130,16 +132,21 @@ let app_server
       in
       Base64.decode_exn ~pad:false key
   in
+  let session =
+    match session with
+    | Some x -> (x :> Session.t)
+    | None -> (Session.cookie_session key :> Session.t)
+  in
   object (self)
     val router = Router.empty
-    method session_cookie_name = session_cookie_name
     method clock = (clock :> Eio.Time.clock)
     method net = (net :> Eio.Net.t)
+    method session = session
 
     method handler =
       let r = self#router in
       strict_http clock
-      @@ cookie_session ~cookie_name:session_cookie_name ~key
+      @@ session_pipeline session
       @@ router_pipeline r
       @@ handler
 

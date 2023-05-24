@@ -72,11 +72,10 @@ val router_pipeline : Response.server_response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
-val cookie_session : cookie_name:string -> key:string -> pipeline
-(** [cookie_session ~cookie_name ~key] is a pipeline implementing HTTP request
-    session functionality in spring. [key] is the secret key used to
-    encrypt/decrypt session data. [cookie_name] is the name of the session
-    cookie.
+val session_pipeline : #Session.t -> pipeline
+(** [session_pipeline session] is a pipeline implementing HTTP request session
+    functionality in spring. [key] is the secret key used to encrypt/decrypt
+    session data. [cookie_name] is the name of the session cookie.
 
     @param cookie_name is the name of the session cookie. *)
 
@@ -123,23 +122,22 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 (** [app_server] is a HTTP/1.1 web server with the following pipelines
     preconfigured for convenience:
 
-    - [cookie_session]
+    - [session_pipeline]
     - [router_pipeline]
     - [strict_http] *)
 class virtual app_server :
-  session_cookie_name:string
-  -> object ('a)
-       inherit t
-       method session_cookie_name : string
-       method virtual router : Response.server_response Router.t
-       method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
-     end
+  object ('a)
+    inherit t
+    method virtual session : Session.t
+    method virtual router : Response.server_response Router.t
+    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
+  end
 
 val app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
-  -> ?session_cookie_name:string
+  -> ?session:#Session.t
   -> ?master_key:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
@@ -158,9 +156,9 @@ val app_server :
     @param secure_random
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random].
-    @param session_cookie_name
-      is the cookie name used by [cookie_session] pipeline. The default value is
-      [___SPRING_SESSION___].
+    @param session
+      is the session implementation to be used by the [app_server] The default
+      session implementation used is [Session.cookie_session].
     @param handler
       specifies handler to be added after [router_pipeline] is executed. The
       default value is {!val:not_found_handler} *)
