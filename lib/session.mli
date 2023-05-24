@@ -3,6 +3,9 @@
     A session data consists of key, value tuple. *)
 
 type nonce = Cstruct.t
+(** [nonce] is a 12 byte long randomly generated value. Ensure that this value
+    is generated from a secure random generation source such as
+    [Mirage_crypto_rng.generate]. *)
 
 type data = string
 (** [data] is the encrypted data encoded in a session cookie. *)
@@ -28,9 +31,7 @@ val cookie_session : ?data:data -> key -> t
       data. *)
 
 val encode : nonce:Cstruct.t -> #t -> data
-(** [encode ~nonce t] encrypts session [t] with a nonce value [nonce]. Ensure
-    that [nonce] value is generated from a secure source such as
-    [Mirage_crypto_rng.generate]. *)
+(** [encode ~nonce t] encrypts session [t] with a nonce value [nonce]. *)
 
 val find_opt : string -> #t -> string option
 (** [find_opt name t] is [Some v] where [v] is the session data indexed to id
