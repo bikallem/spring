@@ -172,7 +172,7 @@ val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
 
 val find_session : string -> #server_request -> string option
 (** [find_session name t] is [Some v] where [v] is a session value associated
-    with a session name [name] exists in [t]. Otherwise it is [None]. *)
+    with name [name] and exists in [t]. Otherwise it is [None]. *)
 
 val update_session : #Session.t -> (#server_request as 'a) -> 'a
 
