@@ -1,6 +1,6 @@
 (** [Session] implements session functionality in Spring.
 
-    Session case be used to store/retrieve values in a request processing
+    Session can be used to store/retrieve values in a request processing
     pipeline. *)
 
 type nonce = Cstruct.t
