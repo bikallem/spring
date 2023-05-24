@@ -1,6 +1,7 @@
-(** [Session] implements session data store.
+(** [Session] implements session functionality in Spring.
 
-    A session data consists of key, value tuple. *)
+    Session case be used to store/retrieve values in a request processing
+    pipeline. *)
 
 type nonce = Cstruct.t
 (** [nonce] is a 12 byte long randomly generated value. Ensure that this value
