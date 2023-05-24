@@ -137,11 +137,12 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 
     A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
-  Header.t
+  ?session:Session.t
+  -> Header.t
   -> object ('a)
        inherit t
        inherit Body.readable
-       method session : Session.t
+       method session : Session.t option
        method update_session : Session.t -> 'a
        method virtual client_addr : Eio.Net.Sockaddr.stream
      end
@@ -172,6 +173,8 @@ val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
 val find_session : string -> #server_request -> string option
 (** [find_session name t] is [Some v] where [v] is a session value associated
     with a session name [name] exists in [t]. Otherwise it is [None]. *)
+
+val update_session : #Session.t -> (#server_request as 'a) -> 'a
 
 (** {1 Pretty Printer} *)
 

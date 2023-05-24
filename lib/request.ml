@@ -198,13 +198,13 @@ let write (t : #client_request) w =
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 
-class virtual server_request headers =
+class virtual server_request ?(session : Session.t option) headers =
   object
     inherit t headers
     inherit Body.readable
-    val session = Session.empty
+    val session = session
     method session = session
-    method update_session session = {<session>}
+    method update_session session = {<session = Some session>}
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
@@ -255,5 +255,13 @@ let parse client_addr (r : Buf_read.t) : server_request =
   let headers = Header.parse r in
   server_request ~version ~headers ~resource meth client_addr r
 
-let find_session name (t : #server_request) = Session.find_opt name t#session
+let find_session name (t : #server_request) =
+  let open Option.Syntax in
+  let* session = t#session in
+  Session.find_opt name session
+
+let update_session (session : #Session.t) (t : #server_request) =
+  let session = (session :> Session.t) in
+  t#update_session session
+
 let pp fmt (t : #t) = t#pp fmt
