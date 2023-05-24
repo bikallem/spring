@@ -2,26 +2,40 @@
 
     A session data consists of key, value tuple. *)
 
-type t
-(** [t] represents a session. *)
+type nonce = Cstruct.t
 
-val empty : t
-(** [empty] is [t] with empty session data. *)
+type data = string
+(** [data] is the encrypted data encoded in a session cookie. *)
 
-val of_list : (string * string) list -> t
-(** [of_list l] is [t] with a list of session data [l] initialized. *)
+type key = string
 
-val decode : key:string -> string -> t
-(** [decode ~key session_data] decodes encrypted [session_data] using [key]. *)
+class virtual t :
+  key
+  -> object ('a)
+       method add : name:string -> value:string -> 'a
+       method find_opt : string -> string option
+       method virtual encode : nonce -> data
+     end
 
-val encode : nonce:Cstruct.t -> key:string -> t -> string
-(** [encode ~nonce ~key] encrypts session [t] with key [key] and a nonce value
-    [nonce]. *)
+val cookie_session : ?data:data -> key -> t
+(** [cookie_session master_key] is a cookie based session [t]. Cookie based
+    session encode/decode all session data into a session cookie. The session
+    [data] is encrypted/decrypted with [master_key].
 
-val find_opt : string -> t -> string option
+    @param data
+      is the encrypted data in a session cookie. If not given then session [t]
+      is an empty session. Otherwise [t] contains the decoded/decrypted session
+      data. *)
+
+val encode : nonce:Cstruct.t -> #t -> data
+(** [encode ~nonce t] encrypts session [t] with a nonce value [nonce]. Ensure
+    that [nonce] value is generated from a secure source such as
+    [Mirage_crypto_rng.generate]. *)
+
+val find_opt : string -> #t -> string option
 (** [find_opt name t] is [Some v] where [v] is the session data indexed to id
     [name]. It is otherwise [None]. *)
 
-val add : name:string -> value:string -> t -> t
+val add : name:string -> value:string -> (#t as 'a) -> 'a
 (** [add ~name ~value t] is [t] with session data tuple of [name,value] added to
     it. *)

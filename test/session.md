@@ -7,36 +7,34 @@ let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEy
 let nonce = Cstruct.of_string "aaaaaaaaaaaa" 
 ```
 
-## Session.encode
+## Session.cookie_session
 
 ```ocaml
-# let t = Session.of_list ["a", "a_val"; "b", "b_val"];;
-val t : Session.t = <abstr>
+# let t = Session.cookie_session key ;;
+val t : Session.t = <obj>
 
-# let session_data = Session.encode ~nonce ~key t;;
-val session_data : string =
-  "YWFhYWFhYWFhYWFhYHOdvSHL4fyIGWh0ayUSVBXbIUXq5NdJtENq4iTIX1doh_MkW46wor8-"
-```
+# let t = Session.add ~name:"a" ~value:"a_val" t;;
+val t : Session.t = <obj>
 
-## Session.decode
+# let t = Session.add ~name:"b" ~value:"b_val" t;;
+val t : Session.t = <obj>
 
-```ocaml
-# let t' = Session.decode ~key session_data;;
-val t' : Session.t = <abstr>
-
-# Session.find_opt "a" t';;
+# Session.find_opt "a" t;;
 - : string option = Some "a_val"
 
-# Session.find_opt "b" t';;
+# Session.find_opt "b" t;;
 - : string option = Some "b_val"
-```
 
-## Session.add 
+# let data = Session.encode ~nonce t;;
+val data : string =
+  "YWFhYWFhYWFhYWFhYHOdvSHL4fyIGWh0ayUSVBXbIUXq5NdJtENq4iTIX1doh_MkW46wor8-"
 
-```ocaml
-# let t = Session.add ~name:"c" ~value:"c_val" t;;
-val t : Session.t = <abstr>
+# let t1 = Session.cookie_session ~data key;;
+val t1 : Session.t = <obj>
 
-# Session.find_opt "c" t;;
-- : string option = Some "c_val"
+# Session.find_opt "a" t1;;
+- : string option = Some "a_val"
+
+# Session.find_opt "b" t1;;
+- : string option = Some "b_val"
 ```
