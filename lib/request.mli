@@ -174,8 +174,9 @@ val find_session : string -> #server_request -> string option
 (** [find_session name t] is [Some v] where [v] is a session value associated
     with name [name] and exists in [t]. Otherwise it is [None]. *)
 
-val update_session : #Session.t -> (#server_request as 'a) -> 'a
-(** [update_session session t] adds/replaces [t] with [session] value. *)
+val add_replace_session : #Session.t -> (#server_request as 'a) -> 'a
+(** [add_replace_session session t] adds [session] to [t] if [t#session = None]
+    or replaces [t#session] with [session] if [t#session = Some v]. *)
 
 (** {1 Pretty Printer} *)
 

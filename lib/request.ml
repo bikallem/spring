@@ -260,7 +260,7 @@ let find_session name (t : #server_request) =
   let* session = t#session in
   Session.find_opt name session
 
-let update_session (session : #Session.t) (t : #server_request) =
+let add_replace_session (session : #Session.t) (t : #server_request) =
   let session = (session :> Session.t) in
   t#update_session session
 
