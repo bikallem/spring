@@ -176,7 +176,7 @@ val find_session : string -> #server_request -> string option
 
 val add_replace_session : #Session.t -> (#server_request as 'a) -> 'a
 (** [add_replace_session session t] adds [session] to [t] if [t#session = None]
-    or replaces [t#session] with [session] if [t#session = Some v]. *)
+    or replaces [t#session] with [Some session] if [t#session = Some v]. *)
 
 (** {1 Pretty Printer} *)
 
