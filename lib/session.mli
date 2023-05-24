@@ -14,22 +14,29 @@ type data = string
 type key = string
 
 class virtual t :
-  key
+  cookie_name:string
   -> object ('a)
+       method cookie_name : string
+       method session_data : string Map.Make(String).t
        method add : name:string -> value:string -> 'a
-       method find_opt : string -> string option
        method virtual encode : nonce -> data
+       method virtual decode : data -> 'a
      end
 
-val cookie_session : ?data:data -> key -> t
-(** [cookie_session master_key] is a cookie based session [t]. Cookie based
-    session encode/decode all session data into a session cookie. The session
-    [data] is encrypted/decrypted with [master_key].
+val cookie_session : ?cookie_name:string -> key -> t
+(** [cookie_session key] is a cookie based session [t]. A cookie based session
+    encodes all session data into a session cookie. The session [data] is
+    encrypted/decrypted with [key].
 
-    @param data
-      is the encrypted data in a session cookie. If not given then session [t]
-      is an empty session. Otherwise [t] contains the decoded/decrypted session
-      data. *)
+    @param cookie_name
+      is the cookie name used by [t] to encode/decode session data to/from
+      respectively. The default value is [___SPRING_SESSION___]. *)
+
+val cookie_name : #t -> string
+
+val decode : data -> (#t as 'a) -> 'a
+(** [decode data t] is [t] updated with [data]. [data] is the encrypted data.
+    See {!encode}. *)
 
 val encode : nonce:Cstruct.t -> #t -> data
 (** [encode ~nonce t] encrypts session [t] with a nonce value [nonce]. *)
