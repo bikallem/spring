@@ -54,20 +54,24 @@ let session_pipeline (session : #Session.t) next (req : #Request.server_request)
     =
   let session = (session :> Session.t) in
   let cookie_name = Session.cookie_name session in
-  match Request.find_cookie cookie_name req with
-  | Some data ->
-    let session_data = Session.decode data session in
-    let req = req#add_replace_session_data session_data in
-    let response = next req in
+  let req =
+    match Request.find_cookie cookie_name req with
+    | Some data ->
+      let session_data = Session.decode data session in
+      req#add_replace_session_data session_data
+    | None -> req
+  in
+  let response = next req in
+  match req#session_data with
+  | None -> response
+  | Some session_data ->
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
-    let session_data = Option.get req#session_data in
     let encrypted_data = Session.encode ~nonce session_data session in
     let cookie =
       Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
         (cookie_name, encrypted_data)
     in
     Response.add_set_cookie cookie response
-  | None -> next req
 
 class virtual t =
   object
