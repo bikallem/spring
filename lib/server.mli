@@ -15,6 +15,10 @@ val context_session_data : context -> Session.session_data option
 
     See {!val:session_pipeline}. *)
 
+val replace_context_session_data : Session.session_data -> context -> context
+(** [replace_context_session_data session_data ctx] is [ctx] with session data
+    in [ctx] replaced by [session_data]. *)
+
 val context_request : context -> Request.server_request
 (** [request ctx] is the HTTP request instance. *)
 

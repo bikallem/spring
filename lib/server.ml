@@ -3,6 +3,10 @@ type context =
 
 let make_context ?session_data req = { session_data; req }
 let context_session_data ctx = ctx.session_data
+
+let replace_context_session_data data ctx =
+  { ctx with session_data = Some data }
+
 let context_request ctx = ctx.req
 
 type handler = context -> Response.server_response
