@@ -74,10 +74,7 @@ val router_pipeline : Response.server_response Router.t -> pipeline
 
 val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
-    functionality in spring. [key] is the secret key used to encrypt/decrypt
-    session data. [cookie_name] is the name of the session cookie.
-
-    @param cookie_name is the name of the session cookie. *)
+    functionality in spring. *)
 
 (** {1 Servers}*)
 
