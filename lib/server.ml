@@ -67,8 +67,8 @@ let session_pipeline (session : #Session.t) next ctx =
   let ctx =
     match Request.find_cookie cookie_name ctx.req with
     | Some data ->
-      let session_data = Session.decode data session in
-      { ctx with req = ctx.req#add_replace_session_data session_data }
+      let session_data = Some (Session.decode data session) in
+      { ctx with session_data }
     | None -> ctx
   in
   let response = next ctx in
