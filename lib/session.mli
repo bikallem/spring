@@ -13,14 +13,16 @@ type data = string
 
 type key = string
 
+module Data : module type of Map.Make (String)
+
+type session_data = string Data.t
+
 class virtual t :
   cookie_name:string
-  -> object ('a)
+  -> object
        method cookie_name : string
-       method session_data : string Map.Make(String).t
-       method add : name:string -> value:string -> 'a
-       method virtual encode : nonce -> data
-       method virtual decode : data -> 'a
+       method virtual encode : nonce -> session_data -> data
+       method virtual decode : data -> session_data
      end
 
 val cookie_session : ?cookie_name:string -> key -> t
@@ -34,17 +36,8 @@ val cookie_session : ?cookie_name:string -> key -> t
 
 val cookie_name : #t -> string
 
-val decode : data -> (#t as 'a) -> 'a
-(** [decode data t] is [t] updated with [data]. [data] is the encrypted data.
-    See {!encode}. *)
+val decode : data -> #t -> session_data
+(** [decode data t] decodes [data] to [session_data] using [t]. *)
 
-val encode : nonce:Cstruct.t -> #t -> data
+val encode : nonce:Cstruct.t -> session_data -> #t -> data
 (** [encode ~nonce t] encrypts session [t] with a nonce value [nonce]. *)
-
-val find_opt : string -> #t -> string option
-(** [find_opt name t] is [Some v] where [v] is the session data indexed to id
-    [name]. It is otherwise [None]. *)
-
-val add : name:string -> value:string -> (#t as 'a) -> 'a
-(** [add ~name ~value t] is [t] with session data tuple of [name,value] added to
-    it. *)
