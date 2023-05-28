@@ -1,10 +1,11 @@
 type context =
   { session_data : Session.session_data option; req : Request.server_request }
 
-let session_data ctx = ctx.session_data
-let request ctx = ctx.req
+let make_context ?session_data req = { session_data; req }
+let context_session_data ctx = ctx.session_data
+let context_request ctx = ctx.req
 
-type handler = Request.server_request -> Response.server_response
+type handler = context -> Response.server_response
 
 let not_found_handler _ = Response.not_found
 
@@ -18,23 +19,23 @@ type pipeline = handler -> handler
     TODO bikal add tests for IPv6 host parsing after
     https://github.com/mirage/ocaml-uri/pull/169 if merged. *)
 let host_header : pipeline =
- fun (next : handler) (req : Request.server_request) ->
-  let headers = Request.headers req in
+ fun (next : handler) (ctx : context) ->
+  let headers = Request.headers ctx.req in
   let hosts = Header.(find_all headers host) in
   let len = List.length hosts in
   if len = 0 || len > 1 then Response.bad_request
   else
     let host = List.hd hosts in
     match Uri.of_string ("//" ^ host) |> Uri.host with
-    | Some _ -> next req
+    | Some _ -> next ctx
     | None -> Response.bad_request
 
 (* A request pipeline that adds "Date" header if required.
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 let response_date : #Eio.Time.clock -> pipeline =
- fun clock next req ->
-  let res = next req in
+ fun clock next ctx ->
+  let res = next ctx in
   let headers = Response.headers res |> Header.clean_dup in
   match Header.(find_opt headers date) with
   | Some _ -> res
@@ -51,24 +52,23 @@ let response_date : #Eio.Time.clock -> pipeline =
 let strict_http clock next = response_date clock @@ host_header @@ next
 
 let router_pipeline : Response.server_response Router.t -> pipeline =
- fun router next req ->
-  match Router.match' req router with
+ fun router next ctx ->
+  match Router.match' ctx.req router with
   | Some response -> response
-  | None -> next req
+  | None -> next ctx
 
-let session_pipeline (session : #Session.t) next (req : #Request.server_request)
-    =
+let session_pipeline (session : #Session.t) next ctx =
   let session = (session :> Session.t) in
   let cookie_name = Session.cookie_name session in
-  let req =
-    match Request.find_cookie cookie_name req with
+  let ctx =
+    match Request.find_cookie cookie_name ctx.req with
     | Some data ->
       let session_data = Session.decode data session in
-      req#add_replace_session_data session_data
-    | None -> req
+      { ctx with req = ctx.req#add_replace_session_data session_data }
+    | None -> ctx
   in
-  let response = next req in
-  match req#session_data with
+  let response = next ctx in
+  match ctx.session_data with
   | None -> response
   | Some session_data ->
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
@@ -196,10 +196,11 @@ let put rt f (t : #app_server) = add_route Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.parse client_addr reader with
-  | request ->
-    let response = handler request in
+  | req ->
+    let ctx = { req; session_data = None } in
+    let response = handler ctx in
     Response.write response writer;
-    if Request.keep_alive request then
+    if Request.keep_alive ctx.req then
       handle_request clock client_addr reader writer flow handler
   | (exception End_of_file)
   | (exception Eio.Io (Eio.Net.E (Connection_reset _), _)) -> ()

@@ -14,7 +14,8 @@ let fake_clock real_clock = object (_ : #Eio.Time.clock)
     now := max !now time
 end
 
-let handler req =
+let handler ctx =
+  let req = Server.context_request ctx in
   match Request.resource req with
   | "/" -> Response.text "root"
   | "/upload" -> (
@@ -72,10 +73,11 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 
 ```ocaml
 let router : Server.pipeline =
-  fun next req ->
+  fun next ctx ->
+    let req = Server.context_request ctx in
     match Request.resource req with
     | "/" -> Response.text "hello, there"
-    | _ -> next req
+    | _ -> next ctx
 
 let final_handler : Server.handler = router @@ Server.not_found_handler
 ```
@@ -108,7 +110,7 @@ let make_buf_read version meth connection =
   let s = Printf.sprintf "%s /products HTTP/%s\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" meth version connection in
   Eio.Buf_read.of_string s
 
-let hello _req = Response.text "hello"
+let hello _ctx = Response.text "hello"
 ```
 
 Try with GET method.
@@ -117,7 +119,10 @@ Try with GET method.
 # let r = Request.parse client_addr @@ make_buf_read "1.1" "get" "";;
 val r : Request.server_request = <obj>
 
-# let res1 = (Server.host_header @@ hello) r;;
+# let ctx = Server.make_context r;;
+val ctx : Server.context = <abstr>
+
+# let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
 
 # Eio.traceln "%a" Response.pp res1 ;;
@@ -138,7 +143,10 @@ Try with POST method.
 # let r = Request.parse client_addr @@ make_buf_read "1.1" "post" "";;
 val r : Request.server_request = <obj>
 
-# let res1 = (Server.host_header @@ hello) r;;
+# let ctx = Server.make_context r;;
+val ctx : Server.context = <abstr>
+
+# let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
 
 # Eio.traceln "%a" Response.pp res1 ;;
@@ -163,7 +171,10 @@ val buf_read : Eio.Buf_read.t = <abstr>
 # let r = Request.parse client_addr buf_read;;
 val r : Request.server_request = <obj>
 
-# let res1 = (Server.host_header @@ hello) r;;
+# let ctx = Server.make_context r;;
+val ctx : Server.context = <abstr>
+
+# let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
 
 # Eio.traceln "%a" Response.pp res1 ;;
@@ -192,10 +203,13 @@ val hello : 'a -> Response.server_response = <fun>
 # let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server_request = <obj>
 
+# let ctx = Server.make_context req;;
+val ctx : Server.context = <abstr>
+
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -216,7 +230,7 @@ val h : 'a -> Response.server_response = <fun>
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  500 Internal Server Error;
@@ -235,7 +249,7 @@ val h : 'a -> Response.server_response = <fun>
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  100 Continue;
