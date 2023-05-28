@@ -12,6 +12,9 @@
   spring
   base64
   ohtml
+  mirage-crypto
+  mirage-crypto-rng
+  mirage-crypto-rng-eio
   router_test))
 
 (library

@@ -325,3 +325,48 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
 +root
 - : unit = ()
 ```
+
+## Server.session_pipeline
+
+```ocaml
+let make_session_cookie session key = 
+  let nonce = Cstruct.of_string "aaaaaaaaaaaa" in
+  let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in 
+  let data = Session.encode ~nonce session_data session in
+  Cookie.(add ~name:(Session.cookie_name session) ~value:data empty)
+```
+
+```ocaml
+# let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA");;
+val key : string = "’qQû&ÏW\015Ã&ƒ§ùî¯¤ÓTØŠvgwãÖÅÌ€L–b\016"
+
+# let session = Session.cookie_session key;;
+val session : Session.t = <obj>
+
+# let session_cookie = make_session_cookie session key ;;
+val session_cookie : Cookie.t = <abstr>
+
+# let headers = Header.(add empty cookie session_cookie);;
+val headers : Header.t = <abstr>
+
+# let req = Request.server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server_request = <obj>
+
+# let handler _ctx = Response.text "hello";;
+val handler : 'a -> Response.server_response = <fun>
+
+# let ctx = Server.make_context req;;
+val ctx : Server.context = <abstr>
+
+# let res = 
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.session_pipeline session @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# let set_cookie = Header.(find_header set_cookie res);; 
+val set_cookie : Set_cookie.t = <abstr>
+
+# Set_cookie.name set_cookie;;
+- : string = "___SPRING_SESSION___"
+```
