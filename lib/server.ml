@@ -1,3 +1,9 @@
+type context =
+  { session_data : Session.session_data option; req : Request.server_request }
+
+let session_data ctx = ctx.session_data
+let request ctx = ctx.req
+
 type handler = Request.server_request -> Response.server_response
 
 let not_found_handler _ = Response.not_found

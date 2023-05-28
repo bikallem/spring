@@ -2,6 +2,19 @@
 
 (** {1 Handler} *)
 
+type context
+(** [context] represents request handler data context. It encapsulates data
+    request and session data. *)
+
+val session_data : context -> Session.session_data option
+(** [session_data ctx] is [Some v] if session_data is populated by one of the
+    request pipelines. Otherwise is it is [None].
+
+    See {!val:session_pipeline}. *)
+
+val request : context -> Request.server_request
+(** [request ctx] is the HTTP request instance. *)
+
 type handler = Request.server_request -> Response.server_response
 (** [handler] is a HTTP request handler. *)
 
