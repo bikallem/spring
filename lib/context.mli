@@ -3,6 +3,10 @@ type t
     and session data. *)
 
 val make : ?session_data:Session.session_data -> Request.server_request -> t
+(** [make request] is [t].
+
+    @param session_data
+      is the session data of the context. Default value is [None] *)
 
 val session_data : t -> Session.session_data option
 (** [session_data ctx] is [Some v] if session_data is populated by one of the
