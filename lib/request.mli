@@ -137,13 +137,10 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 
     A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
-  ?session_data:Session.session_data
-  -> Header.t
+  Header.t
   -> object ('a)
        inherit t
        inherit Body.readable
-       method session_data : Session.session_data option
-       method add_replace_session_data : Session.session_data -> 'a
        method virtual client_addr : Eio.Net.Sockaddr.stream
      end
 
@@ -156,7 +153,6 @@ val client_addr : #server_request -> Eio.Net.Sockaddr.stream
 val server_request :
      ?version:Version.t
   -> ?headers:Header.t
-  -> ?session_data:Session.session_data
   -> resource:string
   -> Method.t
   -> Eio.Net.Sockaddr.stream
@@ -168,18 +164,6 @@ val server_request :
 val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
 (** [parse client_addr buf_read] parses a server request [r] given a buffered
     reader [buf_read]. *)
-
-(** {1 Session} *)
-
-val find_session : string -> #server_request -> string option
-(** [find_session name t] is [Some v] where [v] is a session value associated
-    with name [name] and exists in [t]. Otherwise it is [None]. *)
-
-val add_replace_session_data :
-  Session.session_data -> (#server_request as 'a) -> 'a
-(** [add_replace_session_data data t] adds [data] to [t] if
-    [t#session_data = None] or replaces [t#session_data] with [Some data] if
-    [t#session_data = Some v]. *)
 
 (** {1 Pretty Printer} *)
 
