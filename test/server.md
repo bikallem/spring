@@ -397,4 +397,15 @@ val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
 - : string = "___SPRING_SESSION___"
+
+# let session_data' = 
+  let data = Set_cookie.value set_cookie in
+  Session.decode data session;;
+val session_data' : Session.session_data = <abstr>
+
+# Session.Data.find "a" session_data' ;;
+- : string = "a_val"
+
+# Session.Data.find "b" session_data' ;;
+- : string = "b_val"
 ```
