@@ -370,3 +370,31 @@ val set_cookie : Set_cookie.t = <abstr>
 # Set_cookie.name set_cookie;;
 - : string = "___SPRING_SESSION___"
 ```
+
+Response should have Session Set-Cookie if set during request processing.
+
+```ocaml
+# let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server_request = <obj>
+
+# let handler ctx =
+  let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in
+  Context.replace_session_data session_data ctx;
+  Response.text "hello";;
+val handler : Context.t -> Response.server_response = <fun>
+
+# let ctx = Context.make req;;
+val ctx : Context.t = <abstr>
+
+# let res = 
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.session_pipeline session @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# let set_cookie = Header.(find_header set_cookie res);; 
+val set_cookie : Set_cookie.t = <abstr>
+
+# Set_cookie.name set_cookie;;
+- : string = "___SPRING_SESSION___"
+```
