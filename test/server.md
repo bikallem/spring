@@ -15,7 +15,7 @@ let fake_clock real_clock = object (_ : #Eio.Time.clock)
 end
 
 let handler ctx =
-  let req = Server.context_request ctx in
+  let req = Context.request ctx in
   match Request.resource req with
   | "/" -> Response.text "root"
   | "/upload" -> (
@@ -74,7 +74,7 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 ```ocaml
 let router : Server.pipeline =
   fun next ctx ->
-    let req = Server.context_request ctx in
+    let req = Context.request ctx in
     match Request.resource req with
     | "/" -> Response.text "hello, there"
     | _ -> next ctx
@@ -119,8 +119,8 @@ Try with GET method.
 # let r = Request.parse client_addr @@ make_buf_read "1.1" "get" "";;
 val r : Request.server_request = <obj>
 
-# let ctx = Server.make_context r;;
-val ctx : Server.context = <abstr>
+# let ctx = Context.make r;;
+val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
@@ -143,8 +143,8 @@ Try with POST method.
 # let r = Request.parse client_addr @@ make_buf_read "1.1" "post" "";;
 val r : Request.server_request = <obj>
 
-# let ctx = Server.make_context r;;
-val ctx : Server.context = <abstr>
+# let ctx = Context.make r;;
+val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
@@ -171,8 +171,8 @@ val buf_read : Eio.Buf_read.t = <abstr>
 # let r = Request.parse client_addr buf_read;;
 val r : Request.server_request = <obj>
 
-# let ctx = Server.make_context r;;
-val ctx : Server.context = <abstr>
+# let ctx = Context.make r;;
+val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
 val res1 : Response.server_response = <obj>
@@ -203,8 +203,8 @@ val hello : 'a -> Response.server_response = <fun>
 # let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server_request = <obj>
 
-# let ctx = Server.make_context req;;
-val ctx : Server.context = <abstr>
+# let ctx = Context.make req;;
+val ctx : Context.t = <abstr>
 
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
@@ -355,8 +355,8 @@ val req : Request.server_request = <obj>
 # let handler _ctx = Response.text "hello";;
 val handler : 'a -> Response.server_response = <fun>
 
-# let ctx = Server.make_context req;;
-val ctx : Server.context = <abstr>
+# let ctx = Context.make req;;
+val ctx : Context.t = <abstr>
 
 # let res = 
   Eio_main.run @@ fun env ->
