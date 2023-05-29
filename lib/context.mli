@@ -10,7 +10,7 @@ val session_data : t -> Session.session_data option
 
     See {!val:session_pipeline}. *)
 
-val replace_session_data : Session.session_data -> t -> t
+val replace_session_data : Session.session_data -> t -> unit
 (** [replace_context_session_data session_data t] is [t] with session data in
     [t] replaced by [session_data]. *)
 
