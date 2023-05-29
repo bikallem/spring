@@ -16,3 +16,6 @@ val replace_session_data : Session.session_data -> t -> unit
 
 val request : t -> Request.server_request
 (** [request t] is the HTTP request instance. *)
+
+val new_session : t -> t
+(** [new_session t] is [make (request t)]. *)
