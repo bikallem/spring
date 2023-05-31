@@ -38,4 +38,7 @@ val init_anticsrf_token : t -> unit
 
 val anticsrf_token : t -> anticsrf_token option
 (** [anticsrf_token t] is [Some tok] if [t] contains an anticsrf token.
-    Otherwise it is [None].*)
+    Otherwise it is [None].
+
+    Ensure you call {!val:init_anticsrf_token t} before you call this function
+    if you wish to avail yourself of anticsrf token value. *)
