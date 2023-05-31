@@ -14,10 +14,8 @@ A Delightful OCaml web programming library.
 - [x] Type-safe HTTP header manipulation
 - [x] Fullly compliant (RFC 7230) HTTP chunked transfer protocol (both client and server)
 - [ ] HTTP file server - host/serve static web assets such as `.css, .js, .jpg, .png` etc 
-- [x] HTTP/1.1 (RFC 9112) compliant server
-- [x] Parallel/Multicore capable HTTP/1.1 server
-- [x] HTTP/1.1 client
-- [ ] HTTPS client - TLS/1.3 based
+- [x] HTTP/1.1 (RFC 9112) multicore/parallel server/client
+- [ ] HTTPS/1.1 server/client (TLS/1.3)
 - [x] Closely aligned with `eio` io library
 
 ### Hello world in Spring [^1]
