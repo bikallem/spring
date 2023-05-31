@@ -76,9 +76,6 @@ let session_pipeline (session : #Session.t) next ctx =
     in
     Response.add_set_cookie cookie response
 
-(* let anticsrf_cookie_name = "XSRF-TOKEN" *)
-(* let anticsrf_token_name = "x-xsrf-token" *)
-
 let form_anticsrf_token anticsrf_token_name req : string option =
   let open Option.Syntax in
   let* ct = Header.(find_header_opt content_type req) in
