@@ -22,4 +22,5 @@ val request : t -> Request.server_request
 (** [request t] is the HTTP request instance. *)
 
 val new_session : t -> t
-(** [new_session t] is [make (request t)]. *)
+(** [new_session t] is [make (request t)] where [t] is initialized with an an
+    empty session data. *)
