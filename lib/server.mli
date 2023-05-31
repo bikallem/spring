@@ -76,6 +76,17 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
+type anticsrf_form_field = string
+type anticsrf_cookie_name = string
+
+val anticsrf_pipeline :
+     protected_http_methods:Method.t list
+  -> anticsrf_form_field
+  -> anticsrf_cookie_name
+  -> pipeline
+(** [anticsrf_pipeline ~protected_http_methods anticsrf_token_name anticsrf_cookie_name]
+    is a pipeline implementing CSRF protection mechanism in [Spring]. *)
+
 (** {1 Servers}*)
 
 (** [t] represents a HTTP/1.1 server instance configured with some specific
@@ -136,6 +147,9 @@ val app_server :
   -> ?handler:handler
   -> ?session:#Session.t
   -> ?master_key:string
+  -> ?anticsrf_protected_http_methods:Method.t list
+  -> ?anticsrf_form_field:anticsrf_form_field
+  -> ?anticsrf_cookie_name:anticsrf_cookie_name
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
@@ -143,6 +157,12 @@ val app_server :
   -> app_server
 (** [app_server ~secure_random ~on_error clock net] is an [app_server].
 
+    @param handler
+      specifies handler to be added after [router_pipeline] is executed. The
+      default value is {!val:not_found_handler}
+    @param session
+      is the session implementation to be used by the [app_server] The default
+      session implementation used is [Session.cookie_session].
     @param master_key
       is a randomly generated unique key which is used to decrypt/encrypt data.
       If a value is not provided, it is set to a value from one of the options
@@ -150,15 +170,18 @@ val app_server :
 
       - environment variable [___SPRING_MASTER_KEY___]
       - file [master.key]
+    @param anticsrf_protected_http_methods
+      is the list of HTTP methods that is proctected by CSRF proctection
+      mechanism. The default is [Method.post; Method.put; Method.delete].
+    @param anticsrf_form_field
+      is the form field name which holds the anticsrf token value. The default
+      value is "__anticsrf_token__".
+    @param anticsrf_cookie_name
+      is the name of the cookie that holds the anticsrf token value. The default
+      value is "XCSRF_TOKEN".
     @param secure_random
       in the OS dependent secure random number generator. It is usually
-      [Eio.Stdenv.secure_random].
-    @param session
-      is the session implementation to be used by the [app_server] The default
-      session implementation used is [Session.cookie_session].
-    @param handler
-      specifies handler to be added after [router_pipeline] is executed. The
-      default value is {!val:not_found_handler} *)
+      [Eio.Stdenv.secure_random]. *)
 
 val get : 'f request_target -> 'f -> #app_server -> app_server
 (** [get request_target f t] is [t] with a route that matches HTTP GET method

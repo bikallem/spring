@@ -76,6 +76,73 @@ let session_pipeline (session : #Session.t) next ctx =
     in
     Response.add_set_cookie cookie response
 
+(* let anticsrf_cookie_name = "XSRF-TOKEN" *)
+(* let anticsrf_token_name = "x-xsrf-token" *)
+
+let form_anticsrf_token anticsrf_token_name req : string option =
+  let open Option.Syntax in
+  let* ct = Header.(find_header_opt content_type req) in
+  match (Content_type.media_type ct :> string * string) with
+  | "application", "x-www-form-urlencoded" -> (
+    let* toks =
+      Body.read_form_values req |> List.assoc_opt anticsrf_token_name
+    in
+    match toks with
+    | tok :: _ -> Some tok
+    | _ -> None)
+  | "multipart", "formdata" ->
+    let rdr = Multipart.reader req in
+    (* Note: anticsrf field must be the first field in multipart/formdata form. *)
+    let anticsrf_part = Multipart.next_part rdr in
+    let* anticsrf_field = Multipart.form_name anticsrf_part in
+    if String.equal anticsrf_field anticsrf_token_name then
+      Multipart.reader_flow anticsrf_part
+      |> Buf_read.of_flow ~max_size:Int.max_int
+      |> Buf_read.take_all
+      |> Option.some
+    else None
+  | _ -> None
+
+type anticsrf_form_field = string
+type anticsrf_cookie_name = string
+
+let anticsrf_pipeline
+    ~protected_http_methods
+    anticsrf_form_field
+    anticsrf_cookie_name
+    next
+    ctx =
+  let req = Context.request ctx in
+  let method_protected =
+    List.exists
+      (fun meth -> Method.equal meth @@ Request.meth req)
+      protected_http_methods
+  in
+  let response =
+    if method_protected then
+      match
+        let open Option.Syntax in
+        let* form_anticsrf_token =
+          form_anticsrf_token anticsrf_form_field req
+        in
+        let+ cookie_anticsrf_token =
+          Request.find_cookie anticsrf_cookie_name req
+        in
+        (form_anticsrf_token, cookie_anticsrf_token)
+      with
+      | Some (tok1, tok2) when String.equal tok1 tok2 -> next ctx
+      | _ -> Response.bad_request
+    else next ctx
+  in
+  match Context.anticsrf_token ctx with
+  | None -> response
+  | Some tok ->
+    let cookie =
+      Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
+        (anticsrf_cookie_name, (tok :> string))
+    in
+    Response.add_set_cookie cookie response
+
 class virtual t =
   object
     method virtual clock : Eio.Time.clock
@@ -123,6 +190,10 @@ let app_server
     ?(handler = not_found_handler)
     ?session
     ?master_key
+    ?(anticsrf_protected_http_methods =
+      [ Method.post; Method.put; Method.delete ])
+    ?(anticsrf_form_field = "__anticsrf_token__")
+    ?(anticsrf_cookie_name = "XCSRF_TOKEN")
     ~on_error
     ~secure_random
     (clock : #Eio.Time.clock)
@@ -154,6 +225,9 @@ let app_server
     method handler =
       let r = self#router in
       strict_http clock
+      @@ anticsrf_pipeline
+           ~protected_http_methods:anticsrf_protected_http_methods
+           anticsrf_form_field anticsrf_cookie_name
       @@ session_pipeline session
       @@ router_pipeline r
       @@ handler
