@@ -2,21 +2,15 @@ type t
 (** [t] represents request handler data context. It encapsulates request,
     session data and anticsrf token for the request. *)
 
-type anticsrf_token = string
-(** [anticsrf_token] is a 32 byte long random generated string. Ensure that this
-    value is generated from a secure random generation source such as
-    [Mirage_crypto_rng.generate]. *)
+type anticsrf_token = private string
+(** [anticsrf_token] is a 32 byte long random string which is base64 encoded. *)
 
-val make :
-     ?session_data:Session.session_data
-  -> ?anticsrf_token:anticsrf_token
-  -> Request.server_request
-  -> t
+val make : ?session_data:Session.session_data -> Request.server_request -> t
 (** [make request] is [t].
 
     @param session_data
       is the session data of the context. Default value is [None]
-    @param anticsrf_token is the anticsrf token. Default value is [None] *)
+    @param anticsrf_token is the anticsrf token. Default value is [None]. *)
 
 val request : t -> Request.server_request
 (** [request t] is the HTTP request instance. *)
@@ -29,9 +23,8 @@ val session_data : t -> Session.session_data option
 
     See {!val:session_pipeline}. *)
 
-val new_session : t -> t
-(** [new_session t] is [t = make (request t)] where [t] is initialized with an
-    empty session data. *)
+val reset_session : t -> unit
+(** [reset_session t] resets the [session_data t] value such that it is [None]. *)
 
 val replace_session_data : Session.session_data -> t -> unit
 (** [replace_context_session_data session_data t] is [t] with session data in
@@ -39,10 +32,10 @@ val replace_session_data : Session.session_data -> t -> unit
 
 (** {1 Anti-csrf} *)
 
+val init_anticsrf_token : t -> unit
+(** [init_anticsrf_token t] resets [t] with anticsrf token value [tok] such that
+    [anticsrf_token t = Some tok]. *)
+
 val anticsrf_token : t -> anticsrf_token option
 (** [anticsrf_token t] is [Some tok] if [t] contains an anticsrf token.
     Otherwise it is [None].*)
-
-val replace_anticsrf_token : anticsrf_token -> t -> unit
-(** [replace_anticsrf_token tok t] is [t] with anticsrf token [tok], i.e.
-    [anticsrf_token t = Some tok]. *)
