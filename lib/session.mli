@@ -35,6 +35,7 @@ val cookie_session : ?cookie_name:string -> key -> t
       respectively. The default value is [___SPRING_SESSION___]. *)
 
 val cookie_name : #t -> string
+(** [cookie_name t] is the name of the session cookie in [t]. *)
 
 val decode : data -> #t -> session_data
 (** [decode data t] decodes [data] to [session_data] using [t]. *)
