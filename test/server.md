@@ -409,3 +409,89 @@ val session_data' : Session.session_data = <abstr>
 # Session.Data.find "b" session_data' ;;
 - : string = "b_val"
 ```
+
+## Server.anticsrf_pipeline
+
+```ocaml
+let write_header b : < f : 'a. 'a Header.header -> 'a -> unit > =
+  object
+    method f : 'a. 'a Header.header -> 'a -> unit =
+      fun hdr v ->
+        let v = Header.encode hdr v in
+        let name = (Header.name hdr :> string) in
+        Header.write_header (Buffer.add_string b) name v
+  end
+
+let make_server_request ?(resource="/") ?(headers=Header.empty) (w: #Body.writable) =
+  Eio_main.run @@ fun env ->
+  let b = Buffer.create 10 in
+  let s = Eio.Flow.buffer_sink b in
+  Eio.Buf_write.with_flow s (fun bw ->
+    w#write_body bw;
+  );
+  Eio.traceln "%s" (Buffer.contents b);
+  let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
+  Request.server_request ~headers ~resource Method.post client_addr buf_read 
+
+let print_response w =
+  Eio_main.run @@ fun env ->
+  let b = Buffer.create 10 in
+  let s = Eio.Flow.buffer_sink b in
+  Eio.Buf_write.with_flow s (fun bw -> Response.write w bw);
+  Eio.traceln "%s" (Buffer.contents b);;
+
+let anticsrf_token = "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA"
+let anticsrf_form_field = "__anticsrf_token__"
+let anticsrf_cookie_name = "XCSRF_TOKEN"
+let anticsrf_cookie = Cookie.(add ~name:anticsrf_cookie_name ~value:anticsrf_token empty)
+let headers = Header.(add empty cookie anticsrf_cookie)
+let headers =
+  let ct = Content_type.make ("application", "x-www-form-urlencoded") in
+  Header.(add headers content_type ct)
+```
+
+The pipeline validates anticsrf-token successfully.
+
+```ocaml
+# let handler _ctx = Response.text "hello";;
+val handler : 'a -> Response.server_response = <fun>
+
+# let form_body = Body.form_values_writer 
+  [(anticsrf_form_field, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
+val form_body : Body.writable = <obj>
+
+# let req1 = make_server_request ~headers form_body;;
++__anticsrf_token__=knFR%2BybPVw/DJoOn%2Be6vpNNU2Ip2Z3fj1sXMgEyWYhA&name2=val%20c,val%20d,val%20e
+val req1 : Request.server_request = <obj>
+
+# Eio.traceln "%a" Request.pp req1;;
++{
++  Version:  HTTP/1.1;
++  Method:  post;
++  URI:  /;
++  Headers :
++    {
++      Content-Type:  application/x-www-form-urlencoded;
++      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++    };
++  Client Address:  tcp:127.0.0.1:8081
++}
+- : unit = ()
+
+# let ctx = Context.make req
+val ctx : Context.t = <abstr>
+
+# let res = 
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# print_response res;;
++HTTP/1.1 200 OK
++Content-Length: 5
++Content-Type: text/plain; charset=uf-8
++
++hello
+- : unit = ()
+```
