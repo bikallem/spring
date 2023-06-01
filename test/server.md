@@ -431,6 +431,8 @@ let make_server_request ?(resource="/") ?(headers=Header.empty) (w: #Body.writab
   );
   Eio.traceln "%s" (Buffer.contents b);
   let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
+  let len = String.length @@ Buffer.contents b in
+  let headers = Header.(add headers content_length len) in
   Request.server_request ~headers ~resource Method.post client_addr buf_read 
 
 let print_response w =
@@ -471,6 +473,7 @@ val req1 : Request.server_request = <obj>
 +  URI:  /;
 +  Headers :
 +    {
++      Content-Length:  96;
 +      Content-Type:  application/x-www-form-urlencoded;
 +      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
 +    };
@@ -478,7 +481,7 @@ val req1 : Request.server_request = <obj>
 +}
 - : unit = ()
 
-# let ctx = Context.make req
+# let ctx = Context.make req1;;
 val ctx : Context.t = <abstr>
 
 # let res = 
@@ -493,5 +496,48 @@ val res : Response.server_response = <obj>
 +Content-Type: text/plain; charset=uf-8
 +
 +hello
+- : unit = ()
+```
+
+The pipeline generates `Bad Request` response due to anticsrf_token validation failure.
+
+```ocaml
+# let form_body = Body.form_values_writer 
+  [(anticsrf_form_field, ["toasdasdfasd"]); ("name2", ["val c"; "val d"; "val e"])] ;;
+val form_body : Body.writable = <obj>
+
+# let req1 = make_server_request ~headers form_body;;
++__anticsrf_token__=toasdasdfasd&name2=val%20c,val%20d,val%20e
+val req1 : Request.server_request = <obj>
+
+# Eio.traceln "%a" Request.pp req1;;
++{
++  Version:  HTTP/1.1;
++  Method:  post;
++  URI:  /;
++  Headers :
++    {
++      Content-Length:  61;
++      Content-Type:  application/x-www-form-urlencoded;
++      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++    };
++  Client Address:  tcp:127.0.0.1:8081
++}
+- : unit = ()
+
+# let ctx = Context.make req1
+val ctx : Context.t = <abstr>
+
+# let res = 
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# print_response res;;
++HTTP/1.1 400 Bad Request
++Content-Length: 0
++
++
 - : unit = ()
 ```
