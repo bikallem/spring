@@ -129,36 +129,46 @@ let headers p = p.headers
 let make_part ?filename ?(headers = Header.empty) body form_name =
   { t = body; form_name = Some form_name; filename; headers; body_eof = false }
 
+let write_part buf boundary part =
+  let params =
+    List.filter_map
+      (fun (k, v) -> Option.bind v (fun x -> Some (k, x)))
+      [ ("name", part.form_name); ("filename", part.filename) ]
+  in
+  let headers =
+    let cd = Content_disposition.make ~params "form-data" in
+    Header.(add part.headers content_disposition cd)
+  in
+  Buffer.add_string buf "--";
+  Buffer.add_string buf boundary;
+  Buffer.add_string buf "\r\n";
+  Header.write headers (Buffer.add_string buf);
+  Buffer.add_string buf "\r\n";
+  let data =
+    Eio.Buf_read.of_flow ~max_size:max_int part.t |> Eio.Buf_read.take_all
+  in
+  Buffer.add_string buf data
+
 let writable boundary parts : Body.writable =
-  let b = Buffer.create 10 in
-  List.iter
-    (fun part ->
-      let params =
-        List.filter_map
-          (fun (k, v) -> Option.bind v (fun x -> Some (k, x)))
-          [ ("name", part.form_name); ("filename", part.filename) ]
-      in
-      let headers =
-        let cd = Content_disposition.make ~params "form-data" in
-        Header.(add part.headers content_disposition cd)
-      in
-      Buffer.add_string b "\r\n--";
-      Buffer.add_string b boundary;
-      Buffer.add_string b "\r\n";
-      Header.write headers (Buffer.add_string b);
-      Buffer.add_string b "\r\n";
-      let data =
-        Eio.Buf_read.of_flow ~max_size:max_int part.t |> Eio.Buf_read.take_all
-      in
-      Buffer.add_string b data)
-    parts;
-  Buffer.add_string b "\r\n--";
-  Buffer.add_string b boundary;
-  Buffer.add_string b "--\r\n";
+  let buf = Buffer.create 10 in
+  let rec aux i = function
+    | [] -> ()
+    | part :: l ->
+      if i = 0 then write_part buf boundary part
+      else begin
+        Buffer.add_string buf "\r\n";
+        write_part buf boundary part
+      end;
+      aux (i + 1) l
+  in
+  aux 0 parts;
+  Buffer.add_string buf "\r\n--";
+  Buffer.add_string buf boundary;
+  Buffer.add_string buf "--\r\n";
 
   let content_type =
     Content_type.make
       ~params:[ ("boundary", boundary) ]
       ("multipart", "formdata")
   in
-  Body.content_writer content_type (Buffer.contents b)
+  Body.content_writer content_type (Buffer.contents buf)
