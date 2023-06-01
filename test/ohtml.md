@@ -359,15 +359,15 @@ val doc : Doc.doc =
 
 # gen doc ;;
 +
-+let v  a:int b:string  (b:Buffer.t) : unit =
-+Buffer.add_string b "<div";
-+Buffer.add_string b ">";
-+Buffer.add_string b "Hello ";
-+Buffer.add_string b "<span";
-+Buffer.add_string b ">";
-+Buffer.add_string b "world!";
-+Buffer.add_string b "</span>";
-+Buffer.add_string b "</div>";
++let v  a:int b:string  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<div";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "Hello ";
++Buffer.add_string ___b___ "<span";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "world!";
++Buffer.add_string ___b___ "</span>";
++Buffer.add_string ___b___ "</div>";
 - : unit = ()
 ```
 
@@ -452,50 +452,50 @@ val doc : Doc.doc =
 +
 +open Spring
 +open Stdlib
-+let v  products  (b:Buffer.t) : unit =
-+Buffer.add_string b "<!DOCTYPE html>";
-+Buffer.add_string b "<html";
-+Buffer.add_string b ">";
-+Buffer.add_string b "<!--  This is a comment  -->";
-+Buffer.add_string b "<![  This is a conditional comment  ]>";
-+Buffer.add_string b "<![CDATA[  This is cdata  ]]>";
-+Buffer.add_string b "<body";
-+Buffer.add_string b ">";
-+Buffer.add_string b "<div";
-+Buffer.add_string b " id=div1";
-+Buffer.add_string b " class=\"abc ccc aaa\"";
-+Buffer.add_string b " disabled";
-+Buffer.add_char b ' ';
-+Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
-+Buffer.add_string b " get=\"";
-+Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
-+Buffer.add_string b "\"";
-+Buffer.add_string b ">";
-+Buffer.add_string b "Hello
++let v  products  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<!DOCTYPE html>";
++Buffer.add_string ___b___ "<html";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "<!--  This is a comment  -->";
++Buffer.add_string ___b___ "<![  This is a conditional comment  ]>";
++Buffer.add_string ___b___ "<![CDATA[  This is cdata  ]]>";
++Buffer.add_string ___b___ "<body";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "<div";
++Buffer.add_string ___b___ " id=div1";
++Buffer.add_string ___b___ " class=\"abc ccc aaa\"";
++Buffer.add_string ___b___ " disabled";
++Buffer.add_char ___b___ ' ';
++Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) ___b___;
++Buffer.add_string ___b___ " get=\"";
++Buffer.add_string ___b___ @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
++Buffer.add_string ___b___ "\"";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "Hello
 +        ";
-+Buffer.add_string b "<span";
-+Buffer.add_string b ">";
-+Buffer.add_string b "world!";
-+Buffer.add_string b "</span>";
-+Buffer.add_string b "<ol";
-+Buffer.add_string b ">";
++Buffer.add_string ___b___ "<span";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "world!";
++Buffer.add_string ___b___ "</span>";
++Buffer.add_string ___b___ "<ol";
++Buffer.add_string ___b___ ">";
 +(
 + List.iter (fun product ->
 +
-+Buffer.add_string b "<li";
-+Buffer.add_string b ">";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
++Buffer.add_string ___b___ "<li";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ product);
 +
 +
-+Buffer.add_string b "</li>";
++Buffer.add_string ___b___ "</li>";
 +
 +          ) products
 +
 +);
-+Buffer.add_string b "</ol>";
-+Buffer.add_string b "</div>";
-+Buffer.add_string b "</body>";
-+Buffer.add_string b "</html>";
++Buffer.add_string ___b___ "</ol>";
++Buffer.add_string ___b___ "</div>";
++Buffer.add_string ___b___ "</body>";
++Buffer.add_string ___b___ "</html>";
 - : unit = ()
 ```
 
@@ -518,11 +518,11 @@ val doc : Doc.doc =
 
 # gen doc;;
 +
-+let v  (b:Buffer.t) : unit =
-+Buffer.add_string b "<span";
-+Buffer.add_string b ">";
-+Buffer.add_string b "Hello, world!";
-+Buffer.add_string b "</span>";
++let v  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<span";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "Hello, world!";
++Buffer.add_string ___b___ "</span>";
 - : unit = ()
 ```
 
@@ -537,11 +537,11 @@ val doc : Doc.doc =
       children = [Ohtml.Doc.Apply_view "view1 products"]}}
 # gen doc ;;
 +
-+let v  (b:Buffer.t) : unit =
-+Buffer.add_string b "<html";
-+Buffer.add_string b ">";
-+(view1 products) b;
-+Buffer.add_string b "</html>";
++let v  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<html";
++Buffer.add_string ___b___ ">";
++(view1 products) ___b___;
++Buffer.add_string ___b___ "</html>";
 - : unit = ()
 ```
 
@@ -641,62 +641,62 @@ val doc : Doc.doc =
 +
 +open Spring
 +open Stdlib
-+let v  products  (b:Buffer.t) : unit =
-+Buffer.add_string b "<!DOCTYPE html>";
-+Buffer.add_string b "<html";
-+Buffer.add_string b ">";
-+Buffer.add_string b "<!--  This is a comment  -->";
-+Buffer.add_string b "<![  This is a conditional comment  ]>";
-+Buffer.add_string b "<![CDATA[  This is cdata  ]]>";
-+Buffer.add_string b "<body";
-+Buffer.add_string b ">";
-+Buffer.add_string b "<div";
-+Buffer.add_string b " id=div1";
-+Buffer.add_string b " class=\"abc ccc aaa\"";
-+Buffer.add_string b " disabled";
-+Buffer.add_char b ' ';
-+Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) b;
-+Buffer.add_string b " get=\"";
-+Buffer.add_string b @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
-+Buffer.add_string b "\"";
-+Buffer.add_string b " hx-sse=\"";
-+Buffer.add_string b @@ Spring.Ohtml.escape_html ("connect:/news_update");
-+Buffer.add_string b "\"";
-+Buffer.add_string b ">";
-+Buffer.add_string b "Hello
++let v  products  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<!DOCTYPE html>";
++Buffer.add_string ___b___ "<html";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "<!--  This is a comment  -->";
++Buffer.add_string ___b___ "<![  This is a conditional comment  ]>";
++Buffer.add_string ___b___ "<![CDATA[  This is cdata  ]]>";
++Buffer.add_string ___b___ "<body";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "<div";
++Buffer.add_string ___b___ " id=div1";
++Buffer.add_string ___b___ " class=\"abc ccc aaa\"";
++Buffer.add_string ___b___ " disabled";
++Buffer.add_char ___b___ ' ';
++Spring.Ohtml.write_attribute ( Ohtml.attribute ~name:"hx-swap" ~value:"outerHTML"  ) ___b___;
++Buffer.add_string ___b___ " get=\"";
++Buffer.add_string ___b___ @@ Spring.Ohtml.escape_html (if true then "/products" else "/index");
++Buffer.add_string ___b___ "\"";
++Buffer.add_string ___b___ " hx-sse=\"";
++Buffer.add_string ___b___ @@ Spring.Ohtml.escape_html ("connect:/news_update");
++Buffer.add_string ___b___ "\"";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "Hello
 +        ";
-+Buffer.add_string b "<span";
-+Buffer.add_string b ">";
-+Buffer.add_string b "world!";
-+Buffer.add_string b "</span>";
-+Buffer.add_string b "<ol";
-+Buffer.add_string b ">";
++Buffer.add_string ___b___ "<span";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "world!";
++Buffer.add_string ___b___ "</span>";
++Buffer.add_string ___b___ "<ol";
++Buffer.add_string ___b___ ">";
 +(
 + List.iter (fun product ->
 +
-+Buffer.add_string b "<li";
-+Buffer.add_string b ">";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ if product = "apple" then "red apple" else product);
++Buffer.add_string ___b___ "<li";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ if product = "apple" then "red apple" else product);
 +
 +
 +
-+Buffer.add_string b "<span";
-+Buffer.add_string b ">";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
-+Buffer.add_string b " hello";
++Buffer.add_string ___b___ "<span";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ product);
++Buffer.add_string ___b___ " hello";
 +
-+Buffer.add_string b "</span>";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ product);
-+Buffer.add_string b "</li>";
++Buffer.add_string ___b___ "</span>";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ product);
++Buffer.add_string ___b___ "</li>";
 +
 +
 +          ) products
 +
 +);
-+Buffer.add_string b "</ol>";
-+Buffer.add_string b "</div>";
-+Buffer.add_string b "</body>";
-+Buffer.add_string b "</html>";
++Buffer.add_string ___b___ "</ol>";
++Buffer.add_string ___b___ "</div>";
++Buffer.add_string ___b___ "</body>";
++Buffer.add_string ___b___ "</html>";
 - : unit = ()
 ```
 
@@ -719,17 +719,17 @@ val doc : Doc.doc =
            [Ohtml.Doc.Element_code_at "if true then \"a\" else \"b\""]}]}}
 # gen doc ;;
 +
-+let v  (b:Buffer.t) : unit =
-+Buffer.add_string b "<html";
-+Buffer.add_string b ">";
-+Buffer.add_string b "<div";
-+Buffer.add_string b ">";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ view1);
-+Buffer.add_string b "</div>";
-+Buffer.add_string b "<div";
-+Buffer.add_string b ">";
-+Buffer.add_string b (Spring.Ohtml.escape_html @@ if true then "a" else "b");
-+Buffer.add_string b "</div>";
-+Buffer.add_string b "</html>";
++let v  (___b___:Buffer.t) : unit =
++Buffer.add_string ___b___ "<html";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ "<div";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ view1);
++Buffer.add_string ___b___ "</div>";
++Buffer.add_string ___b___ "<div";
++Buffer.add_string ___b___ ">";
++Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ if true then "a" else "b");
++Buffer.add_string ___b___ "</div>";
++Buffer.add_string ___b___ "</html>";
 - : unit = ()
 ```

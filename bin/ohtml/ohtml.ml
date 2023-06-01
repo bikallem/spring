@@ -153,62 +153,64 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
   let rec gen_element el =
     match el with
     | Doc.Element { tag_name; children; attributes } ->
-      write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
+      write_ln @@ {|Buffer.add_string ___b___ "<|} ^ tag_name ^ {|";|};
       List.iter (fun attr -> gen_attribute attr) attributes;
-      if [] = children then write_ln {|Buffer.add_string b "/>";|}
+      if [] = children then write_ln {|Buffer.add_string ___b___ "/>";|}
       else (
-        write_ln {|Buffer.add_string b ">";|};
+        write_ln {|Buffer.add_string ___b___ ">";|};
         List.iter (fun child -> gen_element child) children;
-        write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
+        write_ln @@ {|Buffer.add_string ___b___ "</|} ^ tag_name ^ {|>";|})
     | Code l -> code l
     | Element_code_at string_val -> gen_code_at string_val
-    | Apply_view view_name -> write_ln @@ "(" ^ view_name ^ ") b;"
-    | Html_text text -> write_ln @@ {|Buffer.add_string b "|} ^ text ^ {|";|}
+    | Apply_view view_name -> write_ln @@ "(" ^ view_name ^ ") ___b___;"
+    | Html_text text ->
+      write_ln @@ {|Buffer.add_string ___b___ "|} ^ text ^ {|";|}
     | Html_comment comment ->
-      write_ln @@ {|Buffer.add_string b "<!-- |} ^ comment ^ {| -->";|}
+      write_ln @@ {|Buffer.add_string ___b___ "<!-- |} ^ comment ^ {| -->";|}
     | Html_conditional_comment comment ->
-      write_ln @@ {|Buffer.add_string b "<![ |} ^ comment ^ {| ]>";|}
+      write_ln @@ {|Buffer.add_string ___b___ "<![ |} ^ comment ^ {| ]>";|}
     | Cdata cdata ->
-      write_ln @@ {|Buffer.add_string b "<![CDATA[ |} ^ cdata ^ {| ]]>";|}
+      write_ln @@ {|Buffer.add_string ___b___ "<![CDATA[ |} ^ cdata ^ {| ]]>";|}
   and gen_attribute = function
     | Doc.Bool_attribute attr ->
-      write_ln @@ {|Buffer.add_string b " |} ^ attr ^ {|";|}
+      write_ln @@ {|Buffer.add_string ___b___ " |} ^ attr ^ {|";|}
     | Doc.Double_quoted_attribute (nm, v) ->
-      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"|} ^ v ^ {|\"";|}
+      write_ln @@ {|Buffer.add_string ___b___ " |} ^ nm ^ {|=\"|} ^ v ^ {|\"";|}
     | Doc.Single_quoted_attribute (nm, v) ->
-      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|='|} ^ v ^ {|'";|}
+      write_ln @@ {|Buffer.add_string ___b___ " |} ^ nm ^ {|='|} ^ v ^ {|'";|}
     | Doc.Unquoted_attribute (nm, v) ->
-      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=|} ^ v ^ {|";|}
+      write_ln @@ {|Buffer.add_string ___b___ " |} ^ nm ^ {|=|} ^ v ^ {|";|}
     | Doc.Name_code_val_attribute (nm, code) ->
-      write_ln @@ {|Buffer.add_string b " |} ^ nm ^ {|=\"";|};
+      write_ln @@ {|Buffer.add_string ___b___ " |} ^ nm ^ {|=\"";|};
       write_ln
-      @@ {|Buffer.add_string b @@ Spring.Ohtml.escape_html (|}
+      @@ {|Buffer.add_string ___b___ @@ Spring.Ohtml.escape_html (|}
       ^ code
       ^ {|);|};
-      write_ln @@ {|Buffer.add_string b "\"";|}
+      write_ln @@ {|Buffer.add_string ___b___ "\"";|}
     | Doc.Code_attribute code ->
-      write_ln @@ {|Buffer.add_char b ' ';|};
-      write_ln @@ {|Spring.Ohtml.write_attribute (|} ^ code ^ {| ) b;|}
+      write_ln @@ {|Buffer.add_char ___b___ ' ';|};
+      write_ln @@ {|Spring.Ohtml.write_attribute (|} ^ code ^ {| ) ___b___;|}
   and code l =
     let rec aux = function
       | Doc.Code_block block -> write_ln @@ block
       | Code_at string_val -> gen_code_at string_val
-      | Code_text txt -> write_ln @@ {|Buffer.add_string b "|} ^ txt ^ {|";|}
+      | Code_text txt ->
+        write_ln @@ {|Buffer.add_string ___b___ "|} ^ txt ^ {|";|}
       | Code_element { tag_name; children; attributes } ->
-        write_ln @@ {|Buffer.add_string b "<|} ^ tag_name ^ {|";|};
+        write_ln @@ {|Buffer.add_string ___b___ "<|} ^ tag_name ^ {|";|};
         List.iter (fun attr -> gen_attribute attr) attributes;
-        if [] = children then write_ln {|Buffer.add_string b "/>";|}
+        if [] = children then write_ln {|Buffer.add_string ___b___ "/>";|}
         else (
-          write_ln {|Buffer.add_string b ">";|};
+          write_ln {|Buffer.add_string ___b___ ">";|};
           List.iter (fun child -> aux child) children;
-          write_ln @@ {|Buffer.add_string b "</|} ^ tag_name ^ {|>";|})
+          write_ln @@ {|Buffer.add_string ___b___ "</|} ^ tag_name ^ {|>";|})
     in
     write_ln @@ "(";
     List.iter aux l;
     write_ln @@ ");"
   and gen_code_at string_val =
     write_ln
-    @@ {|Buffer.add_string b (Spring.Ohtml.escape_html @@ |}
+    @@ {|Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ |}
     ^ string_val
     ^ {|);|}
   in
@@ -217,10 +219,13 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     | None -> ""
     | Some v -> v
   in
-  let fun_decl = Printf.sprintf "let v %s (b:Buffer.t) : unit = " fun_args in
+  let fun_decl =
+    Printf.sprintf "let v %s (___b___:Buffer.t) : unit = " fun_args
+  in
   List.iter (fun o -> write_ln @@ "open " ^ o) doc.opens;
   write_ln fun_decl;
   Option.iter
-    (fun doctype -> write_ln @@ {|Buffer.add_string b "<!|} ^ doctype ^ {|>";|})
+    (fun doctype ->
+      write_ln @@ {|Buffer.add_string ___b___ "<!|} ^ doctype ^ {|>";|})
     doc.doctype;
   gen_element doc.root
