@@ -86,8 +86,8 @@ type anticsrf_cookie_name = string
 
 val anticsrf_pipeline :
      protected_http_methods:Method.t list
-  -> anticsrf_form_field
-  -> anticsrf_cookie_name
+  -> anticsrf_form_field:anticsrf_form_field
+  -> anticsrf_cookie_name:anticsrf_cookie_name
   -> pipeline
 (** [anticsrf_pipeline ~protected_http_methods anticsrf_token_name anticsrf_cookie_name]
     is a pipeline implementing CSRF protection mechanism in [Spring].

@@ -105,8 +105,8 @@ type anticsrf_cookie_name = string
 
 let anticsrf_pipeline
     ~protected_http_methods
-    anticsrf_form_field
-    anticsrf_cookie_name
+    ~anticsrf_form_field
+    ~anticsrf_cookie_name
     next
     ctx =
   let req = Context.request ctx in
@@ -224,7 +224,7 @@ let app_server
       strict_http clock
       @@ anticsrf_pipeline
            ~protected_http_methods:anticsrf_protected_http_methods
-           anticsrf_form_field anticsrf_cookie_name
+           ~anticsrf_form_field ~anticsrf_cookie_name
       @@ session_pipeline session
       @@ router_pipeline r
       @@ handler
