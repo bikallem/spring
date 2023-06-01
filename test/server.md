@@ -447,8 +447,9 @@ let anticsrf_form_field = "__anticsrf_token__"
 let anticsrf_cookie_name = "XCSRF_TOKEN"
 let anticsrf_cookie = Cookie.(add ~name:anticsrf_cookie_name ~value:anticsrf_token empty)
 let headers = Header.(add empty cookie anticsrf_cookie)
-let headers =
-  let ct = Content_type.make ("application", "x-www-form-urlencoded") in
+
+let add_content_type_header headers (typ, subtyp) =
+  let ct = Content_type.make (typ, subtyp) in 
   Header.(add headers content_type ct)
 ```
 
@@ -462,7 +463,10 @@ val handler : 'a -> Response.server_response = <fun>
   [(anticsrf_form_field, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
 val form_body : Body.writable = <obj>
 
-# let req1 = make_server_request ~headers form_body;;
+# let headers1 = add_content_type_header headers ("application", "x-www-form-urlencoded") ;;
+val headers1 : Header.t = <abstr>
+
+# let req1 = make_server_request ~headers:headers1 form_body;;
 +__anticsrf_token__=knFR%2BybPVw/DJoOn%2Be6vpNNU2Ip2Z3fj1sXMgEyWYhA&name2=val%20c,val%20d,val%20e
 val req1 : Request.server_request = <obj>
 
@@ -506,7 +510,10 @@ The pipeline generates `Bad Request` response due to anticsrf_token validation f
   [(anticsrf_form_field, ["toasdasdfasd"]); ("name2", ["val c"; "val d"; "val e"])] ;;
 val form_body : Body.writable = <obj>
 
-# let req1 = make_server_request ~headers form_body;;
+# let headers1 = add_content_type_header headers ("application", "x-www-form-urlencoded") ;;
+val headers1 : Header.t = <abstr>
+
+# let req1 = make_server_request ~headers:headers1 form_body;;
 +__anticsrf_token__=toasdasdfasd&name2=val%20c,val%20d,val%20e
 val req1 : Request.server_request = <obj>
 
@@ -588,7 +595,6 @@ val req1 : Request.server_request = <obj>
 +  Headers :
 +    {
 +      Content-Length:  96;
-+      Content-Type:  application/x-www-form-urlencoded;
 +      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
