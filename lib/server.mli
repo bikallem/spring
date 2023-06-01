@@ -77,7 +77,12 @@ val session_pipeline : #Session.t -> pipeline
     functionality in spring. *)
 
 type anticsrf_form_field = string
+(** [anticsrf_form_field] represents a form field name which holds the Anti CSRF
+    token. *)
+
 type anticsrf_cookie_name = string
+(** [anticsrf_cookie_name] is the HTTP Cookie name used to hold Anti CSRF token
+    value. *)
 
 val anticsrf_pipeline :
      protected_http_methods:Method.t list
@@ -85,7 +90,45 @@ val anticsrf_pipeline :
   -> anticsrf_cookie_name
   -> pipeline
 (** [anticsrf_pipeline ~protected_http_methods anticsrf_token_name anticsrf_cookie_name]
-    is a pipeline implementing CSRF protection mechanism in [Spring]. *)
+    is a pipeline implementing CSRF protection mechanism in [Spring].
+
+    The CSRF protection method employed by the pipeline is
+    {b Double Submit Cookie}. This is described in detail at
+    https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie
+
+    In order to use AntiCSRF protection in [Spring] applications, a developer
+    must first generate [anticsrf-token] using
+    {!val:Context.init_anticsrf_token} and {!val:Context.anticsrf_token}
+    functions.
+
+    The [anticsrf-token] should then be used as follows:
+
+    - In a [hidden] HTML form field value. The field name is as specified by
+      [anticsrf_form_field]. This is to be done by the user/developer in perhaps
+      a [.ohtml] view. For example like so below:
+
+    [
+      <form action="/transfer.do" method="post">
+      <input type="hidden" name="__anticsrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
+      ...
+      </form>
+    ]
+
+    {b Note} When using [multipart/formdata] in a HTML form, ensure that this
+    field is the first defined field in the form. The pipeline expects the
+    [anticsrf-token] field to be the first one.
+
+    - In a request Cookie header value. The name of the cookie is as specified
+      by [anticsrf_cookie_name]. Creating and populating the cookie is done by
+      the pipeline itself so a developer input is not needed for this step.
+
+    During request processing, the pipeline retrieves the [anticsrf-token] value
+    from the above two objects and validates that they are the same. A
+    [Bad Request] response is sent if this is not so.
+
+    Lastly, the pipeline only protects requests against CSRF attacks when the
+    request HTTP methods is one of the methods specified in
+    [protected_http_methods]. *)
 
 (** {1 Servers}*)
 
