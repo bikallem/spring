@@ -1,10 +1,10 @@
-(lang dune 3.7)
+(lang dune 3.8)
 
 (name spring)
 
 (using menhir 2.1)
 
-(using mdx 0.3)
+(using mdx 0.4)
 
 (generate_opam_files true)
 
@@ -27,7 +27,7 @@
   (eio
    (>= 0.9))
   (dune
-   (>= 3.7.1))
+   (>= 3.8.0))
   (easy-format
    (>= 1.3.4))
   (uri
