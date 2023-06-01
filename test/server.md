@@ -426,9 +426,7 @@ let make_server_request ?(meth=Method.post) ?(resource="/") ?(headers=Header.emp
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  Eio.Buf_write.with_flow s (fun bw ->
-    w#write_body bw;
-  );
+  Eio.Buf_write.with_flow s (fun bw -> w#write_body bw);
   Eio.traceln "%s" (Buffer.contents b);
   let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
   let len = String.length @@ Buffer.contents b in
@@ -616,5 +614,136 @@ val res : Response.server_response = <obj>
 +Content-Type: text/plain; charset=uf-8
 +
 +hello
+- : unit = ()
+```
+
+Multipart/formdata form submissions validates successfully.
+
+```ocaml
+# let handler _ctx = Response.text "hello";;
+val handler : 'a -> Response.server_response = <fun>
+
+# let p1 = Multipart.make_part (Eio.Flow.string_source anticsrf_token) anticsrf_form_field ;;
+val p1 : Eio.Flow.source Multipart.part = <abstr>
+
+# let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
+val p2 : Eio.Flow.source Multipart.part = <abstr>
+
+# let form_body = Multipart.writable "--A1B2C3" [p1;p2];;
+val form_body : Body.writable = <obj>
+
+# let headers1 =
+  let ct = Content_type.make ~params:[("boundary", "--A1B2C3")] ("multipart", "formdata") in
+  Header.(add headers content_type ct) ;;
+val headers1 : Header.t = <abstr>
+
+# let req1 = make_server_request ~headers:headers1 form_body;;
++----A1B2C3
++Content-Disposition: form-data; name="__anticsrf_token__"
++
++knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++----A1B2C3
++Content-Disposition: form-data; name="detail"
++
++file is a text file.
++----A1B2C3--
++
+val req1 : Request.server_request = <obj>
+
+# Eio.traceln "%a" Request.pp req1;;
++{
++  Version:  HTTP/1.1;
++  Method:  post;
++  URI:  /;
++  Headers :
++    {
++      Content-Length:  215;
++      Content-Type:  multipart/formdata; boundary=--A1B2C3;
++      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++    };
++  Client Address:  tcp:127.0.0.1:8081
++}
+- : unit = ()
+
+# let ctx = Context.make req1;;
+val ctx : Context.t = <abstr>
+
+# let res =
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# print_response res;;
++HTTP/1.1 200 OK
++Content-Length: 5
++Content-Type: text/plain; charset=uf-8
++
++hello
+- : unit = ()
+```
+
+Multipart/formdata form submissions validates error due to uneqaul tokens.
+
+```ocaml
+# let handler _ctx = Response.text "hello";;
+val handler : 'a -> Response.server_response = <fun>
+
+# let p1 = Multipart.make_part (Eio.Flow.string_source "abcd") anticsrf_form_field ;;
+val p1 : Eio.Flow.source Multipart.part = <abstr>
+
+# let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
+val p2 : Eio.Flow.source Multipart.part = <abstr>
+
+# let form_body = Multipart.writable "--A1B2C3" [p1;p2];;
+val form_body : Body.writable = <obj>
+
+# let headers1 =
+  let ct = Content_type.make ~params:[("boundary", "--A1B2C3")] ("multipart", "formdata") in
+  Header.(add headers content_type ct) ;;
+val headers1 : Header.t = <abstr>
+
+# let req1 = make_server_request ~headers:headers1 form_body;;
++----A1B2C3
++Content-Disposition: form-data; name="__anticsrf_token__"
++
++abcd
++----A1B2C3
++Content-Disposition: form-data; name="detail"
++
++file is a text file.
++----A1B2C3--
++
+val req1 : Request.server_request = <obj>
+
+# Eio.traceln "%a" Request.pp req1;;
++{
++  Version:  HTTP/1.1;
++  Method:  post;
++  URI:  /;
++  Headers :
++    {
++      Content-Length:  176;
++      Content-Type:  multipart/formdata; boundary=--A1B2C3;
++      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++    };
++  Client Address:  tcp:127.0.0.1:8081
++}
+- : unit = ()
+
+# let ctx = Context.make req1;;
+val ctx : Context.t = <abstr>
+
+# let res =
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# print_response res;;
++HTTP/1.1 400 Bad Request
++Content-Length: 0
++
++
 - : unit = ()
 ```
