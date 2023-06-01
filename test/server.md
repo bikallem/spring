@@ -683,7 +683,7 @@ val res : Response.server_response = <obj>
 - : unit = ()
 ```
 
-Multipart/formdata form submissions validates error due to uneqaul tokens.
+Multipart/formdata form submissions validates error due to invalid tokens.
 
 ```ocaml
 # let handler _ctx = Response.text "hello";;
