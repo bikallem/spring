@@ -174,6 +174,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
     preconfigured for convenience:
 
     - [session_pipeline]
+    - [anticsrf_pipeline]
     - [router_pipeline]
     - [strict_http] *)
 class virtual app_server :
