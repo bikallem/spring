@@ -525,7 +525,7 @@ val req1 : Request.server_request = <obj>
 +}
 - : unit = ()
 
-# let ctx = Context.make req1
+# let ctx = Context.make req1;;
 val ctx : Context.t = <abstr>
 
 # let res = 
@@ -540,4 +540,28 @@ val res : Response.server_response = <obj>
 +
 +
 - : unit = ()
+```
+
+The pipeline generates Anticsrf Cookie if `Context.anticsrf_token = Some tok`
+
+```ocaml
+# let handler ctx = 
+  Context.init_anticsrf_token ctx;
+  Response.text "hello";; 
+val handler : Context.t -> Response.server_response = <fun>
+
+# let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server_request = <obj>
+
+# let ctx = Context.make req;;
+val ctx : Context.t = <abstr>
+
+# let res = 
+  Eio_main.run @@ fun env ->
+  Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+val res : Response.server_response = <obj>
+
+# Header.(find_header set_cookie res) |> Set_cookie.name;;
+- : string = "XCSRF_TOKEN"
 ```
