@@ -151,17 +151,16 @@ let write_part buf boundary part =
 
 let writable boundary parts : Body.writable =
   let buf = Buffer.create 10 in
-  let rec aux i = function
-    | [] -> ()
-    | part :: l ->
-      if i = 0 then write_part buf boundary part
-      else begin
+  (match parts with
+  | [] -> ()
+  | part :: parts ->
+    write_part buf boundary part;
+    List.iter
+      (fun part ->
         Buffer.add_string buf "\r\n";
-        write_part buf boundary part
-      end;
-      aux (i + 1) l
-  in
-  aux 0 parts;
+        write_part buf boundary part)
+      parts);
+
   Buffer.add_string buf "\r\n--";
   Buffer.add_string buf boundary;
   Buffer.add_string buf "--\r\n";
