@@ -76,25 +76,14 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
-type anticsrf_form_field = string
-(** [anticsrf_form_field] represents a form field name which holds the Anti CSRF
-    token. *)
-
-type anticsrf_cookie_name = string
-(** [anticsrf_cookie_name] is the HTTP Cookie name used to hold Anti CSRF token
-    value. *)
-
 val anticsrf_pipeline :
-     protected_http_methods:Method.t list
-  -> anticsrf_form_field:anticsrf_form_field
-  -> anticsrf_cookie_name:anticsrf_cookie_name
-  -> pipeline
-(** [anticsrf_pipeline ~protected_http_methods anticsrf_token_name anticsrf_cookie_name]
-    is a pipeline implementing CSRF protection mechanism in [Spring].
+  protected_http_methods:Method.t list -> anticsrf_token_name:string -> pipeline
+(** [anticsrf_pipeline ~protected_http_methods ~anticsrf_token_name] is a
+    pipeline implementing CSRF protection mechanism in [Spring].
 
     The CSRF protection method employed by the pipeline is
-    {b Double Submit Cookie}. This is described in detail at
-    https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie
+    {b Synchronizer Token Pattern}. This is described in detail at
+    https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
     In order to use AntiCSRF protection in [Spring] applications, a developer
     must first generate [anticsrf-token] using
@@ -103,24 +92,25 @@ val anticsrf_pipeline :
 
     The [anticsrf-token] should then be used as follows:
 
-    - In a [hidden] HTML form field value. The field name is as specified by
-      [anticsrf_form_field]. This is to be done by the user/developer in perhaps
-      a [.ohtml] view. For example like so below:
+    First, in a [hidden] HTML form field value. The field name is as specified
+    by [anticsrf_token_name]. This is to be done by the user/developer in
+    perhaps a [.ohtml] view. For example like so below:
 
-    [
+    {[
       <form action="/transfer.do" method="post">
       <input type="hidden" name="__anticsrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
       ...
       </form>
-    ]
+    ]}
 
     {b Note} When using [multipart/formdata] in a HTML form, ensure that this
     field is the first defined field in the form. The pipeline expects the
     [anticsrf-token] field to be the first one.
 
-    - In a request Cookie header value. The name of the cookie is as specified
-      by [anticsrf_cookie_name]. Creating and populating the cookie is done by
-      the pipeline itself so a developer input is not needed for this step.
+    Secondly, the [anticsrf-token] value is then added to the session storage
+    via request context [Context.session_data ctx]. The session field name is
+    [anticsrf_token_name]. Populating the session is done by the pipeline itself
+    so a developer input is not needed for this step.
 
     During request processing, the pipeline retrieves the [anticsrf-token] value
     from the above two objects and validates that they are the same. A
@@ -192,8 +182,7 @@ val app_server :
   -> ?session:#Session.t
   -> ?master_key:string
   -> ?anticsrf_protected_http_methods:Method.t list
-  -> ?anticsrf_form_field:anticsrf_form_field
-  -> ?anticsrf_cookie_name:anticsrf_cookie_name
+  -> ?anticsrf_token_name:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
@@ -220,9 +209,6 @@ val app_server :
     @param anticsrf_form_field
       is the form field name which holds the anticsrf token value. The default
       value is "__anticsrf_token__".
-    @param anticsrf_cookie_name
-      is the name of the cookie that holds the anticsrf token value. The default
-      value is "XCSRF_TOKEN".
     @param secure_random
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)

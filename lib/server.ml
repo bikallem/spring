@@ -100,15 +100,7 @@ let form_anticsrf_token anticsrf_token_name req : string option =
     else None
   | _ -> None
 
-type anticsrf_form_field = string
-type anticsrf_cookie_name = string
-
-let anticsrf_pipeline
-    ~protected_http_methods
-    ~anticsrf_form_field
-    ~anticsrf_cookie_name
-    next
-    ctx =
+let anticsrf_pipeline ~protected_http_methods ~anticsrf_token_name next ctx =
   let req = Context.request ctx in
   let method_protected =
     List.exists
@@ -120,12 +112,13 @@ let anticsrf_pipeline
       match
         let open Option.Syntax in
         let* form_anticsrf_token =
-          form_anticsrf_token anticsrf_form_field req
+          form_anticsrf_token anticsrf_token_name req
         in
-        let+ cookie_anticsrf_token =
-          Request.find_cookie anticsrf_cookie_name req
+        let* session_data = Context.session_data ctx in
+        let+ session_anticsrf_token =
+          Session.Data.find_opt anticsrf_token_name session_data
         in
-        (form_anticsrf_token, cookie_anticsrf_token)
+        (form_anticsrf_token, session_anticsrf_token)
       with
       | Some (tok1, tok2) when String.equal tok1 tok2 -> next ctx
       | _ -> Response.bad_request
@@ -134,11 +127,14 @@ let anticsrf_pipeline
   match Context.anticsrf_token ctx with
   | None -> response
   | Some tok ->
-    let cookie =
-      Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
-        (anticsrf_cookie_name, (tok :> string))
+    let session_data =
+      (match Context.session_data ctx with
+      | Some data -> data
+      | None -> Session.Data.empty)
+      |> Session.Data.add anticsrf_token_name (tok :> string)
     in
-    Response.add_set_cookie cookie response
+    Context.replace_session_data session_data ctx;
+    response
 
 class virtual t =
   object
@@ -189,8 +185,7 @@ let app_server
     ?master_key
     ?(anticsrf_protected_http_methods =
       [ Method.post; Method.put; Method.delete ])
-    ?(anticsrf_form_field = "__anticsrf_token__")
-    ?(anticsrf_cookie_name = "XCSRF_TOKEN")
+    ?(anticsrf_token_name = "__anticsrf_token__")
     ~on_error
     ~secure_random
     (clock : #Eio.Time.clock)
@@ -222,10 +217,10 @@ let app_server
     method handler =
       let r = self#router in
       strict_http clock
+      @@ session_pipeline session
       @@ anticsrf_pipeline
            ~protected_http_methods:anticsrf_protected_http_methods
-           ~anticsrf_form_field ~anticsrf_cookie_name
-      @@ session_pipeline session
+           ~anticsrf_token_name
       @@ router_pipeline r
       @@ handler
 

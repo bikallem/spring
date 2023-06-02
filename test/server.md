@@ -441,11 +441,13 @@ let print_response w =
   Eio.traceln "%s" (Buffer.contents b);;
 
 let anticsrf_token = "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA"
-let anticsrf_form_field = "__anticsrf_token__"
-let anticsrf_cookie_name = "XCSRF_TOKEN"
-let anticsrf_cookie = Cookie.(add ~name:anticsrf_cookie_name ~value:anticsrf_token empty)
-let headers = Header.(add empty cookie anticsrf_cookie)
+let anticsrf_token_name = "__anticsrf_token__"
+let headers = Header.empty
 
+let make_context req = 
+  let session_data = Session.Data.(add anticsrf_token_name anticsrf_token empty) in
+  Context.make ~session_data req
+  
 let add_content_type_header headers (typ, subtyp) =
   let ct = Content_type.make (typ, subtyp) in 
   Header.(add headers content_type ct)
@@ -458,7 +460,7 @@ The pipeline validates anticsrf-token successfully.
 val handler : 'a -> Response.server_response = <fun>
 
 # let form_body = Body.form_values_writer 
-  [(anticsrf_form_field, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
+  [(anticsrf_token_name, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
 val form_body : Body.writable = <obj>
 
 # let headers1 = add_content_type_header headers ("application", "x-www-form-urlencoded") ;;
@@ -476,20 +478,20 @@ val req1 : Request.server_request = <obj>
 +  Headers :
 +    {
 +      Content-Length:  96;
-+      Content-Type:  application/x-www-form-urlencoded;
-+      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++      Content-Type:  application/x-www-form-urlencoded
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
 +}
 - : unit = ()
 
-# let ctx = Context.make req1;;
+# let ctx = make_context req1;;
 val ctx : Context.t = <abstr>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -505,7 +507,7 @@ The pipeline generates `Bad Request` response due to anticsrf_token validation f
 
 ```ocaml
 # let form_body = Body.form_values_writer 
-  [(anticsrf_form_field, ["toasdasdfasd"]); ("name2", ["val c"; "val d"; "val e"])] ;;
+  [(anticsrf_token_name, ["toasdasdfasd"]); ("name2", ["val c"; "val d"; "val e"])] ;;
 val form_body : Body.writable = <obj>
 
 # let headers1 = add_content_type_header headers ("application", "x-www-form-urlencoded") ;;
@@ -523,20 +525,20 @@ val req1 : Request.server_request = <obj>
 +  Headers :
 +    {
 +      Content-Length:  61;
-+      Content-Type:  application/x-www-form-urlencoded;
-+      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++      Content-Type:  application/x-www-form-urlencoded
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
 +}
 - : unit = ()
 
-# let ctx = Context.make req1;;
+# let ctx = make_context req1;;
 val ctx : Context.t = <abstr>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name 
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -564,11 +566,12 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
-# Header.(find_header set_cookie res) |> Set_cookie.name;;
-- : string = "XCSRF_TOKEN"
+# Context.session_data ctx |> Option.get |> Session.Data.find_opt anticsrf_token_name |> Option.is_some ;;
+- : bool = true
 ```
 
 The pipeline is not executed if HTTP method in not in `protected_http_methods` list.
@@ -578,7 +581,7 @@ The pipeline is not executed if HTTP method in not in `protected_http_methods` l
 val handler : 'a -> Response.server_response = <fun>
 
 # let form_body = Body.form_values_writer 
-  [(anticsrf_form_field, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
+  [(anticsrf_token_name, [anticsrf_token]); ("name2", ["val c"; "val d"; "val e"])] ;;
 val form_body : Body.writable = <obj>
 
 # let req1 = make_server_request ~headers ~meth:Method.get form_body;;
@@ -592,8 +595,7 @@ val req1 : Request.server_request = <obj>
 +  URI:  /;
 +  Headers :
 +    {
-+      Content-Length:  96;
-+      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++      Content-Length:  96
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
 +}
@@ -605,7 +607,8 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -623,7 +626,7 @@ Multipart/formdata form submissions validates successfully.
 # let handler _ctx = Response.text "hello";;
 val handler : 'a -> Response.server_response = <fun>
 
-# let p1 = Multipart.make_part (Eio.Flow.string_source anticsrf_token) anticsrf_form_field ;;
+# let p1 = Multipart.make_part (Eio.Flow.string_source anticsrf_token) anticsrf_token_name ;;
 val p1 : Eio.Flow.source Multipart.part = <abstr>
 
 # let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
@@ -658,20 +661,20 @@ val req1 : Request.server_request = <obj>
 +  Headers :
 +    {
 +      Content-Length:  215;
-+      Content-Type:  multipart/formdata; boundary=--A1B2C3;
-+      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++      Content-Type:  multipart/formdata; boundary=--A1B2C3
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
 +}
 - : unit = ()
 
-# let ctx = Context.make req1;;
+# let ctx = make_context req1;;
 val ctx : Context.t = <abstr>
 
 # let res =
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name 
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -689,7 +692,7 @@ Multipart/formdata form submissions validates error due to invalid tokens.
 # let handler _ctx = Response.text "hello";;
 val handler : 'a -> Response.server_response = <fun>
 
-# let p1 = Multipart.make_part (Eio.Flow.string_source "abcd") anticsrf_form_field ;;
+# let p1 = Multipart.make_part (Eio.Flow.string_source "abcd") anticsrf_token_name ;;
 val p1 : Eio.Flow.source Multipart.part = <abstr>
 
 # let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
@@ -724,20 +727,20 @@ val req1 : Request.server_request = <obj>
 +  Headers :
 +    {
 +      Content-Length:  176;
-+      Content-Type:  multipart/formdata; boundary=--A1B2C3;
-+      Cookie:  XCSRF_TOKEN=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA
++      Content-Type:  multipart/formdata; boundary=--A1B2C3
 +    };
 +  Client Address:  tcp:127.0.0.1:8081
 +}
 - : unit = ()
 
-# let ctx = Context.make req1;;
+# let ctx = make_context req1;;
 val ctx : Context.t = <abstr>
 
 # let res =
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_form_field ~anticsrf_cookie_name @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
+  @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
