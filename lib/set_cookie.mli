@@ -31,6 +31,13 @@ val make :
   -> ?same_site:same_site
   -> name_value
   -> t
+(** [make (nm,v)] is [t] with set_cookie name [nm] and value [v].
+
+    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie for
+    parameter details.
+
+    @param http_only Default value is [true].
+    @param secure Default value is [true]. *)
 
 val decode : string -> t
 val encode : t -> string
