@@ -100,7 +100,7 @@ let form_anticsrf_token anticsrf_token_name req : string option =
     else None
   | _ -> None
 
-let anticsrf_pipeline ~anticsrf_token_name next ctx =
+let csrf_protection_pipeline ~anticsrf_token_name next ctx =
   let req = Context.request ctx in
   let response =
     let open Option.Syntax in
@@ -208,7 +208,7 @@ let app_server
       let r = self#router in
       strict_http clock
       @@ session_pipeline session
-      @@ anticsrf_pipeline ~anticsrf_token_name
+      @@ csrf_protection_pipeline ~anticsrf_token_name
       @@ router_pipeline r
       @@ handler
 

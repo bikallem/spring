@@ -76,18 +76,17 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
-val anticsrf_pipeline : anticsrf_token_name:string -> pipeline
-(** [anticsrf_pipeline ~anticsrf_token_name] is a pipeline implementing CSRF
-    protection mechanism in [Spring].
+val csrf_protection_pipeline : anticsrf_token_name:string -> pipeline
+(** [csrf_protection_pipeline ~anticsrf_token_name] is a pipeline implementing
+    CSRF protection mechanism in [Spring].
 
     The CSRF protection method employed by the pipeline is
     {b Synchronizer Token Pattern}. This is described in detail at
     https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 
-    In order to use AntiCSRF protection in [Spring] applications, a developer
-    must first generate [anticsrf-token] using
-    {!val:Context.init_anticsrf_token} and {!val:Context.anticsrf_token}
-    functions.
+    In order to use CSRF protection in [Spring] applications, a developer must
+    first enable CSRF protection using {!val:Context.enable_csrf_protection} and
+    {!val:Context.csrf_protection_token} functions.
 
     The [anticsrf-token] should then be used as follows:
 
