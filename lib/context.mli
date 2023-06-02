@@ -28,7 +28,8 @@ val reset_session : t -> unit
 
 val replace_session_data : Session.session_data -> t -> unit
 (** [replace_context_session_data session_data t] is [t] with session data in
-    [t] replaced by [session_data]. *)
+    [t] replaced by [session_data]. After this operation
+    [session_data t = Some session_data]. *)
 
 (** {1 Anti-csrf} *)
 
