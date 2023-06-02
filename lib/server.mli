@@ -76,10 +76,9 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
-val anticsrf_pipeline :
-  protected_http_methods:Method.t list -> anticsrf_token_name:string -> pipeline
-(** [anticsrf_pipeline ~protected_http_methods ~anticsrf_token_name] is a
-    pipeline implementing CSRF protection mechanism in [Spring].
+val anticsrf_pipeline : anticsrf_token_name:string -> pipeline
+(** [anticsrf_pipeline ~anticsrf_token_name] is a pipeline implementing CSRF
+    protection mechanism in [Spring].
 
     The CSRF protection method employed by the pipeline is
     {b Synchronizer Token Pattern}. This is described in detail at
@@ -181,7 +180,6 @@ val app_server :
   -> ?handler:handler
   -> ?session:#Session.t
   -> ?master_key:string
-  -> ?anticsrf_protected_http_methods:Method.t list
   -> ?anticsrf_token_name:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
@@ -203,10 +201,7 @@ val app_server :
 
       - environment variable [___SPRING_MASTER_KEY___]
       - file [master.key]
-    @param anticsrf_protected_http_methods
-      is the list of HTTP methods that is proctected by CSRF proctection
-      mechanism. The default is [Method.post; Method.put; Method.delete].
-    @param anticsrf_form_field
+    @param anticsrf_token_name
       is the form field name which holds the anticsrf token value. The default
       value is "__anticsrf_token__".
     @param secure_random

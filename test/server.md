@@ -490,8 +490,7 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -537,8 +536,7 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name 
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -566,8 +564,7 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # Context.session_data ctx |> Option.get |> Session.Data.find_opt anticsrf_token_name |> Option.is_some ;;
@@ -607,8 +604,7 @@ val ctx : Context.t = <abstr>
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -673,8 +669,7 @@ val ctx : Context.t = <abstr>
 # let res =
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name 
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;
@@ -739,8 +734,7 @@ val ctx : Context.t = <abstr>
 # let res =
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.anticsrf_pipeline ~protected_http_methods:[Method.post] ~anticsrf_token_name
-  @@ handler) ctx ;;
+  (Server.anticsrf_pipeline ~anticsrf_token_name @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
 # print_response res;;

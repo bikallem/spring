@@ -100,29 +100,21 @@ let form_anticsrf_token anticsrf_token_name req : string option =
     else None
   | _ -> None
 
-let anticsrf_pipeline ~protected_http_methods ~anticsrf_token_name next ctx =
+let anticsrf_pipeline ~anticsrf_token_name next ctx =
   let req = Context.request ctx in
-  let method_protected =
-    List.exists
-      (fun meth -> Method.equal meth @@ Request.meth req)
-      protected_http_methods
-  in
   let response =
-    if method_protected then
-      match
-        let open Option.Syntax in
-        let* form_anticsrf_token =
-          form_anticsrf_token anticsrf_token_name req
-        in
-        let* session_data = Context.session_data ctx in
-        let+ session_anticsrf_token =
-          Session.Data.find_opt anticsrf_token_name session_data
-        in
-        (form_anticsrf_token, session_anticsrf_token)
-      with
-      | Some (tok1, tok2) when String.equal tok1 tok2 -> next ctx
+    let open Option.Syntax in
+    match
+      let* session_data = Context.session_data ctx in
+      Session.Data.find_opt anticsrf_token_name session_data
+    with
+    | Some session_anticsrf_tok -> begin
+      match form_anticsrf_token anticsrf_token_name req with
+      | Some form_anticsrf_tok
+        when String.equal session_anticsrf_tok form_anticsrf_tok -> next ctx
       | _ -> Response.bad_request
-    else next ctx
+    end
+    | None -> next ctx
   in
   match Context.anticsrf_token ctx with
   | None -> response
@@ -183,8 +175,6 @@ let app_server
     ?(handler = not_found_handler)
     ?session
     ?master_key
-    ?(anticsrf_protected_http_methods =
-      [ Method.post; Method.put; Method.delete ])
     ?(anticsrf_token_name = "__anticsrf_token__")
     ~on_error
     ~secure_random
@@ -218,9 +208,7 @@ let app_server
       let r = self#router in
       strict_http clock
       @@ session_pipeline session
-      @@ anticsrf_pipeline
-           ~protected_http_methods:anticsrf_protected_http_methods
-           ~anticsrf_token_name
+      @@ anticsrf_pipeline ~anticsrf_token_name
       @@ router_pipeline r
       @@ handler
 
