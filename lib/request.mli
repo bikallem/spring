@@ -179,6 +179,10 @@ val find_session_data : string -> #server_request -> string option
 (** [find_session_data name t] is [Some v] is session data with name [name]
     exists in [t]. Otherwise it is [None]. *)
 
+val session_data : #server_request -> Session.session_data option
+(** [session_data t] is [Some v] if session_data exists in [t]. It is otherwise
+    [None]. *)
+
 val server_request :
      ?version:Version.t
   -> ?headers:Header.t

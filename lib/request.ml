@@ -227,6 +227,7 @@ let add_session_data ~name ~value (t : #server_request) =
   t#add_session_data ~name ~value
 
 let find_session_data name (t : #server_request) = t#find_session_data name
+let session_data (t : #server_request) = t#session_data
 
 let server_request
     ?(version = Version.http1_1)
