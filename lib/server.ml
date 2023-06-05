@@ -53,8 +53,7 @@ let router_pipeline : Response.server_response Router.t -> pipeline =
   | None -> next ctx
 
 let session_pipeline (session : #Session.t) next ctx =
-  let session = (session :> Session.t) in
-  let cookie_name = Session.cookie_name session in
+  let cookie_name = session#cookie_name in
   let req = Context.request ctx in
   let ctx =
     match Request.find_cookie cookie_name req with
