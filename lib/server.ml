@@ -76,14 +76,12 @@ let session_pipeline (session : #Session.t) next ctx =
     in
     Response.add_set_cookie cookie response
 
-let form_anticsrf_token anticsrf_token_name req : string option =
+let form_csrf_token csrf_token_name req : string option =
   let open Option.Syntax in
   let* ct = Header.(find_header_opt content_type req) in
   match (Content_type.media_type ct :> string * string) with
   | "application", "x-www-form-urlencoded" -> (
-    let* toks =
-      Body.read_form_values req |> List.assoc_opt anticsrf_token_name
-    in
+    let* toks = Body.read_form_values req |> List.assoc_opt csrf_token_name in
     match toks with
     | tok :: _ -> Some tok
     | _ -> None)
@@ -92,7 +90,7 @@ let form_anticsrf_token anticsrf_token_name req : string option =
     (* Note: anticsrf field must be the first field in multipart/formdata form. *)
     let anticsrf_part = Multipart.next_part rdr in
     let* anticsrf_field = Multipart.form_name anticsrf_part in
-    if String.equal anticsrf_field anticsrf_token_name then
+    if String.equal anticsrf_field csrf_token_name then
       Multipart.reader_flow anticsrf_part
       |> Buf_read.of_flow ~max_size:Int.max_int
       |> Buf_read.take_all
@@ -100,30 +98,30 @@ let form_anticsrf_token anticsrf_token_name req : string option =
     else None
   | _ -> None
 
-let csrf_protection_pipeline ~anticsrf_token_name next ctx =
+let csrf_protection_pipeline ~csrf_token_name next ctx =
   let req = Context.request ctx in
   let response =
     let open Option.Syntax in
     match
       let* session_data = Context.session_data ctx in
-      Session.Data.find_opt anticsrf_token_name session_data
+      Session.Data.find_opt csrf_token_name session_data
     with
     | Some session_anticsrf_tok -> begin
-      match form_anticsrf_token anticsrf_token_name req with
+      match form_csrf_token csrf_token_name req with
       | Some form_anticsrf_tok
         when String.equal session_anticsrf_tok form_anticsrf_tok -> next ctx
       | _ -> Response.bad_request
     end
     | None -> next ctx
   in
-  match Context.anticsrf_token ctx with
+  match Context.csrf_token ctx with
   | None -> response
   | Some tok ->
     let session_data =
       (match Context.session_data ctx with
       | Some data -> data
       | None -> Session.Data.empty)
-      |> Session.Data.add anticsrf_token_name (tok :> string)
+      |> Session.Data.add csrf_token_name (tok :> string)
     in
     Context.replace_session_data session_data ctx;
     response
@@ -175,7 +173,7 @@ let app_server
     ?(handler = not_found_handler)
     ?session
     ?master_key
-    ?(anticsrf_token_name = "__anticsrf_token__")
+    ?(csrf_token_name = "__csrf_token__")
     ~on_error
     ~secure_random
     (clock : #Eio.Time.clock)
@@ -208,7 +206,7 @@ let app_server
       let r = self#router in
       strict_http clock
       @@ session_pipeline session
-      @@ csrf_protection_pipeline ~anticsrf_token_name
+      @@ csrf_protection_pipeline ~csrf_token_name
       @@ router_pipeline r
       @@ handler
 

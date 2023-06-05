@@ -2,15 +2,15 @@ type t
 (** [t] represents request handler data context. It encapsulates request,
     session data and anticsrf token for the request. *)
 
-type anticsrf_token = private string
-(** [anticsrf_token] is a 32 byte long random string which is base64 encoded. *)
+type csrf_token = private string
+(** [csrf_token] is a 32 byte long random string which is base64 encoded. *)
 
 val make : ?session_data:Session.session_data -> Request.server_request -> t
 (** [make request] is [t].
 
     @param session_data
       is the session data of the context. Default value is [None]
-    @param anticsrf_token is the anticsrf token. Default value is [None]. *)
+    @param csrf_token is the anticsrf token. Default value is [None]. *)
 
 val request : t -> Request.server_request
 (** [request t] is the HTTP request instance. *)
@@ -33,13 +33,13 @@ val replace_session_data : Session.session_data -> t -> unit
 
 (** {1 Anti-csrf} *)
 
-val init_anticsrf_token : t -> unit
-(** [init_anticsrf_token t] resets [t] with anticsrf token value [tok] such that
-    [anticsrf_token t = Some tok]. *)
+val init_csrf_token : t -> unit
+(** [init_csrf_token t] resets [t] with anticsrf token value [tok] such that
+    [csrf_token t = Some tok]. *)
 
-val anticsrf_token : t -> anticsrf_token option
-(** [anticsrf_token t] is [Some tok] if [t] contains an anticsrf token.
-    Otherwise it is [None].
+val csrf_token : t -> csrf_token option
+(** [csrf_token t] is [Some tok] if [t] contains an anticsrf token. Otherwise it
+    is [None].
 
-    Ensure you call {!val:init_anticsrf_token t} before you call this function
-    if you wish to avail yourself of anticsrf token value. *)
+    Ensure you call {!val:init_csrf_token t} before you call this function if
+    you wish to avail yourself of anticsrf token value. *)

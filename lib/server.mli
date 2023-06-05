@@ -76,9 +76,9 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
-val csrf_protection_pipeline : anticsrf_token_name:string -> pipeline
-(** [csrf_protection_pipeline ~anticsrf_token_name] is a pipeline implementing
-    CSRF protection mechanism in [Spring].
+val csrf_protection_pipeline : csrf_token_name:string -> pipeline
+(** [csrf_protection_pipeline ~csrf_token_name] is a pipeline implementing CSRF
+    protection mechanism in [Spring].
 
     The CSRF protection method employed by the pipeline is
     {b Synchronizer Token Pattern}. This is described in detail at
@@ -91,12 +91,12 @@ val csrf_protection_pipeline : anticsrf_token_name:string -> pipeline
     The [anticsrf-token] should then be used as follows:
 
     First, in a [hidden] HTML form field value. The field name is as specified
-    by [anticsrf_token_name]. This is to be done by the user/developer in
-    perhaps a [.ohtml] view. For example like so below:
+    by [csrf_token_name]. This is to be done by the user/developer in perhaps a
+    [.ohtml] view. For example like so below:
 
     {[
       <form action="/transfer.do" method="post">
-      <input type="hidden" name="__anticsrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
+      <input type="hidden" name="__csrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
       ...
       </form>
     ]}
@@ -107,8 +107,8 @@ val csrf_protection_pipeline : anticsrf_token_name:string -> pipeline
 
     Secondly, the [anticsrf-token] value is then added to the session storage
     via request context [Context.session_data ctx]. The session field name is
-    [anticsrf_token_name]. Populating the session is done by the pipeline itself
-    so a developer input is not needed for this step.
+    [csrf_token_name]. Populating the session is done by the pipeline itself so
+    a developer input is not needed for this step.
 
     During request processing, the pipeline retrieves the [anticsrf-token] value
     from the above two objects and validates that they are the same. A
@@ -179,7 +179,7 @@ val app_server :
   -> ?handler:handler
   -> ?session:#Session.t
   -> ?master_key:string
-  -> ?anticsrf_token_name:string
+  -> ?csrf_token_name:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
@@ -200,9 +200,9 @@ val app_server :
 
       - environment variable [___SPRING_MASTER_KEY___]
       - file [master.key]
-    @param anticsrf_token_name
+    @param csrf_token_name
       is the form field name which holds the anticsrf token value. The default
-      value is "__anticsrf_token__".
+      value is "__csrf_token__".
     @param secure_random
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
