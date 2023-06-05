@@ -2,13 +2,20 @@
 
 (** [t] is a common request abstraction for {!type:server_request} and
     {!type:client_request}. *)
+
+type resource = string
+(** [resource] is the request uri path *)
+
 class virtual t :
-  Header.t
+  Version.t
+  -> Header.t
+  -> Method.t
+  -> resource
   -> object
        inherit Header.headerable
-       method virtual version : Version.t
-       method virtual meth : Method.t
-       method virtual resource : string
+       method version : Version.t
+       method meth : Method.t
+       method resource : resource
        method virtual pp : Format.formatter -> unit
      end
 
@@ -45,7 +52,10 @@ val find_cookie : string -> #t -> string option
     A HTTP client_request request that is primarily constructed and used by
     {!module:Client}. *)
 class virtual client_request :
-  Header.t
+  Version.t
+  -> Header.t
+  -> Method.t
+  -> resource
   -> object
        inherit t
        inherit Body.writable
@@ -137,7 +147,10 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 
     A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
-  Header.t
+  Version.t
+  -> Header.t
+  -> Method.t
+  -> resource
   -> object ('a)
        inherit t
        inherit Body.readable

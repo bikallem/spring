@@ -4,12 +4,14 @@ let host_port_to_string (host, port) =
   | Some p -> Format.sprintf "%s:%d" host p
   | None -> host
 
-class virtual t headers =
+type resource = string
+
+class virtual t version headers meth resource =
   object
     inherit Header.headerable headers
-    method virtual version : Version.t
-    method virtual meth : Method.t
-    method virtual resource : string
+    method version : Version.t = version
+    method meth : Method.t = meth
+    method resource : string = resource
     method virtual pp : Format.formatter -> unit
   end
 
@@ -43,9 +45,9 @@ let find_cookie name (t : #t) =
   let* cookie = Header.(find_opt t#headers cookie) in
   Cookie.find name cookie
 
-class virtual client_request headers =
+class virtual client_request version headers meth resource =
   object
-    inherit t headers
+    inherit t version headers meth resource
     inherit Body.writable
     method virtual host : string
     method virtual port : int option
@@ -90,10 +92,7 @@ let client_request
     (meth : Method.t)
     body =
   object (self)
-    inherit client_request headers as _super
-    method version = version
-    method meth = meth
-    method resource = resource
+    inherit client_request version headers meth resource
     method host = host
     method port = port
     method write_body = body#write_body
@@ -198,9 +197,9 @@ let write (t : #client_request) w =
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 
-class virtual server_request headers =
+class virtual server_request version headers meth resource =
   object
-    inherit t headers
+    inherit t version headers meth resource
     inherit Body.readable
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
@@ -216,10 +215,7 @@ let server_request
     client_addr
     buf_read =
   object (self)
-    inherit server_request headers
-    method version = version
-    method meth = meth
-    method resource = resource
+    inherit server_request version headers meth resource
     method client_addr = client_addr
     method buf_read = buf_read
 
