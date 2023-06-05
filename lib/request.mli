@@ -154,6 +154,9 @@ class virtual server_request :
   -> object ('a)
        inherit t
        inherit Body.readable
+       method session_data : Session.session_data option
+       method add_session_data : name:string -> value:string -> unit
+       method find_session_data : string -> string option
        method virtual client_addr : Eio.Net.Sockaddr.stream
      end
 
@@ -162,6 +165,19 @@ val buf_read : #server_request -> Eio.Buf_read.t
 
 val client_addr : #server_request -> Eio.Net.Sockaddr.stream
 (** [client_addr r] is the remote client address for request [r]. *)
+
+val add_session_data : name:string -> value:string -> #server_request -> unit
+(** [add_session_data ~name ~value t] adds session value [value] with name
+    [name] to [t]. If session data with [name] already exists in [t], then the
+    old value is replaced with [value].
+
+    {b Note} This function is not thread-safe as it mutates [t], so ensure this
+    function is called in a thread-safe manner if the same request instance [t]
+    is being shared across OCaml domains or sys-threads. *)
+
+val find_session_data : string -> #server_request -> string option
+(** [find_session_data name t] is [Some v] is session data with name [name]
+    exists in [t]. Otherwise it is [None]. *)
 
 val server_request :
      ?version:Version.t

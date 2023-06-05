@@ -201,11 +201,32 @@ class virtual server_request version headers meth resource =
   object
     inherit t version headers meth resource
     inherit Body.readable
+    val mutable session_data : Session.session_data option = None
+
+    method add_session_data ~name ~value =
+      let session_data' =
+        match session_data with
+        | Some v -> v
+        | None -> Session.Data.empty |> Session.Data.add name value
+      in
+      session_data <- Some session_data'
+
+    method find_session_data name =
+      let open Option.Syntax in
+      let* session_data = session_data in
+      Session.Data.find_opt name session_data
+
+    method session_data = session_data
     method virtual client_addr : Eio.Net.Sockaddr.stream
   end
 
 let buf_read (t : #server_request) = t#buf_read
 let client_addr (t : #server_request) = t#client_addr
+
+let add_session_data ~name ~value (t : #server_request) =
+  t#add_session_data ~name ~value
+
+let find_session_data name (t : #server_request) = t#find_session_data name
 
 let server_request
     ?(version = Version.http1_1)

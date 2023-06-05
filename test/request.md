@@ -395,3 +395,21 @@ val req : Request.client_request = <obj>
 # Request.find_cookie "SID" req;;
 - : string option = None
 ```
+
+## Request.add_session_data/find_session_data
+
+```ocaml
+# let req =
+    Request.server_request
+      ~resource:"/update" 
+      Method.get
+      client_addr
+      (Eio.Buf_read.of_string "");;
+val req : Request.server_request = <obj>
+
+# Request.add_session_data ~name:"a" ~value:"a_val" req;;
+- : unit = ()
+
+# Request.find_session_data "a" req;;
+- : string option = Some "a_val"
+```
