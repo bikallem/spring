@@ -147,7 +147,8 @@ val write : #client_request -> Eio.Buf_write.t -> unit
 
     A [server_request] is also a sub-type of {!class:Body.readable}. *)
 class virtual server_request :
-  Version.t
+  ?session_data:Session.session_data
+  -> Version.t
   -> Header.t
   -> Method.t
   -> resource
@@ -186,6 +187,7 @@ val session_data : #server_request -> Session.session_data option
 val server_request :
      ?version:Version.t
   -> ?headers:Header.t
+  -> ?session_data:Session.session_data
   -> resource:string
   -> Method.t
   -> Eio.Net.Sockaddr.stream
@@ -194,9 +196,15 @@ val server_request :
 (** [server_request meth client_addr buf_read] is an instance of
     {!class:server_request}. *)
 
-val parse : Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> server_request
+val parse :
+     ?session_cookie_name:string
+  -> Eio.Net.Sockaddr.stream
+  -> Eio.Buf_read.t
+  -> server_request
 (** [parse client_addr buf_read] parses a server request [r] given a buffered
-    reader [buf_read]. *)
+    reader [buf_read].
+
+    @param session_cookie_name is the name of the session cookie. *)
 
 (** {1 Pretty Printer} *)
 

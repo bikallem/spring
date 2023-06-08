@@ -43,7 +43,7 @@ let keep_alive (t : #t) =
 let find_cookie name (t : #t) =
   let open Option.Syntax in
   let* cookie = Header.(find_opt t#headers cookie) in
-  Cookie.find name cookie
+  Cookie.find_opt name cookie
 
 class virtual client_request version headers meth resource =
   object
@@ -197,11 +197,11 @@ let write (t : #client_request) w =
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 
-class virtual server_request version headers meth resource =
+class virtual server_request ?session_data version headers meth resource =
   object
     inherit t version headers meth resource
     inherit Body.readable
-    val mutable session_data : Session.session_data option = None
+    val mutable session_data : Session.session_data option = session_data
 
     method add_session_data ~name ~value =
       let session_data' =
@@ -232,12 +232,13 @@ let session_data (t : #server_request) = t#session_data
 let server_request
     ?(version = Version.http1_1)
     ?(headers = Header.empty)
+    ?session_data
     ~resource
     meth
     client_addr
     buf_read =
   object (self)
-    inherit server_request version headers meth resource
+    inherit server_request ?session_data version headers meth resource
     method client_addr = client_addr
     method buf_read = buf_read
 
@@ -263,7 +264,7 @@ let http_meth =
 
 let http_resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space)
 
-let parse client_addr (r : Buf_read.t) : server_request =
+let parse ?session_cookie_name:_ client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
   let resource = http_resource r in
   let version = (Version.p <* Buf_read.crlf) r in

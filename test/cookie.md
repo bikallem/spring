@@ -21,16 +21,16 @@ Exception: End_of_file.
 Exception: End_of_file.
 ```
 
-## Cookie.find
+## Cookie.find_opt
 
 ```ocaml
-# Cookie.find "SID" t ;;
+# Cookie.find_opt "SID" t ;;
 - : string option = Some "31d4d96e407aad42"
 
-# Cookie.find "lang" t ;;
+# Cookie.find_opt "lang" t ;;
 - : string option = Some "en"
 
-# Cookie.find "asdfsa" t;;
+# Cookie.find_opt "asdfsa" t;;
 - : string option = None
 ```
 
@@ -47,7 +47,7 @@ Exception: End_of_file.
 # let t = Cookie.add ~name:"id" ~value:"value1" t;;
 val t : Cookie.t = <abstr>
 
-# Cookie.find "id" t;;
+# Cookie.find_opt "id" t;;
 - : string option = Some "value1"
 
 # Cookie.encode t;;
@@ -60,6 +60,6 @@ val t : Cookie.t = <abstr>
 # let t = Cookie.remove ~name:"id" t;;
 val t : Cookie.t = <abstr>
 
-# Cookie.find "id" t;; 
+# Cookie.find_opt "id" t;; 
 - : string option = None
 ```

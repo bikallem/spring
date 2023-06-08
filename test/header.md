@@ -199,10 +199,10 @@ val t : Header.t = <abstr>
 # let cookies = Header.(find_opt t cookie) |> Option.get ;;
 val cookies : Cookie.t = <abstr>
 
-# Cookie.find "SID" cookies;;
+# Cookie.find_opt "SID" cookies;;
 - : string option = Some "31d4d96e407aad42"
 
-# Cookie.find "lang" cookies;;
+# Cookie.find_opt "lang" cookies;;
 - : string option = Some "en"
 ```
 
