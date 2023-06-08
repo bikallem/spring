@@ -53,8 +53,12 @@ val encode_csrf_token : token -> #t -> string
     [t]. Encoding here means [tok] is encrypted and is base64 encoded into
     [tok']. *)
 
+exception Csrf_protection_not_enabled
+
 val ohtml_form_field : #Request.server_request -> #t -> Ohtml.t
-(** [csrf_form_field req t] is [v] where [v] can be used in [.ohtml] views. *)
+(** [csrf_form_field req t] is [v] where [v] can be used in [.ohtml] views.
+
+    @raise Csrf_protected_not_enabled if CSRF is not enabled for the request. *)
 
 val protect_request :
      ?on_fail:(unit -> Response.server_response)
