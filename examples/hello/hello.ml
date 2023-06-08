@@ -6,6 +6,17 @@ let display_products _req =
   V.products_v [ "apple"; "oranges"; "bananas" ]
   |> V.view ~title:"Products Page"
 
+(*
+let _csrf_form _req = 
+  Csrf.enable_csrf_protection csrf_codec;
+  let tok = Csrf.token csrf_codec in
+   
+
+let _csrf_protec _req = 
+  Csrf.protect_request (fun _req -> Response.text "okay")
+  (fun () -> Response.bad_request)
+*)
+
 let () =
   Printexc.record_backtrace true;
   Eio_main.run @@ fun env ->

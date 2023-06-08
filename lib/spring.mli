@@ -36,6 +36,7 @@ module Client = Client
 module Server = Server
 module Context = Context
 module Router = Router
+module Csrf = Csrf
 
 (** {1 Ohtml} *)
 
