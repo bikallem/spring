@@ -197,7 +197,7 @@ val server_request :
     {!class:server_request}. *)
 
 val parse :
-     ?session_cookie_name:string
+     ?session:Session.t
   -> Eio.Net.Sockaddr.stream
   -> Eio.Buf_read.t
   -> server_request

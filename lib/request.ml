@@ -264,11 +264,18 @@ let http_meth =
 
 let http_resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space)
 
-let parse ?session_cookie_name:_ client_addr (r : Buf_read.t) : server_request =
+let parse ?session client_addr (r : Buf_read.t) : server_request =
   let meth = http_meth r in
   let resource = http_resource r in
   let version = (Version.p <* Buf_read.crlf) r in
   let headers = Header.parse r in
-  server_request ~version ~headers ~resource meth client_addr r
+  let session_data =
+    let open Option.Syntax in
+    let* session = session in
+    let* cookie = Header.(find_opt headers cookie) in
+    let+ session_data = Cookie.find_opt session#cookie_name cookie in
+    Session.decode session_data session
+  in
+  server_request ?session_data ~version ~headers ~resource meth client_addr r
 
 let pp fmt (t : #t) = t#pp fmt

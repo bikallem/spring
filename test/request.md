@@ -413,3 +413,32 @@ val req : Request.server_request = <obj>
 # Request.find_session_data "a" req;;
 - : string option = Some "a_val"
 ```
+
+## Request.parse/find_session_data
+
+Parse with session data initialized
+
+```ocaml
+let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA")
+let nonce = Cstruct.of_string "aaaaaaaaaaaa" 
+let session = Session.cookie_session key 
+let session_data = 
+  Session.Data.(
+    add "a" "a_val" empty
+    |> add "b" "b_val");;
+let data : string = Session.encode ~nonce session_data session
+
+let make_request_buf () : Eio.Buf_read.t = 
+  let s = Printf.sprintf "GET /products HTTP/1.1\r\nHost: www.example.com\r\nCookie: %s=%s\r\nUser-Agent: cohttp-eio\r\n\r\n" session#cookie_name data in
+  Eio.Buf_read.of_string s
+```
+```ocaml
+# let r = Request.parse ~session client_addr @@ make_request_buf () ;;
+val r : Request.server_request = <obj>
+
+# Request.find_session_data "a" r;;
+- : string option = Some "a_val"
+
+# Request.find_session_data "b" r;;
+- : string option = Some "b_val"
+```
