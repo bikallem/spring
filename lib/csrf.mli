@@ -28,9 +28,9 @@ val csrf_protected_form : ?token_name:string -> key -> t
 
     {[
       <form action="/transfer.do" method="post">
-                                         <input type="hidden" name="__csrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
-                                                    ...
-                                                    </form>
+        <input type="hidden" name="__csrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
+        ...
+      </form>
     ]}
     @param token_name
       is the name of the form field encapsulating the CSRF token. The default
