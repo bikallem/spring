@@ -49,9 +49,9 @@ val enable_csrf_protection : #Request.server_request -> #t -> unit
 (** [enable_csrf_protection req t] enables csrf protection for request [req]. *)
 
 val encode_csrf_token : token -> #t -> string
-(** [encode_csrf_token tok t] is [tok'] where [tok'] encodes a CSRF token as
-    defined by [t]. [tok'] is encrypted and is base64 encoded; such that it can
-    be used in HTTP request artefacts such as headers, body and request path. *)
+(** [encode_csrf_token tok t] is [tok'] where [tok'] contains a CSRF token that
+    is encrypted and base64 encoded. [tok'] can be used in HTTP request
+    artefacts such as headers, body and request path. *)
 
 exception Csrf_protection_not_enabled
 
