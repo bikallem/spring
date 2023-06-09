@@ -13,7 +13,7 @@ class virtual t ~token_name ~key =
     method virtual decode_csrf_token : Request.server_request -> token option
   end
 
-let csrf_protected_form ?(token_name = "__csrf_token__") key =
+let csrf_form_codec ?(token_name = "__csrf_token__") key =
   object
     inherit t ~token_name ~key
 

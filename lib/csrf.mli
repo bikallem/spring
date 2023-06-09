@@ -34,8 +34,8 @@ class virtual t :
 
 (** {1 Creation} *)
 
-val csrf_protected_form : ?token_name:string -> key -> t
-(** [csrf_protected_form key] is [t] where [t] implements CSRF token decoding
+val csrf_form_codec : ?token_name:string -> key -> t
+(** [csrf_form_codec key] is [t] where [t] implements CSRF token decoding
     functionality from request forms. The [Content-Type] of requests must be one
     of [application/x-www-form-urlencoded] or [multipart/formdata].
 
