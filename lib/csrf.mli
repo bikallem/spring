@@ -5,8 +5,8 @@
 
     + When a user requests a HTML form - perhpas as GET request - ensure you
       call {!val:enable_protection}. Use {!form_field} to CSRF protect a HTTP
-      form submission. Use {!encode_token} with {!session_token} to CSRF protect
-      request in other contexts.
+      form submission. Use {!encode_token} with {!token} to CSRF protect request
+      in other contexts.
 
     + When a use submits a HTTP request that needs to be protected from CSRF -
       possibly in a POST request - use {!protect_request}.
@@ -58,9 +58,9 @@ val token_name : #t -> string
 (** [token_name t] is the name of the CSRF token encoded in HTTP request
     artefacts such as session, forms or headers. *)
 
-val session_token : #Request.server_request -> #t -> token option
-(** [session_token req t] is [Some tok] where [tok] is the CSRF token
-    encapsulated in [req]. It is [None] if [req] doesn't hold the CSRF token. *)
+val token : #Request.server_request -> #t -> token option
+(** [token req t] is [Some tok] where [tok] is the CSRF token encapsulated in
+    [req]. It is [None] if [req] doesn't hold the CSRF token. *)
 
 val enable_protection : #Request.server_request -> #t -> unit
 (** [enable_protection req t] enables csrf protection for request [req]. It does

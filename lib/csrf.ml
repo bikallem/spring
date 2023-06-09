@@ -45,7 +45,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
 
 let token_name (t : #t) = t#token_name
 
-let session_token (req : #Request.server_request) (t : #t) =
+let token (req : #Request.server_request) (t : #t) =
   Request.find_session_data t#token_name req
 
 let decode_csrf_token (req : #Request.server_request) (t : #t) =
@@ -64,7 +64,7 @@ exception Csrf_protection_not_enabled
 
 let form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
   let tok =
-    match session_token req t with
+    match token req t with
     | Some tok -> encode_token tok t
     | None -> raise Csrf_protection_not_enabled
   in
@@ -81,7 +81,7 @@ let protect_request
     f =
   let open Option.Syntax in
   match
-    let* csrf_session_tok = session_token req t in
+    let* csrf_session_tok = token req t in
     let+ csrf_tok = decode_csrf_token req t in
     (csrf_session_tok, csrf_tok)
   with
