@@ -62,7 +62,7 @@ val ohtml_form_field : #Request.server_request -> #t -> Ohtml.t
 
 val protect_request :
      ?on_fail:(unit -> Response.server_response)
-  -> ('a -> Response.server_response)
   -> #t
   -> (#Request.server_request as 'a)
+  -> ('a -> Response.server_response)
   -> Response.server_response

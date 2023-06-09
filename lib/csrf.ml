@@ -74,9 +74,9 @@ let ohtml_form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
 
 let protect_request
     ?(on_fail = fun () -> Response.bad_request)
-    f
     (t : #t)
-    (req : #Request.server_request) : Response.server_response =
+    (req : #Request.server_request)
+    f =
   let open Option.Syntax in
   match
     let* csrf_session_tok = session_token req t in
