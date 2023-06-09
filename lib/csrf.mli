@@ -22,41 +22,57 @@ val csrf_protected_form : ?token_name:string -> key -> t
     If [Content-Type] is [multipart/formdata], then the first defined field in
     the form must be the csrf token field.
 
-    [key] is used to decrypt the token.
+    [key] is used to decrypt CSRF token.
 
-    Example form request in HTML:
-
-    {[
-      <form action="/transfer.do" method="post">
-        <input type="hidden" name="__csrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
-        ...
-      </form>
-    ]}
     @param token_name
       is the name of the form field encapsulating the CSRF token. The default
-      value is [__csrf_token__]. *)
+      value is [__csrf_token__].
+
+      See {!val:ohtml_form_field} for using CSRF token in a HTML form. See
+      {!val:encode_csrf_token} for using CSRF token in contexts other than a
+      HTML form. *)
+
+val token_name : #t -> string
+(** [token_name t] is the name of the CSRF token encoded in HTTP request
+    artefacts such as session, forms or headers. *)
 
 val session_token : #Request.server_request -> #t -> token option
 (** [session_token req t] is [Some tok] where [tok] is the CSRF token
     encapsulated in [req]. It is [None] if [req] doesn't hold the CSRF token. *)
-
-val enable_csrf_protection : #Request.server_request -> #t -> unit
-(** [enable_csrf_protection req t] enables csrf protection for request [req]. *)
 
 val decode_csrf_token : #Request.server_request -> #t -> token option
 (** [decode_csrf_token req t] is [Some tok] where [tok] is the CSRF token
     encapsulated in [req]. It is [None] if [req] doesn't contain the CSRF token
     as defined by [t]. *)
 
+val enable_csrf_protection : #Request.server_request -> #t -> unit
+(** [enable_csrf_protection req t] enables csrf protection for request [req]. *)
+
 val encode_csrf_token : token -> #t -> string
-(** [encode_csrf_token tok t] is [tok'] where [tok'] is encoded as defined by
-    [t]. Encoding here means [tok] is encrypted and is base64 encoded into
-    [tok']. *)
+(** [encode_csrf_token tok t] is [tok'] where [tok'] encodes a CSRF token as
+    defined by [t]. [tok'] is encrypted and is base64 encoded; such that it can
+    be used in HTTP request artefacts such as headers, body and request path. *)
 
 exception Csrf_protection_not_enabled
 
 val ohtml_form_field : #Request.server_request -> #t -> Ohtml.t
-(** [csrf_form_field req t] is [v] where [v] can be used in [.ohtml] views.
+(** [ohtml_form_field req t] is [v] of type {!type:Ohtml.t}. [v] contains hidden
+    HTML input element which encodes CSRF token in a HTML request form. Ensure
+    this element is the first defined form filed when using in the context of
+    [multipart/formdata] form.
+
+    Example [hello.ohtml] form:
+
+    {[
+      fun req csrf ->
+      <form action="/transfer.do" method="post">
+        {{ Csrf.ohtml_form_field req csrf }}
+        ...
+      </form>
+    ]}
+
+    {b Note} Ensure {!val:enable_csrf_protection} is called before using this
+    function.
 
     @raise Csrf_protected_not_enabled if CSRF is not enabled for the request. *)
 
@@ -66,3 +82,15 @@ val protect_request :
   -> (#Request.server_request as 'a)
   -> ('a -> Response.server_response)
   -> Response.server_response
+(** [protect_request t req f] protects request [req] from CSRF.
+
+    The CSRF protection mechanism employed is {b Synchronizer Token Pattern}.
+    This is described in detail at
+    https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
+
+    [f] is the lambda that is executed as [f req] after [req] passes CSRF
+    protection mechanism.
+
+    @param on_fail
+      is the lambda that is executed if [req] fails CSRF protection mechanism.
+      By default the lambda returns a [Bad Request] response. *)

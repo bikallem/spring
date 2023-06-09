@@ -43,8 +43,13 @@ let csrf_protected_form ?(token_name = "__csrf_token__") key =
       Secret.decrypt_base64 key tok |> Option.some
   end
 
+let token_name (t : #t) = t#token_name
+
 let session_token (req : #Request.server_request) (t : #t) =
   Request.find_session_data t#token_name req
+
+let decode_csrf_token (req : #Request.server_request) (t : #t) =
+  t#decode_csrf_token (req :> Request.server_request)
 
 let enable_csrf_protection (req : #Request.server_request) (t : #t) =
   match Request.find_session_data t#token_name req with
@@ -52,9 +57,6 @@ let enable_csrf_protection (req : #Request.server_request) (t : #t) =
   | None ->
     let tok = Mirage_crypto_rng.generate 32 |> Cstruct.to_string in
     Request.add_session_data ~name:t#token_name ~value:tok req
-
-let decode_csrf_token (req : #Request.server_request) (t : #t) =
-  t#decode_csrf_token (req :> Request.server_request)
 
 let encode_csrf_token tok (t : #t) = t#encode_csrf_token tok
 
