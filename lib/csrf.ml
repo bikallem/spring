@@ -5,7 +5,7 @@ class virtual t ~token_name ~key =
   object
     method token_name : string = token_name
 
-    method encode_csrf_token : token -> string =
+    method encode_token : token -> string =
       fun tok ->
         let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
         Secret.encrypt_base64 nonce key tok
@@ -13,7 +13,7 @@ class virtual t ~token_name ~key =
     method virtual decode_csrf_token : Request.server_request -> token option
   end
 
-let csrf_form_codec ?(token_name = "__csrf_token__") key =
+let form_codec ?(token_name = "__csrf_token__") key =
   object
     inherit t ~token_name ~key
 
@@ -51,21 +51,21 @@ let session_token (req : #Request.server_request) (t : #t) =
 let decode_csrf_token (req : #Request.server_request) (t : #t) =
   t#decode_csrf_token (req :> Request.server_request)
 
-let enable_csrf_protection (req : #Request.server_request) (t : #t) =
+let enable_protection (req : #Request.server_request) (t : #t) =
   match Request.find_session_data t#token_name req with
   | Some _ -> ()
   | None ->
     let tok = Mirage_crypto_rng.generate 32 |> Cstruct.to_string in
     Request.add_session_data ~name:t#token_name ~value:tok req
 
-let encode_csrf_token tok (t : #t) = t#encode_csrf_token tok
+let encode_token tok (t : #t) = t#encode_token tok
 
 exception Csrf_protection_not_enabled
 
-let ohtml_form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
+let form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
   let tok =
     match session_token req t with
-    | Some tok -> encode_csrf_token tok t
+    | Some tok -> encode_token tok t
     | None -> raise Csrf_protection_not_enabled
   in
   let input =
