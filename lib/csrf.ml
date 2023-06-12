@@ -1,7 +1,7 @@
 type token = string
 type key = string
 
-class virtual t ~token_name ~key =
+class virtual codec ~token_name ~key =
   object
     method token_name : string = token_name
 
@@ -15,7 +15,7 @@ class virtual t ~token_name ~key =
 
 let form_codec ?(token_name = "__csrf_token__") key =
   object
-    inherit t ~token_name ~key
+    inherit codec ~token_name ~key
 
     method decode_csrf_token req =
       let open Option.Syntax in
@@ -43,26 +43,26 @@ let form_codec ?(token_name = "__csrf_token__") key =
       Secret.decrypt_base64 key tok |> Option.some
   end
 
-let token_name (t : #t) = t#token_name
+let token_name (t : #codec) = t#token_name
 
-let token (req : #Request.server_request) (t : #t) =
+let token (req : #Request.server_request) (t : #codec) =
   Request.find_session_data t#token_name req
 
-let decode_csrf_token (req : #Request.server_request) (t : #t) =
+let decode_csrf_token (req : #Request.server_request) (t : #codec) =
   t#decode_csrf_token (req :> Request.server_request)
 
-let enable_protection (req : #Request.server_request) (t : #t) =
+let enable_protection (req : #Request.server_request) (t : #codec) =
   match Request.find_session_data t#token_name req with
   | Some _ -> ()
   | None ->
     let tok = Mirage_crypto_rng.generate 32 |> Cstruct.to_string in
     Request.add_session_data ~name:t#token_name ~value:tok req
 
-let encode_token tok (t : #t) = t#encode_token tok
+let encode_token tok (t : #codec) = t#encode_token tok
 
 exception Csrf_protection_not_enabled
 
-let form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
+let form_field (req : #Request.server_request) (t : #codec) (b : Buffer.t) =
   let tok =
     match token req t with
     | Some tok -> encode_token tok t
@@ -76,7 +76,7 @@ let form_field (req : #Request.server_request) (t : #t) (b : Buffer.t) =
 
 let protect_request
     ?(on_fail = fun () -> Response.bad_request)
-    (t : #t)
+    (t : #codec)
     (req : #Request.server_request)
     f =
   let open Option.Syntax in

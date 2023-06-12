@@ -23,7 +23,7 @@ type key = string
 (** [key] is an alias for 32 bytes long randomly generated string. *)
 
 (** [t] encapsulates decoding CSRF token from request. *)
-class virtual t :
+class virtual codec :
   token_name:string
   -> key:key
   -> object
@@ -34,7 +34,7 @@ class virtual t :
 
 (** {1 Creation} *)
 
-val form_codec : ?token_name:string -> key -> t
+val form_codec : ?token_name:string -> key -> codec
 (** [form_codec key] is [t] where [t] implements CSRF token decoding
     functionality from request forms. The [Content-Type] of requests must be one
     of [application/x-www-form-urlencoded] or [multipart/formdata].
@@ -54,19 +54,19 @@ val form_codec : ?token_name:string -> key -> t
 
 (** {1 CSRF Protection} *)
 
-val token_name : #t -> string
-(** [token_name t] is the name of the CSRF token encoded in HTTP request
+val token_name : #codec -> string
+(** [token_name codec] is the name of the CSRF token encoded in HTTP request
     artefacts such as session, forms or headers. *)
 
-val token : #Request.server_request -> #t -> token option
+val token : #Request.server_request -> #codec -> token option
 (** [token req t] is [Some tok] where [tok] is the CSRF token encapsulated in
     [req]. It is [None] if [req] doesn't hold the CSRF token. *)
 
-val enable_protection : #Request.server_request -> #t -> unit
+val enable_protection : #Request.server_request -> #codec -> unit
 (** [enable_protection req t] enables csrf protection for request [req]. It does
     this by adding CSRF token to request session if one doesn't already exist. *)
 
-val encode_token : token -> #t -> string
+val encode_token : token -> #codec -> string
 (** [encode_token tok t] is [tok'] where [tok'] contains a CSRF token that is
     encrypted and base64 encoded. [tok'] can be used in HTTP request artefacts
     such as headers, body and request path.
@@ -76,7 +76,7 @@ val encode_token : token -> #t -> string
 
 exception Csrf_protection_not_enabled
 
-val form_field : #Request.server_request -> #t -> Ohtml.t
+val form_field : #Request.server_request -> #codec -> Ohtml.t
 (** [form_field req t] is an Ohtml component [v]. [v] contains hidden HTML input
     element which encodes CSRF token. Use [v] in the context of a HTML request
     form.
@@ -101,7 +101,7 @@ val form_field : #Request.server_request -> #t -> Ohtml.t
 
 val protect_request :
      ?on_fail:(unit -> Response.server_response)
-  -> #t
+  -> #codec
   -> (#Request.server_request as 'a)
   -> ('a -> Response.server_response)
   -> Response.server_response
