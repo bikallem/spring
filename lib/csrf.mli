@@ -29,7 +29,7 @@ class virtual codec :
   -> object
        method token_name : string
        method encode_token : token -> string
-       method virtual decode_csrf_token : Request.server_request -> token option
+       method virtual decode_token : Request.server_request -> token option
      end
 
 (** {1 Codec Creation} *)

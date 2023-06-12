@@ -10,14 +10,14 @@ class virtual codec ~token_name ~key =
         let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
         Secret.encrypt_base64 nonce key tok
 
-    method virtual decode_csrf_token : Request.server_request -> token option
+    method virtual decode_token : Request.server_request -> token option
   end
 
 let form_codec ?(token_name = "__csrf_token__") key =
   object
     inherit codec ~token_name ~key
 
-    method decode_csrf_token req =
+    method decode_token req =
       let open Option.Syntax in
       let* ct = Header.(find_header_opt content_type req) in
       let* tok =
@@ -48,8 +48,8 @@ let token_name (t : #codec) = t#token_name
 let token (req : #Request.server_request) (t : #codec) =
   Request.find_session_data t#token_name req
 
-let decode_csrf_token (req : #Request.server_request) (t : #codec) =
-  t#decode_csrf_token (req :> Request.server_request)
+let decode_token (req : #Request.server_request) (t : #codec) =
+  t#decode_token (req :> Request.server_request)
 
 let enable_protection (req : #Request.server_request) (t : #codec) =
   match Request.find_session_data t#token_name req with
@@ -82,7 +82,7 @@ let protect_request
   let open Option.Syntax in
   match
     let* csrf_session_tok = token req t in
-    let+ csrf_tok = decode_csrf_token req t in
+    let+ csrf_tok = decode_token req t in
     (csrf_session_tok, csrf_tok)
   with
   | Some (tok1, tok2) when String.equal tok1 tok2 -> f req
