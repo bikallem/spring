@@ -342,13 +342,9 @@ val req : Request.server_request = <obj>
 ## Request.add_cookie
 
 ```ocaml
-# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42"] ;;
-val headers : Header.t = <abstr>
-
 # let req = 
     Request.client_request 
       ~version:Version.http1_1 
-      ~headers 
       ~port:8080 
       ~host:"www.example.com" 
       ~resource:"/update" 
