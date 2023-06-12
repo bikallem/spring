@@ -160,7 +160,7 @@ let remove t { name; _ } =
 
 let replace t { name; encode; _ } v =
   let[@tail_mod_cons] rec aux seen = function
-    | [] -> if not seen then [(name, encode v)] else []
+    | [] -> if not seen then [ (name, encode v) ] else []
     | (name', _) :: tl when String.equal name name' ->
       if seen then aux seen tl else (name', encode v) :: aux true tl
     | (name', v1) :: tl -> (name', v1) :: aux seen tl
