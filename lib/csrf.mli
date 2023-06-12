@@ -22,7 +22,7 @@ type token = private string
 type key = string
 (** [key] is an alias for 32 bytes long randomly generated string. *)
 
-(** [t] encapsulates decoding CSRF token from request. *)
+(** [codec] encapsulates decoding CSRF token from request. *)
 class virtual codec :
   token_name:string
   -> key:key
@@ -32,7 +32,7 @@ class virtual codec :
        method virtual decode_csrf_token : Request.server_request -> token option
      end
 
-(** {1 Creation} *)
+(** {1 Codec Creation} *)
 
 val form_codec : ?token_name:string -> key -> codec
 (** [form_codec key] is [t] where [t] implements CSRF token decoding
