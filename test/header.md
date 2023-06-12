@@ -122,6 +122,14 @@ val h2 : Header.t = <abstr>
 - : int list = [300]
 ```
 
+Add the header if it doesn't exist yet.
+
+```ocaml
+# let h = Header.(replace empty host "www.example.com") in
+  Header.(find_opt h host);;
+- : string option = Some "www.example.com"
+```
+
 ## Header.remove_all
 
 ```ocaml
