@@ -53,6 +53,9 @@ val req : Request.server_request = <obj>
 ```
 
 ## Csrf.protect_request
+
+Return OK response if the CSRF token in form matches the one in session.
+
 ```ocaml
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
@@ -74,5 +77,30 @@ val res : Response.server_response = <obj>
 +Content-Type: text/plain; charset=uf-8
 +
 +hello
+- : unit = ()
+```
+
+Return `Bad Request` response if the CSRF tokens dont' match.
+
+```ocaml
+# let csrf_form_req =
+    Eio_main.run @@ fun _env ->
+    let tok : string = Spring__Secret.encrypt_base64 nonce key "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
+    Request.post_form_values 
+      [(form_codec#token_name, [tok]);
+       ("name2", ["val c"; "val d"; "val e"])
+      ] 
+      "www.example.com/post_form"
+    |>  make_form_submission_request ;;
+val csrf_form_req : Request.server_request = <obj>
+
+# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.text "hello") ;;
+val res : Response.server_response = <obj>
+
+# pp_response res;;
++HTTP/1.1 400 Bad Request
++Content-Length: 0
++
++
 - : unit = ()
 ```
