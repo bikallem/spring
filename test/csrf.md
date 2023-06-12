@@ -104,3 +104,35 @@ val res : Response.server_response = <obj>
 +
 - : unit = ()
 ```
+
+Mulitpart/formdata form.
+
+```ocaml
+# let p1 = 
+  let tok = Spring__Secret.encrypt_base64 nonce key csrf_tok in
+  Multipart.make_part (Eio.Flow.string_source tok) form_codec#token_name ;;
+val p1 : Eio.Flow.source Multipart.part = <abstr>
+
+# let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "file1";;
+val p2 : Eio.Flow.source Multipart.part = <abstr>
+
+# let form_body = Multipart.writable "--A1B2C3" [p1;p2];;
+val form_body : Body.writable = <obj>
+
+# let csrf_form_req =
+    Eio_main.run @@ fun _env ->
+    Request.post form_body "www.example.com/post_form"
+    |>  make_form_submission_request ;;
+val csrf_form_req : Request.server_request = <obj>
+
+# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.text "hello") ;;
+val res : Response.server_response = <obj>
+
+# pp_response res;;
++HTTP/1.1 200 OK
++Content-Length: 5
++Content-Type: text/plain; charset=uf-8
++
++hello
+- : unit = ()
+```
