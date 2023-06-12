@@ -76,48 +76,6 @@ val session_pipeline : #Session.t -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
-val csrf_protection_pipeline : csrf_token_name:string -> pipeline
-(** [csrf_protection_pipeline ~csrf_token_name] is a pipeline implementing CSRF
-    protection mechanism in [Spring].
-
-    The CSRF protection method employed by the pipeline is
-    {b Synchronizer Token Pattern}. This is described in detail at
-    https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
-
-    In order to use CSRF protection in [Spring] applications, a developer must
-    first enable CSRF protection using {!val:Context.enable_csrf_protection} and
-    {!val:Context.csrf_protection_token} functions.
-
-    The [anticsrf-token] should then be used as follows:
-
-    First, in a [hidden] HTML form field value. The field name is as specified
-    by [csrf_token_name]. This is to be done by the user/developer in perhaps a
-    [.ohtml] view. For example like so below:
-
-    {[
-      <form action="/transfer.do" method="post">
-      <input type="hidden" name="__csrf_token__" value="OWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZMGYwMGEwOA==">
-      ...
-      </form>
-    ]}
-
-    {b Note} When using [multipart/formdata] in a HTML form, ensure that this
-    field is the first defined field in the form. The pipeline expects the
-    [anticsrf-token] field to be the first one.
-
-    Secondly, the [anticsrf-token] value is then added to the session storage
-    via request context [Context.session_data ctx]. The session field name is
-    [csrf_token_name]. Populating the session is done by the pipeline itself so
-    a developer input is not needed for this step.
-
-    During request processing, the pipeline retrieves the [anticsrf-token] value
-    from the above two objects and validates that they are the same. A
-    [Bad Request] response is sent if this is not so.
-
-    Lastly, the pipeline only protects requests against CSRF attacks when the
-    request HTTP methods is one of the methods specified in
-    [protected_http_methods]. *)
-
 (** {1 Servers}*)
 
 (** [t] represents a HTTP/1.1 server instance configured with some specific
@@ -179,7 +137,6 @@ val app_server :
   -> ?handler:handler
   -> ?session:#Session.t
   -> ?master_key:string
-  -> ?csrf_token_name:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
