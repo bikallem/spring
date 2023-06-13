@@ -8,7 +8,7 @@ let ohtml_cmd =
     ]
   in
   let info = Cmd.info "ohtml" ~version:"%%VERSION%%" ~doc ~man in
-  let ohtml_file_arg =
+  let ohtml_dir_arg =
     let doc = "directory where .ohtml files are located" in
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_DIR" ~doc)
   in
@@ -30,7 +30,7 @@ let ohtml_cmd =
            let filename = dir ^ Filename.dir_sep ^ x in
            generate_file filename)
   in
-  let ohtml_t = Term.(const ohtml $ ohtml_file_arg) in
+  let ohtml_t = Term.(const ohtml $ ohtml_dir_arg) in
   Cmd.v info ohtml_t
 
 let key_cmd =
