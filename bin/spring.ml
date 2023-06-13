@@ -9,7 +9,7 @@ let ohtml_cmd =
   in
   let info = Cmd.info "ohtml" ~version:"%%VERSION%%" ~doc ~man in
   let ohtml_file_arg =
-    let doc = "directory wheren .ohtml files are located" in
+    let doc = "directory where .ohtml files are located" in
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_DIR" ~doc)
   in
   let ohtml dir =
