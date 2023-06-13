@@ -7,11 +7,11 @@ let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEy
 let nonce = Cstruct.of_string "aaaaaaaaaaaa" 
 ```
 
-## Session.cookie_session/encode/decode
+## Session.cookie_codec/encode/decode
 
 ```ocaml
-# let t = Session.cookie_session key ;;
-val t : Session.t = <obj>
+# let t = Session.cookie_codec key ;;
+val t : Session.codec = <obj>
 
 # let session_data = 
   Session.Data.(

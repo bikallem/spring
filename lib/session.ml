@@ -5,7 +5,7 @@ type data = string
 type key = string
 type session_data = string Data.t
 
-class virtual t ~cookie_name =
+class virtual codec ~cookie_name =
   object
     method cookie_name : string = cookie_name
     method virtual encode : nonce -> session_data -> data
@@ -14,9 +14,9 @@ class virtual t ~cookie_name =
 
 let[@inline] err () = failwith "Invalid session data"
 
-let cookie_session ?(cookie_name = "___SPRING_SESSION___") key =
+let cookie_codec ?(cookie_name = "___SPRING_SESSION___") key =
   object (_ : 'a)
-    inherit t ~cookie_name
+    inherit codec ~cookie_name
 
     method decode data =
       let csexp =
@@ -41,6 +41,6 @@ let cookie_session ?(cookie_name = "___SPRING_SESSION___") key =
       Csexp.List l |> Csexp.to_string |> Secret.encrypt_base64 nonce key
   end
 
-let cookie_name (t : #t) = t#cookie_name
-let decode data (t : #t) = t#decode data
-let encode ~nonce session_data (t : #t) = t#encode nonce session_data
+let cookie_name (t : #codec) = t#cookie_name
+let decode data (t : #codec) = t#decode data
+let encode ~nonce session_data (t : #codec) = t#encode nonce session_data
