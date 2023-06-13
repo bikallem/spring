@@ -119,14 +119,13 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 (** [app_server] is a HTTP/1.1 web server with the following pipelines
     preconfigured for convenience:
 
+    - [strict_http]
     - [session_pipeline]
-    - [anticsrf_pipeline]
-    - [router_pipeline]
-    - [strict_http] *)
+    - [router_pipeline] *)
 class virtual app_server :
   object ('a)
     inherit t
-    method virtual session : Session.codec
+    method virtual session_codec : Session.codec
     method virtual router : Response.server_response Router.t
     method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -135,7 +134,7 @@ val app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
-  -> ?session:#Session.codec
+  -> ?session_codec:#Session.codec
   -> ?master_key:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
@@ -147,9 +146,9 @@ val app_server :
     @param handler
       specifies handler to be added after [router_pipeline] is executed. The
       default value is {!val:not_found_handler}
-    @param session
-      is the session implementation to be used by the [app_server] The default
-      session implementation used is [Session.cookie_session].
+    @param session_codec
+      is the session codec implementation to be used by the [app_server]. The
+      default value is [Session.cookie_codec].
     @param master_key
       is a randomly generated unique key which is used to decrypt/encrypt data.
       If a value is not provided, it is set to a value from one of the options

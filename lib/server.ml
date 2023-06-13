@@ -111,7 +111,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 class virtual app_server =
   object (_ : 'a)
     inherit t
-    method virtual session : Session.codec
+    method virtual session_codec : Session.codec
     method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -120,7 +120,7 @@ let app_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ?(handler = not_found_handler)
-    ?session
+    ?session_codec
     ?master_key
     ~on_error
     ~secure_random
@@ -139,8 +139,8 @@ let app_server
       in
       Base64.decode_exn ~pad:false key
   in
-  let session =
-    match session with
+  let session_codec =
+    match session_codec with
     | Some x -> (x :> Session.codec)
     | None -> (Session.cookie_codec key :> Session.codec)
   in
@@ -148,12 +148,12 @@ let app_server
     val router = Router.empty
     method clock = (clock :> Eio.Time.clock)
     method net = (net :> Eio.Net.t)
-    method session = session
+    method session_codec = session_codec
 
     method handler =
       let r = self#router in
       strict_http clock
-      @@ session_pipeline session
+      @@ session_pipeline session_codec
       @@ router_pipeline r
       @@ handler
 
