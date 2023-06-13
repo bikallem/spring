@@ -339,7 +339,7 @@ let gen doc =
   Out_channel.with_open_gen [Open_wronly; Open_creat;Open_trunc; Open_text] 0o644 (fun_name ^ ".ml")
     (fun out -> 
     let write_ln s = Out_channel.output_string out ("\n" ^ s) in
-    Ohtml.gen_ocaml ~write_ln doc);
+    Ohtml.gen_ocaml ~function_name:fun_name ~write_ln doc);
   In_channel.with_open_text (fun_name ^ ".ml")
     (fun in_ch -> Eio.traceln "%s" @@ In_channel.input_all in_ch)
 ```
@@ -359,7 +359,7 @@ val doc : Doc.doc =
 
 # gen doc ;;
 +
-+let v  a:int b:string  (___b___:Buffer.t) : unit =
++let func1  a:int b:string  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<div";
 +Buffer.add_string ___b___ ">";
 +Buffer.add_string ___b___ "Hello ";
@@ -368,6 +368,7 @@ val doc : Doc.doc =
 +Buffer.add_string ___b___ "world!";
 +Buffer.add_string ___b___ "</span>";
 +Buffer.add_string ___b___ "</div>";
++()
 - : unit = ()
 ```
 
@@ -452,7 +453,7 @@ val doc : Doc.doc =
 +
 +open Spring
 +open Stdlib
-+let v  products  (___b___:Buffer.t) : unit =
++let func1  products  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<!DOCTYPE html>";
 +Buffer.add_string ___b___ "<html";
 +Buffer.add_string ___b___ ">";
@@ -496,6 +497,7 @@ val doc : Doc.doc =
 +Buffer.add_string ___b___ "</div>";
 +Buffer.add_string ___b___ "</body>";
 +Buffer.add_string ___b___ "</html>";
++()
 - : unit = ()
 ```
 
@@ -518,11 +520,12 @@ val doc : Doc.doc =
 
 # gen doc;;
 +
-+let v  (___b___:Buffer.t) : unit =
++let func1  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<span";
 +Buffer.add_string ___b___ ">";
 +Buffer.add_string ___b___ "Hello, world!";
 +Buffer.add_string ___b___ "</span>";
++()
 - : unit = ()
 ```
 
@@ -537,11 +540,12 @@ val doc : Doc.doc =
       children = [Ohtml.Doc.Apply_view "view1 products"]}}
 # gen doc ;;
 +
-+let v  (___b___:Buffer.t) : unit =
++let func1  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<html";
 +Buffer.add_string ___b___ ">";
 +(view1 products) ___b___;
 +Buffer.add_string ___b___ "</html>";
++()
 - : unit = ()
 ```
 
@@ -641,7 +645,7 @@ val doc : Doc.doc =
 +
 +open Spring
 +open Stdlib
-+let v  products  (___b___:Buffer.t) : unit =
++let func1  products  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<!DOCTYPE html>";
 +Buffer.add_string ___b___ "<html";
 +Buffer.add_string ___b___ ">";
@@ -697,6 +701,7 @@ val doc : Doc.doc =
 +Buffer.add_string ___b___ "</div>";
 +Buffer.add_string ___b___ "</body>";
 +Buffer.add_string ___b___ "</html>";
++()
 - : unit = ()
 ```
 
@@ -719,7 +724,7 @@ val doc : Doc.doc =
            [Ohtml.Doc.Element_code_at "if true then \"a\" else \"b\""]}]}}
 # gen doc ;;
 +
-+let v  (___b___:Buffer.t) : unit =
++let func1  (___b___:Buffer.t) : unit =
 +Buffer.add_string ___b___ "<html";
 +Buffer.add_string ___b___ ">";
 +Buffer.add_string ___b___ "<div";
@@ -731,5 +736,6 @@ val doc : Doc.doc =
 +Buffer.add_string ___b___ (Spring.Ohtml.escape_html @@ if true then "a" else "b");
 +Buffer.add_string ___b___ "</div>";
 +Buffer.add_string ___b___ "</html>";
++()
 - : unit = ()
 ```
