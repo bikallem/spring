@@ -149,7 +149,7 @@ let parse_doc filepath =
       let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
       loop i checkpoint)
 
-let gen_ocaml ~write_ln (doc : Doc.doc) =
+let gen_ocaml ~function_name ~write_ln (doc : Doc.doc) =
   let rec gen_element el =
     match el with
     | Doc.Element { tag_name; children; attributes } ->
@@ -220,7 +220,8 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     | Some v -> v
   in
   let fun_decl =
-    Printf.sprintf "let v %s (___b___:Buffer.t) : unit = " fun_args
+    Printf.sprintf "let %s %s (___b___:Buffer.t) : unit = " function_name
+      fun_args
   in
   List.iter (fun o -> write_ln @@ "open " ^ o) doc.opens;
   write_ln fun_decl;
@@ -228,4 +229,5 @@ let gen_ocaml ~write_ln (doc : Doc.doc) =
     (fun doctype ->
       write_ln @@ {|Buffer.add_string ___b___ "<!|} ^ doctype ^ {|>";|})
     doc.doctype;
-  gen_element doc.root
+  gen_element doc.root;
+  write_ln "()"

@@ -13,22 +13,19 @@ let ohtml_cmd =
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_DIR" ~doc)
   in
   let ohtml dir_path =
-    let generate_file filepath =
-      let fun_name = Filename.remove_extension filepath in
-      let doc = Ohtml.parse_doc filepath in
-      Out_channel.with_open_gen
-        [ Open_wronly; Open_creat; Open_trunc; Open_text ]
-        0o644 (fun_name ^ ".ml") (fun out ->
-          let write_ln s = Out_channel.output_string out ("\n" ^ s) in
-          Ohtml.gen_ocaml ~write_ln doc);
-      Printf.printf "\nGenerating view: %s" filepath
-    in
-    Sys.readdir dir_path
-    |> Array.to_list
-    |> List.filter (fun x -> Filename.extension x = ".ohtml")
-    |> List.iter (fun x ->
-           let filename = dir_path ^ Filename.dir_sep ^ x in
-           generate_file filename)
+    let dir_name = Filename.basename dir_path in
+    Out_channel.with_open_gen [ Open_wronly; Open_creat; Open_trunc; Open_text ]
+      0o644 (dir_name ^ ".ml") (fun out ->
+        let write_ln s = Out_channel.output_string out (s ^ "\n") in
+        Sys.readdir dir_path
+        |> Array.to_list
+        |> List.filter (fun x -> Filename.extension x = ".ohtml")
+        |> List.iter (fun x ->
+               let filepath = dir_path ^ Filename.dir_sep ^ x in
+               let function_name = Filename.remove_extension x in
+               let ohtml_doc = Ohtml.parse_doc filepath in
+               Ohtml.gen_ocaml ~function_name ~write_ln ohtml_doc;
+               Printf.printf "\nGenerating view: %s" function_name))
   in
   let ohtml_t = Term.(const ohtml $ ohtml_dir_arg) in
   Cmd.v info ohtml_t

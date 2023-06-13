@@ -1,10 +1,10 @@
 open Spring
 
-let say_hello _req = V.view ~title:"Hello Page" V.hello_v
+let view ~title body = Response.ohtml @@ V.layout_v ~title ~body
+let say_hello _req = view ~title:"Hello Page" V.hello_v
 
 let display_products _req =
-  V.products_v [ "apple"; "oranges"; "bananas" ]
-  |> V.view ~title:"Products Page"
+  V.products_v [ "apple"; "oranges"; "bananas" ] |> view ~title:"Products Page"
 
 (*
 let _csrf_form _req = 

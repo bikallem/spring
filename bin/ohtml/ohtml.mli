@@ -11,4 +11,5 @@ val parse_doc_string : string -> Doc.doc
 val parse_doc : string -> Doc.doc
 (** [parse_doc filepath] parses .ohtml file at [filepath]. *)
 
-val gen_ocaml : write_ln:(string -> unit) -> Doc.doc -> unit
+val gen_ocaml :
+  function_name:string -> write_ln:(string -> unit) -> Doc.doc -> unit
