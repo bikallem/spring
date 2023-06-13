@@ -417,7 +417,7 @@ Parse with session data initialized
 ```ocaml
 let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA")
 let nonce = Cstruct.of_string "aaaaaaaaaaaa" 
-let session = Session.cookie_session key 
+let session = Session.cookie_codec key 
 let session_data = 
   Session.Data.(
     add "a" "a_val" empty

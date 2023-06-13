@@ -52,7 +52,7 @@ let router_pipeline : Response.server_response Router.t -> pipeline =
   | Some response -> response
   | None -> next ctx
 
-let session_pipeline (session : #Session.t) next ctx =
+let session_pipeline (session : #Session.codec) next ctx =
   let cookie_name = session#cookie_name in
   let req = Context.request ctx in
   let ctx =
@@ -111,7 +111,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 class virtual app_server =
   object (_ : 'a)
     inherit t
-    method virtual session : Session.t
+    method virtual session : Session.codec
     method virtual router : Response.server_response Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -141,8 +141,8 @@ let app_server
   in
   let session =
     match session with
-    | Some x -> (x :> Session.t)
-    | None -> (Session.cookie_session key :> Session.t)
+    | Some x -> (x :> Session.codec)
+    | None -> (Session.cookie_codec key :> Session.codec)
   in
   object (self)
     val router = Router.empty

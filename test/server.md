@@ -340,8 +340,8 @@ let make_session_cookie session key =
 # let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA");;
 val key : string = "’qQû&ÏW\015Ã&ƒ§ùî¯¤ÓTØŠvgwãÖÅÌ€L–b\016"
 
-# let session = Session.cookie_session key;;
-val session : Session.t = <obj>
+# let session = Session.cookie_codec key;;
+val session : Session.codec = <obj>
 
 # let session_cookie = make_session_cookie session key ;;
 val session_cookie : Cookie.t = <abstr>

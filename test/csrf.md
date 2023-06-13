@@ -10,7 +10,7 @@ let nonce = Cstruct.of_string "aaaaaaaaaaaa"
 let form_codec = Csrf.form_codec key 
 let csrf_tok = Base64.(decode_exn ~pad:false "zaQgjF+KK0vSXlYUPhHTlLx/EY+LgpSgy7BxyAdW9n0")
 
-let session = Session.cookie_session key
+let session = Session.cookie_codec key
 
 let make_form_submission_request (client_req : #Request.client_request) =
   let client_req =

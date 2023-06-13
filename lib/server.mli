@@ -72,7 +72,7 @@ val router_pipeline : Response.server_response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
-val session_pipeline : #Session.t -> pipeline
+val session_pipeline : #Session.codec -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
@@ -126,7 +126,7 @@ type 'a request_target = ('a, Response.server_response) Router.request_target
 class virtual app_server :
   object ('a)
     inherit t
-    method virtual session : Session.t
+    method virtual session : Session.codec
     method virtual router : Response.server_response Router.t
     method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
@@ -135,7 +135,7 @@ val app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
-  -> ?session:#Session.t
+  -> ?session:#Session.codec
   -> ?master_key:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source

@@ -197,7 +197,7 @@ val server_request :
     {!class:server_request}. *)
 
 val parse :
-     ?session:Session.t
+     ?session:#Session.codec
   -> Eio.Net.Sockaddr.stream
   -> Eio.Buf_read.t
   -> server_request
