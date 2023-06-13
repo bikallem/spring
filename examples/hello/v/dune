@@ -1,6 +1,4 @@
 (rule
- (deps
-  (glob_files *.ohtml))
  (targets v.ml)
  (action
   (run spring ohtml %{project_root}/v)))
