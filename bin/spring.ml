@@ -12,7 +12,7 @@ let ohtml_cmd =
     let doc = "directory where .ohtml files are located" in
     Arg.(required & pos 0 (some' string) None & info [] ~docv:"OHTML_DIR" ~doc)
   in
-  let ohtml dir =
+  let ohtml dir_path =
     let generate_file filepath =
       let fun_name = Filename.remove_extension filepath in
       let doc = Ohtml.parse_doc filepath in
@@ -23,11 +23,11 @@ let ohtml_cmd =
           Ohtml.gen_ocaml ~write_ln doc);
       Printf.printf "\nGenerating view: %s" filepath
     in
-    Sys.readdir dir
+    Sys.readdir dir_path
     |> Array.to_list
     |> List.filter (fun x -> Filename.extension x = ".ohtml")
     |> List.iter (fun x ->
-           let filename = dir ^ Filename.dir_sep ^ x in
+           let filename = dir_path ^ Filename.dir_sep ^ x in
            generate_file filename)
   in
   let ohtml_t = Term.(const ohtml $ ohtml_dir_arg) in
