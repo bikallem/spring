@@ -8,10 +8,12 @@ type resource = string
 
 class virtual t version headers meth resource =
   object
-    inherit Header.headerable headers
+    val headers = headers
+    method headers : Header.t = headers
     method version : Version.t = version
     method meth : Method.t = meth
     method resource : string = resource
+    method update headers' = {<headers = headers'>}
     method virtual pp : Format.formatter -> unit
   end
 

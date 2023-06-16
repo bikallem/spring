@@ -7,9 +7,10 @@ class virtual t :
   -> Header.t
   -> Status.t
   -> object ('a)
-       inherit Header.headerable
+       method headers : Header.t
        method version : Version.t
        method status : Status.t
+       method update : Header.t -> 'a
      end
 
 val version : #t -> Version.t

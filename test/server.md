@@ -364,7 +364,7 @@ val ctx : Context.t = <abstr>
   (Server.session_pipeline session @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
-# let set_cookie = Header.(find_header set_cookie res);; 
+# let set_cookie = Header.(find res#headers set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
@@ -392,7 +392,7 @@ val ctx : Context.t = <abstr>
   (Server.session_pipeline session @@ handler) ctx ;;
 val res : Response.server_response = <obj>
 
-# let set_cookie = Header.(find_header set_cookie res);; 
+# let set_cookie = Header.(find res#headers set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;

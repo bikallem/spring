@@ -148,40 +148,6 @@ val clean_dup : t -> t
 val iter : (lname -> string -> unit) -> t -> unit
 val filter : (lname -> string -> bool) -> t -> t
 
-(** {1 Headerable} *)
-
-(** [headerable] donotes that certain header specific operations are supported
-    on them. *)
-class virtual headerable :
-  t
-  -> object ('a)
-       method headers : t
-       method update : t -> 'a
-     end
-
-val add_header : 'a header -> 'a -> (#headerable as 'h) -> 'h
-(** [add_header hdr v h] is [h] with HTTP header defined by [hdr] and value [v]
-    added to it. *)
-
-val find_header : 'a header -> #headerable -> 'a
-(** [find_header hdr t] is [v] if [hdr] exists in [t]. [v] is the header value
-    as defined by [hdr]. *)
-
-val find_headers : 'a header -> #headerable -> 'a list
-(** [find_headers hdr t] is [l] - a list of headers matching the definition
-    [hdr] in [t]. *)
-
-val find_header_opt : 'a header -> #headerable -> 'a option
-(** [find_header_opt hdr t] is [Some v] if [hdr] exists in [t]. Otherwise it is
-    [None]. [v] is the value as defined by [hdr]. *)
-
-val update_headers : (#headerable as 'a) -> t -> 'a
-(** [update_headers headerable t] is a [headerable] updated with [t]. *)
-
-val remove_first_header : 'a header -> (#headerable as 't) -> 't
-(** [remove_first_header hdr t] is [t] with HTTP header defined by [hdr]
-    removed. *)
-
 (** {1 Pretty Printer} *)
 
 val easy_fmt : t -> Easy_format.t

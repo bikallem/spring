@@ -1,8 +1,10 @@
 class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
   object
-    inherit Header.headerable headers
+    val headers = headers
+    method headers = headers
     method version = version
     method status = status
+    method update headers' = {<headers = headers'>}
   end
 
 let version (t : #t) = t#version
@@ -70,7 +72,8 @@ let server_response
     method write_header = body#write_header
   end
 
-let add_set_cookie v (t : #server_response) = Header.(add_header set_cookie v t)
+let add_set_cookie v (t : #server_response) =
+  Header.(add t#headers set_cookie v) |> t#update
 
 let remove_set_cookie name (t : #server_response) =
   let[@tail_mod_cons] rec aux = function
@@ -85,7 +88,7 @@ let remove_set_cookie name (t : #server_response) =
   in
   let headers = aux (Header.to_list t#headers) in
   let headers = (headers :> (string * string) list) in
-  Header.update_headers t (Header.of_list headers)
+  t#update (Header.of_list headers)
 
 let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   Chunked.writable ~ua_supports_trailer write_chunk write_trailer

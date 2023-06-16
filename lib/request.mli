@@ -11,11 +11,12 @@ class virtual t :
   -> Header.t
   -> Method.t
   -> resource
-  -> object
-       inherit Header.headerable
+  -> object ('a)
+       method headers : Header.t
        method version : Version.t
        method meth : Method.t
        method resource : resource
+       method update : Header.t -> 'a
        method virtual pp : Format.formatter -> unit
      end
 

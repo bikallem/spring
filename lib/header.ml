@@ -171,20 +171,6 @@ let clean_dup t = t
 let iter f t = List.iter (fun (k, v) -> f k v) t
 let filter f t = List.filter (fun (k, v) -> f k v) t
 
-class virtual headerable (headers : t) =
-  object (_ : 'a)
-    val headers = headers
-    method headers = headers
-    method update headers = {<headers>}
-  end
-
-let update_headers (t : #headerable) headers = t#update headers
-let add_header hdr v (t : #headerable) = add t#headers hdr v |> update_headers t
-let find_header hdr (t : #headerable) = find t#headers hdr
-let find_headers hdr (t : #headerable) = find_all t#headers hdr
-let find_header_opt hdr (t : #headerable) = find_opt t#headers hdr
-let remove_first_header hdr t = remove t#headers hdr |> update_headers t
-
 open Easy_format
 
 let field lbl v =
