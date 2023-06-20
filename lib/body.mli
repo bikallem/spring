@@ -11,6 +11,11 @@ class virtual writable :
       < f : 'a. 'a Header.header -> 'a -> unit > -> unit
   end
 
+type write_header = { f : 'a. 'a Header.header -> 'a -> unit }
+
+type writable' =
+  { write_body : Eio.Buf_write.t -> unit; write_headers : write_header -> unit }
+
 (** {2 none} *)
 
 (** [none] is a no-op [writable] that represents the absence of HTTP request or
@@ -25,6 +30,8 @@ class virtual none :
 val none : none
 (** [none] is an instance of {!class:none}. *)
 
+val none' : writable'
+
 (** {2 Content Writer} *)
 
 val content_writer : Content_type.t -> string -> writable
@@ -32,10 +39,14 @@ val content_writer : Content_type.t -> string -> writable
     request/response body whose content is [content] and content type is
     [content_type]. *)
 
+val content_writer' : Content_type.t -> string -> writable'
+
 val form_values_writer : (string * string list) list -> writable
 (** [form_values_writer key_values] is a {!class:writer} which writes an
     associated list [key_values] as body and adds HTTP header [Content-Length]
     to HTTP request or response. *)
+
+val form_values_writer' : (string * string list) list -> writable'
 
 (** {1 Readable} *)
 
