@@ -65,6 +65,72 @@ class virtual server_response :
        inherit Body.writable
      end
 
+module Server : sig
+  type t = private
+    { version : Version.t
+    ; status : Status.t
+    ; headers : Header.t
+    ; body : Body.writable'
+    }
+
+  val make :
+       ?version:Version.t
+    -> ?status:Status.t
+    -> ?headers:Header.t
+    -> Body.writable'
+    -> t
+
+  val find_set_cookie : string -> t -> Set_cookie.t option
+  (** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
+      [name] exists in [t]. It is [None] otherwise. *)
+
+  val add_set_cookie : Set_cookie.t -> t -> t
+  (** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
+      [set_cookie] added to it. *)
+
+  val remove_set_cookie : string -> t -> t
+  (** [remove_set_cookie name t] is [t] after removing HTTP [Set-Cookie] header
+      with name [name] from [t]. *)
+
+  val text : string -> t
+  (** [text s] returns a HTTP/1.1, 200 status response with "Content-Type"
+      header set to "text/plain" and "Content-Length" header set to a suitable
+      value. *)
+
+  val html : string -> t
+  (** [html t s] returns a HTTP/1.1, 200 status response with header set to
+      "Content-Type: text/html" and "Content-Length" header set to a suitable
+      value. *)
+
+  val ohtml : Ohtml.t -> t
+  (** [ohtml view] is an Ohtml [view] based HTTP 200 server response. Its
+      [Content-Type] header is set to [text/html]. *)
+
+  val chunked_response :
+       ua_supports_trailer:bool
+    -> Chunked.write_chunk
+    -> Chunked.write_trailer
+    -> t
+  (** [chunked_response ~ua_supports_trailer write_chunk write_trailer] is a
+      HTTP chunked response.
+
+      See {!module:Chunked_body}. *)
+
+  val not_found : t
+  (** [not_found] returns a HTTP/1.1, 404 status response. *)
+
+  val internal_server_error : t
+  (** [internal_server_error] returns a HTTP/1.1, 500 status response. *)
+
+  val bad_request : t
+  (* [bad_request] returns a HTTP/1.1, 400 status response. *)
+
+  val write : t -> Eio.Buf_write.t -> unit
+  (** [write t buf_write] writes server response [t] using [buf_write]. *)
+
+  val pp : Format.formatter -> t -> unit
+end
+
 val server_response :
      ?version:Version.t
   -> ?headers:Header.t
