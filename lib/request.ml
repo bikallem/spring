@@ -152,12 +152,6 @@ module Client = struct
     let headers = Header.(replace t.headers cookie cookie') in
     { t with headers }
 
-  let write_header w : Body.write_header =
-    let f : type a. a Header.header -> a -> unit =
-     fun hdr v -> Header.write_header' w hdr v
-    in
-    { f }
-
   let write t w =
     let headers =
       Header.(add_unless_exists t.headers user_agent "cohttp-eio")
@@ -177,7 +171,7 @@ module Client = struct
     let host = host_port_to_string (t.host, t.port) in
     let writer = Eio.Buf_write.string w in
     Header.write_header writer "host" host;
-    t.body.write_headers (write_header w);
+    t.body.write_headers w;
     Header.write headers writer;
     Eio.Buf_write.string w "\r\n";
     t.body.write_body w

@@ -6,10 +6,10 @@ class virtual writable =
         : < f : 'a. 'a Header.header -> 'a -> unit > -> unit
   end
 
-type write_header = { f : 'a. 'a Header.header -> 'a -> unit }
-
 type writable' =
-  { write_body : Eio.Buf_write.t -> unit; write_headers : write_header -> unit }
+  { write_body : Eio.Buf_write.t -> unit
+  ; write_headers : Eio.Buf_write.t -> unit
+  }
 
 class none =
   object
@@ -35,9 +35,9 @@ let content_writer' content_type content =
   let content_length = String.length content in
   { write_body = (fun w -> Eio.Buf_write.string w content)
   ; write_headers =
-      (fun wh ->
-        wh.f Header.content_length content_length;
-        wh.f Header.content_type content_type)
+      (fun w ->
+        Header.write_header' w Header.content_length content_length;
+        Header.write_header' w Header.content_type content_type)
   }
 
 let form_values_writer assoc_list =

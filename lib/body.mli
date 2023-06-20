@@ -11,10 +11,10 @@ class virtual writable :
       < f : 'a. 'a Header.header -> 'a -> unit > -> unit
   end
 
-type write_header = { f : 'a. 'a Header.header -> 'a -> unit }
-
 type writable' =
-  { write_body : Eio.Buf_write.t -> unit; write_headers : write_header -> unit }
+  { write_body : Eio.Buf_write.t -> unit
+  ; write_headers : Eio.Buf_write.t -> unit
+  }
 
 (** {2 none} *)
 

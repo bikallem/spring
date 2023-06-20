@@ -154,12 +154,6 @@ module Server = struct
   let internal_server_error = none_body_response Status.internal_server_error
   let bad_request = none_body_response Status.bad_request
 
-  let write_header w : Body.write_header =
-    let f : type a. a Header.header -> a -> unit =
-     fun hdr v -> Header.write_header' w hdr v
-    in
-    { f }
-
   let write t w =
     let version = Version.to_string t.version in
     let status = Status.to_string t.status in
@@ -167,7 +161,7 @@ module Server = struct
     Eio.Buf_write.char w ' ';
     Eio.Buf_write.string w status;
     Eio.Buf_write.string w "\r\n";
-    t.body.write_headers (write_header w);
+    t.body.write_headers w;
     Header.write t.headers (Eio.Buf_write.string w);
     Eio.Buf_write.string w "\r\n";
     t.body.write_body w
