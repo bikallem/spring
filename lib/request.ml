@@ -168,7 +168,6 @@ module Client = struct
     let te' = Te.(singleton trailers) in
     let headers = Header.(add headers te te') in
     let headers = Header.(add headers connection "TE") in
-    let headers = Header.clean_dup headers in
     let meth = (Method.to_string t.meth :> string) in
     let version = Version.to_string t.version in
     Eio.Buf_write.string w meth;
@@ -290,7 +289,6 @@ let write (t : #client_request) w =
   let te' = Te.(singleton trailers) in
   let headers = Header.(add headers te te') in
   let headers = Header.(add headers connection "TE") in
-  let headers = Header.clean_dup headers in
   let meth = (Method.to_string t#meth :> string) in
   let version = Version.to_string t#version in
   Eio.Buf_write.string w meth;
