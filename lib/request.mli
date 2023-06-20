@@ -48,10 +48,6 @@ val find_cookie : string -> #t -> string option
 (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
     [cookie_name] exists in [t]. Otherwise is [None]. *)
 
-(** {1 Client Request}
-
-    A HTTP client_request request that is primarily constructed and used by
-    {!module:Client}. *)
 class virtual client_request :
   Version.t
   -> Header.t
@@ -63,6 +59,63 @@ class virtual client_request :
        method virtual host : string
        method virtual port : int option
      end
+
+(** {1 Client Request}
+
+    A HTTP client_request request that is primarily constructed and used by
+    {!module:Client}. *)
+module Client : sig
+  type t = private
+    { meth : Method.t
+    ; resource : resource
+    ; version : Version.t
+    ; headers : Header.t
+    ; host : string
+    ; port : int option
+    ; body : Body.writable'
+    }
+
+  val make :
+       ?version:Version.t
+    -> ?headers:Header.t
+    -> ?port:int
+    -> host:string
+    -> resource:string
+    -> Method.t
+    -> Body.writable'
+    -> t
+  (** [make ~host ~resource meth body] is [t] representing a client request with
+      request url [resource]. [host] represents a HTTP server that will process
+      [t]. [meth] is the HTTP request method. [body] is the request body.
+
+      @param version HTTP version of [t]. Default is [1.1].
+      @param headers HTTP request headers of [t]. Default is [Header.empty] .
+      @param port the [host] port. Default is [None]. *)
+
+  val supports_chunked_trailers : t -> bool
+  (** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
+      trailers". It is [false] otherwise. *)
+
+  val keep_alive : t -> bool
+  (** [keep_alive t] is [true] if [t] has header "Connection: keep-alive" or if
+      "Connection" header is missing and the HTTP version is 1.1. It is [false]
+      if header "Connection: close" exists. *)
+
+  val find_cookie : string -> t -> string option
+  (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
+      [cookie_name] exists in [t]. Otherwise is [None]. *)
+
+  val add_cookie : name:string -> value:string -> t -> t
+  (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
+      [t]. *)
+
+  val remove_cookie : string -> t -> t
+  (** [remove_cookie name t] is [t] with cookie pair with name [name] removed
+      from [t]. *)
+
+  val write : t -> Eio.Buf_write.t -> unit
+  val pp : Format.formatter -> t -> unit
+end
 
 val client_request :
      ?version:Version.t

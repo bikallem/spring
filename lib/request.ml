@@ -17,6 +17,28 @@ class virtual t version headers meth resource =
     method virtual pp : Format.formatter -> unit
   end
 
+let supports_chunked_trailers_ headers =
+  match Header.(find_opt headers te) with
+  | Some te' -> Te.(exists te' trailers)
+  | None -> false
+
+let keep_alive_ (version : Version.t) headers =
+  match Header.(find_opt headers connection) with
+  | Some v ->
+    String.cuts ~sep:"," v
+    |> List.exists (fun tok ->
+           let tok = String.(trim tok |> Ascii.lowercase) in
+           String.equal tok "keep-alive")
+  | None -> (
+    match (version :> int * int) with
+    | 1, 1 -> true
+    | _ -> false)
+
+let find_cookie_ name headers =
+  let open Option.Syntax in
+  let* cookie = Header.(find_opt headers cookie) in
+  Cookie.find_opt name cookie
+
 type host_port = string * int option
 
 let version (t : #t) = t#version
@@ -61,15 +83,15 @@ let field lbl v =
   let v = Atom (v, atom) in
   Label ((lbl, label), v)
 
-let fields (t : #t) (f : unit -> Easy_format.t list) =
+let fields version meth resource headers (f : unit -> Easy_format.t list) =
   let open Easy_format in
   let l =
-    [ field "Version" (Version.to_string t#version)
-    ; field "Method" (Method.to_string t#meth :> string)
-    ; field "URI" t#resource
+    [ field "Version" (Version.to_string version)
+    ; field "Method" (Method.to_string meth :> string)
+    ; field "URI" resource
     ; Label
         ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Header.easy_fmt t#headers )
+        , Header.easy_fmt headers )
     ]
   in
   l @ f ()
@@ -84,6 +106,93 @@ let pp_fields fmt fields =
     }
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
+
+module Client = struct
+  type t =
+    { meth : Method.t
+    ; resource : resource
+    ; version : Version.t
+    ; headers : Header.t
+    ; host : string
+    ; port : int option
+    ; body : Body.writable'
+    }
+
+  let make
+      ?(version = Version.http1_1)
+      ?(headers = Header.empty)
+      ?port
+      ~host
+      ~resource
+      meth
+      body =
+    { meth; resource; version; headers; host; port; body }
+
+  let supports_chunked_trailers t = supports_chunked_trailers_ t.headers
+  let keep_alive t = keep_alive_ t.version t.headers
+  let find_cookie name t = find_cookie_ name t.headers
+
+  let add_cookie ~name ~value t =
+    let cookie_hdr =
+      match Header.(find_opt t.headers cookie) with
+      | Some cookie_hdr -> cookie_hdr
+      | None -> Cookie.empty
+    in
+    let cookie_hdr = Cookie.add ~name ~value cookie_hdr in
+    let headers = Header.(replace t.headers cookie cookie_hdr) in
+    { t with headers }
+
+  let remove_cookie cookie_name t =
+    let cookie' =
+      match Header.(find_opt t.headers cookie) with
+      | Some cookie' -> cookie'
+      | None -> Cookie.empty
+    in
+    let cookie' = Cookie.remove ~name:cookie_name cookie' in
+    let headers = Header.(replace t.headers cookie cookie') in
+    { t with headers }
+
+  let write_header w : Body.write_header =
+    let f : type a. a Header.header -> a -> unit =
+     fun hdr v ->
+      let v = Header.encode hdr v in
+      let name = (Header.name hdr :> string) in
+      Header.write_header (Eio.Buf_write.string w) name v
+    in
+    { f }
+
+  let write t w =
+    let headers =
+      Header.(add_unless_exists t.headers user_agent "cohttp-eio")
+    in
+    let te' = Te.(singleton trailers) in
+    let headers = Header.(add headers te te') in
+    let headers = Header.(add headers connection "TE") in
+    let headers = Header.clean_dup headers in
+    let meth = (Method.to_string t.meth :> string) in
+    let version = Version.to_string t.version in
+    Eio.Buf_write.string w meth;
+    Eio.Buf_write.char w ' ';
+    Eio.Buf_write.string w t.resource;
+    Eio.Buf_write.char w ' ';
+    Eio.Buf_write.string w version;
+    Eio.Buf_write.string w "\r\n";
+    (* The first header is a "Host" header. *)
+    let host = host_port_to_string (t.host, t.port) in
+    let writer = Eio.Buf_write.string w in
+    Header.write_header writer "host" host;
+    t.body.write_headers (write_header w);
+    Header.write headers writer;
+    Eio.Buf_write.string w "\r\n";
+    t.body.write_body w
+
+  let pp fmt t =
+    let fields =
+      fields t.version t.meth t.resource t.headers @@ fun () ->
+      [ field "Host" (host_port_to_string (t.host, t.port)) ]
+    in
+    pp_fields fmt fields
+end
 
 let client_request
     ?(version = Version.http1_1)
@@ -102,7 +211,7 @@ let client_request
 
     method pp fmt =
       let fields =
-        fields self @@ fun () ->
+        fields self#version self#meth self#resource self#headers @@ fun () ->
         [ field "Host" (host_port_to_string (host, port)) ]
       in
       pp_fields fmt fields
@@ -198,7 +307,6 @@ let write (t : #client_request) w =
   Header.write headers writer;
   Eio.Buf_write.string w "\r\n";
   t#write_body w
-
 class virtual server_request ?session_data version headers meth resource =
   object
     inherit t version headers meth resource
@@ -253,7 +361,8 @@ let server_request
         Buffer.contents buf
       in
       let fields =
-        fields self @@ fun () -> [ field "Client Address" sock_addr ]
+        fields self#version self#meth self#resource self#headers @@ fun () ->
+        [ field "Client Address" sock_addr ]
       in
       pp_fields fmt fields
   end

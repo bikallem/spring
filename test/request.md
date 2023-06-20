@@ -12,119 +12,9 @@ let test_client r =
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw ->
-    Request.write r bw;
+    Request.Client.write r bw;
   );
   Eio.traceln "%s" (Buffer.contents b);;
-```
-
-Attempt at creating a client request with invalid url results in `Invalid_argument` exception. Url must have host information. 
-
-```ocaml
-# let r = Request.get "/products" ;;
-Exception: Invalid_argument "invalid url: host not defined".
-```
-
-## Request.get - client
-
-Create a `GET` request and write it.
-
-```ocaml
-# let r = Request.get "www.example.com/products" ;;
-val r : Request.client_request = <obj>
-
-# test_client r ;;
-+get /products HTTP/1.1
-+host: www.example.com
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+
-+
-- : unit = ()
-
-# test_client @@ Request.get "www.example.com" ;;
-+get / HTTP/1.1
-+host: www.example.com
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+
-+
-- : unit = ()
-```
-
-## Request.head - client
-
-```ocaml
-# test_client @@ Request.head "www.example.com" ;;
-+head / HTTP/1.1
-+host: www.example.com
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+
-+
-- : unit = ()
-```
-
-## Request.post - client
-
-```ocaml
-
-# let content_type = Content_type.make ("text", "plain") in
-  let body = Body.content_writer content_type "Hello World!" in
-  test_client @@ Request.post body "www.example.com/say_hello";;
-+post /say_hello HTTP/1.1
-+host: www.example.com
-+Content-Length: 12
-+Content-Type: text/plain
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+
-+Hello World!
-- : unit = ()
-```
-
-## Request.post_form_values - client
-
-```ocaml
-# let form_values = ["field1", ["val 1"]; "field2", ["v2";"v3";"v4"]] in
-  test_client @@ Request.post_form_values form_values "www.example.com/form_a" ;;
-+post /form_a HTTP/1.1
-+host: www.example.com
-+Content-Length: 30
-+Content-Type: application/x-www-form-urlencoded
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+
-+field1=val%201&field2=v2,v3,v4
-- : unit = ()
-```
-
-## Request.client
-
-```ocaml
-# let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] in
-  test_client @@ Request.client_request 
-    ~version:Version.http1_1 
-    ~headers 
-    ~port:8080 
-    ~host:"www.example.com" 
-    ~resource:"/update" 
-    Method.get 
-    Body.none ;;
-+get /update HTTP/1.1
-+host: www.example.com:8080
-+Connection: TE
-+Te: trailers
-+User-Agent: cohttp-eio
-+Header1: val 1
-+Header2: val 2
-+
-+
-- : unit = ()
 ```
 
 ## Request.parse
@@ -250,23 +140,27 @@ let parse_method m =
 
 ## Request.pp
 
-Pretty-print `Request.client_request`.
+Pretty-print `Request.Client.t`.
 
 ```ocaml
 # let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
 val headers : Header.t = <abstr>
 # let req = 
-    Request.client_request 
+    Request.Client.make
       ~version:Version.http1_1 
       ~headers 
       ~port:8080 
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none ;;
-val req : Request.client_request = <obj>
+      Body.none' ;;
+val req : Request.Client.t =
+  {Spring.Request.Client.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>; host = "www.example.com";
+   port = Some 8080;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Request.pp Format.std_formatter req ;;
+# Request.Client.pp Format.std_formatter req ;;
 {
   Version:  HTTP/1.1;
   Method:  get;
@@ -343,22 +237,30 @@ val req : Request.server_request = <obj>
 
 ```ocaml
 # let req = 
-    Request.client_request 
+    Request.Client.make 
       ~version:Version.http1_1 
       ~port:8080 
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none ;;
-val req : Request.client_request = <obj>
+      Body.none' ;;
+val req : Request.Client.t =
+  {Spring.Request.Client.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>; host = "www.example.com";
+   port = Some 8080;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Request.find_cookie "lang" req;;
+# Request.Client.find_cookie "lang" req;;
 - : string option = None
 
-# let req = Request.add_cookie ~name:"lang" ~value:"en" req ;;
-val req : Request.client_request = <obj>
+# let req = Request.Client.add_cookie ~name:"lang" ~value:"en" req ;;
+val req : Request.Client.t =
+  {Spring.Request.Client.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>; host = "www.example.com";
+   port = Some 8080;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Request.find_cookie "lang" req;;
+# Request.Client.find_cookie "lang" req;;
 - : string option = Some "en"
 ```
 
@@ -369,26 +271,34 @@ val req : Request.client_request = <obj>
 val headers : Header.t = <abstr>
 
 # let req = 
-    Request.client_request 
+    Request.Client.make
       ~version:Version.http1_1 
       ~headers 
       ~port:8080 
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none ;;
-val req : Request.client_request = <obj>
+      Body.none' ;;
+val req : Request.Client.t =
+  {Spring.Request.Client.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>; host = "www.example.com";
+   port = Some 8080;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Request.find_cookie "lang" req;;
+# Request.Client.find_cookie "lang" req;;
 - : string option = Some "en"
 
-# Request.find_cookie "SID" req;;
+# Request.Client.find_cookie "SID" req;;
 - : string option = Some "31d4d96e407aad42"
 
-# let req = Request.remove_cookie "SID" req;;
-val req : Request.client_request = <obj>
+# let req = Request.Client.remove_cookie "SID" req;;
+val req : Request.Client.t =
+  {Spring.Request.Client.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>; host = "www.example.com";
+   port = Some 8080;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Request.find_cookie "SID" req;;
+# Request.Client.find_cookie "SID" req;;
 - : string option = None
 ```
 
