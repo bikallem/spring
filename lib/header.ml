@@ -167,7 +167,6 @@ let replace t { name; encode; _ } v =
   in
   aux false t
 
-let clean_dup t = t
 let iter f t = List.iter (fun (k, v) -> f k v) t
 let filter f t = List.filter (fun (k, v) -> f k v) t
 
@@ -220,6 +219,4 @@ let write_header f k v =
   f v;
   f "\r\n"
 
-let write t f =
-  let t = clean_dup t in
-  iter (fun k v -> write_header f (canonical_name k) v) t
+let write t f = iter (fun k v -> write_header f (canonical_name k) v) t

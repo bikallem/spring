@@ -141,7 +141,6 @@ val remove : t -> 'a header -> t
 (** [remove_all t hdr] removes all headers in [t] defined by [hdr]. *)
 
 val replace : t -> 'a header -> 'a -> t
-val clean_dup : t -> t
 
 (** {1 Iter/Filter} *)
 
