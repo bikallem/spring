@@ -155,42 +155,42 @@ let parse_chunk (total_read : int) (headers : Header.t) =
 type write_chunk = (t -> unit) -> unit
 type write_trailer = (Header.t -> unit) -> unit
 
-let writable ~ua_supports_trailer write_chunk write_trailer : Body.writable =
-  object
-    method write_header (f : < f : 'a. 'a Header.header -> 'a -> unit >) =
-      let t_enc = Transfer_encoding.(singleton chunked) in
-      f#f Header.transfer_encoding t_enc
-
-    method write_body writer =
-      let write_extensions exts =
-        List.iter
-          (fun { name; value } ->
-            let v =
-              match value with
-              | None -> ""
-              | Some v -> Printf.sprintf "=%s" v
-            in
-            Eio.Buf_write.string writer (Printf.sprintf ";%s%s" name v))
-          exts
-      in
-      let write_body = function
-        | Chunk { data; extensions = exts } ->
-          let size = String.length data in
-          Eio.Buf_write.string writer (Printf.sprintf "%X" size);
-          write_extensions exts;
-          Eio.Buf_write.string writer "\r\n";
-          Eio.Buf_write.string writer data;
-          Eio.Buf_write.string writer "\r\n"
-        | Last_chunk exts ->
-          Eio.Buf_write.string writer "0";
-          write_extensions exts;
-          Eio.Buf_write.string writer "\r\n"
-      in
-      write_chunk write_body;
-      if ua_supports_trailer then
-        write_trailer (fun h -> Header.write h (Eio.Buf_write.string writer));
-      Eio.Buf_write.string writer "\r\n"
-  end
+let writable ~ua_supports_trailer write_chunk write_trailer =
+  { Body.write_body =
+      (fun writer ->
+        let write_extensions exts =
+          List.iter
+            (fun { name; value } ->
+              let v =
+                match value with
+                | None -> ""
+                | Some v -> Printf.sprintf "=%s" v
+              in
+              Eio.Buf_write.string writer (Printf.sprintf ";%s%s" name v))
+            exts
+        in
+        let write_body = function
+          | Chunk { data; extensions = exts } ->
+            let size = String.length data in
+            Eio.Buf_write.string writer (Printf.sprintf "%X" size);
+            write_extensions exts;
+            Eio.Buf_write.string writer "\r\n";
+            Eio.Buf_write.string writer data;
+            Eio.Buf_write.string writer "\r\n"
+          | Last_chunk exts ->
+            Eio.Buf_write.string writer "0";
+            write_extensions exts;
+            Eio.Buf_write.string writer "\r\n"
+        in
+        write_chunk write_body;
+        if ua_supports_trailer then
+          write_trailer (fun h -> Header.write h (Eio.Buf_write.string writer));
+        Eio.Buf_write.string writer "\r\n")
+  ; write_headers =
+      (fun wh ->
+        let t_enc = Transfer_encoding.(singleton chunked) in
+        wh.f Header.transfer_encoding t_enc)
+  }
 
 let read_chunked f (t : #Body.readable) =
   match Header.(find_opt t#headers transfer_encoding) with
