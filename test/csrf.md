@@ -12,15 +12,15 @@ let csrf_tok = Base64.(decode_exn ~pad:false "zaQgjF+KK0vSXlYUPhHTlLx/EY+LgpSgy7
 
 let session = Session.cookie_codec key
 
-let make_form_submission_request (client_req : #Request.client_request) =
+let make_form_submission_request (client_req : Request.Client.t) =
   let client_req =
     let data = Session.Data.(add form_codec#token_name csrf_tok empty) in
     let data = Session.encode ~nonce data session in
-    Request.add_cookie ~name:session#cookie_name ~value:data client_req
+    Request.Client.add_cookie ~name:session#cookie_name ~value:data client_req
   in
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  Eio.Buf_write.with_flow s (fun bw -> Request.write client_req bw);
+  Eio.Buf_write.with_flow s (fun bw -> Request.Client.write client_req bw);
   let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
   Request.parse ~session client_addr buf_read
 
@@ -60,11 +60,16 @@ Return OK response if the CSRF token in form matches the one in session.
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key csrf_tok in
-    Request.post_form_values 
+    let body = Body.form_values_writer' 
       [(form_codec#token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
-      ] 
-      "www.example.com/post_form"
+      ]
+    in
+    Request.Client.make
+        ~host:"www.example.com"
+        ~resource:"www.example.com/post_form"
+        Method.post
+        body
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server_request = <obj>
 
@@ -86,11 +91,16 @@ Return `Bad Request` response if the CSRF tokens dont' match.
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
-    Request.post_form_values 
+    let body = Body.form_values_writer' 
       [(form_codec#token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
-      ] 
-      "www.example.com/post_form"
+      ]
+    in
+    Request.Client.make
+        ~host:"www.example.com"
+        ~resource:"www.example.com/post_form"
+        Method.post
+        body
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server_request = <obj>
 
@@ -117,11 +127,16 @@ val p1 : Eio.Flow.source Multipart.part = <abstr>
 val p2 : Eio.Flow.source Multipart.part = <abstr>
 
 # let form_body = Multipart.writable "--A1B2C3" [p1;p2];;
-val form_body : Body.writable = <obj>
+val form_body : Body.writable' =
+  {Spring__.Body.write_body = <fun>; write_headers = <fun>}
 
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
-    Request.post form_body "www.example.com/post_form"
+    Request.Client.make
+        ~host:"www.example.com"
+        ~resource:"www.example.com/post_form"
+        Method.post
+        form_body
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server_request = <obj>
 
