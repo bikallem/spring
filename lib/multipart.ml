@@ -149,7 +149,7 @@ let write_part buf boundary part =
   in
   Buffer.add_string buf data
 
-let writable boundary parts : Body.writable =
+let writable boundary parts =
   let buf = Buffer.create 10 in
   (match parts with
   | [] -> ()
@@ -170,4 +170,4 @@ let writable boundary parts : Body.writable =
       ~params:[ ("boundary", boundary) ]
       ("multipart", "formdata")
   in
-  Body.content_writer content_type (Buffer.contents buf)
+  Body.content_writer' content_type (Buffer.contents buf)
