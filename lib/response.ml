@@ -90,9 +90,9 @@ let remove_set_cookie name (t : #server_response) =
   let headers = (headers :> (string * string) list) in
   t#update (Header.of_list headers)
 
-let chunked_response ~ua_supports_trailer write_chunk write_trailer =
-  Chunked.writable ~ua_supports_trailer write_chunk write_trailer
-  |> server_response
+(* let chunked_response ~ua_supports_trailer write_chunk write_trailer = *)
+(*   Chunked.writable ~ua_supports_trailer write_chunk write_trailer *)
+(*   |> server_response *)
 
 let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
   object

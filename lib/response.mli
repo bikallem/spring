@@ -81,11 +81,11 @@ val remove_set_cookie : string -> (#server_response as 'a) -> 'a
 (** [remove_set_cookie name t] is [t] after removing HTTP [Set-Cookie] header
     with name [name] from [t]. *)
 
-val chunked_response :
-     ua_supports_trailer:bool
-  -> Chunked.write_chunk
-  -> Chunked.write_trailer
-  -> server_response
+(* val chunked_response : *)
+(*      ua_supports_trailer:bool *)
+(*   -> Chunked.write_chunk *)
+(*   -> Chunked.write_trailer *)
+(*   -> server_response *)
 (** [chunked_response ~ua_supports_trailer write_chunk write_trailer] is a HTTP
     chunked response.
 

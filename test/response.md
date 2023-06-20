@@ -144,7 +144,7 @@ val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 
 Writes chunked response trailer headers.
 
-```ocaml
+<!-- ```ocaml -->
 # test_server_response @@ Response.chunked_response ~ua_supports_trailer:true write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
 +Transfer-Encoding: chunked
@@ -162,10 +162,11 @@ Writes chunked response trailer headers.
 +
 +
 - : unit = ()
-```
+<!-- ``` -->
 
 No chunked trailer headers.
-```ocaml
+
+<!-- ```ocaml -->
 # test_server_response @@ Response.chunked_response ~ua_supports_trailer:false write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
 +Transfer-Encoding: chunked
@@ -180,7 +181,7 @@ No chunked trailer headers.
 +
 +
 - : unit = ()
-```
+<!-- ``` -->
 ## Response.pp
 
 Pretty print `Response.server`
