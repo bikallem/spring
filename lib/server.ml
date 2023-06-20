@@ -30,7 +30,7 @@ let host_header : pipeline =
 let response_date : #Eio.Time.clock -> pipeline =
  fun clock next ctx ->
   let res = next ctx in
-  let headers = Response.headers res |> Header.clean_dup in
+  let headers = Response.headers res in
   match Header.(find_opt headers date) with
   | Some _ -> res
   | None -> (
