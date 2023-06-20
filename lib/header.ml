@@ -219,4 +219,13 @@ let write_header f k v =
   f v;
   f "\r\n"
 
+let write_header' : type a. Eio.Buf_write.t -> a header -> a -> unit =
+ fun bw h v ->
+  let v = encode h v in
+  let nm = name h in
+  Eio.Buf_write.string bw nm;
+  Eio.Buf_write.string bw ": ";
+  Eio.Buf_write.string bw v;
+  Eio.Buf_write.string bw "\r\n"
+
 let write t f = iter (fun k v -> write_header f (canonical_name k) v) t

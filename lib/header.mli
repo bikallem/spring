@@ -162,5 +162,7 @@ val write_header : (string -> unit) -> string -> string -> unit
 (** [write_header f name value] writes header [name] and [value] using writer
     [f]. *)
 
+val write_header' : Eio.Buf_write.t -> 'a header -> 'a -> unit
+
 val write : t -> (string -> unit) -> unit
 (** [write t f] writes headers [t] using writer [f]. *)
