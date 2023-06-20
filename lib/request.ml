@@ -154,10 +154,7 @@ module Client = struct
 
   let write_header w : Body.write_header =
     let f : type a. a Header.header -> a -> unit =
-     fun hdr v ->
-      let v = Header.encode hdr v in
-      let name = (Header.name hdr :> string) in
-      Header.write_header (Eio.Buf_write.string w) name v
+     fun hdr v -> Header.write_header' w hdr v
     in
     { f }
 
