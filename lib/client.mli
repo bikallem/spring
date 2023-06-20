@@ -54,7 +54,9 @@ val make :
 
     Common client use-cases optimized for convenience. *)
 
-val get : t -> Request.url -> Response.client_response
+type url = string
+
+val get : t -> url -> Response.client_response
 (** [get t url] is [response] after making a HTTP GET request call to [url].
 
     {[
@@ -63,16 +65,16 @@ val get : t -> Request.url -> Response.client_response
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val head : t -> Request.url -> Response.client_response
+val head : t -> url -> Response.client_response
 (** [head t url] is [response] after making a HTTP HEAD request call to [url].
 
     {[
-      Client.header t "www.example.com"
+      Client.head t "www.example.com"
     ]}
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val post : t -> #Body.writable -> Request.url -> Response.client_response
+val post : t -> Body.writable' -> url -> Response.client_response
 (** [post t body url] is [response] after making a HTTP POST request call with
     body [body] to [url].
 
@@ -83,7 +85,7 @@ val post : t -> #Body.writable -> Request.url -> Response.client_response
     @raise Eio.Exn.Io in cases of connection errors. *)
 
 val post_form_values :
-  t -> (string * string list) list -> Request.url -> Response.client_response
+  t -> (string * string list) list -> url -> Response.client_response
 (** [post_form_values t form_values url] is [response] after making a HTTP POST
     request call to [url] with form values [form_values].
 
@@ -97,14 +99,14 @@ val post_form_values :
 
 (** {1 Call} *)
 
-val do_call : t -> Request.client_request -> Response.client_response
+val do_call : t -> Request.Client.t -> Response.client_response
 (** [do_call t req] makes a HTTP request using [req] and returns
     {!type:response}.
 
     @raise Eio.Exn.Io in cases of connection errors. *)
 
 val call :
-  conn:#Eio.Flow.two_way -> Request.client_request -> Response.client_response
+  conn:#Eio.Flow.two_way -> Request.Client.t -> Response.client_response
 (** [call conn req] makes a HTTP client call using connection [conn] and request
     [req]. It returns a {!type:response} upon a successfull call.
 

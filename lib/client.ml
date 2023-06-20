@@ -90,9 +90,9 @@ let connection t ((host, service) as k) =
         conn)
     ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
 
-let do_call t req =
+let do_call t (req : Request.Client.t) =
   Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
-  let host, port = Request.client_host_port req in
+  let host, port = (req.host, req.port) in
   let service =
     match port with
     | Some x -> string_of_int x
@@ -101,7 +101,7 @@ let do_call t req =
   let k = (host, service) in
   let conn = connection t k in
   Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn (fun writer ->
-      Request.write req writer;
+      Request.Client.write req writer;
       let initial_size = t.read_initial_size in
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
       let version, headers, status = Response.parse buf_read in
@@ -123,26 +123,50 @@ let do_call t req =
               Eio.Mutex.unlock t.cache_mu)
       end)
 
+type url = string
+
+let parse_url url =
+  if String.is_prefix ~affix:"https" url then
+    raise @@ Invalid_argument "url: https protocol not supported";
+  let url =
+    if
+      (not (String.is_prefix ~affix:"http" url))
+      && not (String.is_prefix ~affix:"//" url)
+    then "//" ^ url
+    else url
+  in
+  let u = Uri.of_string url in
+  let host, port =
+    match (Uri.host u, Uri.port u) with
+    | None, _ -> raise @@ Invalid_argument "invalid url: host not defined"
+    | Some host, port when String.length host > 0 -> (host, port)
+    | _ -> raise @@ Invalid_argument "invalid url: host not defined"
+  in
+  (host, port, Uri.path_and_query u)
+
 let get t url =
-  let req = Request.get url in
+  let host, port, resource = parse_url url in
+  let req = Request.Client.make ?port ~host ~resource Method.get Body.none' in
   do_call t req
 
 let head t url =
-  let req = Request.head url in
+  let host, port, resource = parse_url url in
+  let req = Request.Client.make ?port ~host ~resource Method.head Body.none' in
   do_call t req
 
 let post t body url =
-  let req = Request.post body url in
+  let host, port, resource = parse_url url in
+  let req = Request.Client.make ?port ~host ~resource Method.post body in
   do_call t req
 
-let post_form_values t assoc_values url =
-  let req = Request.post_form_values assoc_values url in
-  do_call t req
+let post_form_values t form_values url =
+  let body = Body.form_values_writer' form_values in
+  post t body url
 
 let call ~conn req =
   let initial_size = 0x1000 in
   Eio.Buf_write.with_flow ~initial_size conn @@ fun writer ->
-  Request.write req writer;
+  Request.Client.write req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
   let version, headers, status = Response.parse buf_read in
   object

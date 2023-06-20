@@ -44,7 +44,7 @@ let handler ctx =
       Eio.traceln "Route: /upload";
       let body = 
         let content_type = Content_type.make ("text", "plain") in
-        Body.content_writer content_type "hello world" 
+        Body.content_writer' content_type "hello world" 
       in
       let res = Client.post client body "localhost:8081/upload" in
       Eio.traceln "%a" Header.pp (Response.headers res);
