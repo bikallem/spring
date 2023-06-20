@@ -91,7 +91,7 @@ A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
 let write_header w : Body.write_header =
-    let f : type a. a Header.header -> a -> unit =
+  let f : type a. a Header.header -> a -> unit =
      fun hdr v ->
       let v = Header.encode hdr v in
       let name = (Header.name hdr :> string) in
