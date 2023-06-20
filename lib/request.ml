@@ -307,6 +307,7 @@ let write (t : #client_request) w =
   Header.write headers writer;
   Eio.Buf_write.string w "\r\n";
   t#write_body w
+
 class virtual server_request ?session_data version headers meth resource =
   object
     inherit t version headers meth resource
