@@ -31,7 +31,7 @@ val res : Response.Client.t =
   {Spring.Response.Client.version = (1, 1); status = (200, "OK");
    headers = <abstr>; buf_read = <abstr>}
 
-# Eio.traceln "%a" Header.pp res.headers ;;
+# Eio.traceln "%a" Header.pp @@ Response.Client.headers res ;;
 +{
 +  Content-Length:  13;
 +  Date:  Wed, 08 Feb 2023 16:18:17 GMT;
