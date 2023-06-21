@@ -28,6 +28,8 @@ val reader : #Body.readable -> reader
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
       header. *)
 
+val reader' : Body.readable' -> reader
+
 val boundary : reader -> string
 (** [boundary t] is the MIME boundary value as specified in
     https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)

@@ -32,6 +32,27 @@ let reader (body : #Body.readable) =
   ; eof = false
   }
 
+let reader' (body : Body.readable') =
+  let boundary =
+    match
+      let* ct = Header.(find_opt body.headers content_type) in
+      Content_type.find_param ct "boundary"
+    with
+    | Some v -> v
+    | None -> raise @@ Invalid_argument "body: boundary value not found"
+  in
+  let dash_boundary = "--" ^ boundary in
+  let final_boundary = "--" ^ boundary ^ "--" in
+  let r = body.buf_read in
+  { r
+  ; boundary
+  ; dash_boundary
+  ; final_boundary
+  ; last_line = ""
+  ; linger = ""
+  ; eof = false
+  }
+
 let boundary t = t.boundary
 
 (* Part *)
