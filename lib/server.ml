@@ -27,8 +27,8 @@ let host_header : pipeline =
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 let response_date : #Eio.Time.clock -> pipeline =
- fun clock next ctx ->
-  let res = next ctx in
+ fun clock next req ->
+  let res = next req in
   let headers = res.headers in
   match Header.(find_opt headers date) with
   | Some _ -> res
