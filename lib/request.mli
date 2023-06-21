@@ -138,6 +138,10 @@ module Server : sig
       @param session_data
         is the Session data for the request. Default is [None]. *)
 
+  val supports_chunked_trailers : t -> bool
+  (** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
+      trailers". It is [false] otherwise. *)
+
   val keep_alive : t -> bool
   (** [keep_alive t] is [true] if [t] has header "Connection: keep-alive" or if
       "Connection" header is missing and the HTTP version is 1.1. It is [false]

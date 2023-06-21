@@ -199,6 +199,7 @@ module Server = struct
       buf_read =
     { meth; resource; version; headers; client_addr; buf_read; session_data }
 
+  let supports_chunked_trailers t = supports_chunked_trailers_ t.headers
   let keep_alive t = keep_alive_ t.version t.headers
 
   let parse ?session client_addr (buf_read : Buf_read.t) =
