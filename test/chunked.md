@@ -90,11 +90,7 @@ let test_reader body headers f =
   Eio_main.run @@ fun env ->
     let buf_read = Eio.Buf_read.of_string body in
     let headers = Header.of_list headers in
-    let r = object
-        method headers = headers
-        method buf_read = buf_read
-      end
-    in
+    let r = Body.make_readable headers buf_read in
     f r
 
 let f chunk = Eio.traceln "%a" Chunked.pp chunk
