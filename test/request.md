@@ -367,25 +367,29 @@ val req : Request.Client.t =
 - : string option = None
 ```
 
-## Request.add_session_data/find_session_data
+## Request.Server.add_session_data/find_session_data
 
 ```ocaml
 # let req =
-    Request.server_request
+    Request.Server.make
       ~resource:"/update" 
       Method.get
       client_addr
       (Eio.Buf_read.of_string "");;
-val req : Request.server_request = <obj>
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# Request.add_session_data ~name:"a" ~value:"a_val" req;;
+# Request.Server.add_session_data ~name:"a" ~value:"a_val" req;;
 - : unit = ()
 
-# Request.find_session_data "a" req;;
+# Request.Server.find_session_data "a" req;;
 - : string option = Some "a_val"
 ```
 
-## Request.parse/find_session_data
+## Request.Server.parse/find_session_data
 
 Parse with session data initialized
 
@@ -404,12 +408,16 @@ let make_request_buf () : Eio.Buf_read.t =
   Eio.Buf_read.of_string s
 ```
 ```ocaml
-# let r = Request.parse ~session client_addr @@ make_request_buf () ;;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse ~session client_addr @@ make_request_buf () ;;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = Some <abstr>}
 
-# Request.find_session_data "a" r;;
+# Request.Server.find_session_data "a" r;;
 - : string option = Some "a_val"
 
-# Request.find_session_data "b" r;;
+# Request.Server.find_session_data "b" r;;
 - : string option = Some "b_val"
 ```

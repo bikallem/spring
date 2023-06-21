@@ -119,7 +119,7 @@ module Server : sig
     ; headers : Header.t
     ; client_addr : Eio.Net.Sockaddr.stream
     ; buf_read : Eio.Buf_read.t
-    ; session_data : Session.session_data option
+    ; mutable session_data : Session.session_data option
     }
 
   val make :
@@ -150,6 +150,19 @@ module Server : sig
   val find_cookie : string -> t -> string option
   (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
       [cookie_name] exists in [t]. Otherwise is [None]. *)
+
+  val add_session_data : name:string -> value:string -> t -> unit
+  (** [add_session_data ~name ~value t] adds session value [value] with name
+      [name] to [t]. If session data with [name] already exists in [t], then the
+      old value is replaced with [value].
+
+      {b Note} This function is not thread-safe as it mutates [t], so ensure
+      this function is called in a thread-safe manner if the same request
+      instance [t] is being shared across OCaml domains or sys-threads. *)
+
+  val find_session_data : string -> t -> string option
+  (** [find_session_data name t] is [Some v] is session data with name [name]
+      exists in [t]. Otherwise it is [None]. *)
 
   val parse :
     ?session:#Session.codec -> Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> t

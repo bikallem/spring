@@ -186,7 +186,7 @@ module Server = struct
     ; headers : Header.t
     ; client_addr : Eio.Net.Sockaddr.stream
     ; buf_read : Eio.Buf_read.t
-    ; session_data : Session.session_data option
+    ; mutable session_data : Session.session_data option
     }
 
   let make
@@ -202,6 +202,18 @@ module Server = struct
   let supports_chunked_trailers t = supports_chunked_trailers_ t.headers
   let keep_alive t = keep_alive_ t.version t.headers
   let find_cookie name t = find_cookie_ name t.headers
+
+  let add_session_data ~name ~value t =
+    let session_data' =
+      match t.session_data with
+      | Some v -> v
+      | None -> Session.Data.empty |> Session.Data.add name value
+    in
+    t.session_data <- Some session_data'
+
+  let find_session_data name t =
+    Option.bind t.session_data (fun session_data ->
+        Session.Data.find_opt name session_data)
 
   let parse ?session client_addr (buf_read : Buf_read.t) =
     let open Eio.Buf_read.Syntax in
