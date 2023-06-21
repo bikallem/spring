@@ -42,12 +42,15 @@ let pp version status headers fmt =
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
+exception Closed
+
 module Client = struct
   type t =
     { version : Version.t
     ; status : Status.t
     ; headers : Header.t
     ; buf_read : Eio.Buf_read.t
+    ; mutable closed : bool
     }
 
   let make
@@ -55,7 +58,14 @@ module Client = struct
       ?(status = Status.ok)
       ?(headers = Header.empty)
       buf_read =
-    { version; status; headers; buf_read }
+    { version; status; headers; buf_read; closed = false }
+
+  let version t = t.version
+  let status t = t.status
+  let headers t = t.headers
+  let buf_read t = if t.closed then raise Closed else t.buf_read
+  let closed t = t.closed
+  let close t = t.closed <- true
 
   let is_digit = function
     | '0' .. '9' -> true
@@ -77,14 +87,12 @@ module Client = struct
     let version = (Version.p <* Buf_read.space) buf_read in
     let status = Buf_read.(p_status <* crlf) buf_read in
     let headers = Header.parse buf_read in
-    { version; headers; status; buf_read }
+    { version; headers; status; buf_read; closed = false }
 
   let to_readable t = Body.make_readable t.headers t.buf_read
   let find_set_cookie name t = find_set_cookie_ name t.headers
   let pp fmt t = pp t.version t.status t.headers fmt
 end
-
-exception Closed
 
 class virtual client_response version headers status buf_read =
   let closed = ref false in

@@ -28,13 +28,10 @@ val find_set_cookie : string -> #t -> Set_cookie.t option
 
 (** {1 Client Response} *)
 
+exception Closed
+
 module Client : sig
-  type t = private
-    { version : Version.t
-    ; status : Status.t
-    ; headers : Header.t
-    ; buf_read : Eio.Buf_read.t
-    }
+  type t
 
   val make :
        ?version:Version.t
@@ -42,6 +39,18 @@ module Client : sig
     -> ?headers:Header.t
     -> Eio.Buf_read.t
     -> t
+
+  val version : t -> Version.t
+  val status : t -> Status.t
+  val headers : t -> Header.t
+
+  val buf_read : t -> Eio.Buf_read.t
+  (** [buf_read t] is buffered reader associated with [t].
+
+      @raise Closed if [t] is already closed. *)
+
+  val closed : t -> bool
+  val close : t -> unit
 
   val parse : Eio.Buf_read.t -> t
   (** [parse buf_read] parses [buf_read] and create HTTP reponse [t]. *)
@@ -55,8 +64,6 @@ module Client : sig
 
   val pp : Format.formatter -> t -> unit
 end
-
-exception Closed
 
 class virtual client_response :
   Version.t
