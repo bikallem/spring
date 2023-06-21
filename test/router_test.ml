@@ -17,9 +17,7 @@ let fruit_page fruit (_req : Request.Server.t) =
   | Orange -> Printf.sprintf "Orange is a citrus fruit."
   | Pineapple -> Printf.sprintf "Pineapple has scaly skin"
 
-let about_page i (_req : Request.Server.t) =
-  Format.sprintf "about_page - %d" i
-
+let about_page i (_req : Request.Server.t) = Format.sprintf "about_page - %d" i
 let full_rest_page url _req = Format.sprintf "full rest page: %s" url
 
 let home_int_page i (_req : Request.Server.t) =

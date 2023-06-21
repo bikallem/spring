@@ -34,7 +34,6 @@ module Client = Client
 (** {1 Server} *)
 
 module Server = Server
-module Context = Context
 module Router = Router
 module Csrf = Csrf
 

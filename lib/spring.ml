@@ -22,7 +22,6 @@ module Request = Request
 module Response = Response
 module Client = Client
 module Server = Server
-module Context = Context
 module Router = Router
 module Session = Session
 module Csrf = Csrf
