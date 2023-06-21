@@ -52,32 +52,17 @@ val r : Request.Server.t =
 - : unit = ()
 ```
 
-### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
+### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
 
 ```ocaml
-# let r = Request.parse client_addr @@ make_buf_read "1.0" "get" "TE" ;;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "keep-alive, TE";;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
-- : unit = ()
-
-# Request.keep_alive r ;;
-- : bool = false
-```
-
-### Parse HTTP/1.0 GET request. Keep-alive should be `true`.
-
-```ocaml
-# let r = Request.parse client_addr @@ make_buf_read "1.0" "get" "keep-alive, TE" ;;
-val r : Request.server_request = <obj>
-
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Header.pp r.headers;;
 +{
 +  Host:  www.example.com;
 +  Connection:  keep-alive, TE;
@@ -86,7 +71,97 @@ val r : Request.server_request = <obj>
 +}
 - : unit = ()
 
-# Request.keep_alive r ;;
+# Request.Server.keep_alive r ;;
+- : bool = true
+```
+
+### Parse HTTP/1.1 GET request. Keep-alive should be `false`.
+
+```ocaml
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "close, TE";;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
+
+# Eio.traceln "%a" Header.pp r.headers;;
++{
++  Host:  www.example.com;
++  Connection:  close, TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
++}
+- : unit = ()
+
+# Request.Server.keep_alive r ;;
+- : bool = false
+```
+### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
+
+```ocaml
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.0" "get" "TE" ;;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 0); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
+
+# Eio.traceln "%a" Header.pp r.headers;;
++{
++  Host:  www.example.com;
++  Connection:  TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
++}
+- : unit = ()
+
+# Request.Server.keep_alive r ;;
+- : bool = false
+```
+
+### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
+
+```ocaml
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.0" "get" "close, TE" ;;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 0); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
+
+# Eio.traceln "%a" Header.pp r.headers ;;
++{
++  Host:  www.example.com;
++  Connection:  close, TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
++}
+- : unit = ()
+
+# Request.Server.keep_alive r ;;
+- : bool = false
+```
+### Parse HTTP/1.0 GET request. Keep-alive should be `true`.
+
+```ocaml
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.0" "get" "keep-alive, TE" ;;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 0); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
+
+# Eio.traceln "%a" Header.pp r.headers ;;
++{
++  Host:  www.example.com;
++  Connection:  keep-alive, TE;
++  Te:  trailers;
++  User-Agent:  cohttp-eio
++}
+- : unit = ()
+
+# Request.Server.keep_alive r ;;
 - : bool = true
 ```
 

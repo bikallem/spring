@@ -25,20 +25,17 @@ let supports_chunked_trailers_ headers =
 let keep_alive_ (version : Version.t) headers =
   let close =
     let open Option.Syntax in
-    match
-      let+ connection = Header.(find_opt headers connection) in
-      String.cuts ~sep:"," connection
-      |> List.exists (fun tok ->
-             let tok = String.(trim tok |> Ascii.lowercase) in
-             String.equal tok "close")
-    with
-    | Some close -> close
-    | None -> false
+    let* connection = Header.(find_opt headers connection) in
+    let conn_vals = String.cuts ~sep:"," connection in
+    if List.exists (String.equal "close") conn_vals then Some true
+    else if List.exists (String.equal "keep-alive") conn_vals then Some false
+    else None
   in
   match (close, (version :> int * int)) with
-  | true, _ -> false
-  | false, (1, 0) -> false
-  | false, _ -> true
+  | Some true, _ -> false
+  | Some false, _ -> true
+  | None, (1, 0) -> false
+  | None, _ -> true
 
 let find_cookie_ name headers =
   let open Option.Syntax in
