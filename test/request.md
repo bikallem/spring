@@ -29,7 +29,7 @@ let make_buf_read version meth connection =
   Eio.Buf_read.of_string s
 ```
 
-### Parse HTTP/1.1 GET request.
+### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
 
 ```ocaml
 # let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "TE";;
