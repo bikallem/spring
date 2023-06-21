@@ -164,6 +164,9 @@ module Server : sig
   (** [find_session_data name t] is [Some v] is session data with name [name]
       exists in [t]. Otherwise it is [None]. *)
 
+  val to_readable : t -> Body.readable'
+  (** [to_readable t] converts [t] to {!type:Body.readable}. *)
+
   val parse :
     ?session:#Session.codec -> Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> t
   (** [parse client_addr buf_read] parses a server request [r] given a buffered

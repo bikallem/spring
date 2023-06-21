@@ -215,6 +215,8 @@ module Server = struct
     Option.bind t.session_data (fun session_data ->
         Session.Data.find_opt name session_data)
 
+  let to_readable t = Body.make_readable t.headers t.buf_read
+
   let parse ?session client_addr (buf_read : Buf_read.t) =
     let open Eio.Buf_read.Syntax in
     let meth =
