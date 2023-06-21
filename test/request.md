@@ -169,8 +169,8 @@ val r : Request.Server.t =
 
 ```ocaml
 let parse_method m = 
-  let r = Request.parse client_addr @@ make_buf_read "1.1" m "TE" in
-  Request.meth r
+  let r = Request.Server.parse client_addr @@ make_buf_read "1.1" m "TE" in
+  r.meth
 ```
 
 ```ocaml
@@ -242,7 +242,7 @@ Pretty-print `Request.server`.
 # let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
 val headers : Header.t = <abstr>
 # let req = 
-    Request.server_request
+    Request.Server.make
       ~version:Version.http1_1 
       ~headers 
       ~resource:"/update" 
@@ -250,20 +250,24 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.server_request = <obj>
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# Request.pp Format.std_formatter req ;;
-{
-  Version:  HTTP/1.1;
-  Method:  get;
-  URI:  /update;
-  Headers :
-    {
-      Header1:  val 1;
-      Header2:  val 2
-    };
-  Client Address:  tcp:127.0.0.1:8081
-}
+# Eio.traceln "%a" Request.Server.pp req ;;
++{
++  Version:  HTTP/1.1;
++  Method:  get;
++  URI:  /update;
++  Headers :
++    {
++      Header1:  val 1;
++      Header2:  val 2
++    };
++  Client Address:  tcp:127.0.0.1:8081
++}
 - : unit = ()
 ```
 

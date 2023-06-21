@@ -6,17 +6,6 @@ let host_port_to_string (host, port) =
 
 type resource = string
 
-class virtual t version headers meth resource =
-  object
-    val headers = headers
-    method headers : Header.t = headers
-    method version : Version.t = version
-    method meth : Method.t = meth
-    method resource : string = resource
-    method update headers' = {<headers = headers'>}
-    method virtual pp : Format.formatter -> unit
-  end
-
 let supports_chunked_trailers_ headers =
   match Header.(find_opt headers te) with
   | Some te' -> Te.(exists te' trailers)
@@ -40,36 +29,6 @@ let keep_alive_ (version : Version.t) headers =
 let find_cookie_ name headers =
   let open Option.Syntax in
   let* cookie = Header.(find_opt headers cookie) in
-  Cookie.find_opt name cookie
-
-type host_port = string * int option
-
-let version (t : #t) = t#version
-let headers (t : #t) = t#headers
-let meth (t : #t) = t#meth
-let resource (t : #t) = t#resource
-
-let supports_chunked_trailers (t : #t) =
-  match Header.(find_opt t#headers te) with
-  | Some te' -> Te.(exists te' trailers)
-  | None -> false
-
-let keep_alive (t : #t) =
-  match (t#version :> int * int) with
-  | 1, 1 -> true
-  | 1, 0 -> (
-    match Header.(find_opt t#headers connection) with
-    | Some v ->
-      String.cuts ~sep:"," v
-      |> List.exists (fun tok ->
-             let tok = String.(trim tok |> Ascii.lowercase) in
-             String.equal tok "keep-alive")
-    | None -> false)
-  | _ -> false
-
-let find_cookie name (t : #t) =
-  let open Option.Syntax in
-  let* cookie = Header.(find_opt t#headers cookie) in
   Cookie.find_opt name cookie
 
 let field lbl v =
@@ -254,87 +213,3 @@ module Server = struct
     in
     pp_fields fmt fields
 end
-
-class virtual server_request ?session_data version headers meth resource =
-  object
-    inherit t version headers meth resource
-    inherit Body.readable
-    val mutable session_data : Session.session_data option = session_data
-
-    method add_session_data ~name ~value =
-      let session_data' =
-        match session_data with
-        | Some v -> v
-        | None -> Session.Data.empty |> Session.Data.add name value
-      in
-      session_data <- Some session_data'
-
-    method find_session_data name =
-      let open Option.Syntax in
-      let* session_data = session_data in
-      Session.Data.find_opt name session_data
-
-    method session_data = session_data
-    method virtual client_addr : Eio.Net.Sockaddr.stream
-  end
-
-let buf_read (t : #server_request) = t#buf_read
-let client_addr (t : #server_request) = t#client_addr
-
-let add_session_data ~name ~value (t : #server_request) =
-  t#add_session_data ~name ~value
-
-let find_session_data name (t : #server_request) = t#find_session_data name
-let session_data (t : #server_request) = t#session_data
-
-let server_request
-    ?(version = Version.http1_1)
-    ?(headers = Header.empty)
-    ?session_data
-    ~resource
-    meth
-    client_addr
-    buf_read =
-  object (self)
-    inherit server_request ?session_data version headers meth resource
-    method client_addr = client_addr
-    method buf_read = buf_read
-
-    method pp fmt =
-      let sock_addr =
-        let buf = Buffer.create 10 in
-        let fmt = Format.formatter_of_buffer buf in
-        Format.fprintf fmt "%a" Eio.Net.Sockaddr.pp client_addr;
-        Format.pp_print_flush fmt ();
-        Buffer.contents buf
-      in
-      let fields =
-        fields self#version self#meth self#resource self#headers @@ fun () ->
-        [ field "Client Address" sock_addr ]
-      in
-      pp_fields fmt fields
-  end
-
-open Eio.Buf_read.Syntax
-
-let http_meth =
-  let+ meth = Buf_read.(token <* space) in
-  Method.make meth
-
-let http_resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space)
-
-let parse ?session client_addr (r : Buf_read.t) : server_request =
-  let meth = http_meth r in
-  let resource = http_resource r in
-  let version = (Version.p <* Buf_read.crlf) r in
-  let headers = Header.parse r in
-  let session_data =
-    let open Option.Syntax in
-    let* session = session in
-    let* cookie = Header.(find_opt headers cookie) in
-    let+ session_data = Cookie.find_opt session#cookie_name cookie in
-    Session.decode session_data session
-  in
-  server_request ?session_data ~version ~headers ~resource meth client_addr r
-
-let pp fmt (t : #t) = t#pp fmt
