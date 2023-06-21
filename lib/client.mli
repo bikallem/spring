@@ -74,7 +74,7 @@ val head : t -> url -> Response.client_response
     @raise Invalid_argument if [url] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val post : t -> Body.writable' -> url -> Response.client_response
+val post : t -> Body.writable -> url -> Response.client_response
 (** [post t body url] is [response] after making a HTTP POST request call with
     body [body] to [url].
 

@@ -44,7 +44,7 @@ let handler ctx =
       Eio.traceln "Route: /upload";
       let body = 
         let content_type = Content_type.make ("text", "plain") in
-        Body.content_writer' content_type "hello world" 
+        Body.content_writer content_type "hello world" 
       in
       let res = Client.post client body "localhost:8081/upload" in
       Eio.traceln "%a" Header.pp (Response.headers res);
@@ -233,7 +233,7 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 5xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.Server.make ~status:Status.internal_server_error Body.none' ;;
+# let h _req = Response.Server.make ~status:Status.internal_server_error Body.none ;;
 val h : 'a -> Response.Server.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
@@ -252,7 +252,7 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 1xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.Server.make ~status:Status.continue Body.none' ;;
+# let h _req = Response.Server.make ~status:Status.continue Body.none ;;
 val h : 'a -> Response.Server.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;

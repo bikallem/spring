@@ -2,35 +2,15 @@
 
 (** {1 Writable} *)
 
-(** [writable] is a body that can be written. *)
-class virtual writable :
-  object
-    method virtual write_body : Eio.Buf_write.t -> unit
-
-    method virtual write_header :
-      < f : 'a. 'a Header.header -> 'a -> unit > -> unit
-  end
-
-type writable' =
+type writable =
   { write_body : Eio.Buf_write.t -> unit
   ; write_headers : Eio.Buf_write.t -> unit
   }
+(** [writable] is a body that can be written. *)
 
-(** {2 none} *)
-
+val none : writable
 (** [none] is a no-op [writable] that represents the absence of HTTP request or
-    response body, for e.g. http GET. HEAD, OPTIONS request.
-
-    See {!type:Method.t} and {!class:Request.server_request}. *)
-class virtual none :
-  object
-    inherit writable
-  end
-
-val none : none
-(** [none] is an instance of {!class:none}. *)
-
-val none' : writable'
+    response body, for e.g. http GET. HEAD, OPTIONS request. *)
 
 (** {2 Content Writer} *)
 
@@ -39,14 +19,10 @@ val content_writer : Content_type.t -> string -> writable
     request/response body whose content is [content] and content type is
     [content_type]. *)
 
-val content_writer' : Content_type.t -> string -> writable'
-
 val form_values_writer : (string * string list) list -> writable
 (** [form_values_writer key_values] is a {!class:writer} which writes an
     associated list [key_values] as body and adds HTTP header [Content-Length]
     to HTTP request or response. *)
-
-val form_values_writer' : (string * string list) list -> writable'
 
 (** {1 Readable} *)
 

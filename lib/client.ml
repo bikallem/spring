@@ -146,12 +146,12 @@ let parse_url url =
 
 let get t url =
   let host, port, resource = parse_url url in
-  let req = Request.Client.make ?port ~host ~resource Method.get Body.none' in
+  let req = Request.Client.make ?port ~host ~resource Method.get Body.none in
   do_call t req
 
 let head t url =
   let host, port, resource = parse_url url in
-  let req = Request.Client.make ?port ~host ~resource Method.head Body.none' in
+  let req = Request.Client.make ?port ~host ~resource Method.head Body.none in
   do_call t req
 
 let post t body url =
@@ -160,7 +160,7 @@ let post t body url =
   do_call t req
 
 let post_form_values t form_values url =
-  let body = Body.form_values_writer' form_values in
+  let body = Body.form_values_writer form_values in
   post t body url
 
 let call ~conn req =

@@ -61,14 +61,14 @@ module Server : sig
     { version : Version.t
     ; status : Status.t
     ; headers : Header.t
-    ; body : Body.writable'
+    ; body : Body.writable
     }
 
   val make :
        ?version:Version.t
     -> ?status:Status.t
     -> ?headers:Header.t
-    -> Body.writable'
+    -> Body.writable
     -> t
 
   val find_set_cookie : string -> t -> Set_cookie.t option

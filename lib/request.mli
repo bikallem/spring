@@ -61,7 +61,7 @@ module Client : sig
     ; headers : Header.t
     ; host : string
     ; port : int option
-    ; body : Body.writable'
+    ; body : Body.writable
     }
 
   val make :
@@ -71,7 +71,7 @@ module Client : sig
     -> host:string
     -> resource:string
     -> Method.t
-    -> Body.writable'
+    -> Body.writable
     -> t
   (** [make ~host ~resource meth body] is [t] representing a client request with
       request url [resource]. [host] represents a HTTP server that will process

@@ -7,32 +7,15 @@ open Spring
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
-let write_header b : < f : 'a. 'a Header.header -> 'a -> unit > =
-  object
-    method f : 'a. 'a Header.header -> 'a -> unit =
-      fun hdr v ->
-        let v = Header.encode hdr v in
-        let name = (Header.name hdr :> string) in
-        Header.write_header (Buffer.add_string b) name v
-  end
-
-let test_writer w =
+let test_writer (w: Body.writable) =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw ->
-    w#write_header (write_header b);
-    w#write_body bw;
+    w.write_headers bw;
+    w.write_body bw;
   );
   Eio.traceln "%s" (Buffer.contents b);;
-```
-```mdx-error
-Line 7, characters 31-52:
-Warning 5 [ignored-partial-application]: this function application is partial,
-maybe some arguments are missing.
-Line 7, characters 31-52:
-Error: This expression has type string -> unit
-       but an expression was expected of type Eio.Buf_write.t
 ```
 
 ## content_writer
@@ -42,16 +25,20 @@ Error: This expression has type string -> unit
 val content_type : Content_type.t = <abstr>
 
 # test_writer @@ Body.content_writer content_type "hello world";;
-Line 1, characters 1-12:
-Error: Unbound value test_writer
++Content-Length: 11
++Content-Type: text/plain
++hello world
+- : unit = ()
 ```
 
 ## form_values_writer
 
 ```ocaml
 # test_writer @@ Body.form_values_writer [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] ;;
-Line 1, characters 1-12:
-Error: Unbound value test_writer
++Content-Length: 59
++Content-Type: application/x-www-form-urlencoded
++name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e
+- : unit = ()
 ```
 
 ## read_content

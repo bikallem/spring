@@ -7,7 +7,7 @@ open Spring
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
-let test_writer (w : Body.writable') =
+let test_writer (w : Body.writable) =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in

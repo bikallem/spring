@@ -56,6 +56,6 @@ val make_part :
     @param filename is the part [filename] attribute.
     @param headers is HTTP headers for [part] *)
 
-val writable : string -> #Eio.Flow.source part list -> Body.writable'
+val writable : string -> #Eio.Flow.source part list -> Body.writable
 (** [writeable boundary parts] creates a multipart request/response
     {!class:Body.writable} body. *)

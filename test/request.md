@@ -153,7 +153,7 @@ val headers : Header.t = <abstr>
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none' ;;
+      Body.none ;;
 val req : Request.Client.t =
   {Spring.Request.Client.meth = "get"; resource = "/update";
    version = (1, 1); headers = <abstr>; host = "www.example.com";
@@ -243,7 +243,7 @@ val req : Request.server_request = <obj>
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none' ;;
+      Body.none ;;
 val req : Request.Client.t =
   {Spring.Request.Client.meth = "get"; resource = "/update";
    version = (1, 1); headers = <abstr>; host = "www.example.com";
@@ -278,7 +278,7 @@ val headers : Header.t = <abstr>
       ~host:"www.example.com" 
       ~resource:"/update" 
       Method.get 
-      Body.none' ;;
+      Body.none ;;
 val req : Request.Client.t =
   {Spring.Request.Client.meth = "get"; resource = "/update";
    version = (1, 1); headers = <abstr>; host = "www.example.com";

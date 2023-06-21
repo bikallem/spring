@@ -68,7 +68,7 @@ module Server = struct
     { version : Version.t
     ; status : Status.t
     ; headers : Header.t
-    ; body : Body.writable'
+    ; body : Body.writable
     }
 
   let make
@@ -103,14 +103,14 @@ module Server = struct
     let content_type =
       Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "plain")
     in
-    let body = Body.content_writer' content_type content in
+    let body = Body.content_writer content_type content in
     make body
 
   let html content =
     let content_type =
       Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "html")
     in
-    let body = Body.content_writer' content_type content in
+    let body = Body.content_writer content_type content in
     make body
 
   let ohtml o =
@@ -124,7 +124,7 @@ module Server = struct
 
   let none_body_response status =
     let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
-    make ~headers ~status Body.none'
+    make ~headers ~status Body.none
 
   let not_found = none_body_response Status.not_found
   let internal_server_error = none_body_response Status.internal_server_error

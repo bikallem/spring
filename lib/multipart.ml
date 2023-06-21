@@ -171,4 +171,4 @@ let writable boundary parts =
       ~params:[ ("boundary", boundary) ]
       ("multipart", "formdata")
   in
-  Body.content_writer' content_type (Buffer.contents buf)
+  Body.content_writer content_type (Buffer.contents buf)

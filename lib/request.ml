@@ -107,7 +107,7 @@ module Client = struct
     ; headers : Header.t
     ; host : string
     ; port : int option
-    ; body : Body.writable'
+    ; body : Body.writable
     }
 
   let make
