@@ -125,7 +125,7 @@ module Server : sig
   val bad_request : t
   (* [bad_request] returns a HTTP/1.1, 400 status response. *)
 
-  val write : t -> Eio.Buf_write.t -> unit
+  val write : Eio.Buf_write.t -> t -> unit
   (** [write t buf_write] writes server response [t] using [buf_write]. *)
 
   val pp : Format.formatter -> t -> unit

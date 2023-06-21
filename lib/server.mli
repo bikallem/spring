@@ -2,7 +2,7 @@
 
 (** {1 Handler} *)
 
-type handler = Context.t -> Response.server_response
+type handler = Context.t -> Response.Server.t
 (** [handler] is a HTTP request handler. *)
 
 val not_found_handler : handler
@@ -68,7 +68,7 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
-val router_pipeline : Response.server_response Router.t -> pipeline
+val router_pipeline : Response.Server.t Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
@@ -114,7 +114,7 @@ val make :
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
 
-type 'a request_target = ('a, Response.server_response) Router.request_target
+type 'a request_target = ('a, Response.Server.t) Router.request_target
 
 (** [app_server] is a HTTP/1.1 web server with the following pipelines
     preconfigured for convenience:
@@ -126,7 +126,7 @@ class virtual app_server :
   object ('a)
     inherit t
     method virtual session_codec : Session.codec
-    method virtual router : Response.server_response Router.t
+    method virtual router : Response.Server.t Router.t
     method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
   end
 

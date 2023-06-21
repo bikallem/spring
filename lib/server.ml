@@ -1,6 +1,7 @@
-type handler = Context.t -> Response.server_response
+type handler = Context.t -> Response.Server.t
 
-let not_found_handler (_ : Context.t) = Response.not_found
+let not_found_handler : handler =
+ fun (_ : Context.t) -> Response.Server.not_found
 
 type pipeline = handler -> handler
 
@@ -17,12 +18,12 @@ let host_header : pipeline =
   let headers = Request.headers req in
   let hosts = Header.(find_all headers host) in
   let len = List.length hosts in
-  if len = 0 || len > 1 then Response.bad_request
+  if len = 0 || len > 1 then Response.Server.bad_request
   else
     let host = List.hd hosts in
     match Uri.of_string ("//" ^ host) |> Uri.host with
     | Some _ -> next ctx
-    | None -> Response.bad_request
+    | None -> Response.Server.bad_request
 
 (* A request pipeline that adds "Date" header if required.
 
@@ -30,29 +31,30 @@ let host_header : pipeline =
 let response_date : #Eio.Time.clock -> pipeline =
  fun clock next ctx ->
   let res = next ctx in
-  let headers = Response.headers res in
+  let headers = res.headers in
   match Header.(find_opt headers date) with
   | Some _ -> res
   | None -> (
-    match res#status with
+    match res.status with
     | status when Status.informational status || Status.server_error status ->
       res
     | _ ->
       let now = Eio.Time.now clock |> Ptime.of_float_s |> Option.get in
       let headers = Header.(add_unless_exists headers date now) in
-      Response.server_response ~version:res#version ~headers ~status:res#status
-        res)
+      Response.Server.make ~version:res.version ~headers ~status:res.status
+        res.body)
 
 let strict_http clock next = response_date clock @@ host_header @@ next
 
-let router_pipeline : Response.server_response Router.t -> pipeline =
+let router_pipeline : Response.Server.t Router.t -> pipeline =
  fun router next ctx ->
   let req = Context.request ctx in
   match Router.match' req router with
   | Some response -> response
   | None -> next ctx
 
-let session_pipeline (session : #Session.codec) next ctx =
+let session_pipeline (session : #Session.codec) : pipeline =
+ fun next ctx ->
   let cookie_name = session#cookie_name in
   let req = Context.request ctx in
   let ctx =
@@ -73,7 +75,7 @@ let session_pipeline (session : #Session.codec) next ctx =
       Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
         (cookie_name, encrypted_data)
     in
-    Response.add_set_cookie cookie response
+    Response.Server.add_set_cookie cookie response
 
 class virtual t =
   object
@@ -106,13 +108,13 @@ let make
     method stop = Eio.Promise.resolve stop_r ()
   end
 
-type 'a request_target = ('a, Response.server_response) Router.request_target
+type 'a request_target = ('a, Response.Server.t) Router.request_target
 
 class virtual app_server =
   object (_ : 'a)
     inherit t
     method virtual session_codec : Session.codec
-    method virtual router : Response.server_response Router.t
+    method virtual router : Response.Server.t Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
@@ -195,16 +197,16 @@ let rec handle_request clock client_addr reader writer flow handler =
   | req ->
     let ctx = Context.make req in
     let response = handler ctx in
-    Response.write response writer;
+    Response.Server.write writer response;
     if Request.keep_alive req then
       handle_request clock client_addr reader writer flow handler
   | (exception End_of_file)
   | (exception Eio.Io (Eio.Net.E (Connection_reset _), _)) -> ()
   | exception (Failure _ as ex) ->
-    Response.(write bad_request writer);
+    Response.Server.(write writer bad_request);
     raise ex
   | exception ex ->
-    Response.(write internal_server_error writer);
+    Response.Server.(write writer internal_server_error);
     raise ex
 
 let connection_handler handler clock flow client_addr =

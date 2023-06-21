@@ -154,7 +154,7 @@ module Server = struct
   let internal_server_error = none_body_response Status.internal_server_error
   let bad_request = none_body_response Status.bad_request
 
-  let write t w =
+  let write w t =
     let version = Version.to_string t.version in
     let status = Status.to_string t.status in
     Eio.Buf_write.string w version;

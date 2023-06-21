@@ -17,13 +17,13 @@ end
 let handler ctx =
   let req = Context.request ctx in
   match Request.resource req with
-  | "/" -> Response.text "root"
+  | "/" -> Response.Server.text "root"
   | "/upload" -> (
     match Body.read_content req with
-    | Some a -> Response.text a
-    | None -> Response.bad_request
+    | Some a -> Response.Server.text a
+    | None -> Response.Server.bad_request
     )
-  | _ -> Response.not_found
+  | _ -> Response.Server.not_found
 ```
 
 ## Server.run/Server.run_local
@@ -76,7 +76,7 @@ let router : Server.pipeline =
   fun next ctx ->
     let req = Context.request ctx in
     match Request.resource req with
-    | "/" -> Response.text "hello, there"
+    | "/" -> Response.Server.text "hello, there"
     | _ -> next ctx
 
 let final_handler : Server.handler = router @@ Server.not_found_handler
@@ -110,7 +110,7 @@ let make_buf_read version meth connection =
   let s = Printf.sprintf "%s /products HTTP/%s\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" meth version connection in
   Eio.Buf_read.of_string s
 
-let hello _ctx = Response.text "hello"
+let hello _ctx = Response.Server.text "hello"
 ```
 
 Try with GET method.
@@ -123,9 +123,12 @@ val r : Request.server_request = <obj>
 val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
-val res1 : Response.server_response = <obj>
+val res1 : Response.Server.t =
+  {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
+   headers = <abstr>;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Eio.traceln "%a" Response.pp res1 ;;
+# Eio.traceln "%a" Response.Server.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
@@ -147,9 +150,12 @@ val r : Request.server_request = <obj>
 val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
-val res1 : Response.server_response = <obj>
+val res1 : Response.Server.t =
+  {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
+   headers = <abstr>;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Eio.traceln "%a" Response.pp res1 ;;
+# Eio.traceln "%a" Response.Server.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
@@ -175,9 +181,12 @@ val r : Request.server_request = <obj>
 val ctx : Context.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) ctx;;
-val res1 : Response.server_response = <obj>
+val res1 : Response.Server.t =
+  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
+   headers = <abstr>;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# Eio.traceln "%a" Response.pp res1 ;;
+# Eio.traceln "%a" Response.Server.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -197,8 +206,8 @@ let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
 A Date header is added to a 200 response.
 
 ```ocaml
-# let hello _req = Response.text "hello, world!" ;;
-val hello : 'a -> Response.server_response = <fun>
+# let hello _req = Response.Server.text "hello, world!" ;;
+val hello : 'a -> Response.Server.t = <fun>
 
 # let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server_request = <obj>
@@ -209,7 +218,7 @@ val ctx : Context.t = <abstr>
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -224,13 +233,13 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 5xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.server_response ~status:Status.internal_server_error Body.none ;;
-val h : 'a -> Response.server_response = <fun>
+# let h _req = Response.Server.make ~status:Status.internal_server_error Body.none' ;;
+val h : 'a -> Response.Server.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  500 Internal Server Error;
@@ -243,13 +252,13 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 1xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.server_response ~status:Status.continue Body.none ;;
-val h : 'a -> Response.server_response = <fun>
+# let h _req = Response.Server.make ~status:Status.continue Body.none' ;;
+val h : 'a -> Response.Server.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  100 Continue;
@@ -352,8 +361,8 @@ val headers : Header.t = <abstr>
 # let req = Request.server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server_request = <obj>
 
-# let handler _ctx = Response.text "hello";;
-val handler : 'a -> Response.server_response = <fun>
+# let handler _ctx = Response.Server.text "hello";;
+val handler : 'a -> Response.Server.t = <fun>
 
 # let ctx = Context.make req;;
 val ctx : Context.t = <abstr>
@@ -362,9 +371,12 @@ val ctx : Context.t = <abstr>
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) ctx ;;
-val res : Response.server_response = <obj>
+val res : Response.Server.t =
+  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
+   headers = <abstr>;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# let set_cookie = Header.(find res#headers set_cookie);; 
+# let set_cookie = Header.(find res.headers set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
@@ -380,8 +392,8 @@ val req : Request.server_request = <obj>
 # let handler ctx =
   let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in
   Context.replace_session_data session_data ctx;
-  Response.text "hello";;
-val handler : Context.t -> Response.server_response = <fun>
+  Response.Server.text "hello";;
+val handler : Context.t -> Response.Server.t = <fun>
 
 # let ctx = Context.make req;;
 val ctx : Context.t = <abstr>
@@ -390,9 +402,12 @@ val ctx : Context.t = <abstr>
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) ctx ;;
-val res : Response.server_response = <obj>
+val res : Response.Server.t =
+  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
+   headers = <abstr>;
+   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
 
-# let set_cookie = Header.(find res#headers set_cookie);; 
+# let set_cookie = Header.(find res.headers set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
