@@ -147,6 +147,10 @@ module Server : sig
       "Connection" header is missing and the HTTP version is 1.1. It is [false]
       if header "Connection: close" exists. *)
 
+  val find_cookie : string -> t -> string option
+  (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
+      [cookie_name] exists in [t]. Otherwise is [None]. *)
+
   val parse :
     ?session:#Session.codec -> Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> t
   (** [parse client_addr buf_read] parses a server request [r] given a buffered

@@ -201,6 +201,7 @@ module Server = struct
 
   let supports_chunked_trailers t = supports_chunked_trailers_ t.headers
   let keep_alive t = keep_alive_ t.version t.headers
+  let find_cookie name t = find_cookie_ name t.headers
 
   let parse ?session client_addr (buf_read : Buf_read.t) =
     let open Eio.Buf_read.Syntax in

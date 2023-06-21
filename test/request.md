@@ -267,14 +267,14 @@ val req : Request.server_request = <obj>
 - : unit = ()
 ```
 
-## Request.find_cookie
+## Request.Server.find_cookie
 
 ```ocaml
 # let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
 val headers : Header.t = <abstr>
 
 # let req = 
-    Request.server_request
+    Request.Server.make
       ~version:Version.http1_1 
       ~headers 
       ~resource:"/update" 
@@ -282,19 +282,23 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.server_request = <obj>
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/update";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# Request.find_cookie "SID" req;;
+# Request.Server.find_cookie "SID" req;;
 - : string option = Some "31d4d96e407aad42"
 
-# Request.find_cookie "lang" req;;
+# Request.Server.find_cookie "lang" req;;
 - : string option = Some "en"
 
-# Request.find_cookie "blah" req;;
+# Request.Server.find_cookie "blah" req;;
 - : string option = None
 ```
 
-## Request.add_cookie
+## Request.Client.add_cookie
 
 ```ocaml
 # let req = 
@@ -325,7 +329,7 @@ val req : Request.Client.t =
 - : string option = Some "en"
 ```
 
-## Request.remove_cookie
+## Request.Client.remove_cookie
 
 ```ocaml
 # let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42;lang=en"] ;;
