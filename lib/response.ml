@@ -17,6 +17,73 @@ let find_set_cookie_ name headers =
 
 let find_set_cookie name (t : #t) = find_set_cookie_ name t#headers
 
+let field lbl v =
+  let open Easy_format in
+  let lbl = Atom (lbl ^ ": ", atom) in
+  let v = Atom (v, atom) in
+  Label ((lbl, label), v)
+
+let pp version status headers fmt =
+  let open Easy_format in
+  let fields =
+    [ field "Version" (Version.to_string version)
+    ; field "Status" (Status.to_string status)
+    ; Label
+        ( (Atom ("Headers :", atom), { label with label_break = `Always })
+        , Header.easy_fmt headers )
+    ]
+  in
+  let list_p =
+    { list with
+      align_closing = true
+    ; indent_body = 2
+    ; wrap_body = `Force_breaks_rec
+    }
+  in
+  Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
+
+module Client = struct
+  type t =
+    { version : Version.t
+    ; status : Status.t
+    ; headers : Header.t
+    ; buf_read : Eio.Buf_read.t
+    }
+
+  let make
+      ?(version = Version.http1_1)
+      ?(status = Status.ok)
+      ?(headers = Header.empty)
+      buf_read =
+    { version; status; headers; buf_read }
+
+  let is_digit = function
+    | '0' .. '9' -> true
+    | _ -> false
+
+  open Buf_read.Syntax
+
+  let reason_phrase =
+    Buf_read.take_while (function
+      | '\x21' .. '\x7E' | '\t' | ' ' -> true
+      | _ -> false)
+
+  let p_status =
+    let* status = Buf_read.take_while1 is_digit in
+    let+ phrase = Buf_read.space *> reason_phrase in
+    Status.make (int_of_string status) phrase
+
+  let parse buf_read =
+    let version = (Version.p <* Buf_read.space) buf_read in
+    let status = Buf_read.(p_status <* crlf) buf_read in
+    let headers = Header.parse buf_read in
+    { version; headers; status; buf_read }
+
+  let to_readable t = Body.make_readable t.headers t.buf_read
+  let find_set_cookie name t = find_set_cookie_ name t.headers
+  let pp fmt t = pp t.version t.status t.headers fmt
+end
+
 exception Closed
 
 class virtual client_response version headers status buf_read =
@@ -56,12 +123,6 @@ let parse buf_read =
 
 let close_body (t : #client_response) = t#close_body
 let body_closed (t : #client_response) = t#body_closed
-
-let field lbl v =
-  let open Easy_format in
-  let lbl = Atom (lbl ^ ": ", atom) in
-  let v = Atom (v, atom) in
-  Label ((lbl, label), v)
 
 module Server = struct
   type t =
@@ -142,24 +203,7 @@ module Server = struct
     Eio.Buf_write.string w "\r\n";
     t.body.write_body w
 
-  let pp fmt t =
-    let open Easy_format in
-    let fields =
-      [ field "Version" (Version.to_string t.version)
-      ; field "Status" (Status.to_string t.status)
-      ; Label
-          ( (Atom ("Headers :", atom), { label with label_break = `Always })
-          , Header.easy_fmt t.headers )
-      ]
-    in
-    let list_p =
-      { list with
-        align_closing = true
-      ; indent_body = 2
-      ; wrap_body = `Force_breaks_rec
-      }
-    in
-    Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
+  let pp fmt t = pp t.version t.status t.headers fmt
 end
 
 let pp fmt (t : #t) =

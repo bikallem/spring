@@ -4,7 +4,7 @@
 open Spring 
 ```
 
-## Response.parse
+## Response.Client.parse
 
 ```ocaml
 let make_buf_read () =
@@ -26,12 +26,12 @@ let make_buf_read () =
 ```
 
 ```ocaml
-# let version, headers, status = Response.parse @@ make_buf_read () ;;
-val version : Version.t = (1, 1)
-val headers : Header.t = <abstr>
-val status : Status.t = (200, "OK")
+# let res = Response.Client.parse @@ make_buf_read () ;;
+val res : Response.Client.t =
+  {Spring.Response.Client.version = (1, 1); status = (200, "OK");
+   headers = <abstr>; buf_read = <abstr>}
 
-# Eio.traceln "%a" Header.pp headers ;;
+# Eio.traceln "%a" Header.pp res.headers ;;
 +{
 +  Content-Length:  13;
 +  Date:  Wed, 08 Feb 2023 16:18:17 GMT;

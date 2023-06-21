@@ -28,6 +28,34 @@ val find_set_cookie : string -> #t -> Set_cookie.t option
 
 (** {1 Client Response} *)
 
+module Client : sig
+  type t = private
+    { version : Version.t
+    ; status : Status.t
+    ; headers : Header.t
+    ; buf_read : Eio.Buf_read.t
+    }
+
+  val make :
+       ?version:Version.t
+    -> ?status:Status.t
+    -> ?headers:Header.t
+    -> Eio.Buf_read.t
+    -> t
+
+  val parse : Eio.Buf_read.t -> t
+  (** [parse buf_read] parses [buf_read] and create HTTP reponse [t]. *)
+
+  val to_readable : t -> Body.readable'
+  (** [to_readable t] converts [t] to {!type:Body.readable}. *)
+
+  val find_set_cookie : string -> t -> Set_cookie.t option
+  (** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
+      [name] exists in [t]. It is [None] otherwise. *)
+
+  val pp : Format.formatter -> t -> unit
+end
+
 exception Closed
 
 class virtual client_response :
