@@ -2,11 +2,16 @@
 
 (** {1 Writable} *)
 
-type writable =
+type writable = private
   { write_body : Eio.Buf_write.t -> unit
   ; write_headers : Eio.Buf_write.t -> unit
   }
 (** [writable] is a body that can be written. *)
+
+val make_writable :
+     write_body:(Eio.Buf_write.t -> unit)
+  -> write_headers:(Eio.Buf_write.t -> unit)
+  -> writable
 
 val none : writable
 (** [none] is a no-op [writable] that represents the absence of HTTP request or

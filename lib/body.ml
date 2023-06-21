@@ -3,6 +3,7 @@ type writable =
   ; write_headers : Eio.Buf_write.t -> unit
   }
 
+let make_writable ~write_body ~write_headers = { write_body; write_headers }
 let none = { write_body = (fun _ -> ()); write_headers = (fun _ -> ()) }
 
 let content_writer content_type content =
