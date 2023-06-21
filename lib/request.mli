@@ -119,7 +119,29 @@ module Server : sig
     ; headers : Header.t
     ; client_addr : Eio.Net.Sockaddr.stream
     ; buf_read : Eio.Buf_read.t
+    ; session_data : Session.session_data option
     }
+
+  val make :
+       ?version:Version.t
+    -> ?headers:Header.t
+    -> ?session_data:Session.session_data
+    -> resource:string
+    -> Method.t
+    -> Eio.Net.Sockaddr.stream
+    -> Eio.Buf_read.t
+    -> t
+  (** [make meth client_addr buf_read] is HTTP request [t].
+
+      @param version HTTP version of [t]. Default is [1.1].
+      @param headers HTTP request headers of [t]. Default is [Header.empty] .
+      @param session_data
+        is the Session data for the request. Default is [None]. *)
+
+  val parse :
+    ?session:#Session.codec -> Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> t
+  (** [parse client_addr buf_read] parses a server request [r] given a buffered
+      reader [buf_read]. *)
 
   val pp : Format.formatter -> t -> unit
 end

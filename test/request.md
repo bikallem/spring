@@ -17,7 +17,7 @@ let test_client r =
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## Request.parse
+## Request.Server.parse
 
 Mock the client addr.
 
@@ -32,13 +32,14 @@ let make_buf_read version meth connection =
 ### Parse HTTP/1.1 GET request.
 
 ```ocaml
-# let r = Request.parse client_addr @@ make_buf_read "1.1" "get" "TE";;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "TE";;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# Request.version r;;
-- : Version.t = (1, 1)
-
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Header.pp r.headers;;
 +{
 +  Host:  www.example.com;
 +  Connection:  TE;
@@ -46,21 +47,6 @@ val r : Request.server_request = <obj>
 +  User-Agent:  cohttp-eio
 +}
 - : unit = ()
-
-# Request.meth r;;
-- : Method.t = "get"
-
-# Request.resource r ;;
-- : string = "/products"
-
-# Request.supports_chunked_trailers r ;;
-- : bool = true
-
-# Request.keep_alive r ;;
-- : bool = true
-
-# Request.client_addr r = client_addr ;;
-- : bool = true
 ```
 
 ### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
@@ -68,9 +54,6 @@ val r : Request.server_request = <obj>
 ```ocaml
 # let r = Request.parse client_addr @@ make_buf_read "1.0" "get" "TE" ;;
 val r : Request.server_request = <obj>
-
-# Request.version r;;
-- : Version.t = (1, 0)
 
 # Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{

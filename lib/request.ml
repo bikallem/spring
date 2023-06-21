@@ -183,7 +183,39 @@ module Server = struct
     ; headers : Header.t
     ; client_addr : Eio.Net.Sockaddr.stream
     ; buf_read : Eio.Buf_read.t
+    ; session_data : Session.session_data option
     }
+
+  let make
+      ?(version = Version.http1_1)
+      ?(headers = Header.empty)
+      ?session_data
+      ~resource
+      meth
+      client_addr
+      buf_read =
+    { meth; resource; version; headers; client_addr; buf_read; session_data }
+
+  let parse ?session client_addr (buf_read : Buf_read.t) =
+    let open Eio.Buf_read.Syntax in
+    let meth =
+      (let+ meth = Buf_read.(token <* space) in
+       Method.make meth)
+        buf_read
+    in
+    let resource =
+      Buf_read.(take_while1 (fun c -> c != ' ') <* space) buf_read
+    in
+    let version = (Version.p <* Buf_read.crlf) buf_read in
+    let headers = Header.parse buf_read in
+    let session_data =
+      let open Option.Syntax in
+      let* session = session in
+      let* cookie = Header.(find_opt headers cookie) in
+      let+ session_data = Cookie.find_opt session#cookie_name cookie in
+      Session.decode session_data session
+    in
+    make ?session_data ~version ~headers ~resource meth client_addr buf_read
 
   let pp fmt t =
     let sock_addr =
