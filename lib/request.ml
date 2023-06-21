@@ -211,6 +211,8 @@ module Server = struct
     in
     t.session_data <- Some session_data'
 
+  let replace_session_data data t = t.session_data <- Some data
+
   let find_session_data name t =
     Option.bind t.session_data (fun session_data ->
         Session.Data.find_opt name session_data)

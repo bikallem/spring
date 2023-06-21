@@ -160,6 +160,11 @@ module Server : sig
       this function is called in a thread-safe manner if the same request
       instance [t] is being shared across OCaml domains or sys-threads. *)
 
+  val replace_session_data : Session.session_data -> t -> unit
+  (** [replace_context_session_data session_data t] is [t] with session data in
+      [t] replaced by [session_data]. After this operation
+      [session_data t = Some session_data]. *)
+
   val find_session_data : string -> t -> string option
   (** [find_session_data name t] is [Some v] is session data with name [name]
       exists in [t]. Otherwise it is [None]. *)
