@@ -106,12 +106,24 @@ module Client : sig
   val pp : Format.formatter -> t -> unit
 end
 
-(** {1 Server Request} *)
+(** {1 Server Request}
 
-(** [server_request] is a request that is primarily constructed and used in
-    {!module:Server}.
+    [Server.t] is a HTTP request that is primarily constructed and used in
+    {!module:Server}. *)
 
-    A [server_request] is also a sub-type of {!class:Body.readable}. *)
+module Server : sig
+  type t = private
+    { meth : Method.t
+    ; resource : resource
+    ; version : Version.t
+    ; headers : Header.t
+    ; client_addr : Eio.Net.Sockaddr.stream
+    ; buf_read : Eio.Buf_read.t
+    }
+
+  val pp : Format.formatter -> t -> unit
+end
+
 class virtual server_request :
   ?session_data:Session.session_data
   -> Version.t

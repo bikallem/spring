@@ -175,6 +175,31 @@ module Client = struct
     pp_fields fmt fields
 end
 
+module Server = struct
+  type t =
+    { meth : Method.t
+    ; resource : resource
+    ; version : Version.t
+    ; headers : Header.t
+    ; client_addr : Eio.Net.Sockaddr.stream
+    ; buf_read : Eio.Buf_read.t
+    }
+
+  let pp fmt t =
+    let sock_addr =
+      let buf = Buffer.create 10 in
+      let fmt = Format.formatter_of_buffer buf in
+      Format.fprintf fmt "%a" Eio.Net.Sockaddr.pp t.client_addr;
+      Format.pp_print_flush fmt ();
+      Buffer.contents buf
+    in
+    let fields =
+      fields t.version t.meth t.resource t.headers @@ fun () ->
+      [ field "Client Address" sock_addr ]
+    in
+    pp_fields fmt fields
+end
+
 class virtual server_request ?session_data version headers meth resource =
   object
     inherit t version headers meth resource
