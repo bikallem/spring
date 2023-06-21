@@ -1,21 +1,6 @@
-class virtual t (version : Version.t) (headers : Header.t) (status : Status.t) =
-  object
-    val headers = headers
-    method headers = headers
-    method version = version
-    method status = status
-    method update headers' = {<headers = headers'>}
-  end
-
-let version (t : #t) = t#version
-let headers (t : #t) = t#headers
-let status (t : #t) = t#status
-
 let find_set_cookie_ name headers =
   Header.(find_all headers set_cookie)
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
-
-let find_set_cookie name (t : #t) = find_set_cookie_ name t#headers
 
 let field lbl v =
   let open Easy_format in
@@ -67,6 +52,7 @@ module Client = struct
   let closed t = t.closed
   let close t = t.closed <- true
 
+  (* https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2 *)
   let is_digit = function
     | '0' .. '9' -> true
     | _ -> false
@@ -93,44 +79,6 @@ module Client = struct
   let find_set_cookie name t = find_set_cookie_ name t.headers
   let pp fmt t = pp t.version t.status t.headers fmt
 end
-
-class virtual client_response version headers status buf_read =
-  let closed = ref false in
-  object
-    inherit t version headers status
-    inherit Body.readable
-    method buf_read = if !closed then raise Closed else buf_read
-    method body_closed = !closed
-    method close_body = closed := true
-  end
-
-(* https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2 *)
-
-open Buf_read.Syntax
-
-let is_digit = function
-  | '0' .. '9' -> true
-  | _ -> false
-
-let reason_phrase =
-  Buf_read.take_while (function
-    | '\x21' .. '\x7E' | '\t' | ' ' -> true
-    | _ -> false)
-
-let p_status =
-  let* status = Buf_read.take_while1 is_digit in
-  let+ phrase = Buf_read.space *> reason_phrase in
-  Status.make (int_of_string status) phrase
-
-let parse buf_read =
-  let open Eio.Buf_read.Syntax in
-  let version = (Version.p <* Buf_read.space) buf_read in
-  let status = Buf_read.(p_status <* crlf) buf_read in
-  let headers = Header.parse buf_read in
-  (version, headers, status)
-
-let close_body (t : #client_response) = t#close_body
-let body_closed (t : #client_response) = t#body_closed
 
 module Server = struct
   type t =
@@ -213,22 +161,3 @@ module Server = struct
 
   let pp fmt t = pp t.version t.status t.headers fmt
 end
-
-let pp fmt (t : #t) =
-  let open Easy_format in
-  let fields =
-    [ field "Version" (Version.to_string t#version)
-    ; field "Status" (Status.to_string t#status)
-    ; Label
-        ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Header.easy_fmt t#headers )
-    ]
-  in
-  let list_p =
-    { list with
-      align_closing = true
-    ; indent_body = 2
-    ; wrap_body = `Force_breaks_rec
-    }
-  in
-  Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))

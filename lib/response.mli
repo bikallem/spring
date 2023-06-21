@@ -1,31 +1,5 @@
 (** [Response] A HTTP Response. *)
 
-(** [t] is a common response abstraction for response types
-    {!class:server_response} and {!class:client_response}. *)
-class virtual t :
-  Version.t
-  -> Header.t
-  -> Status.t
-  -> object ('a)
-       method headers : Header.t
-       method version : Version.t
-       method status : Status.t
-       method update : Header.t -> 'a
-     end
-
-val version : #t -> Version.t
-(** [version t] is HTTP version of response [t]. *)
-
-val headers : #t -> Header.t
-(** [headers t] is HTTP headers for response [t]. *)
-
-val status : #t -> Status.t
-(** [status t] is HTTP status code for response [t]. *)
-
-val find_set_cookie : string -> #t -> Set_cookie.t option
-(** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
-    [name] exists in [t]. It is [None] otherwise. *)
-
 (** {1 Client Response} *)
 
 exception Closed
@@ -50,7 +24,12 @@ module Client : sig
       @raise Closed if [t] is already closed. *)
 
   val closed : t -> bool
+  (** [closed response] is [true] if [response] is closed. [false] otherwise. *)
+
   val close : t -> unit
+  (** [close response] closes the response body of [response]. Once the
+      [response] body is closed subsequent calls to read the [response] body
+      will result in raising {!exception:Closed}. *)
 
   val parse : Eio.Buf_read.t -> t
   (** [parse buf_read] parses [buf_read] and create HTTP reponse [t]. *)
@@ -64,30 +43,6 @@ module Client : sig
 
   val pp : Format.formatter -> t -> unit
 end
-
-class virtual client_response :
-  Version.t
-  -> Header.t
-  -> Status.t
-  -> Eio.Buf_read.t
-  -> object
-       inherit t
-       inherit Body.readable
-       method buf_read : Eio.Buf_read.t
-       method body_closed : bool
-       method close_body : unit
-     end
-
-val parse : Eio.Buf_read.t -> Version.t * Header.t * Status.t
-(** [parse buf_read] parses reponse [version,headers,status] from [buf_read]. *)
-
-val close_body : #client_response -> unit
-(** [close response] closes the response body of [response]. Once the [response]
-    body is closed subsequent calls to read the [response] body will result in
-    raising {!exception:Closed}. *)
-
-val body_closed : #client_response -> bool
-(** [closed response] is [true] if [response] is closed. [false] otherwise. *)
 
 (** {1 Server Response} *)
 
@@ -156,7 +111,3 @@ module Server : sig
 
   val pp : Format.formatter -> t -> unit
 end
-
-(** {1 Pretty Printer} *)
-
-val pp : Format.formatter -> #t -> unit
