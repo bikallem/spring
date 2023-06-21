@@ -54,9 +54,9 @@ let bool = make_arg "bool" bool_of_string_opt
 type rest = string
 
 type ('a, 'b) request_target =
-  | Nil : (Request.server_request -> 'b, 'b) request_target
-  | Rest : (rest -> Request.server_request -> 'b, 'b) request_target
-  | Slash : (Request.server_request -> 'b, 'b) request_target
+  | Nil : (Request.Server.t -> 'b, 'b) request_target
+  | Rest : (rest -> Request.Server.t -> 'b, 'b) request_target
+  | Slash : (Request.Server.t -> 'b, 'b) request_target
   | Exact : string * ('a, 'b) request_target -> ('a, 'b) request_target
   | Query_exact :
       string * string * ('a, 'b) request_target
@@ -169,13 +169,12 @@ let rec drop : 'a list -> int -> 'a list =
   | _ :: tl when n > 0 -> drop tl (n - 1)
   | t -> t
 
-let rec match' : #Request.server_request -> 'a t -> 'a option =
+let rec match' : Request.Server.t -> 'a t -> 'a option =
  fun req t ->
-  let req = (req :> Request.server_request) in
-  let request_target = Request.resource req in
-  let method' = Request.meth req in
+  let request_target = req.resource in
+  let method' = req.meth in
   (* split request_target into path and query tokens *)
-  let request_target' = request_target |> String.trim |> Uri.of_string in
+  let request_target' = String.trim request_target |> Uri.of_string in
   let path_tokens =
     Uri.path request_target'
     |> String.split_on_char '/'
@@ -256,8 +255,7 @@ let rec match' : #Request.server_request -> 'a t -> 'a option =
 
 and exec_route_handler :
     type a b.
-    #Request.server_request -> a -> (a, b) request_target * arg_value list -> b
-    =
+    Request.Server.t -> a -> (a, b) request_target * arg_value list -> b =
  fun req f -> function
   | Nil, [] -> f req
   | Rest, [ Arg_value (d, v) ] -> (

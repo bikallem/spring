@@ -2,7 +2,7 @@
 
 (** {1 Handler} *)
 
-type handler = Context.t -> Response.Server.t
+type handler = Request.Server.t -> Response.Server.t
 (** [handler] is a HTTP request handler. *)
 
 val not_found_handler : handler

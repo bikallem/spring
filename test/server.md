@@ -14,15 +14,13 @@ let fake_clock real_clock = object (_ : #Eio.Time.clock)
     now := max !now time
 end
 
-let handler ctx =
-  let req = Context.request ctx in
-  match Request.resource req with
+let handler (req : Request.Server.t) =
+  match req.resource with
   | "/" -> Response.Server.text "root"
   | "/upload" -> (
-    match Body.read_content req with
+    match Request.Server.to_readable req |> Body.read_content' with
     | Some a -> Response.Server.text a
-    | None -> Response.Server.bad_request
-    )
+    | None -> Response.Server.bad_request)
   | _ -> Response.Server.not_found
 ```
 
@@ -73,11 +71,10 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 
 ```ocaml
 let router : Server.pipeline =
-  fun next ctx ->
-    let req = Context.request ctx in
-    match Request.resource req with
+  fun next (req : Request.Server.t) ->
+    match req.resource with
     | "/" -> Response.Server.text "hello, there"
-    | _ -> next ctx
+    | _ -> next req
 
 let final_handler : Server.handler = router @@ Server.not_found_handler
 ```
@@ -110,19 +107,20 @@ let make_buf_read version meth connection =
   let s = Printf.sprintf "%s /products HTTP/%s\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" meth version connection in
   Eio.Buf_read.of_string s
 
-let hello _ctx = Response.Server.text "hello"
+let hello _req = Response.Server.text "hello"
 ```
 
 Try with GET method.
 
 ```ocaml
-# let r = Request.parse client_addr @@ make_buf_read "1.1" "get" "";;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "";;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# let ctx = Context.make r;;
-val ctx : Context.t = <abstr>
-
-# let res1 = (Server.host_header @@ hello) ctx;;
+# let res1 = (Server.host_header @@ hello) r;;
 val res1 : Response.Server.t =
   {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
    headers = <abstr>;
@@ -143,13 +141,14 @@ val res1 : Response.Server.t =
 Try with POST method.
 
 ```ocaml
-# let r = Request.parse client_addr @@ make_buf_read "1.1" "post" "";;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "post" "";;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "post"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# let ctx = Context.make r;;
-val ctx : Context.t = <abstr>
-
-# let res1 = (Server.host_header @@ hello) ctx;;
+# let res1 = (Server.host_header @@ hello) r;;
 val res1 : Response.Server.t =
   {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
    headers = <abstr>;
@@ -174,13 +173,14 @@ A valid request with HOST header is processed okay.
   |> Eio.Buf_read.of_string ;;
 val buf_read : Eio.Buf_read.t = <abstr>
 
-# let r = Request.parse client_addr buf_read;;
-val r : Request.server_request = <obj>
+# let r = Request.Server.parse client_addr buf_read;;
+val r : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# let ctx = Context.make r;;
-val ctx : Context.t = <abstr>
-
-# let res1 = (Server.host_header @@ hello) ctx;;
+# let res1 = (Server.host_header @@ hello) r;;
 val res1 : Response.Server.t =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;
@@ -209,16 +209,17 @@ A Date header is added to a 200 response.
 # let hello _req = Response.Server.text "hello, world!" ;;
 val hello : 'a -> Response.Server.t = <fun>
 
-# let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server_request = <obj>
-
-# let ctx = Context.make req;;
-val ctx : Context.t = <abstr>
+# let req = Request.Server.make ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -239,7 +240,7 @@ val h : 'a -> Response.Server.t = <fun>
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  500 Internal Server Error;
@@ -258,7 +259,7 @@ val h : 'a -> Response.Server.t = <fun>
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h ctx;;
+# Eio.traceln "%a" Response.Server.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  100 Continue;
@@ -358,19 +359,20 @@ val session_cookie : Cookie.t = <abstr>
 # let headers = Header.(add empty cookie session_cookie);;
 val headers : Header.t = <abstr>
 
-# let req = Request.server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server_request = <obj>
+# let req = Request.Server.make ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# let handler _ctx = Response.Server.text "hello";;
+# let handler _req = Response.Server.text "hello";;
 val handler : 'a -> Response.Server.t = <fun>
-
-# let ctx = Context.make req;;
-val ctx : Context.t = <abstr>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.session_pipeline session @@ handler) ctx ;;
+  (Server.session_pipeline session @@ handler) req ;;
 val res : Response.Server.t =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;
@@ -386,22 +388,23 @@ val set_cookie : Set_cookie.t = <abstr>
 Response should have Session Set-Cookie if set during request processing.
 
 ```ocaml
-# let req = Request.server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server_request = <obj>
+# let req = Request.Server.make ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/products";
+   version = (1, 1); headers = <abstr>;
+   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
+   session_data = None}
 
-# let handler ctx =
+# let handler req =
   let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in
-  Context.replace_session_data session_data ctx;
+  Request.Server.replace_session_data session_data req;
   Response.Server.text "hello";;
-val handler : Context.t -> Response.Server.t = <fun>
-
-# let ctx = Context.make req;;
-val ctx : Context.t = <abstr>
+val handler : Request.Server.t -> Response.Server.t = <fun>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
-  (Server.session_pipeline session @@ handler) ctx ;;
+  (Server.session_pipeline session @@ handler) req ;;
 val res : Response.Server.t =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;

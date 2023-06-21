@@ -11,18 +11,18 @@ module Fruit = struct
       | _ -> None)
 end
 
-let fruit_page fruit (_req : #Request.server_request) =
+let fruit_page fruit (_req : Request.Server.t) =
   match fruit with
   | Fruit.Apple -> Printf.sprintf "Apples are juicy!"
   | Orange -> Printf.sprintf "Orange is a citrus fruit."
   | Pineapple -> Printf.sprintf "Pineapple has scaly skin"
 
-let about_page i (_req : #Request.server_request) =
+let about_page i (_req : Request.Server.t) =
   Format.sprintf "about_page - %d" i
 
 let full_rest_page url _req = Format.sprintf "full rest page: %s" url
 
-let home_int_page i (_req : #Request.server_request) =
+let home_int_page i (_req : Request.Server.t) =
   Printf.sprintf "Product Page. Product Id : %d" i
 
 let home_float_page f _req = Printf.sprintf "Float page. number : %f" f
@@ -31,7 +31,7 @@ let wildcard_page s url _req =
   Printf.sprintf "Wildcard page. %s. Remaining url: %s" s url
 
 let numbers_page id code _req = Printf.sprintf "int32: %ld, int64: %Ld." id code
-let root_page (_req : #Request.server_request) = "Root page"
+let root_page (_req : Request.Server.t) = "Root page"
 
 let contact_page name number _req =
   Printf.sprintf "Contact page. Hi, %s. Number %i" name number
@@ -91,9 +91,9 @@ let route3 =
     {%r|/home/:int/:int32/:int64/:Fruit?q1=hello&f=:Fruit&b=:bool&f=:float |}
     (fun _ _ _ _ _ _ _ _ -> ())
 
-let make_request meth resource : Request.server_request =
+let make_request meth resource : Request.Server.t =
   let client_addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, 8080) in
-  Request.server_request ~resource meth client_addr (Eio.Buf_read.of_string "")
+  Request.Server.make ~resource meth client_addr (Eio.Buf_read.of_string "")
 
 let get = Method.get
 
