@@ -25,7 +25,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
         | "application", "x-www-form-urlencoded" -> (
           let* toks =
             Request.Server.to_readable req
-            |> Body.read_form_values'
+            |> Body.read_form_values
             |> List.assoc_opt token_name
           in
           match toks with

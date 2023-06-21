@@ -34,7 +34,7 @@ module Client : sig
   val parse : Eio.Buf_read.t -> t
   (** [parse buf_read] parses [buf_read] and create HTTP reponse [t]. *)
 
-  val to_readable : t -> Body.readable'
+  val to_readable : t -> Body.readable
   (** [to_readable t] converts [t] to {!type:Body.readable}. *)
 
   val find_set_cookie : string -> t -> Set_cookie.t option

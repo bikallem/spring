@@ -57,15 +57,15 @@ note that we can specify port in the url.
   let t = Client.make sw net in
   Client.get t "www.example.com" (fun res ->
     let body = Response.Client.to_readable res in
-    Eio.traceln "%s" (Body.read_content' body |> Option.get));
+    Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.example.com/products" (fun res ->
     let body = Response.Client.to_readable res in
-    Eio.traceln "%s" (Body.read_content' body |> Option.get));
+    Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.mirage.org:8080" (fun res ->
     let body = Response.Client.to_readable res in
-    Eio.traceln "%s" (Body.read_content' body |> Option.get))
+    Eio.traceln "%s" (Body.read_content body |> Option.get))
   ;;
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80

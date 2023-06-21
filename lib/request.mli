@@ -127,7 +127,7 @@ module Server : sig
   (** [find_session_data name t] is [Some v] is session data with name [name]
       exists in [t]. Otherwise it is [None]. *)
 
-  val to_readable : t -> Body.readable'
+  val to_readable : t -> Body.readable
   (** [to_readable t] converts [t] to {!type:Body.readable}. *)
 
   val parse :

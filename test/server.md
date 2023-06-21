@@ -18,7 +18,7 @@ let handler (req : Request.Server.t) =
   match req.resource with
   | "/" -> Response.Server.text "root"
   | "/upload" -> (
-    match Request.Server.to_readable req |> Body.read_content' with
+    match Request.Server.to_readable req |> Body.read_content with
     | Some a -> Response.Server.text a
     | None -> Response.Server.bad_request)
   | _ -> Response.Server.not_found
@@ -39,7 +39,7 @@ let handler (req : Request.Server.t) =
           Eio.traceln "Route: /";
           Eio.traceln "%a" Header.pp (Response.Client.headers res);
           let body = Response.Client.to_readable res in
-          Eio.traceln "%s" (Body.read_content' body |> Option.get);
+          Eio.traceln "%s" (Body.read_content body |> Option.get);
           Eio.traceln "";
           Eio.traceln "Route: /upload";
           let body =
@@ -51,7 +51,7 @@ let handler (req : Request.Server.t) =
       Client.post client body "localhost:8081/upload" (fun res ->
         Eio.traceln "%a" Header.pp (Response.Client.headers res);
         let body = Response.Client.to_readable res in
-        Eio.traceln "%s" (Body.read_content' body |> Option.get));
+        Eio.traceln "%s" (Body.read_content body |> Option.get));
       Server.shutdown server
     );;
 +Route: /
@@ -94,7 +94,7 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
       let client = Client.make sw env#net in
       Client.get client "localhost:8081" (fun res ->
           let body = Response.Client.to_readable res in
-          Eio.traceln "Resource (/): %s" (Body.read_content' body |> Option.get)); 
+          Eio.traceln "Resource (/): %s" (Body.read_content body |> Option.get)); 
 
       Client.get client "localhost:8081/products" (fun res ->
           Eio.traceln "Resource (/products) : %a" Status.pp (Response.Client.status res));

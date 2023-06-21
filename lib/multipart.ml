@@ -10,7 +10,7 @@ type reader =
 
 open Option.Syntax
 
-let reader (body : Body.readable') =
+let reader (body : Body.readable) =
   let boundary =
     match
       let* ct = Header.(find_opt body.headers content_type) in

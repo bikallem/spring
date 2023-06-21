@@ -65,7 +65,7 @@ val writable :
 
 (** {1 Reader} *)
 
-val read_chunked : (t -> unit) -> Body.readable' -> Header.t option
+val read_chunked : (t -> unit) -> Body.readable -> Header.t option
 (** [read_chunked f readable] is [Some updated_headers] if "Transfer-Encoding"
     header value is "chunked" in [request]. Each chunk is applied as [f chunk].
     [updated_headers] is the updated headers as specified by the chunked

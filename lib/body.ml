@@ -22,42 +22,19 @@ let form_values_writer assoc_list =
   in
   content_writer content_type content
 
-class virtual readable =
-  object
-    method virtual headers : Header.t
-    method virtual buf_read : Eio.Buf_read.t
-  end
-
-type readable' = { headers : Header.t; buf_read : Eio.Buf_read.t }
+type readable = { headers : Header.t; buf_read : Eio.Buf_read.t }
 
 let make_readable headers buf_read = { headers; buf_read }
 let ( let* ) o f = Option.bind o f
 
-let read_content (t : #readable) =
-  match Header.(find_opt t#headers content_length) with
-  | Some len -> ( try Some (Buf_read.take len t#buf_read) with _ -> None)
-  | None -> None
-
-let read_content' (t : readable') =
+let read_content (t : readable) =
   match Header.(find_opt t.headers content_length) with
   | Some len -> ( try Some (Buf_read.take len t.buf_read) with _ -> None)
   | None -> None
 
-let read_form_values (t : #readable) =
+let read_form_values (t : readable) =
   match
     let* content = read_content t in
-    let* content_type = Header.(find_opt t#headers content_type) in
-    match (Content_type.media_type content_type :> string * string) with
-    | "application", "x-www-form-urlencoded" ->
-      Some (Uri.query_of_encoded content)
-    | _ -> None
-  with
-  | Some l -> l
-  | None -> []
-
-let read_form_values' (t : readable') =
-  match
-    let* content = read_content' t in
     let* content_type = Header.(find_opt t.headers content_type) in
     match (Content_type.media_type content_type :> string * string) with
     | "application", "x-www-form-urlencoded" ->

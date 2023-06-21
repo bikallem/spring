@@ -21,7 +21,7 @@ type reader
 (** [reader] represents HTTP multipart request/response body initialized from a
     {!class:Body.readable}. *)
 
-val reader : Body.readable' -> reader
+val reader : Body.readable -> reader
 (** [reader body] is {!type:t} initialized from body [body].
 
     @raise Invalid_argument

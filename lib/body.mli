@@ -31,36 +31,27 @@ val form_values_writer : (string * string list) list -> writable
 
 (** {1 Readable} *)
 
+type readable = private { headers : Header.t; buf_read : Eio.Buf_read.t }
 (** [readable] is a request/response body that can be read.
 
-    {!class:Request.server_request} and {!class:Response.client_response} are
-    both [readable] body types. As such both of them can be used with functions
-    that accept [#readable] instances.
+    See {!val:Request.Server.to_readable} and
+    {!val:Response.Client.to_readable}.
 
     {!val:read_content} and {!val:read_form_values} are readers that can read
     these values. *)
-class virtual readable :
-  object
-    method virtual headers : Header.t
-    method virtual buf_read : Eio.Buf_read.t
-  end
 
-type readable' = private { headers : Header.t; buf_read : Eio.Buf_read.t }
-
-val make_readable : Header.t -> Eio.Buf_read.t -> readable'
+val make_readable : Header.t -> Eio.Buf_read.t -> readable
 
 (** {1 Readers} *)
 
-val read_content : #readable -> string option
+val read_content : readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]
     if "Content-Length" header is a valid integer value [n] in [readable].
 
     If ["Content-Length"] header is missing or is an invalid value in [readable]
     then [None] is returned. *)
 
-val read_content' : readable' -> string option
-
-val read_form_values : #readable -> (string * string list) list
+val read_form_values : readable -> (string * string list) list
 (** [read_form_values readable] is [form_values] if [readable] body
     [Content-Type] is ["application/x-www-form-urlencoded"] and [Content-Length]
     is a valid integer value.
@@ -68,5 +59,3 @@ val read_form_values : #readable -> (string * string list) list
     [form_values] is a list of tuple of form [(name, values)] where [name] is
     the name of the form field and [values] is a list of values corresponding to
     the [name]. *)
-
-val read_form_values' : readable' -> (string * string list) list

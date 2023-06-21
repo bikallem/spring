@@ -55,21 +55,21 @@ let test_reader body headers f =
 `read_content` reads the contents of a reader if `headers` contains valid `Content-Length` header.
 
 ```ocaml
-# test_reader "hello world" ["Content-Length","11"] Body.read_content' ;;
+# test_reader "hello world" ["Content-Length","11"] Body.read_content ;;
 - : string option = Some "hello world"
 ```
 
 None if 'Content-Length' is not valid.
 
 ```ocaml
-# test_reader "hello world" ["Content-Length","12a"] Body.read_content' ;;
+# test_reader "hello world" ["Content-Length","12a"] Body.read_content ;;
 - : string option = None
 ```
 
 Or if it is missing.
 
 ```ocaml
-# test_reader "hello world" [] Body.read_content' ;;
+# test_reader "hello world" [] Body.read_content ;;
 - : string option = None
 ```
 
@@ -83,7 +83,7 @@ to parse the body correctly.
   test_reader
     body
     [("Content-Length", (string_of_int (String.length body))); ("Content-Type", "application/x-www-form-urlencoded")]
-    Body.read_form_values' ;;
+    Body.read_form_values ;;
 - : (string * string list) list =
 [("name1", ["val a"; "val b"; "val c"]);
  ("name2", ["val c"; "val d"; "val e"])]
@@ -96,7 +96,7 @@ Note that the reader below doesn't have "Content-Type" header. Thus `read_form_v
   test_reader
     body
     [("Content-Length", (string_of_int (String.length body)))]
-    Body.read_form_values' ;;
+    Body.read_form_values ;;
 - : (string * string list) list = []
 ```
 
@@ -107,6 +107,6 @@ Note that the reader below doesn't have "Content-Length" header. Thus `read_form
   test_reader
     body
     [("Content-Type", "application/x-www-form-urlencoded")]
-    Body.read_form_values' ;;
+    Body.read_form_values ;;
 - : (string * string list) list = []
 ```

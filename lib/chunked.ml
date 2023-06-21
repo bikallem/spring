@@ -191,7 +191,7 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
   in
   Body.make_writable ~write_body ~write_headers
 
-let read_chunked f (t : Body.readable') =
+let read_chunked f (t : Body.readable) =
   match Header.(find_opt t.headers transfer_encoding) with
   | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
