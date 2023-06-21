@@ -55,13 +55,18 @@ note that we can specify port in the url.
 # Eio_mock.Backend.run @@ fun () ->
   Eio.Switch.run @@ fun sw ->
   let t = Client.make sw net in
-  let res1 = Client.get t "www.example.com" in
-  Eio.traceln "%s" (Body.read_content res1 |> Option.get);
-  Response.close_body res1;
-  let res2 = Client.get t "www.example.com/products" in
-  Eio.traceln "%s" (Body.read_content res2 |> Option.get);
-  let res3 = Client.get t "www.mirage.org:8080" in
-  Eio.traceln "%s" (Body.read_content res3 |> Option.get) ;;
+  Client.get t "www.example.com" (fun res ->
+    let body = Response.Client.to_readable res in
+    Eio.traceln "%s" (Body.read_content' body |> Option.get));
+
+  Client.get t "www.example.com/products" (fun res ->
+    let body = Response.Client.to_readable res in
+    Eio.traceln "%s" (Body.read_content' body |> Option.get));
+
+  Client.get t "www.mirage.org:8080" (fun res ->
+    let body = Response.Client.to_readable res in
+    Eio.traceln "%s" (Body.read_content' body |> Option.get))
+  ;;
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "get / HTTP/1.1\r\n"
@@ -121,7 +126,7 @@ let test_client f =
   Eio_mock.Backend.run @@ fun () ->
   Eio.Switch.run @@ fun sw ->
   let t = Client.make sw net in
-  f t
+  f t @@ fun _ -> ()
 ```
 
 ```ocaml
@@ -138,7 +143,7 @@ let test_client f =
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
 +www.example.com: closed
-- : Response.client_response = <obj>
+- : unit = ()
 ```
 
 ## Client.post
@@ -163,7 +168,7 @@ let test_client f =
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
 +www.example.com: closed
-- : Response.client_response = <obj>
+- : unit = ()
 ```
 
 ## Client.post_form_values
@@ -187,7 +192,7 @@ let test_client f =
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
 +www.example.com: closed
-- : Response.client_response = <obj>
+- : unit = ()
 ```
 
 ## Client.do_call
@@ -208,7 +213,7 @@ let test_client f =
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
 +www.example.com: closed
-- : Response.client_response = <obj>
+- : unit = ()
 ```
 
 ## Client.call
@@ -238,7 +243,7 @@ let () = Eio_mock.Flow.on_read
 +www.example.com: read "HTTP/1.1 200 OK\r\n"
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
-- : Response.client_response = <obj>
+- : Response.Client.t = <abstr>
 ```
 
 ## Timeout
@@ -250,7 +255,7 @@ let () = Eio_mock.Flow.on_read
     let timeout = Eio.Time.Timeout.seconds env#mono_clock 0.01 in
     let t = Client.make ~timeout sw env#net in
     Eio.traceln "Timeout: %a" Eio.Time.Timeout.pp (Client.timeout t);
-    ignore (Client.get t "www.example.com": Response.client_response)
+    Client.get t "www.example.com" @@ fun (_:Response.Client.t) -> ()
   with 
     | Eio.Time.Timeout -> ()
     | Eio.Io _ -> ();;

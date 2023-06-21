@@ -34,19 +34,24 @@ let handler (req : Request.Server.t) =
     (fun () ->
       Eio.Switch.run @@ fun sw ->
       let client = Client.make sw env#net in
-      let res = Client.get client "localhost:8081" in
-      Eio.traceln "Route: /";
-      Eio.traceln "%a" Header.pp (Response.headers res);
-      Eio.traceln "%s" (Body.read_content res |> Option.get);
-      Eio.traceln "";
-      Eio.traceln "Route: /upload";
       let body = 
-        let content_type = Content_type.make ("text", "plain") in
-        Body.content_writer content_type "hello world" 
+        Client.get client "localhost:8081" (fun res ->
+          Eio.traceln "Route: /";
+          Eio.traceln "%a" Header.pp (Response.Client.headers res);
+          let body = Response.Client.to_readable res in
+          Eio.traceln "%s" (Body.read_content' body |> Option.get);
+          Eio.traceln "";
+          Eio.traceln "Route: /upload";
+          let body =
+            let content_type = Content_type.make ("text", "plain") in
+            Body.content_writer content_type "hello world" 
+          in
+          body)
       in
-      let res = Client.post client body "localhost:8081/upload" in
-      Eio.traceln "%a" Header.pp (Response.headers res);
-      Eio.traceln "%s" (Body.read_content res |> Option.get);
+      Client.post client body "localhost:8081/upload" (fun res ->
+        Eio.traceln "%a" Header.pp (Response.Client.headers res);
+        let body = Response.Client.to_readable res in
+        Eio.traceln "%s" (Body.read_content' body |> Option.get));
       Server.shutdown server
     );;
 +Route: /
@@ -87,10 +92,13 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
     (fun () ->
       Eio.Switch.run @@ fun sw ->
       let client = Client.make sw env#net in
-      let res = Client.get client "localhost:8081" in
-      Eio.traceln "Resource (/): %s" (Body.read_content res |> Option.get);
-      let res = Client.get client "localhost:8081/products" in
-      Eio.traceln "Resource (/products) : %a" Status.pp (Response.status res);
+      Client.get client "localhost:8081" (fun res ->
+          let body = Response.Client.to_readable res in
+          Eio.traceln "Resource (/): %s" (Body.read_content' body |> Option.get)); 
+
+      Client.get client "localhost:8081/products" (fun res ->
+          Eio.traceln "Resource (/products) : %a" Status.pp (Response.Client.status res));
+
       Server.shutdown server
     );;
 +Resource (/): hello, there

@@ -90,7 +90,9 @@ let connection t ((host, service) as k) =
         conn)
     ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
 
-let do_call t (req : Request.Client.t) =
+type 'a handler = Response.Client.t -> 'a
+
+let do_call t (req : Request.Client.t) f =
   Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
   let host, port = (req.host, req.port) in
   let service =
@@ -104,24 +106,20 @@ let do_call t (req : Request.Client.t) =
       Request.Client.write req writer;
       let initial_size = t.read_initial_size in
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
-      let version, headers, status = Response.parse buf_read in
-      object
-        inherit
-          Response.client_response version headers status buf_read as super
-
-        method! close_body =
-          Eio.Mutex.lock t.cache_mu;
-          Fun.protect
-            (fun () ->
-              match Cache.find_opt t.cache k with
-              | Some (n, s) ->
-                Eio.Stream.add s conn;
-                Cache.replace t.cache k (n, s)
-              | None -> ())
-            ~finally:(fun () ->
-              super#close_body;
-              Eio.Mutex.unlock t.cache_mu)
-      end)
+      let res = Response.Client.parse buf_read in
+      let x = f res in
+      Eio.Mutex.lock t.cache_mu;
+      Fun.protect
+        (fun () ->
+          match Cache.find_opt t.cache k with
+          | Some (n, s) ->
+            Eio.Stream.add s conn;
+            Cache.replace t.cache k (n, s)
+          | None -> ())
+        ~finally:(fun () ->
+          Response.Client.close res;
+          Eio.Mutex.unlock t.cache_mu);
+      x)
 
 type url = string
 
@@ -168,10 +166,7 @@ let call ~conn req =
   Eio.Buf_write.with_flow ~initial_size conn @@ fun writer ->
   Request.Client.write req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
-  let version, headers, status = Response.parse buf_read in
-  object
-    inherit Response.client_response version headers status buf_read
-  end
+  Response.Client.parse buf_read
 
 let buf_write_initial_size t = t.write_initial_size
 let buf_read_initial_size t = t.read_initial_size

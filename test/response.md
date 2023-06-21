@@ -27,9 +27,7 @@ let make_buf_read () =
 
 ```ocaml
 # let res = Response.Client.parse @@ make_buf_read () ;;
-val res : Response.Client.t =
-  {Spring.Response.Client.version = (1, 1); status = (200, "OK");
-   headers = <abstr>; buf_read = <abstr>}
+val res : Response.Client.t = <abstr>
 
 # Eio.traceln "%a" Header.pp @@ Response.Client.headers res ;;
 +{
