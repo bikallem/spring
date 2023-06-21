@@ -213,19 +213,19 @@ let parse r =
   in
   aux ()
 
-let write_header f k v =
-  f k;
+let write_header_ f k v =
+  f @@ canonical_name k;
   f ": ";
   f v;
   f "\r\n"
 
-let write_header' : type a. Eio.Buf_write.t -> a header -> a -> unit =
+let write_header : type a. Eio.Buf_write.t -> a header -> a -> unit =
  fun bw h v ->
   let v = encode h v in
-  let nm = name h in
-  Eio.Buf_write.string bw nm;
-  Eio.Buf_write.string bw ": ";
-  Eio.Buf_write.string bw v;
-  Eio.Buf_write.string bw "\r\n"
+  let k = name h in
+  let f = Eio.Buf_write.string bw in
+  write_header_ f k v
 
-let write t f = iter (fun k v -> write_header f (canonical_name k) v) t
+let write bw t =
+  let f = Eio.Buf_write.string bw in
+  iter (fun k v -> write_header_ f k v) t

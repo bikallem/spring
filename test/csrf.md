@@ -126,12 +126,9 @@ val p1 : Eio.Flow.source Multipart.part = <abstr>
 # let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "file1";;
 val p2 : Eio.Flow.source Multipart.part = <abstr>
 
-# let form_body = Multipart.writable "--A1B2C3" [p1;p2];;
-val form_body : Body.writable' =
-  {Spring__.Body.write_body = <fun>; write_headers = <fun>}
-
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
+    let form_body = Multipart.writable "--A1B2C3" [p1;p2] in
     Request.Client.make
         ~host:"www.example.com"
         ~resource:"www.example.com/post_form"

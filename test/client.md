@@ -65,7 +65,7 @@ note that we can specify port in the url.
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "get / HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: cohttp-eio\r\n"
@@ -76,7 +76,7 @@ note that we can specify port in the url.
 +www.example.com: read "hello"
 +hello
 +www.example.com: wrote "get /products HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: cohttp-eio\r\n"
@@ -89,7 +89,7 @@ note that we can specify port in the url.
 +net: getaddrinfo ~service:8080 www.mirage.org
 +net: connect to tcp:127.0.0.1:80
 +www.mirage.org: wrote "get / HTTP/1.1\r\n"
-+                      "host: www.mirage.org:8080\r\n"
++                      "Host: www.mirage.org:8080\r\n"
 +                      "Connection: TE\r\n"
 +                      "Te: trailers\r\n"
 +                      "User-Agent: cohttp-eio\r\n"
@@ -129,7 +129,7 @@ let test_client f =
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "head / HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: cohttp-eio\r\n"
@@ -151,7 +151,7 @@ let test_client f =
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "post /upload HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Content-Length: 11\r\n"
 +                       "Content-Type: text/plain\r\n"
 +                       "Connection: TE\r\n"
@@ -175,7 +175,7 @@ let test_client f =
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "post /upload HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Content-Length: 59\r\n"
 +                       "Content-Type: application/x-www-form-urlencoded\r\n"
 +                       "Connection: TE\r\n"
@@ -199,7 +199,7 @@ let test_client f =
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "delete / HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: cohttp-eio\r\n"
@@ -230,7 +230,7 @@ let () = Eio_mock.Flow.on_read
   let req = Request.Client.make ~host:"www.example.com" ~resource:"/" Method.get Body.none' in
   Client.call ~conn:example_com_conn req ;;
 +www.example.com: wrote "get / HTTP/1.1\r\n"
-+                       "host: www.example.com\r\n"
++                       "Host: www.example.com\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: cohttp-eio\r\n"

@@ -217,6 +217,15 @@ val cookies : Cookie.t = <abstr>
 ## Header.write
 
 ```ocaml
+let test_writer f =
+  Eio_main.run @@ fun env ->
+  let b = Buffer.create 10 in
+  let s = Eio.Flow.buffer_sink b in
+  Eio.Buf_write.with_flow s f;
+  Eio.traceln "%s" (Buffer.contents b);;
+```
+
+```ocaml
 # let l : (string * string) list =
   [("Content-Type", "text/html"); ("Age", "40");
    ("Transfer-Encoding", "chunked"); ("Content-Length", "2000")];;
@@ -227,13 +236,11 @@ val l : (string * string) list =
 # let headers = Header.of_list l ;;
 val headers : Header.t = <abstr>
 
-# let b = Buffer.create 10;;
-val b : Buffer.t = <abstr>
-
-# Header.write headers (Buffer.add_string b) ;;
+# test_writer @@ fun bw -> Header.write bw headers;;
++Content-Type: text/html
++Age: 40
++Transfer-Encoding: chunked
++Content-Length: 2000
++
 - : unit = ()
-
-# Buffer.contents b;;
-- : string =
-"Content-Type: text/html\r\nAge: 40\r\nTransfer-Encoding: chunked\r\nContent-Length: 2000\r\n"
 ```

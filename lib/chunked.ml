@@ -184,12 +184,12 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
         in
         write_chunk write_body;
         if ua_supports_trailer then
-          write_trailer (fun h -> Header.write h (Eio.Buf_write.string writer));
+          write_trailer (fun h -> Header.write writer h);
         Eio.Buf_write.string writer "\r\n")
   ; write_headers =
       (fun w ->
         let t_enc = Transfer_encoding.(singleton chunked) in
-        Header.write_header' w Header.transfer_encoding t_enc)
+        Header.write_header w Header.transfer_encoding t_enc)
   }
 
 let read_chunked f (t : #Body.readable) =

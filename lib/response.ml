@@ -162,7 +162,7 @@ module Server = struct
     Eio.Buf_write.string w status;
     Eio.Buf_write.string w "\r\n";
     t.body.write_headers w;
-    Header.write t.headers (Eio.Buf_write.string w);
+    Header.write w t.headers;
     Eio.Buf_write.string w "\r\n";
     t.body.write_body w
 
@@ -200,10 +200,7 @@ let server_response
 let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
   object
     method f : 'a. 'a Header.header -> 'a -> unit =
-      fun hdr v ->
-        let v = Header.encode hdr v in
-        let name = (Header.name hdr :> string) in
-        Header.write_header (Eio.Buf_write.string w) name v
+      fun hdr v -> Header.write_header w hdr v
   end
 
 let write (t : #server_response) w =
@@ -214,7 +211,7 @@ let write (t : #server_response) w =
   Eio.Buf_write.string w status;
   Eio.Buf_write.string w "\r\n";
   t#write_header (write_header w);
-  Header.write t#headers (Eio.Buf_write.string w);
+  Header.write w t#headers;
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 

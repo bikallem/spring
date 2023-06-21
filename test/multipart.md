@@ -90,10 +90,11 @@ Exception: End_of_file.
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
-let test_writer (w : Body.writable') =
+let test_writer f =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
+  let w : Body.writable' = f () in
   Eio.Buf_write.with_flow s (fun bw ->
     w.write_headers bw;
     w.write_body bw;
@@ -110,11 +111,7 @@ val p1 : Eio.Flow.source Multipart.part = <abstr>
 # let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
 val p2 : Eio.Flow.source Multipart.part = <abstr>
 
-# let w = Multipart.writable "--A1B2C3" [p1;p2];;
-val w : Body.writable' =
-  {Spring__.Body.write_body = <fun>; write_headers = <fun>}
-
-# test_writer w;;
+# test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1;p2];;
 +Content-Length: 192
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +----A1B2C3
@@ -136,11 +133,7 @@ Writable with only one part.
 # let p1 = Multipart.make_part ~filename:"a.txt" (Eio.Flow.string_source "content of a.txt") "file";;
 val p1 : Eio.Flow.source Multipart.part = <abstr>
 
-# let w = Multipart.writable "--A1B2C3" [p1];;
-val w : Body.writable' =
-  {Spring__.Body.write_body = <fun>; write_headers = <fun>}
-
-# test_writer w;;
+# test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1];;
 +Content-Length: 109
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +----A1B2C3

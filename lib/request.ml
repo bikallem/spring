@@ -168,11 +168,10 @@ module Client = struct
     Eio.Buf_write.string w version;
     Eio.Buf_write.string w "\r\n";
     (* The first header is a "Host" header. *)
-    let host = host_port_to_string (t.host, t.port) in
-    let writer = Eio.Buf_write.string w in
-    Header.write_header writer "host" host;
+    let host' = host_port_to_string (t.host, t.port) in
+    Header.(write_header w host host');
     t.body.write_headers w;
-    Header.write headers writer;
+    Header.write w headers;
     Eio.Buf_write.string w "\r\n";
     t.body.write_body w
 
@@ -269,10 +268,7 @@ let post_form_values form_values url =
 let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
   object
     method f : 'a. 'a Header.header -> 'a -> unit =
-      fun hdr v ->
-        let v = Header.encode hdr v in
-        let name = (Header.name hdr :> string) in
-        Header.write_header (Eio.Buf_write.string w) name v
+      fun hdr v -> Header.write_header w hdr v
   end
 
 let write (t : #client_request) w =
@@ -289,11 +285,10 @@ let write (t : #client_request) w =
   Eio.Buf_write.string w version;
   Eio.Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
-  let host = host_port_to_string (t#host, t#port) in
-  let writer = Eio.Buf_write.string w in
-  Header.write_header writer "host" host;
+  let host' = host_port_to_string (t#host, t#port) in
+  Header.(write_header w host host');
   t#write_header (write_header w);
-  Header.write headers writer;
+  Header.write w headers;
   Eio.Buf_write.string w "\r\n";
   t#write_body w
 

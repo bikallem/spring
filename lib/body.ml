@@ -36,8 +36,8 @@ let content_writer' content_type content =
   { write_body = (fun w -> Eio.Buf_write.string w content)
   ; write_headers =
       (fun w ->
-        Header.write_header' w Header.content_length content_length;
-        Header.write_header' w Header.content_type content_type)
+        Header.write_header w Header.content_length content_length;
+        Header.write_header w Header.content_type content_type)
   }
 
 let form_values_writer assoc_list =

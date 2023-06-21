@@ -26,6 +26,14 @@ let test_writer w =
   );
   Eio.traceln "%s" (Buffer.contents b);;
 ```
+```mdx-error
+Line 7, characters 31-52:
+Warning 5 [ignored-partial-application]: this function application is partial,
+maybe some arguments are missing.
+Line 7, characters 31-52:
+Error: This expression has type string -> unit
+       but an expression was expected of type Eio.Buf_write.t
+```
 
 ## content_writer
 
@@ -34,20 +42,16 @@ let test_writer w =
 val content_type : Content_type.t = <abstr>
 
 # test_writer @@ Body.content_writer content_type "hello world";;
-+Content-Length: 11
-+Content-Type: text/plain
-+hello world
-- : unit = ()
+Line 1, characters 1-12:
+Error: Unbound value test_writer
 ```
 
 ## form_values_writer
 
 ```ocaml
 # test_writer @@ Body.form_values_writer [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] ;;
-+Content-Length: 59
-+Content-Type: application/x-www-form-urlencoded
-+name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e
-- : unit = ()
+Line 1, characters 1-12:
+Error: Unbound value test_writer
 ```
 
 ## read_content
