@@ -45,6 +45,10 @@ class virtual readable :
     method virtual buf_read : Eio.Buf_read.t
   end
 
+type readable' = private { headers : Header.t; buf_read : Eio.Buf_read.t }
+
+val make_readable : Header.t -> Eio.Buf_read.t -> readable'
+
 (** {1 Readers} *)
 
 val read_content : #readable -> string option
@@ -54,6 +58,8 @@ val read_content : #readable -> string option
     If ["Content-Length"] header is missing or is an invalid value in [readable]
     then [None] is returned. *)
 
+val read_content' : readable' -> string option
+
 val read_form_values : #readable -> (string * string list) list
 (** [read_form_values readable] is [form_values] if [readable] body
     [Content-Type] is ["application/x-www-form-urlencoded"] and [Content-Length]
@@ -62,3 +68,5 @@ val read_form_values : #readable -> (string * string list) list
     [form_values] is a list of tuple of form [(name, values)] where [name] is
     the name of the form field and [values] is a list of values corresponding to
     the [name]. *)
+
+val read_form_values' : readable' -> (string * string list) list
