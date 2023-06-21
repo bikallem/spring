@@ -39,6 +39,9 @@ val r : Request.Server.t =
    client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
    session_data = None}
 
+# Request.Server.keep_alive r ;;
+- : bool = true
+
 # Eio.traceln "%a" Header.pp r.headers;;
 +{
 +  Host:  www.example.com;

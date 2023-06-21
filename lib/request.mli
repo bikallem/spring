@@ -138,6 +138,11 @@ module Server : sig
       @param session_data
         is the Session data for the request. Default is [None]. *)
 
+  val keep_alive : t -> bool
+  (** [keep_alive t] is [true] if [t] has header "Connection: keep-alive" or if
+      "Connection" header is missing and the HTTP version is 1.1. It is [false]
+      if header "Connection: close" exists. *)
+
   val parse :
     ?session:#Session.codec -> Eio.Net.Sockaddr.stream -> Eio.Buf_read.t -> t
   (** [parse client_addr buf_read] parses a server request [r] given a buffered

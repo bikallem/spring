@@ -23,16 +23,22 @@ let supports_chunked_trailers_ headers =
   | None -> false
 
 let keep_alive_ (version : Version.t) headers =
-  match Header.(find_opt headers connection) with
-  | Some v ->
-    String.cuts ~sep:"," v
-    |> List.exists (fun tok ->
-           let tok = String.(trim tok |> Ascii.lowercase) in
-           String.equal tok "keep-alive")
-  | None -> (
-    match (version :> int * int) with
-    | 1, 1 -> true
-    | _ -> false)
+  let close =
+    let open Option.Syntax in
+    match
+      let+ connection = Header.(find_opt headers connection) in
+      String.cuts ~sep:"," connection
+      |> List.exists (fun tok ->
+             let tok = String.(trim tok |> Ascii.lowercase) in
+             String.equal tok "close")
+    with
+    | Some close -> close
+    | None -> false
+  in
+  match (close, (version :> int * int)) with
+  | true, _ -> false
+  | false, (1, 0) -> false
+  | false, _ -> true
 
 let find_cookie_ name headers =
   let open Option.Syntax in
@@ -195,6 +201,8 @@ module Server = struct
       client_addr
       buf_read =
     { meth; resource; version; headers; client_addr; buf_read; session_data }
+
+  let keep_alive t = keep_alive_ t.version t.headers
 
   let parse ?session client_addr (buf_read : Buf_read.t) =
     let open Eio.Buf_read.Syntax in
