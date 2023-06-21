@@ -29,7 +29,7 @@ class virtual codec :
   -> object
        method token_name : string
        method encode_token : token -> string
-       method virtual decode_token : Request.server_request -> token option
+       method virtual decode_token : Request.Server.t -> token option
      end
 
 (** {1 Codec Creation} *)
@@ -58,11 +58,11 @@ val token_name : #codec -> string
 (** [token_name codec] is the name of the CSRF token encoded in HTTP request
     artefacts such as session, forms or headers. *)
 
-val token : #Request.server_request -> #codec -> token option
+val token : Request.Server.t -> #codec -> token option
 (** [token req t] is [Some tok] where [tok] is the CSRF token encapsulated in
     [req]. It is [None] if [req] doesn't hold the CSRF token. *)
 
-val enable_protection : #Request.server_request -> #codec -> unit
+val enable_protection : Request.Server.t -> #codec -> unit
 (** [enable_protection req t] enables csrf protection for request [req]. It does
     this by adding CSRF token to request session if one doesn't already exist. *)
 
@@ -76,7 +76,7 @@ val encode_token : token -> #codec -> string
 
 exception Csrf_protection_not_enabled
 
-val form_field : #Request.server_request -> #codec -> Ohtml.t
+val form_field : Request.Server.t -> #codec -> Ohtml.t
 (** [form_field req t] is an Ohtml component [v]. [v] contains hidden HTML input
     element which encodes CSRF token. Use [v] in the context of a HTML request
     form.
@@ -102,7 +102,7 @@ val form_field : #Request.server_request -> #codec -> Ohtml.t
 val protect_request :
      ?on_fail:(unit -> Response.Server.t)
   -> #codec
-  -> (#Request.server_request as 'a)
+  -> (Request.Server.t as 'a)
   -> ('a -> Response.Server.t)
   -> Response.Server.t
 (** [protect_request t req f] protects request [req] from CSRF.

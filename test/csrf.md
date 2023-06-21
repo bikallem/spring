@@ -22,7 +22,7 @@ let make_form_submission_request (client_req : Request.Client.t) =
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw -> Request.Client.write client_req bw);
   let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
-  Request.parse ~session client_addr buf_read
+  Request.Server.parse ~session client_addr buf_read
 
 let run_with_random_generator f = 
   Eio_main.run @@ fun env ->
@@ -42,8 +42,11 @@ let pp_response r =
 ## Csrf.enable_protection/token
 
 ```ocaml
-# let req = Request.server_request ~resource:"/" Method.get client_addr (Eio.Buf_read.of_string "");;
-val req : Request.server_request = <obj>
+# let req = Request.Server.make ~resource:"/" Method.get client_addr (Eio.Buf_read.of_string "");;
+val req : Request.Server.t =
+  {Spring.Request.Server.meth = "get"; resource = "/"; version = (1, 1);
+   headers = <abstr>; client_addr = `Tcp ("\127\000\000\001", 8081);
+   buf_read = <abstr>; session_data = None}
 
 # run_with_random_generator @@ fun () -> Csrf.enable_protection req form_codec;;
 - : unit = ()
@@ -71,7 +74,11 @@ Return OK response if the CSRF token in form matches the one in session.
         Method.post
         body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server_request = <obj>
+val csrf_form_req : Request.Server.t =
+  {Spring.Request.Server.meth = "post";
+   resource = "www.example.com/post_form"; version = (1, 1);
+   headers = <abstr>; client_addr = `Tcp ("\127\000\000\001", 8081);
+   buf_read = <abstr>; session_data = Some <abstr>}
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =
@@ -105,7 +112,11 @@ Return `Bad Request` response if the CSRF tokens dont' match.
         Method.post
         body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server_request = <obj>
+val csrf_form_req : Request.Server.t =
+  {Spring.Request.Server.meth = "post";
+   resource = "www.example.com/post_form"; version = (1, 1);
+   headers = <abstr>; client_addr = `Tcp ("\127\000\000\001", 8081);
+   buf_read = <abstr>; session_data = Some <abstr>}
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =
@@ -141,7 +152,11 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
         Method.post
         form_body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server_request = <obj>
+val csrf_form_req : Request.Server.t =
+  {Spring.Request.Server.meth = "post";
+   resource = "www.example.com/post_form"; version = (1, 1);
+   headers = <abstr>; client_addr = `Tcp ("\127\000\000\001", 8081);
+   buf_read = <abstr>; session_data = Some <abstr>}
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =
