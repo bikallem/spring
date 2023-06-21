@@ -164,7 +164,7 @@ let writable boundary parts =
 
       Eio.Buf_write.string bw "\r\n--";
       Eio.Buf_write.string bw boundary;
-      Eio.Buf_write.string bw "--\r\n");
+      Eio.Buf_write.string bw "--");
 
   let content_type =
     Content_type.make

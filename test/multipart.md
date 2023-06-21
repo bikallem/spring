@@ -97,6 +97,7 @@ let test_writer f =
   let w : Body.writable' = f () in
   Eio.Buf_write.with_flow s (fun bw ->
     w.write_headers bw;
+    Eio.Buf_write.string bw "\r\n";
     w.write_body bw;
   );
   Eio.traceln "%s" (Buffer.contents b);;
@@ -112,8 +113,9 @@ val p1 : Eio.Flow.source Multipart.part = <abstr>
 val p2 : Eio.Flow.source Multipart.part = <abstr>
 
 # test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1;p2];;
-+Content-Length: 192
++Content-Length: 190
 +Content-Type: multipart/formdata; boundary=--A1B2C3
++
 +----A1B2C3
 +Content-Disposition: form-data; filename="a.txt"; name="file"
 +
@@ -123,7 +125,6 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
 +
 +file is a text file.
 +----A1B2C3--
-+
 - : unit = ()
 ```
 
@@ -134,13 +135,13 @@ Writable with only one part.
 val p1 : Eio.Flow.source Multipart.part = <abstr>
 
 # test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1];;
-+Content-Length: 109
++Content-Length: 107
 +Content-Type: multipart/formdata; boundary=--A1B2C3
++
 +----A1B2C3
 +Content-Disposition: form-data; filename="a.txt"; name="file"
 +
 +content of a.txt
 +----A1B2C3--
-+
 - : unit = ()
 ```
