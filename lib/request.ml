@@ -69,14 +69,6 @@ let find_cookie name (t : #t) =
   let* cookie = Header.(find_opt t#headers cookie) in
   Cookie.find_opt name cookie
 
-class virtual client_request version headers meth resource =
-  object
-    inherit t version headers meth resource
-    inherit Body.writable
-    method virtual host : string
-    method virtual port : int option
-  end
-
 let field lbl v =
   let open Easy_format in
   let lbl = Atom (lbl ^ ": ", atom) in
@@ -182,115 +174,6 @@ module Client = struct
     in
     pp_fields fmt fields
 end
-
-let client_request
-    ?(version = Version.http1_1)
-    ?(headers = Header.empty)
-    ?port
-    ~host
-    ~resource
-    (meth : Method.t)
-    body =
-  object (self)
-    inherit client_request version headers meth resource
-    method host = host
-    method port = port
-    method write_body = body#write_body
-    method write_header = body#write_header
-
-    method pp fmt =
-      let fields =
-        fields self#version self#meth self#resource self#headers @@ fun () ->
-        [ field "Host" (host_port_to_string (host, port)) ]
-      in
-      pp_fields fmt fields
-  end
-
-let add_cookie ~name ~value (t : #client_request) =
-  let cookie_hdr =
-    match Header.(find_opt t#headers cookie) with
-    | Some cookie_hdr -> cookie_hdr
-    | None -> Cookie.empty
-  in
-  let cookie_hdr = Cookie.add ~name ~value cookie_hdr in
-  let headers = Header.(replace t#headers cookie cookie_hdr) in
-  t#update headers
-
-let remove_cookie cookie_name (t : #client_request) =
-  let cookie' =
-    match Header.(find_opt t#headers cookie) with
-    | Some cookie' -> cookie'
-    | None -> Cookie.empty
-  in
-  let cookie' = Cookie.remove ~name:cookie_name cookie' in
-  let headers = Header.(replace t#headers cookie cookie') in
-  t#update headers
-
-let client_host_port (t : #client_request) = (t#host, t#port)
-
-let parse_url url =
-  if String.is_prefix ~affix:"https" url then
-    raise @@ Invalid_argument "url: https protocol not supported";
-  let url =
-    if
-      (not (String.is_prefix ~affix:"http" url))
-      && not (String.is_prefix ~affix:"//" url)
-    then "//" ^ url
-    else url
-  in
-  let u = Uri.of_string url in
-  let host, port =
-    match (Uri.host u, Uri.port u) with
-    | None, _ -> raise @@ Invalid_argument "invalid url: host not defined"
-    | Some host, port when String.length host > 0 -> (host, port)
-    | _ -> raise @@ Invalid_argument "invalid url: host not defined"
-  in
-  (host, port, Uri.path_and_query u)
-
-type url = string
-
-let get url =
-  let host, port, resource = parse_url url in
-  client_request ?port Method.get ~host ~resource Body.none
-
-let head url =
-  let host, port, resource = parse_url url in
-  client_request ?port Method.head ~host ~resource Body.none
-
-let post body url =
-  let host, port, resource = parse_url url in
-  client_request ?port Method.post ~host ~resource body
-
-let post_form_values form_values url =
-  let body = Body.form_values_writer form_values in
-  post body url
-
-let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
-  object
-    method f : 'a. 'a Header.header -> 'a -> unit =
-      fun hdr v -> Header.write_header w hdr v
-  end
-
-let write (t : #client_request) w =
-  let headers = Header.(add_unless_exists t#headers user_agent "cohttp-eio") in
-  let te' = Te.(singleton trailers) in
-  let headers = Header.(add headers te te') in
-  let headers = Header.(add headers connection "TE") in
-  let meth = (Method.to_string t#meth :> string) in
-  let version = Version.to_string t#version in
-  Eio.Buf_write.string w meth;
-  Eio.Buf_write.char w ' ';
-  Eio.Buf_write.string w t#resource;
-  Eio.Buf_write.char w ' ';
-  Eio.Buf_write.string w version;
-  Eio.Buf_write.string w "\r\n";
-  (* The first header is a "Host" header. *)
-  let host' = host_port_to_string (t#host, t#port) in
-  Header.(write_header w host host');
-  t#write_header (write_header w);
-  Header.write w headers;
-  Eio.Buf_write.string w "\r\n";
-  t#write_body w
 
 class virtual server_request ?session_data version headers meth resource =
   object

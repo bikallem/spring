@@ -48,22 +48,11 @@ val find_cookie : string -> #t -> string option
 (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
     [cookie_name] exists in [t]. Otherwise is [None]. *)
 
-class virtual client_request :
-  Version.t
-  -> Header.t
-  -> Method.t
-  -> resource
-  -> object
-       inherit t
-       inherit Body.writable
-       method virtual host : string
-       method virtual port : int option
-     end
-
 (** {1 Client Request}
 
-    A HTTP client_request request that is primarily constructed and used by
+    A HTTP client request. This is primarily constructed and used by
     {!module:Client}. *)
+
 module Client : sig
   type t = private
     { meth : Method.t
@@ -116,83 +105,6 @@ module Client : sig
   val write : t -> Eio.Buf_write.t -> unit
   val pp : Format.formatter -> t -> unit
 end
-
-val client_request :
-     ?version:Version.t
-  -> ?headers:Header.t
-  -> ?port:int
-  -> host:string
-  -> resource:string
-  -> Method.t
-  -> #Body.writable
-  -> client_request
-(** [client_request ~host ~resource meth body] is an instance of
-    {!class:client_request} where [body] is a {!class:Body.writer}. *)
-
-val client_host_port : #client_request -> host_port
-(** [client_host_port r] is the [host] and [port] for client_request request
-    [r]. *)
-
-val add_cookie : name:string -> value:string -> (#client_request as 'a) -> 'a
-(** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
-    [t]. *)
-
-val remove_cookie : string -> (#client_request as 'a) -> 'a
-(** [remove_cookie name t] is [t] with cookie pair with name [name] removed from
-    [t]. *)
-
-type url = string
-(** [url] is a HTTP URI value with host information.
-
-    {[
-      "www.example.com/products"
-    ]} *)
-
-val get : url -> client_request
-(** [get url] is a client_request request [r] configured with HTTP request
-    method {!val:Method.Get}.
-
-    {[
-      let r = Request.get "www.example.com/products/a/"
-    ]}
-    @raise Invalid_argument if [url] is invalid. *)
-
-val head : url -> client_request
-(** [head url] is a client_request request [r] configured with HTTP request
-    method {!val:Method.Head}.
-
-    {[
-      let r = Request.head "www.example.com/products/"
-    ]}
-    @raise Invalid_argument if [url] is invalid. *)
-
-val post : (#Body.writable as 'a) -> url -> client_request
-(** [post body url] is a client_request request [r] configured with HTTP request
-    method {!val:Method.Post} and with request body [body]. A header
-    "Content-Length" is added with suitable value in the request header.
-
-    {[
-      let body = Body.conten_writer ~content:"Hello, World!" ~content_type:"text/plain" in
-      let r = Request.post body "www.example.com/product/purchase/123"
-    ]}
-    @raise Invalid_argument if [url] is invalid. *)
-
-val post_form_values : (string * string list) list -> url -> client_request
-(** [post_form_values form_fields url] is a client_request request [r]
-    configured with HTTP request method {!val:Method.Post}. The body
-    [form_fields] is a list of form fields [(name, values)]. [form_fields] is
-    percent encoded before being transmitted. Two HTTP headers are added to the
-    request: "Content-Length" and "Content-Type" with value
-    "application/x-www-form-urlencoded".
-
-    {[
-      let form_fields = [ ("field1", [ "a"; "b" ]) ] in
-      Request.post_form_values form_fields "www.example.com/product/update"
-    ]}
-    @raise Invalid_argument if [url] is invalid. *)
-
-val write : #client_request -> Eio.Buf_write.t -> unit
-(** [write r buf_write] writes client_request request [r] using [buf_write]. *)
 
 (** {1 Server Request} *)
 
