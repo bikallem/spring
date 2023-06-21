@@ -27,7 +27,7 @@ module Client : sig
     -> ?headers:Header.t
     -> ?port:int
     -> host:string
-    -> resource:string
+    -> resource:resource
     -> Method.t
     -> Body.writable
     -> t
@@ -84,7 +84,7 @@ module Server : sig
        ?version:Version.t
     -> ?headers:Header.t
     -> ?session_data:Session.session_data
-    -> resource:string
+    -> resource:resource
     -> Method.t
     -> Eio.Net.Sockaddr.stream
     -> Eio.Buf_read.t
