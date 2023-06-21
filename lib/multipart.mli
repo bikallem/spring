@@ -21,14 +21,12 @@ type reader
 (** [reader] represents HTTP multipart request/response body initialized from a
     {!class:Body.readable}. *)
 
-val reader : #Body.readable -> reader
+val reader : Body.readable' -> reader
 (** [reader body] is {!type:t} initialized from body [body].
 
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
       header. *)
-
-val reader' : Body.readable' -> reader
 
 val boundary : reader -> string
 (** [boundary t] is the MIME boundary value as specified in

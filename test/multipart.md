@@ -17,10 +17,10 @@ let body content_type_hdr txt =
 val body_txt1 : string =
   "--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--"
 
-# let rdr = Multipart.reader' (body "multipart/form-data" body_txt1);;
+# let rdr = Multipart.reader (body "multipart/form-data" body_txt1);;
 Exception: Invalid_argument "body: boundary value not found".
 
-# let rdr = Multipart.reader' (body "multipart/form-data; boundary=AaB03x" body_txt1);;
+# let rdr = Multipart.reader (body "multipart/form-data; boundary=AaB03x" body_txt1);;
 val rdr : Multipart.reader = <abstr>
 ```
 

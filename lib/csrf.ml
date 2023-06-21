@@ -32,7 +32,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
           | tok :: _ -> Some tok
           | _ -> None)
         | "multipart", "formdata" ->
-          let rdr = Request.Server.to_readable req |> Multipart.reader' in
+          let rdr = Request.Server.to_readable req |> Multipart.reader in
           (* Note: anticsrf field must be the first field in multipart/formdata form. *)
           let anticsrf_part = Multipart.next_part rdr in
           let* anticsrf_field = Multipart.form_name anticsrf_part in
