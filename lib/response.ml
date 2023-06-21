@@ -57,30 +57,6 @@ let parse buf_read =
 let close_body (t : #client_response) = t#close_body
 let body_closed (t : #client_response) = t#body_closed
 
-class virtual server_response version headers status =
-  object
-    inherit t version headers status
-    inherit Body.writable
-  end
-
-let add_set_cookie v (t : #server_response) =
-  Header.(add t#headers set_cookie v) |> t#update
-
-let remove_set_cookie name (t : #server_response) =
-  let[@tail_mod_cons] rec aux = function
-    | [] -> []
-    | ((hdr_name, v) as x) :: tl ->
-      let nm = Header.(name set_cookie |> lname_of_name) in
-      if
-        Header.lname_equal hdr_name nm
-        && (String.equal name @@ Set_cookie.(decode v |> name))
-      then tl
-      else x :: aux tl
-  in
-  let headers = aux (Header.to_list t#headers) in
-  let headers = (headers :> (string * string) list) in
-  t#update (Header.of_list headers)
-
 let field lbl v =
   let open Easy_format in
   let lbl = Atom (lbl ^ ": ", atom) in
@@ -185,63 +161,6 @@ module Server = struct
     in
     Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 end
-
-let server_response
-    ?(version = Version.http1_1)
-    ?(headers = Header.empty)
-    ?(status = Status.ok)
-    (body : #Body.writable) : server_response =
-  object
-    inherit server_response version headers status
-    method write_body = body#write_body
-    method write_header = body#write_header
-  end
-
-let write_header w : < f : 'a. 'a Header.header -> 'a -> unit > =
-  object
-    method f : 'a. 'a Header.header -> 'a -> unit =
-      fun hdr v -> Header.write_header w hdr v
-  end
-
-let write (t : #server_response) w =
-  let version = Version.to_string t#version in
-  let status = Status.to_string t#status in
-  Eio.Buf_write.string w version;
-  Eio.Buf_write.char w ' ';
-  Eio.Buf_write.string w status;
-  Eio.Buf_write.string w "\r\n";
-  t#write_header (write_header w);
-  Header.write w t#headers;
-  Eio.Buf_write.string w "\r\n";
-  t#write_body w
-
-let text content =
-  let content_type =
-    Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "plain")
-  in
-  let body = Body.content_writer content_type content in
-  server_response body
-
-let html content =
-  let content_type =
-    Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "html")
-  in
-  let body = Body.content_writer content_type content in
-  server_response body
-
-let ohtml o =
-  let buf = Buffer.create 10 in
-  o buf;
-  let content = Buffer.contents buf in
-  html content
-
-let none_body_response status =
-  let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
-  server_response ~headers ~status Body.none
-
-let not_found = none_body_response Status.not_found
-let internal_server_error = none_body_response Status.internal_server_error
-let bad_request = none_body_response Status.bad_request
 
 let pp fmt (t : #t) =
   let open Easy_format in

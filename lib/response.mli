@@ -56,15 +56,6 @@ val body_closed : #client_response -> bool
 
 (** {1 Server Response} *)
 
-class virtual server_response :
-  Version.t
-  -> Header.t
-  -> Status.t
-  -> object
-       inherit t
-       inherit Body.writable
-     end
-
 module Server : sig
   type t = private
     { version : Version.t
@@ -130,58 +121,6 @@ module Server : sig
 
   val pp : Format.formatter -> t -> unit
 end
-
-val server_response :
-     ?version:Version.t
-  -> ?headers:Header.t
-  -> ?status:Status.t
-  -> #Body.writable
-  -> server_response
-(** [server_response body] is a server response with body [body]. *)
-
-val add_set_cookie : Set_cookie.t -> (#server_response as 'a) -> 'a
-(** [add_set_cookie set_cookie t] is [t] with HTTP [Set-Cookie] header
-    [set_cookie] added to it. *)
-
-val remove_set_cookie : string -> (#server_response as 'a) -> 'a
-(** [remove_set_cookie name t] is [t] after removing HTTP [Set-Cookie] header
-    with name [name] from [t]. *)
-
-(* val chunked_response : *)
-(*      ua_supports_trailer:bool *)
-(*   -> Chunked.write_chunk *)
-(*   -> Chunked.write_trailer *)
-(*   -> server_response *)
-(** [chunked_response ~ua_supports_trailer write_chunk write_trailer] is a HTTP
-    chunked response.
-
-    See {!module:Chunked_body}. *)
-
-val write : #server_response -> Eio.Buf_write.t -> unit
-(** [write response buf_write] writes server response [response] using
-    [buf_write]. *)
-
-val text : string -> server_response
-(** [text s] returns a HTTP/1.1, 200 status response with "Content-Type" header
-    set to "text/plain" and "Content-Length" header set to a suitable value. *)
-
-val html : string -> server_response
-(** [html t s] returns a HTTP/1.1, 200 status response with header set to
-    "Content-Type: text/html" and "Content-Length" header set to a suitable
-    value. *)
-
-val ohtml : Ohtml.t -> server_response
-(** [ohtml view] is an Ohtml [view] based HTTP 200 server response. Its
-    [Content-Type] header is set to [text/html]. *)
-
-val not_found : server_response
-(** [not_found] returns a HTTP/1.1, 404 status response. *)
-
-val internal_server_error : server_response
-(** [internal_server_error] returns a HTTP/1.1, 500 status response. *)
-
-val bad_request : server_response
-(* [bad_request] returns a HTTP/1.1, 400 status response. *)
 
 (** {1 Pretty Printer} *)
 

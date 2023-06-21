@@ -75,7 +75,7 @@ let form_field (req : #Request.server_request) (t : #codec) (b : Buffer.t) =
   Buffer.add_string b input
 
 let protect_request
-    ?(on_fail = fun () -> Response.bad_request)
+    ?(on_fail = fun () -> Response.Server.bad_request)
     (t : #codec)
     (req : #Request.server_request)
     f =

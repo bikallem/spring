@@ -100,11 +100,11 @@ val form_field : #Request.server_request -> #codec -> Ohtml.t
     @raise Csrf_protected_not_enabled if CSRF is not enabled for the request. *)
 
 val protect_request :
-     ?on_fail:(unit -> Response.server_response)
+     ?on_fail:(unit -> Response.Server.t)
   -> #codec
   -> (#Request.server_request as 'a)
-  -> ('a -> Response.server_response)
-  -> Response.server_response
+  -> ('a -> Response.Server.t)
+  -> Response.Server.t
 (** [protect_request t req f] protects request [req] from CSRF.
 
     [f] is the lambda that is executed as [f req] after [req] passes CSRF
