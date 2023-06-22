@@ -7,13 +7,14 @@ let client_addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, 8081)
 let key = Base64.(decode_exn ~pad:false "knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA")
 let nonce = Cstruct.of_string "aaaaaaaaaaaa" 
 
-let form_codec = Csrf.form_codec key 
+let form_codec = Csrf.form_codec key
 let csrf_tok = Base64.(decode_exn ~pad:false "zaQgjF+KK0vSXlYUPhHTlLx/EY+LgpSgy7BxyAdW9n0")
 
 let session = Session.cookie_codec key
 let make_form_submission_request (client_req : Request.client Request.t) =
   let client_req =
-    let data = Session.Data.(add form_codec#token_name csrf_tok empty) in
+    let token_name = Csrf.token_name form_codec in 
+    let data = Session.Data.(add token_name csrf_tok empty) in
     let data = Session.encode ~nonce data session in
     let cookie_name = Session.cookie_name session in
     Request.add_cookie ~name:cookie_name ~value:data client_req
@@ -60,8 +61,9 @@ Return OK response if the CSRF token in form matches the one in session.
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key csrf_tok in
+    let token_name = Csrf.token_name form_codec in 
     let body = Body.form_values_writer 
-      [(form_codec#token_name, [tok]);
+      [(token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
       ]
     in
@@ -91,8 +93,9 @@ Return `Bad Request` response if the CSRF tokens dont' match.
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
+    let token_name = Csrf.token_name form_codec in 
     let body = Body.form_values_writer 
-      [(form_codec#token_name, [tok]);
+      [(token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
       ]
     in
@@ -120,7 +123,8 @@ Mulitpart/formdata form.
 ```ocaml
 # let p1 = 
   let tok = Spring__Secret.encrypt_base64 nonce key csrf_tok in
-  Multipart.make_part (Eio.Flow.string_source tok) form_codec#token_name ;;
+  let token_name = Csrf.token_name form_codec in 
+  Multipart.make_part (Eio.Flow.string_source tok) token_name ;;
 val p1 : Eio.Flow.source Multipart.part = <abstr>
 
 # let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "file1";;

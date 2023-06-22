@@ -25,15 +25,8 @@ type key = string
 type request = Request.server Request.t
 type response = Response.server Response.t
 
+type codec
 (** [codec] encapsulates decoding CSRF token from request. *)
-class virtual codec :
-  token_name:string
-  -> key:key
-  -> object
-       method token_name : string
-       method encode_token : token -> string
-       method virtual decode_token : request -> token option
-     end
 
 (** {1 Codec Creation} *)
 
@@ -57,19 +50,19 @@ val form_codec : ?token_name:string -> key -> codec
 
 (** {1 CSRF Protection} *)
 
-val token_name : #codec -> string
+val token_name : codec -> string
 (** [token_name codec] is the name of the CSRF token encoded in HTTP request
     artefacts such as session, forms or headers. *)
 
-val token : request -> #codec -> token option
+val token : request -> codec -> token option
 (** [token req t] is [Some tok] where [tok] is the CSRF token encapsulated in
     [req]. It is [None] if [req] doesn't hold the CSRF token. *)
 
-val enable_protection : request -> #codec -> unit
+val enable_protection : request -> codec -> unit
 (** [enable_protection req t] enables csrf protection for request [req]. It does
     this by adding CSRF token to request session if one doesn't already exist. *)
 
-val encode_token : token -> #codec -> string
+val encode_token : token -> codec -> string
 (** [encode_token tok t] is [tok'] where [tok'] contains a CSRF token that is
     encrypted and base64 encoded. [tok'] can be used in HTTP request artefacts
     such as headers, body and request path.
@@ -79,7 +72,7 @@ val encode_token : token -> #codec -> string
 
 exception Csrf_protection_not_enabled
 
-val form_field : request -> #codec -> Ohtml.t
+val form_field : request -> codec -> Ohtml.t
 (** [form_field req t] is an Ohtml component [v]. [v] contains hidden HTML input
     element which encodes CSRF token. Use [v] in the context of a HTML request
     form.
@@ -104,7 +97,7 @@ val form_field : request -> #codec -> Ohtml.t
 
 val protect_request :
      ?on_fail:(unit -> response)
-  -> #codec
+  -> codec
   -> (request as 'a)
   -> ('a -> response)
   -> response
