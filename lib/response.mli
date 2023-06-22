@@ -17,6 +17,7 @@ val pp : Format.formatter -> _ t -> unit
 (** {1 Client Response} *)
 
 type client
+(** [client] a HTTP client response. *)
 
 val make_client_response :
      ?version:Version.t
@@ -50,6 +51,7 @@ val to_readable : client t -> Body.readable
 (** {1 Server Response} *)
 
 type server
+(** [server] a HTTP server response. *)
 
 val make_server_response :
      ?version:Version.t
