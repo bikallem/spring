@@ -20,7 +20,8 @@ let form_codec ?(token_name = "__csrf_token__") key =
 
     method decode_token (req : request) =
       let open Option.Syntax in
-      let* ct = Header.(find_opt req.headers content_type) in
+      let headers = Request.headers req in
+      let* ct = Header.(find_opt headers content_type) in
       let* tok =
         match (Content_type.media_type ct :> string * string) with
         | "application", "x-www-form-urlencoded" -> (

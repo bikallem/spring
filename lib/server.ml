@@ -14,8 +14,9 @@ type pipeline = handler -> handler
     TODO bikal add tests for IPv6 host parsing after
     https://github.com/mirage/ocaml-uri/pull/169 if merged. *)
 let host_header : pipeline =
- fun (next : handler) (req : request) ->
-  let hosts = Header.(find_all req.headers host) in
+ fun (next : handler) req ->
+  let headers = Request.headers req in
+  let hosts = Header.(find_all headers host) in
   let len = List.length hosts in
   if len = 0 || len > 1 then Response.Server.bad_request
   else
@@ -60,7 +61,7 @@ let session_pipeline (session : #Session.codec) : pipeline =
     Request.replace_session_data session_data req
   | None -> ());
   let response = next req in
-  match req.x.session_data with
+  match Request.session_data req with
   | None -> response
   | Some session_data ->
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in

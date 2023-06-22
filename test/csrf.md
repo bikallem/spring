@@ -42,13 +42,7 @@ let pp_response r =
 
 ```ocaml
 # let req = Request.make_server_request ~resource:"/" Method.get client_addr (Eio.Buf_read.of_string "");;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # run_with_random_generator @@ fun () -> Csrf.enable_protection req form_codec;;
 - : unit = ()
@@ -76,13 +70,7 @@ Return OK response if the CSRF token in form matches the one in session.
         Method.post
         body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server Request.t =
-  {Spring.Request.meth = "post"; resource = "www.example.com/post_form";
-   version = (1, 1); headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = Some <abstr>};
-   pp = <fun>}
+val csrf_form_req : Request.server Request.t = <abstr>
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =
@@ -116,13 +104,7 @@ Return `Bad Request` response if the CSRF tokens dont' match.
         Method.post
         body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server Request.t =
-  {Spring.Request.meth = "post"; resource = "www.example.com/post_form";
-   version = (1, 1); headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = Some <abstr>};
-   pp = <fun>}
+val csrf_form_req : Request.server Request.t = <abstr>
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =
@@ -158,13 +140,7 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
         Method.post
         form_body
     |>  make_form_submission_request ;;
-val csrf_form_req : Request.server Request.t =
-  {Spring.Request.meth = "post"; resource = "www.example.com/post_form";
-   version = (1, 1); headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = Some <abstr>};
-   pp = <fun>}
+val csrf_form_req : Request.server Request.t = <abstr>
 
 # let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
 val res : Response.Server.t =

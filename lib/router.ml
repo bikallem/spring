@@ -173,8 +173,9 @@ let rec drop : 'a list -> int -> 'a list =
 
 let rec match' : request -> 'a t -> 'a option =
  fun req t ->
-  let request_target = req.resource in
-  let method' = req.meth in
+  let resource = Request.resource req in
+  let request_target = resource in
+  let method' = Request.meth req in
   (* split request_target into path and query tokens *)
   let request_target' = String.trim request_target |> Uri.of_string in
   let path_tokens =

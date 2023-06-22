@@ -16,8 +16,8 @@ end
 
 type request = Request.server Request.t
 
-let handler (req : request) =
-  match req.resource with
+let handler req =
+  match Request.resource req with
   | "/" -> Response.Server.text "root"
   | "/upload" -> (
     match Request.to_readable req |> Body.read_content with
@@ -78,8 +78,8 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 
 ```ocaml
 let router : Server.pipeline =
-  fun next (req : request ) ->
-    match req.resource with
+  fun next req ->
+    match Request.resource req with
     | "/" -> Response.Server.text "hello, there"
     | _ -> next req
 
@@ -124,13 +124,7 @@ Try with GET method.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "";;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
 val res1 : Server.response =
@@ -154,13 +148,7 @@ Try with POST method.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "post" "";;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "post"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
 val res1 : Server.response =
@@ -188,13 +176,7 @@ A valid request with HOST header is processed okay.
 val buf_read : Eio.Buf_read.t = <abstr>
 
 # let r = Request.parse_server_request client_addr buf_read;;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
 val res1 : Server.response =
@@ -226,13 +208,7 @@ A Date header is added to a 200 response.
 val hello : 'a -> Server.response = <fun>
 
 # let req = Request.make_server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
@@ -378,13 +354,7 @@ val session_cookie : Cookie.t = <abstr>
 val headers : Header.t = <abstr>
 
 # let req = Request.make_server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # let handler _req = Response.Server.text "hello";;
 val handler : 'a -> Server.response = <fun>
@@ -409,13 +379,7 @@ Response should have Session Set-Cookie if set during request processing.
 
 ```ocaml
 # let req = Request.make_server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # let handler req =
   let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in

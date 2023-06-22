@@ -15,6 +15,11 @@ type 'a t =
   ; pp : Format.formatter -> 'a t -> unit
   }
 
+let meth t = t.meth
+let resource t = t.resource
+let version t = t.version
+let headers t = t.headers
+
 let supports_chunked_trailers t =
   match Header.(find_opt t.headers te) with
   | Some te' -> Te.(exists te' trailers)
@@ -174,6 +179,9 @@ let make_server_request
         in
         pp_fields fmt fields)
   }
+
+let client_addr t = t.x.client_addr
+let session_data t = t.x.session_data
 
 let add_session_data ~name ~value t =
   let session_data' =

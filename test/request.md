@@ -33,18 +33,12 @@ let make_buf_read version meth connection =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "TE";;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
 # Request.keep_alive r ;;
 - : bool = true
 
-# Eio.traceln "%a" Header.pp r.headers;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  TE;
@@ -58,15 +52,9 @@ val r : Request.server Request.t =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "keep-alive, TE";;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp r.headers;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  keep-alive, TE;
@@ -83,15 +71,9 @@ val r : Request.server Request.t =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "close, TE";;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp r.headers;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  close, TE;
@@ -107,15 +89,9 @@ val r : Request.server Request.t =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "TE" ;;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 0);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp r.headers;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  TE;
@@ -132,15 +108,9 @@ val r : Request.server Request.t =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "close, TE" ;;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 0);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp r.headers ;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  close, TE;
@@ -156,15 +126,9 @@ val r : Request.server Request.t =
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "keep-alive, TE" ;;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 0);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp r.headers ;;
+# Eio.traceln "%a" Header.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  keep-alive, TE;
@@ -182,7 +146,7 @@ val r : Request.server Request.t =
 ```ocaml
 let parse_method m = 
   let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" m "TE" in
-  r.meth
+  Request.meth r
 ```
 
 ```ocaml
@@ -227,22 +191,20 @@ val headers : Header.t = <abstr>
       ~resource:"/update" 
       Method.get 
       Body.none ;;
-val req : Request.client Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>; x = <abstr>; pp = <fun>}
+val req : Request.client Request.t = <abstr>
 
-# Request.pp Format.std_formatter req ;;
-{
-  Version:  HTTP/1.1;
-  Method:  get;
-  URI:  /update;
-  Headers :
-    {
-      Header1:  val 1;
-      Header2:  val 2
-    };
-  Host:  www.example.com:8080
-}
+# Eio.traceln "%a" Request.pp req ;;
++{
++  Version:  HTTP/1.1;
++  Method:  get;
++  URI:  /update;
++  Headers :
++    {
++      Header1:  val 1;
++      Header2:  val 2
++    };
++  Host:  www.example.com:8080
++}
 - : unit = ()
 ```
 
@@ -260,13 +222,7 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Request.pp req ;;
 +{
@@ -298,13 +254,7 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # Request.find_cookie "SID" req;;
 - : string option = Some "31d4d96e407aad42"
@@ -327,17 +277,13 @@ val req : Request.server Request.t =
       ~resource:"/update" 
       Method.get 
       Body.none ;;
-val req : Request.client Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>; x = <abstr>; pp = <fun>}
+val req : Request.client Request.t = <abstr>
 
 # Request.find_cookie "lang" req;;
 - : string option = None
 
 # let req = Request.add_cookie ~name:"lang" ~value:"en" req ;;
-val req : Request.client Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>; x = <abstr>; pp = <fun>}
+val req : Request.client Request.t = <abstr>
 
 # Request.find_cookie "lang" req;;
 - : string option = Some "en"
@@ -358,9 +304,7 @@ val headers : Header.t = <abstr>
       ~resource:"/update" 
       Method.get 
       Body.none ;;
-val req : Request.client Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>; x = <abstr>; pp = <fun>}
+val req : Request.client Request.t = <abstr>
 
 # Request.find_cookie "lang" req;;
 - : string option = Some "en"
@@ -369,9 +313,7 @@ val req : Request.client Request.t =
 - : string option = Some "31d4d96e407aad42"
 
 # let req = Request.remove_cookie "SID" req;;
-val req : Request.client Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>; x = <abstr>; pp = <fun>}
+val req : Request.client Request.t = <abstr>
 
 # Request.find_cookie "SID" req;;
 - : string option = None
@@ -386,13 +328,7 @@ val req : Request.client Request.t =
       Method.get
       client_addr
       (Eio.Buf_read.of_string "");;
-val req : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = None};
-   pp = <fun>}
+val req : Request.server Request.t = <abstr>
 
 # Request.add_session_data ~name:"a" ~value:"a_val" req;;
 - : unit = ()
@@ -421,13 +357,7 @@ let make_request_buf () : Eio.Buf_read.t =
 ```
 ```ocaml
 # let r = Request.parse_server_request ~session client_addr @@ make_request_buf () ;;
-val r : Request.server Request.t =
-  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
-     buf_read = <abstr>; session_data = Some <abstr>};
-   pp = <fun>}
+val r : Request.server Request.t = <abstr>
 
 # Request.find_session_data "a" r;;
 - : string option = Some "a_val"

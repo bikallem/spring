@@ -1,19 +1,16 @@
 (** [Request] is a HTTP Request. *)
 
-(** [t] is a common request abstraction for {!type:server_request} and
-    {!type:client_request}. *)
+type 'a t
+(** [t] is a common request abstraction for {!type:server} and
+    {!type:client}. *)
 
 type resource = string
 (** [resource] is the request uri path *)
 
-type 'a t = private
-  { meth : Method.t
-  ; resource : resource
-  ; version : Version.t
-  ; headers : Header.t
-  ; x : 'a
-  ; pp : Format.formatter -> 'a t -> unit
-  }
+val meth : _ t -> Method.t
+val resource : _ t -> resource
+val version : _ t -> Version.t
+val headers : _ t -> Header.t
 
 val supports_chunked_trailers : _ t -> bool
 (** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
@@ -71,11 +68,7 @@ val write_client_request : client t -> Eio.Buf_write.t -> unit
     [Server.t] is a HTTP request that is primarily constructed and used in
     {!module:Server}. *)
 
-type server = private
-  { client_addr : Eio.Net.Sockaddr.stream
-  ; buf_read : Eio.Buf_read.t
-  ; mutable session_data : Session.session_data option
-  }
+type server
 
 val make_server_request :
      ?version:Version.t
@@ -91,6 +84,12 @@ val make_server_request :
     @param version HTTP version of [t]. Default is [1.1].
     @param headers HTTP request headers of [t]. Default is [Header.empty] .
     @param session_data is the Session data for the request. Default is [None]. *)
+
+val client_addr : server t -> Eio.Net.Sockaddr.stream
+(** [client_addr t] is the client socket *)
+
+val session_data : server t -> Session.session_data option
+(** [session_data t] is [Some v] if [t] is initialized with session data. *)
 
 val add_session_data : name:string -> value:string -> server t -> unit
 (** [add_session_data ~name ~value t] adds session value [value] with name
