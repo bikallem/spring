@@ -4,7 +4,7 @@
 open Spring 
 ```
 
-## Response.Client.parse
+## Response.parse_client_response
 
 ```ocaml
 let make_buf_read () =
@@ -26,10 +26,10 @@ let make_buf_read () =
 ```
 
 ```ocaml
-# let res = Response.Client.parse @@ make_buf_read () ;;
-val res : Response.Client.t = <abstr>
+# let res = Response.parse_client_response @@ make_buf_read () ;;
+val res : Response.client Response.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Response.Client.headers res ;;
+# Eio.traceln "%a" Header.pp @@ Response.headers res ;;
 +{
 +  Content-Length:  13;
 +  Date:  Wed, 08 Feb 2023 16:18:17 GMT;
@@ -55,15 +55,15 @@ let test_server_response r =
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw ->
-    Response.Server.write bw r;
+    Response.write_server_response bw r;
   );
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## Response.Server.text
+## Response.text
 
 ```ocaml
-# test_server_response @@ Response.Server.text "hello, world";;
+# test_server_response @@ Response.text "hello, world";;
 +HTTP/1.1 200 OK
 +Content-Length: 12
 +Content-Type: text/plain; charset=uf-8
@@ -72,10 +72,10 @@ let test_server_response r =
 - : unit = ()
 ```
 
-## Response.Server.html
+## Response.html
 
 ```ocaml
-# test_server_response @@ Response.Server.html "hello, world";;
+# test_server_response @@ Response.html "hello, world";;
 +HTTP/1.1 200 OK
 +Content-Length: 12
 +Content-Type: text/html; charset=uf-8
@@ -84,10 +84,10 @@ let test_server_response r =
 - : unit = ()
 ```
 
-## Response.Server.not_found
+## Response.not_found
 
 ```ocaml
-# test_server_response @@ Response.Server.not_found ;;
+# test_server_response @@ Response.not_found ;;
 +HTTP/1.1 404 Not Found
 +Content-Length: 0
 +
@@ -95,10 +95,10 @@ let test_server_response r =
 - : unit = ()
 ```
 
-## Response.Server.internal_server_error
+## Response.internal_server_error
 
 ```ocaml
-# test_server_response @@ Response.Server.internal_server_error ;;
+# test_server_response @@ Response.internal_server_error ;;
 +HTTP/1.1 500 Internal Server Error
 +Content-Length: 0
 +
@@ -106,10 +106,10 @@ let test_server_response r =
 - : unit = ()
 ```
 
-## Response.Server.bad_request
+## Response.bad_request
 
 ```ocaml
-# test_server_response @@ Response.Server.bad_request ;;
+# test_server_response @@ Response.bad_request ;;
 +HTTP/1.1 400 Bad Request
 +Content-Length: 0
 +
@@ -117,7 +117,7 @@ let test_server_response r =
 - : unit = ()
 ```
 
-## Response.Server.chunked_response
+## Response.chunked_response
 
 ```ocaml
 # let write_chunk f =
@@ -143,7 +143,7 @@ val write_trailer : (Header.t -> 'a) -> 'a = <fun>
 Writes chunked response trailer headers.
 
 ```ocaml
-# test_server_response @@ Response.Server.chunked_response ~ua_supports_trailer:true write_chunk write_trailer ;;
+# test_server_response @@ Response.chunked_response ~ua_supports_trailer:true write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
 +Transfer-Encoding: chunked
 +
@@ -165,7 +165,7 @@ Writes chunked response trailer headers.
 No chunked trailer headers.
 
 ```ocaml
-# test_server_response @@ Response.Server.chunked_response ~ua_supports_trailer:false write_chunk write_trailer ;;
+# test_server_response @@ Response.chunked_response ~ua_supports_trailer:false write_chunk write_trailer ;;
 +HTTP/1.1 200 OK
 +Transfer-Encoding: chunked
 +
@@ -181,25 +181,19 @@ No chunked trailer headers.
 - : unit = ()
 ```
 
-## Response.Server.add_set_cookie
+## Response.add_set_cookie
 
 ```ocaml
-# let txt_response = Response.Server.html "hello, world" ;;
-val txt_response : Response.Server.t =
-  {Spring.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let txt_response = Response.html "hello, world" ;;
+val txt_response : Response.server Response.t = <abstr>
 ```
 
 ```ocaml
 # let id_cookie = Set_cookie.make ("ID", "1234") ;;
 val id_cookie : Set_cookie.t = <abstr>
 
-# let res = Response.Server.add_set_cookie id_cookie txt_response ;;
-val res : Response.Server.t =
-  {Spring.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let res = Response.add_set_cookie id_cookie txt_response ;;
+val res : Response.server Response.t = <abstr>
 
 # test_server_response res;;
 +HTTP/1.1 200 OK
@@ -211,10 +205,10 @@ val res : Response.Server.t =
 - : unit = ()
 ```
 
-## Response.Server.find_set_cookie
+## Response.find_set_cookie
 
 ```ocaml
-# Response.Server.find_set_cookie "ID" res |> Option.iter (Eio.traceln "%a" Set_cookie.pp) ;;
+# Response.find_set_cookie "ID" res |> Option.iter (Eio.traceln "%a" Set_cookie.pp) ;;
 +{
 +  Name:  ID;
 +  Value:  1234;
@@ -224,15 +218,12 @@ val res : Response.Server.t =
 - : unit = ()
 ```
 
-## Response.Server.remove_set_cookie
+## Response.remove_set_cookie
 
 ```ocaml
-# let res = Response.Server.remove_set_cookie "ID" res;;
-val res : Response.Server.t =
-  {Spring.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let res = Response.remove_set_cookie "ID" res;;
+val res : Response.server Response.t = <abstr>
 
-# Response.Server.find_set_cookie "ID" res ;;
+# Response.find_set_cookie "ID" res ;;
 - : Set_cookie.t option = None
 ```

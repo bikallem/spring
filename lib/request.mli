@@ -1,8 +1,7 @@
 (** [Request] is a HTTP Request. *)
 
 type 'a t
-(** [t] is a common request abstraction for {!type:server} and
-    {!type:client}. *)
+(** [t] is a common request abstraction for {!type:server} and {!type:client}. *)
 
 type resource = string
 (** [resource] is the request uri path *)
