@@ -11,16 +11,15 @@ let form_codec = Csrf.form_codec key
 let csrf_tok = Base64.(decode_exn ~pad:false "zaQgjF+KK0vSXlYUPhHTlLx/EY+LgpSgy7BxyAdW9n0")
 
 let session = Session.cookie_codec key
-
-let make_form_submission_request (client_req : Request.Client.t) =
+let make_form_submission_request (client_req : Request.client Request.t) =
   let client_req =
     let data = Session.Data.(add form_codec#token_name csrf_tok empty) in
     let data = Session.encode ~nonce data session in
-    Request.Client.add_cookie ~name:session#cookie_name ~value:data client_req
+    Request.add_cookie ~name:session#cookie_name ~value:data client_req
   in
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  Eio.Buf_write.with_flow s (fun bw -> Request.Client.write client_req bw);
+  Eio.Buf_write.with_flow s (fun bw -> Request.write_client_request client_req bw);
   let buf_read = Eio.Buf_read.of_string (Buffer.contents b) in
   Request.parse_server_request ~session client_addr buf_read
 
@@ -71,7 +70,7 @@ Return OK response if the CSRF token in form matches the one in session.
        ("name2", ["val c"; "val d"; "val e"])
       ]
     in
-    Request.Client.make
+    Request.make_client_request
         ~host:"www.example.com"
         ~resource:"www.example.com/post_form"
         Method.post
@@ -111,7 +110,7 @@ Return `Bad Request` response if the CSRF tokens dont' match.
        ("name2", ["val c"; "val d"; "val e"])
       ]
     in
-    Request.Client.make
+    Request.make_client_request
         ~host:"www.example.com"
         ~resource:"www.example.com/post_form"
         Method.post
@@ -153,7 +152,7 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let form_body = Multipart.writable "--A1B2C3" [p1;p2] in
-    Request.Client.make
+    Request.make_client_request
         ~host:"www.example.com"
         ~resource:"www.example.com/post_form"
         Method.post

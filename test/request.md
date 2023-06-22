@@ -229,11 +229,7 @@ val headers : Header.t = <abstr>
       Body.none ;;
 val req : Request.client Request.t =
   {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.host = "www.example.com"; port = Some 8080;
-     body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}};
-   pp = <fun>}
+   headers = <abstr>; x = <abstr>; pp = <fun>}
 
 # Request.pp Format.std_formatter req ;;
 {
@@ -333,11 +329,7 @@ val req : Request.server Request.t =
       Body.none ;;
 val req : Request.client Request.t =
   {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.host = "www.example.com"; port = Some 8080;
-     body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}};
-   pp = <fun>}
+   headers = <abstr>; x = <abstr>; pp = <fun>}
 
 # Request.find_cookie "lang" req;;
 - : string option = None
@@ -345,11 +337,7 @@ val req : Request.client Request.t =
 # let req = Request.add_cookie ~name:"lang" ~value:"en" req ;;
 val req : Request.client Request.t =
   {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.host = "www.example.com"; port = Some 8080;
-     body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}};
-   pp = <fun>}
+   headers = <abstr>; x = <abstr>; pp = <fun>}
 
 # Request.find_cookie "lang" req;;
 - : string option = Some "en"
@@ -372,11 +360,7 @@ val headers : Header.t = <abstr>
       Body.none ;;
 val req : Request.client Request.t =
   {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.host = "www.example.com"; port = Some 8080;
-     body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}};
-   pp = <fun>}
+   headers = <abstr>; x = <abstr>; pp = <fun>}
 
 # Request.find_cookie "lang" req;;
 - : string option = Some "en"
@@ -387,11 +371,7 @@ val req : Request.client Request.t =
 # let req = Request.remove_cookie "SID" req;;
 val req : Request.client Request.t =
   {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
-   headers = <abstr>;
-   x =
-    {Spring.Request.host = "www.example.com"; port = Some 8080;
-     body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}};
-   pp = <fun>}
+   headers = <abstr>; x = <abstr>; pp = <fun>}
 
 # Request.find_cookie "SID" req;;
 - : string option = None

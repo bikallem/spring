@@ -199,7 +199,7 @@ let test_client f =
 
 ```ocaml
 # test_client @@ fun t -> 
-  let req = Request.Client.make ~host:"www.example.com" ~resource:"/" Method.delete Body.none in
+  let req = Request.make_client_request ~host:"www.example.com" ~resource:"/" Method.delete Body.none in
   Client.do_call t req ;;
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
@@ -232,7 +232,7 @@ let () = Eio_mock.Flow.on_read
 
 ```ocaml
 # Eio_mock.Backend.run @@ fun () ->
-  let req = Request.Client.make ~host:"www.example.com" ~resource:"/" Method.get Body.none in
+  let req = Request.make_client_request ~host:"www.example.com" ~resource:"/" Method.get Body.none in
   Client.call ~conn:example_com_conn req ;;
 +www.example.com: wrote "get / HTTP/1.1\r\n"
 +                       "Host: www.example.com\r\n"

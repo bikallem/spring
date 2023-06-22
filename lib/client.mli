@@ -57,6 +57,8 @@ val make :
 type url = string
 (** [url] is the full HTTP request url. [wwww.example.com/products] *)
 
+type request = Request.client Request.t
+
 type 'a handler = Response.Client.t -> 'a
 (** [handler] is the response handler. [Response.Client.close] is called after
     executing the [handler]. *)
@@ -104,13 +106,13 @@ val post_form_values :
 
 (** {1 Generic Client Call} *)
 
-val do_call : t -> Request.Client.t -> 'a handler -> 'a
+val do_call : t -> request -> 'a handler -> 'a
 (** [do_call t req] makes a HTTP request using [req] and returns
     {!type:response}.
 
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val call : conn:#Eio.Flow.two_way -> Request.Client.t -> Response.Client.t
+val call : conn:#Eio.Flow.two_way -> request -> Response.Client.t
 (** [call conn req] makes a HTTP client call using connection [conn] and request
     [req]. It returns a {!type:response} upon a successfull call.
 

@@ -91,10 +91,12 @@ let connection t ((host, service) as k) =
     ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
 
 type 'a handler = Response.Client.t -> 'a
+type request = Request.client Request.t
 
-let do_call t (req : Request.Client.t) f =
+let do_call t (req : request) f =
   Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
-  let host, port = (req.host, req.port) in
+  let host = Request.host req in
+  let port = Request.port req in
   let service =
     match port with
     | Some x -> string_of_int x
@@ -103,7 +105,7 @@ let do_call t (req : Request.Client.t) f =
   let k = (host, service) in
   let conn = connection t k in
   Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn (fun writer ->
-      Request.Client.write req writer;
+      Request.write_client_request req writer;
       let initial_size = t.read_initial_size in
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
       let res = Response.Client.parse buf_read in
@@ -144,17 +146,23 @@ let parse_url url =
 
 let get t url =
   let host, port, resource = parse_url url in
-  let req = Request.Client.make ?port ~host ~resource Method.get Body.none in
+  let req =
+    Request.make_client_request ?port ~host ~resource Method.get Body.none
+  in
   do_call t req
 
 let head t url =
   let host, port, resource = parse_url url in
-  let req = Request.Client.make ?port ~host ~resource Method.head Body.none in
+  let req =
+    Request.make_client_request ?port ~host ~resource Method.head Body.none
+  in
   do_call t req
 
 let post t body url =
   let host, port, resource = parse_url url in
-  let req = Request.Client.make ?port ~host ~resource Method.post body in
+  let req =
+    Request.make_client_request ?port ~host ~resource Method.post body
+  in
   do_call t req
 
 let post_form_values t form_values url =
@@ -164,7 +172,7 @@ let post_form_values t form_values url =
 let call ~conn req =
   let initial_size = 0x1000 in
   Eio.Buf_write.with_flow ~initial_size conn @@ fun writer ->
-  Request.Client.write req writer;
+  Request.write_client_request req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
   Response.Client.parse buf_read
 

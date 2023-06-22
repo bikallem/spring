@@ -33,7 +33,7 @@ val find_cookie : string -> _ t -> string option
     A HTTP client request. This is primarily constructed and used by
     {!module:Client}. *)
 
-type client = private { host : string; port : int option; body : Body.writable }
+type client
 
 val make_client_request :
      ?version:Version.t
@@ -51,6 +51,9 @@ val make_client_request :
     @param version HTTP version of [t]. Default is [1.1].
     @param headers HTTP request headers of [t]. Default is [Header.empty] .
     @param port the [host] port. Default is [None]. *)
+
+val host : client t -> string
+val port : client t -> int option
 
 val add_cookie : name:string -> value:string -> client t -> client t
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
@@ -121,56 +124,3 @@ val parse_server_request :
 (** {1 Pretty Printer} *)
 
 val pp : Format.formatter -> _ t -> unit
-
-module Client : sig
-  type t = private
-    { meth : Method.t
-    ; resource : resource
-    ; version : Version.t
-    ; headers : Header.t
-    ; host : string
-    ; port : int option
-    ; body : Body.writable
-    }
-
-  val make :
-       ?version:Version.t
-    -> ?headers:Header.t
-    -> ?port:int
-    -> host:string
-    -> resource:resource
-    -> Method.t
-    -> Body.writable
-    -> t
-  (** [make ~host ~resource meth body] is [t] representing a client request with
-      request url [resource]. [host] represents a HTTP server that will process
-      [t]. [meth] is the HTTP request method. [body] is the request body.
-
-      @param version HTTP version of [t]. Default is [1.1].
-      @param headers HTTP request headers of [t]. Default is [Header.empty] .
-      @param port the [host] port. Default is [None]. *)
-
-  val supports_chunked_trailers : t -> bool
-  (** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
-      trailers". It is [false] otherwise. *)
-
-  val keep_alive : t -> bool
-  (** [keep_alive t] is [true] if [t] has header "Connection: keep-alive" or if
-      "Connection" header is missing and the HTTP version is 1.1. It is [false]
-      if header "Connection: close" exists. *)
-
-  val find_cookie : string -> t -> string option
-  (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
-      [cookie_name] exists in [t]. Otherwise is [None]. *)
-
-  val add_cookie : name:string -> value:string -> t -> t
-  (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
-      [t]. *)
-
-  val remove_cookie : string -> t -> t
-  (** [remove_cookie name t] is [t] with cookie pair with name [name] removed
-      from [t]. *)
-
-  val write : t -> Eio.Buf_write.t -> unit
-  val pp : Format.formatter -> t -> unit
-end
