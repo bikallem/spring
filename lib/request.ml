@@ -1,9 +1,3 @@
-(** [request] is the common request object *)
-let host_port_to_string (host, port) =
-  match port with
-  | Some p -> Format.sprintf "%s:%d" host p
-  | None -> host
-
 type resource = string
 
 type 'a t =
@@ -76,6 +70,11 @@ let pp_fields fmt fields =
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
 type client = { host : string; port : int option; body : Body.writable }
+
+let host_port_to_string (host, port) =
+  match port with
+  | Some p -> Format.sprintf "%s:%d" host p
+  | None -> host
 
 let make_client_request
     ?(version = Version.http1_1)
