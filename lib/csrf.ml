@@ -1,6 +1,7 @@
 type token = string
 type key = string
 type request = Request.server Request.t
+type response = Response.server Response.t
 
 class virtual codec ~token_name ~key =
   object
@@ -80,7 +81,7 @@ let form_field (req : request) (t : #codec) (b : Buffer.t) =
   Buffer.add_string b input
 
 let protect_request
-    ?(on_fail = fun () -> Response.Server.bad_request)
+    ?(on_fail = fun () -> Response.bad_request)
     (t : #codec)
     (req : request)
     f =

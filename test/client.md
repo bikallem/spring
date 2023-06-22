@@ -56,15 +56,15 @@ note that we can specify port in the url.
   Eio.Switch.run @@ fun sw ->
   let t = Client.make sw net in
   Client.get t "www.example.com" (fun res ->
-    let body = Response.Client.to_readable res in
+    let body = Response.to_readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.example.com/products" (fun res ->
-    let body = Response.Client.to_readable res in
+    let body = Response.to_readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.mirage.org:8080" (fun res ->
-    let body = Response.Client.to_readable res in
+    let body = Response.to_readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get))
   ;;
 +net: getaddrinfo ~service:80 www.example.com
@@ -243,7 +243,7 @@ let () = Eio_mock.Flow.on_read
 +www.example.com: read "HTTP/1.1 200 OK\r\n"
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"
-- : Response.Client.t = <abstr>
+- : Client.response = <abstr>
 ```
 
 ## Timeout
@@ -255,7 +255,7 @@ let () = Eio_mock.Flow.on_read
     let timeout = Eio.Time.Timeout.seconds env#mono_clock 0.01 in
     let t = Client.make ~timeout sw env#net in
     Eio.traceln "Timeout: %a" Eio.Time.Timeout.pp (Client.timeout t);
-    Client.get t "www.example.com" @@ fun (_:Response.Client.t) -> ()
+    Client.get t "www.example.com" @@ fun (_:Response.client Response.t) -> ()
   with 
     | Eio.Time.Timeout -> ()
     | Eio.Io _ -> ();;

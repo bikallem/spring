@@ -18,12 +18,12 @@ type request = Request.server Request.t
 
 let handler req =
   match Request.resource req with
-  | "/" -> Response.Server.text "root"
+  | "/" -> Response.text "root"
   | "/upload" -> (
     match Request.to_readable req |> Body.read_content with
-    | Some a -> Response.Server.text a
-    | None -> Response.Server.bad_request)
-  | _ -> Response.Server.not_found
+    | Some a -> Response.text a
+    | None -> Response.bad_request)
+  | _ -> Response.not_found
 ```
 
 ## Server.run/Server.run_local
@@ -39,8 +39,8 @@ let handler req =
       let body = 
         Client.get client "localhost:8081" (fun res ->
           Eio.traceln "Route: /";
-          Eio.traceln "%a" Header.pp (Response.Client.headers res);
-          let body = Response.Client.to_readable res in
+          Eio.traceln "%a" Header.pp (Response.headers res);
+          let body = Response.to_readable res in
           Eio.traceln "%s" (Body.read_content body |> Option.get);
           Eio.traceln "";
           Eio.traceln "Route: /upload";
@@ -51,8 +51,8 @@ let handler req =
           body)
       in
       Client.post client body "localhost:8081/upload" (fun res ->
-        Eio.traceln "%a" Header.pp (Response.Client.headers res);
-        let body = Response.Client.to_readable res in
+        Eio.traceln "%a" Header.pp (Response.headers res);
+        let body = Response.to_readable res in
         Eio.traceln "%s" (Body.read_content body |> Option.get));
       Server.shutdown server
     );;
@@ -80,7 +80,7 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 let router : Server.pipeline =
   fun next req ->
     match Request.resource req with
-    | "/" -> Response.Server.text "hello, there"
+    | "/" -> Response.text "hello, there"
     | _ -> next req
 
 let final_handler : Server.handler = router @@ Server.not_found_handler
@@ -95,11 +95,11 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
       Eio.Switch.run @@ fun sw ->
       let client = Client.make sw env#net in
       Client.get client "localhost:8081" (fun res ->
-          let body = Response.Client.to_readable res in
+          let body = Response.to_readable res in
           Eio.traceln "Resource (/): %s" (Body.read_content body |> Option.get)); 
 
       Client.get client "localhost:8081/products" (fun res ->
-          Eio.traceln "Resource (/products) : %a" Status.pp (Response.Client.status res));
+          Eio.traceln "Resource (/products) : %a" Status.pp (Response.status res));
 
       Server.shutdown server
     );;
@@ -117,7 +117,7 @@ let make_buf_read version meth connection =
   let s = Printf.sprintf "%s /products HTTP/%s\r\nConnection: %s\r\nTE: trailers\r\nUser-Agent: cohttp-eio\r\n\r\n" meth version connection in
   Eio.Buf_read.of_string s
 
-let hello _req = Response.Server.text "hello"
+let hello _req = Response.text "hello"
 ```
 
 Try with GET method.
@@ -127,12 +127,9 @@ Try with GET method.
 val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Server.response =
-  {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+val res1 : Server.response = <abstr>
 
-# Eio.traceln "%a" Response.Server.pp res1 ;;
+# Eio.traceln "%a" Response.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
@@ -151,12 +148,9 @@ Try with POST method.
 val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Server.response =
-  {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+val res1 : Server.response = <abstr>
 
-# Eio.traceln "%a" Response.Server.pp res1 ;;
+# Eio.traceln "%a" Response.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
@@ -179,12 +173,9 @@ val buf_read : Eio.Buf_read.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Server.response =
-  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+val res1 : Server.response = <abstr>
 
-# Eio.traceln "%a" Response.Server.pp res1 ;;
+# Eio.traceln "%a" Response.pp res1 ;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -204,8 +195,8 @@ let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
 A Date header is added to a 200 response.
 
 ```ocaml
-# let hello _req = Response.Server.text "hello, world!" ;;
-val hello : 'a -> Server.response = <fun>
+# let hello _req = Response.text "hello, world!" ;;
+val hello : 'a -> Response.server Response.t = <fun>
 
 # let req = Request.make_server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server Request.t = <abstr>
@@ -213,7 +204,7 @@ val req : Request.server Request.t = <abstr>
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
@@ -228,13 +219,13 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 5xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.Server.make ~status:Status.internal_server_error Body.none ;;
-val h : 'a -> Server.response = <fun>
+# let h _req = Response.make_server_response ~status:Status.internal_server_error Body.none ;;
+val h : 'a -> Response.server Response.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  500 Internal Server Error;
@@ -247,13 +238,13 @@ val h : Server.handler = <fun>
 A Date header is not added added to a 1xx status response. We use server_request `req` from above.
 
 ```ocaml
-# let h _req = Response.Server.make ~status:Status.continue Body.none ;;
-val h : 'a -> Server.response = <fun>
+# let h _req = Response.make_server_response ~status:Status.continue Body.none ;;
+val h : 'a -> Response.server Response.t = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
 
-# Eio.traceln "%a" Response.Server.pp @@ h req;;
+# Eio.traceln "%a" Response.pp @@ h req;;
 +{
 +  Version:  HTTP/1.1;
 +  Status:  100 Continue;
@@ -356,19 +347,16 @@ val headers : Header.t = <abstr>
 # let req = Request.make_server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server Request.t = <abstr>
 
-# let handler _req = Response.Server.text "hello";;
-val handler : 'a -> Server.response = <fun>
+# let handler _req = Response.text "hello";;
+val handler : 'a -> Response.server Response.t = <fun>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) req ;;
-val res : Server.response =
-  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+val res : Server.response = <abstr>
 
-# let set_cookie = Header.(find res.headers set_cookie);; 
+# let set_cookie = Header.(find (Response.headers res) set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
@@ -384,19 +372,16 @@ val req : Request.server Request.t = <abstr>
 # let handler req =
   let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in
   Request.replace_session_data session_data req;
-  Response.Server.text "hello";;
-val handler : Request.server Request.t -> Server.response = <fun>
+  Response.text "hello";;
+val handler : Request.server Request.t -> Response.server Response.t = <fun>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) req ;;
-val res : Server.response =
-  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+val res : Server.response = <abstr>
 
-# let set_cookie = Header.(find res.headers set_cookie);; 
+# let set_cookie = Header.(find (Response.headers res) set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;

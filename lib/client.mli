@@ -58,9 +58,10 @@ type url = string
 (** [url] is the full HTTP request url. [wwww.example.com/products] *)
 
 type request = Request.client Request.t
+type response = Response.client Response.t
 
-type 'a handler = Response.Client.t -> 'a
-(** [handler] is the response handler. [Response.Client.close] is called after
+type 'a handler = response -> 'a
+(** [handler] is the response handler. [Response.close] is called after
     executing the [handler]. *)
 
 val get : t -> url -> 'a handler -> 'a
@@ -112,7 +113,7 @@ val do_call : t -> request -> 'a handler -> 'a
 
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val call : conn:#Eio.Flow.two_way -> request -> Response.Client.t
+val call : conn:#Eio.Flow.two_way -> request -> response
 (** [call conn req] makes a HTTP client call using connection [conn] and request
     [req]. It returns a {!type:response} upon a successfull call.
 

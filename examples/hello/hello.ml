@@ -1,6 +1,6 @@
 open Spring
 
-let view ~title body = Response.Server.ohtml @@ V.layout_v ~title ~body
+let view ~title body = Response.ohtml @@ V.layout_v ~title ~body
 let say_hello _req = view ~title:"Hello Page" V.hello_v
 
 let display_products _req =

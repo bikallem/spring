@@ -90,8 +90,9 @@ let connection t ((host, service) as k) =
         conn)
     ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
 
-type 'a handler = Response.Client.t -> 'a
 type request = Request.client Request.t
+type response = Response.client Response.t
+type 'a handler = response -> 'a
 
 let do_call t (req : request) f =
   Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
@@ -108,7 +109,7 @@ let do_call t (req : request) f =
       Request.write_client_request req writer;
       let initial_size = t.read_initial_size in
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
-      let res = Response.Client.parse buf_read in
+      let res = Response.parse_client_response buf_read in
       let x = f res in
       Eio.Mutex.lock t.cache_mu;
       Fun.protect
@@ -119,7 +120,7 @@ let do_call t (req : request) f =
             Cache.replace t.cache k (n, s)
           | None -> ())
         ~finally:(fun () ->
-          Response.Client.close res;
+          Response.close res;
           Eio.Mutex.unlock t.cache_mu);
       x)
 
@@ -174,7 +175,7 @@ let call ~conn req =
   Eio.Buf_write.with_flow ~initial_size conn @@ fun writer ->
   Request.write_client_request req writer;
   let buf_read = Eio.Buf_read.of_flow ~initial_size ~max_size:max_int conn in
-  Response.Client.parse buf_read
+  Response.parse_client_response buf_read
 
 let buf_write_initial_size t = t.write_initial_size
 let buf_read_initial_size t = t.read_initial_size

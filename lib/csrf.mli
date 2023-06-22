@@ -23,6 +23,7 @@ type key = string
 (** [key] is an alias for 32 bytes long randomly generated string. *)
 
 type request = Request.server Request.t
+type response = Response.server Response.t
 
 (** [codec] encapsulates decoding CSRF token from request. *)
 class virtual codec :
@@ -102,11 +103,11 @@ val form_field : request -> #codec -> Ohtml.t
     @raise Csrf_protected_not_enabled if CSRF is not enabled for the request. *)
 
 val protect_request :
-     ?on_fail:(unit -> Response.Server.t)
+     ?on_fail:(unit -> response)
   -> #codec
   -> (request as 'a)
-  -> ('a -> Response.Server.t)
-  -> Response.Server.t
+  -> ('a -> response)
+  -> response
 (** [protect_request t req f] protects request [req] from CSRF.
 
     [f] is the lambda that is executed as [f req] after [req] passes CSRF

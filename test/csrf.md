@@ -33,7 +33,7 @@ let pp_response r =
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
   Eio.Buf_write.with_flow s (fun bw ->
-    Response.Server.write bw r;
+    Response.write_server_response bw r;
   );
   Eio.traceln "%s" (Buffer.contents b);;
 ```
@@ -72,11 +72,8 @@ Return OK response if the CSRF token in form matches the one in session.
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server Request.t = <abstr>
 
-# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
-val res : Response.Server.t =
-  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.text "hello") ;;
+val res : Csrf.response = <abstr>
 
 # pp_response res;;
 +HTTP/1.1 200 OK
@@ -106,11 +103,8 @@ Return `Bad Request` response if the CSRF tokens dont' match.
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server Request.t = <abstr>
 
-# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
-val res : Response.Server.t =
-  {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.text "hello") ;;
+val res : Csrf.response = <abstr>
 
 # pp_response res;;
 +HTTP/1.1 400 Bad Request
@@ -142,11 +136,8 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
     |>  make_form_submission_request ;;
 val csrf_form_req : Request.server Request.t = <abstr>
 
-# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.Server.text "hello") ;;
-val res : Response.Server.t =
-  {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
-   headers = <abstr>;
-   body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
+# let res = Csrf.protect_request form_codec csrf_form_req (fun _ -> Response.text "hello") ;;
+val res : Csrf.response = <abstr>
 
 # pp_response res;;
 +HTTP/1.1 200 OK

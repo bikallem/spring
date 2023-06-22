@@ -3,7 +3,7 @@
 (** {1 Handler} *)
 
 type request = Request.server Request.t
-type response = Response.Server.t
+type response = Response.server Response.t
 
 type handler = request -> response
 (** [handler] is a HTTP request handler. *)
@@ -154,7 +154,7 @@ val make_app_server :
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
 
-type 'a request_target = ('a, Response.Server.t) Router.request_target
+type 'a request_target = ('a, response) Router.request_target
 
 val get : 'f request_target -> 'f -> app -> app
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
