@@ -1,7 +1,9 @@
-(** [Request] is a HTTP Request. *)
+(** [Request] provides types and function to manipulate HTTP Requests. *)
 
 type 'a t
-(** [t] is a common request abstraction for {!type:server} and {!type:client}. *)
+(** [t] is a HTTP request. *)
+
+(** {1 Common Request Details} *)
 
 type resource = string
 (** [resource] is the request uri path *)
@@ -23,6 +25,9 @@ val keep_alive : _ t -> bool
 val find_cookie : string -> _ t -> string option
 (** [find_cookie cookie_name t] is [Some cookie_value] if a Cookie with name
     [cookie_name] exists in [t]. Otherwise is [None]. *)
+
+val pp : Format.formatter -> _ t -> unit
+(** [pp fmt t] pretty prints [t] onto [fmt]. *)
 
 (** {1 Client Request}
 
@@ -120,7 +125,3 @@ val parse_server_request :
   -> server t
 (** [parse client_addr buf_read] parses a server request [r] given a buffered
     reader [buf_read]. *)
-
-(** {1 Pretty Printer} *)
-
-val pp : Format.formatter -> _ t -> unit

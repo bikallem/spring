@@ -1,7 +1,9 @@
-(** [Response] A HTTP Response. *)
+(** [Request] provides types and function to manipulate HTTP Responses. *)
 
 type 'a t
 (** [t] is a HTTP response. *)
+
+(** {1 Common Response Details} *)
 
 val version : _ t -> Version.t
 val status : _ t -> Status.t
