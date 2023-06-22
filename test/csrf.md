@@ -15,7 +15,8 @@ let make_form_submission_request (client_req : Request.client Request.t) =
   let client_req =
     let data = Session.Data.(add form_codec#token_name csrf_tok empty) in
     let data = Session.encode ~nonce data session in
-    Request.add_cookie ~name:session#cookie_name ~value:data client_req
+    let cookie_name = Session.cookie_name session in
+    Request.add_cookie ~name:cookie_name ~value:data client_req
   in
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in

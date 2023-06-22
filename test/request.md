@@ -352,7 +352,7 @@ let session_data =
 let data : string = Session.encode ~nonce session_data session
 
 let make_request_buf () : Eio.Buf_read.t = 
-  let s = Printf.sprintf "GET /products HTTP/1.1\r\nHost: www.example.com\r\nCookie: %s=%s\r\nUser-Agent: cohttp-eio\r\n\r\n" session#cookie_name data in
+  let s = Printf.sprintf "GET /products HTTP/1.1\r\nHost: www.example.com\r\nCookie: %s=%s\r\nUser-Agent: cohttp-eio\r\n\r\n" (Session.cookie_name session) data in
   Eio.Buf_read.of_string s
 ```
 ```ocaml

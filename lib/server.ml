@@ -54,12 +54,12 @@ let router_pipeline : response Router.t -> pipeline =
   | Some response -> response
   | None -> next req
 
-let session_pipeline (session : #Session.codec) : pipeline =
+let session_pipeline (session_codec : Session.codec) : pipeline =
  fun next req ->
-  let cookie_name = session#cookie_name in
+  let cookie_name = Session.cookie_name session_codec in
   (match Request.find_cookie cookie_name req with
   | Some data ->
-    let session_data = Session.decode data session in
+    let session_data = Session.decode data session_codec in
     Request.replace_session_data session_data req
   | None -> ());
   let response = next req in
@@ -67,7 +67,7 @@ let session_pipeline (session : #Session.codec) : pipeline =
   | None -> response
   | Some session_data ->
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
-    let encrypted_data = Session.encode ~nonce session_data session in
+    let encrypted_data = Session.encode ~nonce session_data session_codec in
     let cookie =
       Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
         (cookie_name, encrypted_data)

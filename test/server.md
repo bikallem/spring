@@ -336,7 +336,7 @@ let make_session_cookie session key =
 val key : string = "’qQû&ÏW\015Ã&ƒ§ùî¯¤ÓTØŠvgwãÖÅÌ€L–b\016"
 
 # let session = Session.cookie_codec key;;
-val session : Session.codec = <obj>
+val session : Session.codec = <abstr>
 
 # let session_cookie = make_session_cookie session key ;;
 val session_cookie : Cookie.t = <abstr>

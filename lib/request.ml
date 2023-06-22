@@ -213,7 +213,8 @@ let parse_server_request ?session client_addr (buf_read : Buf_read.t) =
     let open Option.Syntax in
     let* session = session in
     let* cookie = Header.(find_opt headers cookie) in
-    let+ session_data = Cookie.find_opt session#cookie_name cookie in
+    let cookie_name = Session.cookie_name session in
+    let+ session_data = Cookie.find_opt cookie_name cookie in
     Session.decode session_data session
   in
   make_server_request ?session_data ~version ~headers ~resource meth client_addr

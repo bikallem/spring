@@ -11,7 +11,7 @@ let nonce = Cstruct.of_string "aaaaaaaaaaaa"
 
 ```ocaml
 # let t = Session.cookie_codec key ;;
-val t : Session.codec = <obj>
+val t : Session.codec = <abstr>
 
 # let session_data = 
   Session.Data.(

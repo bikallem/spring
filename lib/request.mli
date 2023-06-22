@@ -119,7 +119,7 @@ val to_readable : server t -> Body.readable
 (** [to_readable t] converts [t] to {!type:Body.readable}. *)
 
 val parse_server_request :
-     ?session:#Session.codec
+     ?session:Session.codec
   -> Eio.Net.Sockaddr.stream
   -> Eio.Buf_read.t
   -> server t

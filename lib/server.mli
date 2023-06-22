@@ -75,7 +75,7 @@ val router_pipeline : response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
-val session_pipeline : #Session.codec -> pipeline
+val session_pipeline : Session.codec -> pipeline
 (** [session_pipeline session] is a pipeline implementing HTTP request session
     functionality in spring. *)
 
@@ -124,7 +124,7 @@ val make_app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
-  -> ?session_codec:#Session.codec
+  -> ?session_codec:Session.codec
   -> ?master_key:string
   -> on_error:(exn -> unit)
   -> secure_random:#Eio.Flow.source
