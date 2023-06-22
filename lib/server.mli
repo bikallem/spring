@@ -78,15 +78,12 @@ val session_pipeline : #Session.codec -> pipeline
 
 (** {1 Servers}*)
 
-type 'a t constraint 'a = < handler : handler ; .. >
+type 'a t
 (** [t] represents a HTTP/1.1 server instance configured with some specific
     server parameters. *)
 
+type http
 (** [http] is a raw HTTP/1.1 server without any configured pipeline. *)
-class virtual http :
-  object
-    method virtual handler : handler
-  end
 
 val make_http_server :
      ?max_connections:int
@@ -110,20 +107,15 @@ val make_http_server :
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int]. *)
 
-type 'a request_target = ('a, Response.Server.t) Router.request_target
-
+type app
 (** [app] is a HTTP/1.1 server with the following pipelines preconfigured for
     convenience:
 
     - [strict_http]
     - [session_pipeline]
     - [router_pipeline] *)
-class virtual app :
-  object ('a)
-    inherit http
-    method virtual router : Response.Server.t Router.t
-    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
-  end
+
+val empty_app : app
 
 val make_app_server :
      ?max_connections:int
@@ -135,6 +127,7 @@ val make_app_server :
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
   -> #Eio.Net.t
+  -> app
   -> app t
 (** [make_app_server t ~secure_random ~on_error clock net] is {!type:app} [t].
 
@@ -158,27 +151,29 @@ val make_app_server :
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
 
-val get : 'f request_target -> 'f -> app t -> app t
+type 'a request_target = ('a, Response.Server.t) Router.request_target
+
+val get : 'f request_target -> 'f -> app -> app
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
     and [request_target] *)
 
-val head : 'f request_target -> 'f -> app t -> app t
+val head : 'f request_target -> 'f -> app -> app
 (** [head request_target f t] is [t] with a route that matches HTTP HEAD method
     and [request_target]. *)
 
-val delete : 'f request_target -> 'f -> app t -> app t
+val delete : 'f request_target -> 'f -> app -> app
 (** [delete request_target f t] is [t] with a route that matches HTTP DELETE
     method and [request_target]. *)
 
-val post : 'f request_target -> 'f -> app t -> app t
+val post : 'f request_target -> 'f -> app -> app
 (** [post request_target f t] is [t] with a route that matches HTTP POST method
     and [request_target]. *)
 
-val put : 'f request_target -> 'f -> app t -> app t
+val put : 'f request_target -> 'f -> app -> app
 (** [put request_target f t] is [t] with a route that matches HTTP PUT method
     and [request_target]. *)
 
-val add_route : Method.t -> 'f request_target -> 'f -> app t -> app t
+val add_route : Method.t -> 'f request_target -> 'f -> app -> app
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
 

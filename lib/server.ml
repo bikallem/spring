@@ -73,15 +73,12 @@ let session_pipeline (session : #Session.codec) : pipeline =
 type 'a t =
   { clock : Eio.Time.clock
   ; net : Eio.Net.t
-  ; handler : < handler : handler ; .. > as 'a
+  ; handler : handler
   ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
   ; stop_u : unit Eio.Promise.u
   }
 
-class virtual http =
-  object
-    method virtual handler : handler
-  end
+type http = handler
 
 let make_http_server
     ?(max_connections = Int.max_int)
@@ -96,22 +93,14 @@ let make_http_server
   in
   { clock = (clock :> Eio.Time.clock)
   ; net = (net :> Eio.Net.t)
-  ; handler =
-      object
-        method handler = handler
-      end
+  ; handler
   ; run
   ; stop_u
   }
 
-type 'a request_target = ('a, Response.Server.t) Router.request_target
+type app = Response.Server.t Router.t
 
-class virtual app =
-  object (_ : 'a)
-    inherit http
-    method virtual router : Response.Server.t Router.t
-    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
-  end
+let empty_app = Router.empty
 
 let make_app_server
     ?(max_connections = Int.max_int)
@@ -122,7 +111,8 @@ let make_app_server
     ~on_error
     ~secure_random
     (clock : #Eio.Time.clock)
-    (net : #Eio.Net.t) =
+    (net : #Eio.Net.t)
+    app =
   let stop, stop_u = Eio.Promise.create () in
   let key =
     match master_key with
@@ -141,24 +131,13 @@ let make_app_server
     | Some x -> (x :> Session.codec)
     | None -> (Session.cookie_codec key :> Session.codec)
   in
-  let handler : app =
-    object (self : 'a)
-      val router = Router.empty
-      method router = router
-
-      method add_route : type f. Method.t -> f request_target -> f -> 'a =
-        fun meth rt f -> {<router = Router.add meth rt f router>}
-
-      method handler =
-        strict_http clock
-        @@ session_pipeline session_codec
-        @@ router_pipeline self#router
-        @@ handler
-    end
-  in
   { clock = (clock :> Eio.Time.clock)
   ; net = (net :> Eio.Net.t)
-  ; handler
+  ; handler =
+      strict_http clock
+      @@ session_pipeline session_codec
+      @@ router_pipeline app
+      @@ handler
   ; run =
       (fun socket handler ->
         let env =
@@ -177,15 +156,14 @@ let make_app_server
   ; stop_u
   }
 
-let add_route meth request_target f (t : app t) =
-  let handler = t.handler#add_route meth request_target f in
-  { t with handler }
+type 'a request_target = ('a, Response.Server.t) Router.request_target
 
-let get rt f t = add_route Method.get rt f t
-let head rt f t = add_route Method.head rt f t
-let delete rt f t = add_route Method.delete rt f t
-let post rt f t = add_route Method.post rt f t
-let put rt f t = add_route Method.put rt f t
+let add_route = Router.add
+let get rt f app = Router.add Method.get rt f app
+let head rt f t = Router.add Method.head rt f t
+let delete rt f t = Router.add Method.delete rt f t
+let post rt f t = Router.add Method.post rt f t
+let put rt f t = Router.add Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.Server.parse client_addr reader with
@@ -209,7 +187,7 @@ let connection_handler handler clock flow client_addr =
       handle_request clock client_addr reader writer flow handler)
 
 let run socket t =
-  let connection_handler = connection_handler t.handler#handler t.clock in
+  let connection_handler = connection_handler t.handler t.clock in
   t.run socket connection_handler
 
 let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =
