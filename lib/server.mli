@@ -1,8 +1,8 @@
 (** [Server] is a HTTP 1.1 server. *)
 
-type request = Request.server Request.t
 (** {1 Handler} *)
 
+type request = Request.server Request.t
 type response = Response.Server.t
 
 type handler = request -> response
