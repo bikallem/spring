@@ -1,5 +1,6 @@
 type token = string
 type key = string
+type request = Request.server Request.t
 
 class virtual codec ~token_name ~key =
   object
@@ -10,21 +11,21 @@ class virtual codec ~token_name ~key =
         let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
         Secret.encrypt_base64 nonce key tok
 
-    method virtual decode_token : Request.Server.t -> token option
+    method virtual decode_token : request -> token option
   end
 
 let form_codec ?(token_name = "__csrf_token__") key =
   object
     inherit codec ~token_name ~key
 
-    method decode_token (req : Request.Server.t) =
+    method decode_token (req : request) =
       let open Option.Syntax in
       let* ct = Header.(find_opt req.headers content_type) in
       let* tok =
         match (Content_type.media_type ct :> string * string) with
         | "application", "x-www-form-urlencoded" -> (
           let* toks =
-            Request.Server.to_readable req
+            Request.to_readable req
             |> Body.read_form_values
             |> List.assoc_opt token_name
           in
@@ -32,7 +33,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
           | tok :: _ -> Some tok
           | _ -> None)
         | "multipart", "formdata" ->
-          let rdr = Request.Server.to_readable req |> Multipart.reader in
+          let rdr = Request.to_readable req |> Multipart.reader in
           (* Note: anticsrf field must be the first field in multipart/formdata form. *)
           let anticsrf_part = Multipart.next_part rdr in
           let* anticsrf_field = Multipart.form_name anticsrf_part in
@@ -49,23 +50,23 @@ let form_codec ?(token_name = "__csrf_token__") key =
 
 let token_name (t : #codec) = t#token_name
 
-let token (req : Request.Server.t) (t : #codec) =
-  Request.Server.find_session_data t#token_name req
+let token (req : request) (t : #codec) =
+  Request.find_session_data t#token_name req
 
-let decode_token (req : Request.Server.t) (t : #codec) = t#decode_token req
+let decode_token (req : request) (t : #codec) = t#decode_token req
 
-let enable_protection (req : Request.Server.t) (t : #codec) =
-  match Request.Server.find_session_data t#token_name req with
+let enable_protection (req : request) (t : #codec) =
+  match Request.find_session_data t#token_name req with
   | Some _ -> ()
   | None ->
     let tok = Mirage_crypto_rng.generate 32 |> Cstruct.to_string in
-    Request.Server.add_session_data ~name:t#token_name ~value:tok req
+    Request.add_session_data ~name:t#token_name ~value:tok req
 
 let encode_token tok (t : #codec) = t#encode_token tok
 
 exception Csrf_protection_not_enabled
 
-let form_field (req : Request.Server.t) (t : #codec) (b : Buffer.t) =
+let form_field (req : request) (t : #codec) (b : Buffer.t) =
   let tok =
     match token req t with
     | Some tok -> encode_token tok t
@@ -80,7 +81,7 @@ let form_field (req : Request.Server.t) (t : #codec) (b : Buffer.t) =
 let protect_request
     ?(on_fail = fun () -> Response.Server.bad_request)
     (t : #codec)
-    (req : Request.Server.t)
+    (req : request)
     f =
   let open Option.Syntax in
   match
