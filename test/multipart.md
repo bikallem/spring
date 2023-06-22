@@ -95,11 +95,11 @@ let test_writer f =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  let w : Body.writable = f () in
+  let body : Body.writable = f () in
   Eio.Buf_write.with_flow s (fun bw ->
-    w.write_headers bw;
+    Body.write_headers bw body;
     Eio.Buf_write.string bw "\r\n";
-    w.write_body bw;
+    Body.write_body bw body;
   );
   Eio.traceln "%s" (Buffer.contents b);;
 ```

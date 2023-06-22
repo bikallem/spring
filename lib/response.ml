@@ -149,7 +149,7 @@ let write_server_response w (t : server t) =
   Eio.Buf_write.char w ' ';
   Eio.Buf_write.string w status;
   Eio.Buf_write.string w "\r\n";
-  t.x.write_headers w;
+  Body.write_headers w t.x;
   Header.write w t.headers;
   Eio.Buf_write.string w "\r\n";
-  t.x.write_body w
+  Body.write_body w t.x

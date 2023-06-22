@@ -139,10 +139,10 @@ let write_client_request t w =
   (* The first header is a "Host" header. *)
   let host' = host_port_to_string (t.x.host, t.x.port) in
   Header.(write_header w host host');
-  t.x.body.write_headers w;
+  Body.write_headers w t.x.body;
   Header.write w headers;
   Eio.Buf_write.string w "\r\n";
-  t.x.body.write_body w
+  Body.write_body w t.x.body
 
 type server =
   { client_addr : Eio.Net.Sockaddr.stream

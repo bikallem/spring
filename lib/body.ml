@@ -5,6 +5,8 @@ type writable =
 
 let make_writable ~write_body ~write_headers = { write_body; write_headers }
 let none = { write_body = (fun _ -> ()); write_headers = (fun _ -> ()) }
+let write_body buf_write body = body.write_body buf_write
+let write_headers buf_write body = body.write_headers buf_write
 
 let content_writer content_type content =
   let content_length = String.length content in
