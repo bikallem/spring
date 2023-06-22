@@ -97,6 +97,7 @@ let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
 let empty = { route = None; routes = [] }
+let is_empty t = t.routes = []
 
 let node_equal a b =
   match (a, b) with

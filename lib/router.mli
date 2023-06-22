@@ -145,6 +145,8 @@ type 'a t
 val empty : 'a t
 (** [empty] is a router without any [route]. *)
 
+val is_empty : 'a t -> bool
+
 val make : 'a route list -> 'a t
 (** [make routes] is [t] composed of [routes]. *)
 
