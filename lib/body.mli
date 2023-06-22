@@ -20,7 +20,7 @@ val write_body : Eio.Buf_write.t -> writable -> unit
 val write_headers : Eio.Buf_write.t -> writable -> unit
 (** [write_headers buf_write body] writes [body] onto [buf_write]. *)
 
-(** {2 Content Writer} *)
+(** {2 Common Writable Bodies} *)
 
 val content_writer : Content_type.t -> string -> writable
 (** [content_writer content_type content] creates a {!class:writable}
@@ -34,7 +34,7 @@ val form_values_writer : (string * string list) list -> writable
 
 (** {1 Readable} *)
 
-type readable = private { headers : Header.t; buf_read : Eio.Buf_read.t }
+type readable
 (** [readable] is a request/response body that can be read.
 
     See {!val:Request.Server.to_readable} and
@@ -44,8 +44,18 @@ type readable = private { headers : Header.t; buf_read : Eio.Buf_read.t }
     these values. *)
 
 val make_readable : Header.t -> Eio.Buf_read.t -> readable
+(** [make_readable headers buf_read] makes a readable body from [headers] and
+    [buf_read]. *)
 
-(** {1 Readers} *)
+val headers : readable -> Header.t
+(** [headers r] is HTTP headers {!type:Header.t} associated with readable body
+    [r]. *)
+
+val buf_read : readable -> Eio.Buf_read.t
+(** [buf_read r] is buffered reader {!type:Eio.Buf_read.t} associated with
+    readable body [r]. *)
+
+(** {2 Common Body Readers} *)
 
 val read_content : readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]

@@ -27,6 +27,8 @@ let form_values_writer assoc_list =
 type readable = { headers : Header.t; buf_read : Eio.Buf_read.t }
 
 let make_readable headers buf_read = { headers; buf_read }
+let headers r = r.headers
+let buf_read r = r.buf_read
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : readable) =

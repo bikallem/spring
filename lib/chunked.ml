@@ -191,12 +191,14 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
   in
   Body.make_writable ~write_body ~write_headers
 
-let read_chunked f (t : Body.readable) =
-  match Header.(find_opt t.headers transfer_encoding) with
+let read_chunked f (body : Body.readable) =
+  let headers = Body.headers body in
+  match Header.(find_opt headers transfer_encoding) with
   | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
     let rec chunk_loop f =
-      let chunk = parse_chunk !total_read t.headers t.buf_read in
+      let buf_read = Body.buf_read body in
+      let chunk = parse_chunk !total_read headers buf_read in
       match chunk with
       | `Chunk (size, data, extensions) ->
         f (Chunk { data; extensions });

@@ -10,10 +10,10 @@ type reader =
 
 open Option.Syntax
 
-let reader (body : Body.readable) =
+let reader body =
   let boundary =
     match
-      let* ct = Header.(find_opt body.headers content_type) in
+      let* ct = Header.(find_opt (Body.headers body) content_type) in
       Content_type.find_param ct "boundary"
     with
     | Some v -> v
@@ -21,7 +21,7 @@ let reader (body : Body.readable) =
   in
   let dash_boundary = "--" ^ boundary in
   let final_boundary = "--" ^ boundary ^ "--" in
-  let r = body.buf_read in
+  let r = Body.buf_read body in
   { r
   ; boundary
   ; dash_boundary
