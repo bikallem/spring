@@ -71,7 +71,9 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
-val router_pipeline : response Router.t -> pipeline
+type router = response Router.t
+
+val router_pipeline : router -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
@@ -118,7 +120,8 @@ type app
     - [session_pipeline]
     - [router_pipeline] *)
 
-val empty_app : app
+val empty_router : router
+(** [empty_router] is a router without any configured routes. *)
 
 val make_app_server :
      ?max_connections:int
@@ -130,7 +133,7 @@ val make_app_server :
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
   -> #Eio.Net.t
-  -> app
+  -> router
   -> app t
 (** [make_app_server t ~secure_random ~on_error clock net] is {!type:app} [t].
 
@@ -154,29 +157,33 @@ val make_app_server :
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
 
+(** {1 Router}
+
+    Use spring ppx and [%r ] syntax to add routes to a router. *)
+
 type 'a request_target = ('a, response) Router.request_target
 
-val get : 'f request_target -> 'f -> app -> app
+val get : 'f request_target -> 'f -> router -> router
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
     and [request_target] *)
 
-val head : 'f request_target -> 'f -> app -> app
+val head : 'f request_target -> 'f -> router -> router
 (** [head request_target f t] is [t] with a route that matches HTTP HEAD method
     and [request_target]. *)
 
-val delete : 'f request_target -> 'f -> app -> app
+val delete : 'f request_target -> 'f -> router -> router
 (** [delete request_target f t] is [t] with a route that matches HTTP DELETE
     method and [request_target]. *)
 
-val post : 'f request_target -> 'f -> app -> app
+val post : 'f request_target -> 'f -> router -> router
 (** [post request_target f t] is [t] with a route that matches HTTP POST method
     and [request_target]. *)
 
-val put : 'f request_target -> 'f -> app -> app
+val put : 'f request_target -> 'f -> router -> router
 (** [put request_target f t] is [t] with a route that matches HTTP PUT method
     and [request_target]. *)
 
-val add_route : Method.t -> 'f request_target -> 'f -> app -> app
+val add_route : Method.t -> 'f request_target -> 'f -> router -> router
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
 

@@ -48,7 +48,9 @@ let response_date : #Eio.Time.clock -> pipeline =
 
 let strict_http clock next = response_date clock @@ host_header @@ next
 
-let router_pipeline : response Router.t -> pipeline =
+type router = response Router.t
+
+let router_pipeline : router -> pipeline =
  fun router next req ->
   match Router.match' req router with
   | Some response -> response
@@ -104,7 +106,7 @@ let make_http_server
 
 type app = response Router.t
 
-let empty_app = Router.empty
+let empty_router = Router.empty
 
 let make_app_server
     ?(max_connections = Int.max_int)
@@ -116,7 +118,7 @@ let make_app_server
     ~secure_random
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t)
-    app =
+    router =
   let stop, stop_u = Eio.Promise.create () in
   let key =
     match master_key with
@@ -140,7 +142,7 @@ let make_app_server
   ; handler =
       strict_http clock
       @@ session_pipeline session_codec
-      @@ router_pipeline app
+      @@ router_pipeline router
       @@ handler
   ; run =
       (fun socket handler ->
