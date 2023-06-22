@@ -70,48 +70,50 @@ let session_pipeline (session : #Session.codec) : pipeline =
     in
     Response.Server.add_set_cookie cookie response
 
-class virtual t =
+type 'a t =
+  { clock : Eio.Time.clock
+  ; net : Eio.Net.t
+  ; handler : < handler : handler ; .. > as 'a
+  ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
+  ; stop_u : unit Eio.Promise.u
+  }
+
+class virtual http =
   object
-    method virtual clock : Eio.Time.clock
-    method virtual net : Eio.Net.t
     method virtual handler : handler
-
-    method virtual run
-        : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
-
-    method virtual stop : unit
   end
 
-let make
+let make_http_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ~on_error
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t)
     handler =
-  let stop, stop_r = Eio.Promise.create () in
+  let stop, stop_u = Eio.Promise.create () in
   let run =
     Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
   in
-  object
-    method clock = (clock :> Eio.Time.clock)
-    method net = (net :> Eio.Net.t)
-    method handler = handler
-    method run = run
-    method stop = Eio.Promise.resolve stop_r ()
-  end
+  { clock = (clock :> Eio.Time.clock)
+  ; net = (net :> Eio.Net.t)
+  ; handler =
+      object
+        method handler = handler
+      end
+  ; run
+  ; stop_u
+  }
 
 type 'a request_target = ('a, Response.Server.t) Router.request_target
 
-class virtual app_server =
+class virtual app =
   object (_ : 'a)
-    inherit t
-    method virtual session_codec : Session.codec
+    inherit http
     method virtual router : Response.Server.t Router.t
     method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
-let app_server
+let make_app_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ?(handler = not_found_handler)
@@ -121,7 +123,7 @@ let app_server
     ~secure_random
     (clock : #Eio.Time.clock)
     (net : #Eio.Net.t) =
-  let stop, stop_r = Eio.Promise.create () in
+  let stop, stop_u = Eio.Promise.create () in
   let key =
     match master_key with
     | Some key -> key
@@ -139,51 +141,51 @@ let app_server
     | Some x -> (x :> Session.codec)
     | None -> (Session.cookie_codec key :> Session.codec)
   in
-  object (self)
-    val router = Router.empty
-    method clock = (clock :> Eio.Time.clock)
-    method net = (net :> Eio.Net.t)
-    method session_codec = session_codec
+  let handler : app =
+    object (self : 'a)
+      val router = Router.empty
+      method router = router
 
-    method handler =
-      let r = self#router in
-      strict_http clock
-      @@ session_pipeline session_codec
-      @@ router_pipeline r
-      @@ handler
+      method add_route : type f. Method.t -> f request_target -> f -> 'a =
+        fun meth rt f -> {<router = Router.add meth rt f router>}
 
-    method run socket handler =
-      let env =
-        (object
-           method clock = clock
-           method secure_random = (secure_random :> Eio.Flow.source)
-         end
-          :> Mirage_crypto_rng_eio.env)
-      in
-      Mirage_crypto_rng_eio.run
-        (module Mirage_crypto_rng.Fortuna)
-        env
-        (fun () ->
-          Eio.Net.run_server ~max_connections ?additional_domains ~stop
-            ~on_error socket handler)
+      method handler =
+        strict_http clock
+        @@ session_pipeline session_codec
+        @@ router_pipeline self#router
+        @@ handler
+    end
+  in
+  { clock = (clock :> Eio.Time.clock)
+  ; net = (net :> Eio.Net.t)
+  ; handler
+  ; run =
+      (fun socket handler ->
+        let env =
+          (object
+             method clock = clock
+             method secure_random = (secure_random :> Eio.Flow.source)
+           end
+            :> Mirage_crypto_rng_eio.env)
+        in
+        Mirage_crypto_rng_eio.run
+          (module Mirage_crypto_rng.Fortuna)
+          env
+          (fun () ->
+            Eio.Net.run_server ~max_connections ?additional_domains ~stop
+              ~on_error socket handler))
+  ; stop_u
+  }
 
-    method stop = Eio.Promise.resolve stop_r ()
-    method router = router
+let add_route meth request_target f (t : app t) =
+  let handler = t.handler#add_route meth request_target f in
+  { t with handler }
 
-    method add_route : type f. Method.t -> f request_target -> f -> #app_server
-        =
-      fun meth rt f -> {<router = Router.add meth rt f router>}
-  end
-
-let add_route meth request_target f (t : #app_server) =
-  let t = (t :> app_server) in
-  t#add_route meth request_target f
-
-let get rt f (t : #app_server) = add_route Method.get rt f t
-let head rt f (t : #app_server) = add_route Method.head rt f t
-let delete rt f (t : #app_server) = add_route Method.delete rt f t
-let post rt f (t : #app_server) = add_route Method.post rt f t
-let put rt f (t : #app_server) = add_route Method.put rt f t
+let get rt f t = add_route Method.get rt f t
+let head rt f t = add_route Method.head rt f t
+let delete rt f t = add_route Method.delete rt f t
+let post rt f t = add_route Method.post rt f t
+let put rt f t = add_route Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =
   match Request.Server.parse client_addr reader with
@@ -206,17 +208,16 @@ let connection_handler handler clock flow client_addr =
   Eio.Buf_write.with_flow flow (fun writer ->
       handle_request clock client_addr reader writer flow handler)
 
-let run socket (t : #t) =
-  let connection_handler = connection_handler t#handler t#clock in
-  t#run socket connection_handler
+let run socket t =
+  let connection_handler = connection_handler t.handler#handler t.clock in
+  t.run socket connection_handler
 
-let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) (t : #t)
-    =
+let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =
   Eio.Switch.run @@ fun sw ->
   let addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, port) in
   let socket =
-    Eio.Net.listen ~reuse_addr ~backlog:socket_backlog ~sw t#net addr
+    Eio.Net.listen ~reuse_addr ~backlog:socket_backlog ~sw t.net addr
   in
   run socket t
 
-let shutdown (t : #t) = t#stop
+let shutdown t = Eio.Promise.resolve t.stop_u ()

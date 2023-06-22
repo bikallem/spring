@@ -20,8 +20,8 @@ let _csrf_protec _req =
 let () =
   Printexc.record_backtrace true;
   Eio_main.run @@ fun env ->
-  Server.app_server ~on_error:raise ~secure_random:env#secure_random env#clock
-    env#net
+  Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
+    env#clock env#net
   |> Server.get [%r "/"] say_hello
   |> Server.get [%r "/products"] display_products
   |> Server.run_local ~port:8080

@@ -28,7 +28,7 @@ let handler (req : Request.Server.t) =
 
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let server = Server.make ~on_error:raise (fake_clock env#clock) env#net handler in 
+  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net handler in 
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->
@@ -86,7 +86,7 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
 
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let server = Server.make ~on_error:raise (fake_clock env#clock) env#net final_handler in 
+  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net final_handler in 
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->
@@ -285,7 +285,7 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
 ```ocaml
 # Eio_main.run @@ fun env ->
   let handler = Server.strict_http (fake_clock env#clock) @@ handler in
-  let server = Server.make ~on_error:raise (fake_clock env#clock) env#net handler in 
+  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net handler in 
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->

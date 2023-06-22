@@ -78,29 +78,25 @@ val session_pipeline : #Session.codec -> pipeline
 
 (** {1 Servers}*)
 
+type 'a t constraint 'a = < handler : handler ; .. >
 (** [t] represents a HTTP/1.1 server instance configured with some specific
     server parameters. *)
-class virtual t :
+
+(** [http] is a raw HTTP/1.1 server without any configured pipeline. *)
+class virtual http :
   object
-    method virtual clock : Eio.Time.clock
-    method virtual net : Eio.Net.t
     method virtual handler : handler
-
-    method virtual run :
-      Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
-
-    method virtual stop : unit
   end
 
-val make :
+val make_http_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> on_error:(exn -> unit)
   -> #Eio.Time.clock
   -> #Eio.Net.t
   -> handler
-  -> t
-(** [make ~on_error clock net handler] is [t].
+  -> http t
+(** [make_http_server ~on_error clock net handler] is [t].
 
     {b Running a Parallel Server} By default [t] runs on a {e single} OCaml
     {!module:Domain}. However, if [additional_domains:(domain_mgr, domains)]
@@ -116,21 +112,20 @@ val make :
 
 type 'a request_target = ('a, Response.Server.t) Router.request_target
 
-(** [app_server] is a HTTP/1.1 web server with the following pipelines
-    preconfigured for convenience:
+(** [app] is a HTTP/1.1 server with the following pipelines preconfigured for
+    convenience:
 
     - [strict_http]
     - [session_pipeline]
     - [router_pipeline] *)
-class virtual app_server :
+class virtual app :
   object ('a)
-    inherit t
-    method virtual session_codec : Session.codec
+    inherit http
     method virtual router : Response.Server.t Router.t
-    method virtual add_route : Method.t -> 'f request_target -> 'f -> 'a
+    method virtual add_route : 'f. Method.t -> 'f request_target -> 'f -> 'a
   end
 
-val app_server :
+val make_app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
   -> ?handler:handler
@@ -140,15 +135,15 @@ val app_server :
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
   -> #Eio.Net.t
-  -> app_server
-(** [app_server ~secure_random ~on_error clock net] is an [app_server].
+  -> app t
+(** [make_app_server t ~secure_random ~on_error clock net] is {!type:app} [t].
 
     @param handler
       specifies handler to be added after [router_pipeline] is executed. The
       default value is {!val:not_found_handler}
     @param session_codec
-      is the session codec implementation to be used by the [app_server]. The
-      default value is [Session.cookie_codec].
+      is the session codec implementation to be used by the [app t]. The default
+      value is [Session.cookie_codec].
     @param master_key
       is a randomly generated unique key which is used to decrypt/encrypt data.
       If a value is not provided, it is set to a value from one of the options
@@ -163,33 +158,33 @@ val app_server :
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
 
-val get : 'f request_target -> 'f -> #app_server -> app_server
+val get : 'f request_target -> 'f -> app t -> app t
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
     and [request_target] *)
 
-val head : 'f request_target -> 'f -> #app_server -> app_server
+val head : 'f request_target -> 'f -> app t -> app t
 (** [head request_target f t] is [t] with a route that matches HTTP HEAD method
     and [request_target]. *)
 
-val delete : 'f request_target -> 'f -> #app_server -> app_server
+val delete : 'f request_target -> 'f -> app t -> app t
 (** [delete request_target f t] is [t] with a route that matches HTTP DELETE
     method and [request_target]. *)
 
-val post : 'f request_target -> 'f -> #app_server -> app_server
+val post : 'f request_target -> 'f -> app t -> app t
 (** [post request_target f t] is [t] with a route that matches HTTP POST method
     and [request_target]. *)
 
-val put : 'f request_target -> 'f -> #app_server -> app_server
+val put : 'f request_target -> 'f -> app t -> app t
 (** [put request_target f t] is [t] with a route that matches HTTP PUT method
     and [request_target]. *)
 
-val add_route : Method.t -> 'f request_target -> 'f -> #app_server -> app_server
+val add_route : Method.t -> 'f request_target -> 'f -> app t -> app t
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
 
 (** {1 Running Servers} *)
 
-val run : Eio.Net.listening_socket -> #t -> unit
+val run : Eio.Net.listening_socket -> _ t -> unit
 (** [run socket t] runs a HTTP/1.1 server listening on socket [socket].
 
     {[
@@ -203,7 +198,7 @@ val run : Eio.Net.listening_socket -> #t -> unit
     ]} *)
 
 val run_local :
-  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> #t -> unit
+  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> _ t -> unit
 (** [run_local t] runs server on TCP/IP address [localhost] and by default on
     port [80].
 
@@ -225,6 +220,6 @@ val connection_handler :
 (** [connection_handler handler clock] is a connection handler, suitable for
     passing to {!Eio.Net.accept_fork}. *)
 
-val shutdown : #t -> unit
+val shutdown : _ t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
     inflight connections to complete. *)
