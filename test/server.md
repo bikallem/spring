@@ -14,11 +14,13 @@ let fake_clock real_clock = object (_ : #Eio.Time.clock)
     now := max !now time
 end
 
-let handler (req : Request.Server.t) =
+type request = Request.server Request.t
+
+let handler (req : request) =
   match req.resource with
   | "/" -> Response.Server.text "root"
   | "/upload" -> (
-    match Request.Server.to_readable req |> Body.read_content with
+    match Request.to_readable req |> Body.read_content with
     | Some a -> Response.Server.text a
     | None -> Response.Server.bad_request)
   | _ -> Response.Server.not_found
@@ -76,7 +78,7 @@ A `router` pipeline is a simple `Request.resource` based request router. It only
 
 ```ocaml
 let router : Server.pipeline =
-  fun next (req : Request.Server.t) ->
+  fun next (req : request ) ->
     match req.resource with
     | "/" -> Response.Server.text "hello, there"
     | _ -> next req
@@ -121,15 +123,17 @@ let hello _req = Response.Server.text "hello"
 Try with GET method.
 
 ```ocaml
-# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "get" "";;
-val r : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "";;
+val r : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Response.Server.t =
+val res1 : Server.response =
   {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
    headers = <abstr>;
    body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
@@ -149,15 +153,17 @@ val res1 : Response.Server.t =
 Try with POST method.
 
 ```ocaml
-# let r = Request.Server.parse client_addr @@ make_buf_read "1.1" "post" "";;
-val r : Request.Server.t =
-  {Spring.Request.Server.meth = "post"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "post" "";;
+val r : Request.server Request.t =
+  {Spring.Request.meth = "post"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Response.Server.t =
+val res1 : Server.response =
   {Spring__.Response.Server.version = (1, 1); status = (400, "Bad Request");
    headers = <abstr>;
    body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
@@ -181,15 +187,17 @@ A valid request with HOST header is processed okay.
   |> Eio.Buf_read.of_string ;;
 val buf_read : Eio.Buf_read.t = <abstr>
 
-# let r = Request.Server.parse client_addr buf_read;;
-val r : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let r = Request.parse_server_request client_addr buf_read;;
+val r : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let res1 = (Server.host_header @@ hello) r;;
-val res1 : Response.Server.t =
+val res1 : Server.response =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;
    body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
@@ -215,14 +223,16 @@ A Date header is added to a 200 response.
 
 ```ocaml
 # let hello _req = Response.Server.text "hello, world!" ;;
-val hello : 'a -> Response.Server.t = <fun>
+val hello : 'a -> Server.response = <fun>
 
-# let req = Request.Server.make ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let req = Request.make_server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let h = Server.(response_date mock_clock) @@ hello ;;
 val h : Server.handler = <fun>
@@ -243,7 +253,7 @@ A Date header is not added added to a 5xx status response. We use server_request
 
 ```ocaml
 # let h _req = Response.Server.make ~status:Status.internal_server_error Body.none ;;
-val h : 'a -> Response.Server.t = <fun>
+val h : 'a -> Server.response = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
@@ -262,7 +272,7 @@ A Date header is not added added to a 1xx status response. We use server_request
 
 ```ocaml
 # let h _req = Response.Server.make ~status:Status.continue Body.none ;;
-val h : 'a -> Response.Server.t = <fun>
+val h : 'a -> Server.response = <fun>
 
 # let h= Server.response_date mock_clock @@ h ;;
 val h : Server.handler = <fun>
@@ -367,21 +377,23 @@ val session_cookie : Cookie.t = <abstr>
 # let headers = Header.(add empty cookie session_cookie);;
 val headers : Header.t = <abstr>
 
-# let req = Request.Server.make ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let req = Request.make_server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let handler _req = Response.Server.text "hello";;
-val handler : 'a -> Response.Server.t = <fun>
+val handler : 'a -> Server.response = <fun>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) req ;;
-val res : Response.Server.t =
+val res : Server.response =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;
    body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}
@@ -396,24 +408,26 @@ val set_cookie : Set_cookie.t = <abstr>
 Response should have Session Set-Cookie if set during request processing.
 
 ```ocaml
-# let req = Request.Server.make ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
-val req : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/products";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+# let req = Request.make_server_request ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
+val req : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/products"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
 # let handler req =
   let session_data = Session.Data.(add "a" "a_val" empty |> add "b" "b_val") in
-  Request.Server.replace_session_data session_data req;
+  Request.replace_session_data session_data req;
   Response.Server.text "hello";;
-val handler : Request.Server.t -> Response.Server.t = <fun>
+val handler : Request.server Request.t -> Server.response = <fun>
 
 # let res = 
   Eio_main.run @@ fun env ->
   Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env @@ fun () ->
   (Server.session_pipeline session @@ handler) req ;;
-val res : Response.Server.t =
+val res : Server.response =
   {Spring__.Response.Server.version = (1, 1); status = (200, "OK");
    headers = <abstr>;
    body = {Spring__.Body.write_body = <fun>; write_headers = <fun>}}

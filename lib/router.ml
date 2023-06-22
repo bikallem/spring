@@ -52,11 +52,12 @@ let string = make_arg "string" (fun a -> Some a)
 let bool = make_arg "bool" bool_of_string_opt
 
 type rest = string
+type request = Request.server Request.t
 
 type ('a, 'b) request_target =
-  | Nil : (Request.Server.t -> 'b, 'b) request_target
-  | Rest : (rest -> Request.Server.t -> 'b, 'b) request_target
-  | Slash : (Request.Server.t -> 'b, 'b) request_target
+  | Nil : (request -> 'b, 'b) request_target
+  | Rest : (rest -> request -> 'b, 'b) request_target
+  | Slash : (request -> 'b, 'b) request_target
   | Exact : string * ('a, 'b) request_target -> ('a, 'b) request_target
   | Query_exact :
       string * string * ('a, 'b) request_target
@@ -170,7 +171,7 @@ let rec drop : 'a list -> int -> 'a list =
   | _ :: tl when n > 0 -> drop tl (n - 1)
   | t -> t
 
-let rec match' : Request.Server.t -> 'a t -> 'a option =
+let rec match' : request -> 'a t -> 'a option =
  fun req t ->
   let request_target = req.resource in
   let method' = req.meth in
@@ -255,8 +256,7 @@ let rec match' : Request.Server.t -> 'a t -> 'a option =
   match_method t.routes
 
 and exec_route_handler :
-    type a b.
-    Request.Server.t -> a -> (a, b) request_target * arg_value list -> b =
+    type a b. request -> a -> (a, b) request_target * arg_value list -> b =
  fun req f -> function
   | Nil, [] -> f req
   | Rest, [ Arg_value (d, v) ] -> (

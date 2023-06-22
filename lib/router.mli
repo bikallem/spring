@@ -108,9 +108,11 @@ type rest = string
 
     Use {!val:rest_to_string} to convert to string representation. *)
 
-val nil : (Request.Server.t -> 'b, 'b) request_target
-val rest : (rest -> Request.Server.t -> 'b, 'b) request_target
-val slash : (Request.Server.t -> 'b, 'b) request_target
+type request = Request.server Request.t
+
+val nil : (request -> 'b, 'b) request_target
+val rest : (rest -> request -> 'b, 'b) request_target
+val slash : (request -> 'b, 'b) request_target
 val exact : string -> ('a, 'b) request_target -> ('a, 'b) request_target
 val arg : 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
 
@@ -154,7 +156,7 @@ val add : Method.t -> ('a, 'b) request_target -> 'a -> 'b t -> 'b t
 (** [add meth request_target f t] is [t] with route - created from
     [meth],[request_target] and [f] - added to it. *)
 
-val match' : Request.Server.t -> 'a t -> 'a option
+val match' : request -> 'a t -> 'a option
 (** [match' req t] is [Some a] if [Request.meth req] and [Request.resource req]
     together matches one of the routes defined in [t]. Otherwise it is None. The
     value [Some a] is returned by the {i route handler} of the matched

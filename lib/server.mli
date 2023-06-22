@@ -1,8 +1,11 @@
 (** [Server] is a HTTP 1.1 server. *)
 
+type request = Request.server Request.t
 (** {1 Handler} *)
 
-type handler = Request.Server.t -> Response.Server.t
+type response = Response.Server.t
+
+type handler = request -> response
 (** [handler] is a HTTP request handler. *)
 
 val not_found_handler : handler
@@ -68,7 +71,7 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
-val router_pipeline : Response.Server.t Router.t -> pipeline
+val router_pipeline : response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
