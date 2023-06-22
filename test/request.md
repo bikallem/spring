@@ -256,7 +256,7 @@ Pretty-print `Request.server`.
 # let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
 val headers : Header.t = <abstr>
 # let req = 
-    Request.Server.make
+    Request.make_server_request
       ~version:Version.http1_1 
       ~headers 
       ~resource:"/update" 
@@ -264,13 +264,15 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/update";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+val req : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
-# Eio.traceln "%a" Request.Server.pp req ;;
+# Eio.traceln "%a" Request.pp req ;;
 +{
 +  Version:  HTTP/1.1;
 +  Method:  get;
@@ -285,14 +287,14 @@ val req : Request.Server.t =
 - : unit = ()
 ```
 
-## Request.Server.find_cookie
+## Request.find_cookie
 
 ```ocaml
 # let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
 val headers : Header.t = <abstr>
 
 # let req = 
-    Request.Server.make
+    Request.make_server_request
       ~version:Version.http1_1 
       ~headers 
       ~resource:"/update" 
@@ -300,19 +302,21 @@ val headers : Header.t = <abstr>
       client_addr
       (Eio.Buf_read.of_string "")
        ;;
-val req : Request.Server.t =
-  {Spring.Request.Server.meth = "get"; resource = "/update";
-   version = (1, 1); headers = <abstr>;
-   client_addr = `Tcp ("\127\000\000\001", 8081); buf_read = <abstr>;
-   session_data = None}
+val req : Request.server Request.t =
+  {Spring.Request.meth = "get"; resource = "/update"; version = (1, 1);
+   headers = <abstr>;
+   x =
+    {Spring.Request.client_addr = `Tcp ("\127\000\000\001", 8081);
+     buf_read = <abstr>; session_data = None};
+   pp = <fun>}
 
-# Request.Server.find_cookie "SID" req;;
+# Request.find_cookie "SID" req;;
 - : string option = Some "31d4d96e407aad42"
 
-# Request.Server.find_cookie "lang" req;;
+# Request.find_cookie "lang" req;;
 - : string option = Some "en"
 
-# Request.Server.find_cookie "blah" req;;
+# Request.find_cookie "blah" req;;
 - : string option = None
 ```
 
@@ -393,7 +397,7 @@ val req : Request.client Request.t =
 - : string option = None
 ```
 
-## Request.Server.add_session_data/find_session_data
+## Request.add_session_data/find_session_data
 
 ```ocaml
 # let req =
