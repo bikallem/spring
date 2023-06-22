@@ -30,6 +30,7 @@ val find_cookie : string -> _ t -> string option
     {!module:Client}. *)
 
 type client
+(** [client] a HTTP client request. *)
 
 val make_client_request :
      ?version:Version.t
@@ -68,6 +69,7 @@ val write_client_request : client t -> Eio.Buf_write.t -> unit
     {!module:Server}. *)
 
 type server
+(** [server] a HTTP server request. *)
 
 val make_server_request :
      ?version:Version.t
