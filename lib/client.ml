@@ -82,10 +82,7 @@ let connection t ((host, service) as k) =
           let conn = tcp_connect t.sw ~host ~service t.net in
           Cache.replace t.cache k (n + 1, s);
           conn)
-        else
-          let conn = Eio.Stream.take s in
-          Cache.replace t.cache k (n, s);
-          conn
+        else Eio.Stream.take s
       | None ->
         let conn = tcp_connect t.sw ~host ~service t.net in
         let s = Eio.Stream.create t.maximum_conns_per_host in
