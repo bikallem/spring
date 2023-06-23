@@ -74,21 +74,18 @@ let tcp_connect sw ~host ~service net =
 
 let connection t ((host, service) as k) =
   Eio.Mutex.lock t.mutex;
-  Fun.protect
-    (fun () ->
-      match Cache.find_opt t.cache k with
-      | Some (n, s)
-        when n <= t.maximum_conns_per_host && Eio.Stream.length s = 0 ->
-        let conn = tcp_connect t.sw ~host ~service t.net in
-        Cache.replace t.cache k (n + 1, s);
-        conn
-      | Some (_, s) -> Eio.Stream.take s
-      | None ->
-        let conn = tcp_connect t.sw ~host ~service t.net in
-        let s = Eio.Stream.create t.maximum_conns_per_host in
-        Cache.replace t.cache k (1, s);
-        conn)
-    ~finally:(fun () -> Eio.Mutex.unlock t.mutex)
+  Fun.protect ~finally:(fun () -> Eio.Mutex.unlock t.mutex) @@ fun () ->
+  match Cache.find_opt t.cache k with
+  | Some (n, s) when n <= t.maximum_conns_per_host && Eio.Stream.length s = 0 ->
+    let conn = tcp_connect t.sw ~host ~service t.net in
+    Cache.replace t.cache k (n + 1, s);
+    conn
+  | Some (_, s) -> Eio.Stream.take s
+  | None ->
+    let conn = tcp_connect t.sw ~host ~service t.net in
+    let s = Eio.Stream.create t.maximum_conns_per_host in
+    Cache.replace t.cache k (1, s);
+    conn
 
 type request = Request.client Request.t
 
