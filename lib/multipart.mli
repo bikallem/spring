@@ -83,6 +83,7 @@ val find_file_field : string -> form -> file_field option
 (** {1 Writing Multipart} *)
 
 type writable
+(** [writable] is a type of part that can be written. *)
 
 val writable_value_part : form_name:string -> value:string -> writable part
 (** [writable_value_part ~form_name ~value] creates a writable part containing
