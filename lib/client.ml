@@ -107,20 +107,21 @@ let do_call t (req : request) f =
   in
   let k = (host, service) in
   let conn = connection t k in
-  Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn (fun writer ->
-      Request.write_client_request req writer;
-      let initial_size = t.read_initial_size in
-      let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
-      let res = Response.parse_client_response buf_read in
-      let x = f res in
-      Eio.Mutex.lock t.mutex;
-      Fun.protect
-        (fun () ->
-          Response.close res;
-          let _n, s = Cache.find t.cache k in
-          Eio.Stream.add s conn)
-        ~finally:(fun () -> Eio.Mutex.unlock t.mutex);
+  Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn
+  @@ fun writer ->
+  Request.write_client_request req writer;
+  let initial_size = t.read_initial_size in
+  let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
+  let res = Response.parse_client_response buf_read in
+  let x = f res in
+  Eio.Mutex.lock t.mutex;
+  Fun.protect
+    (fun () ->
+      Response.close res;
+      let _n, s = Cache.find t.cache k in
+      Eio.Stream.add s conn;
       x)
+    ~finally:(fun () -> Eio.Mutex.unlock t.mutex)
 
 type url = string
 
