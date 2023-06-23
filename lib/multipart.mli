@@ -17,7 +17,7 @@ val headers : 'a part -> Header.t
 
 (** {1:streaming Reading Parts as Streams}
 
-    The streaming api below supports reading one part at a time. As such, using
+    The streaming api supports reading one part at a time. As such, using
     streaming api could result in an efficient memory usage as compared to
     {!val:form}. *)
 
