@@ -1,4 +1,4 @@
-(** [Body] is HTTP request or response body. *)
+(** HTTP request and response body. *)
 
 (** {1 Writable} *)
 
@@ -23,25 +23,20 @@ val write_headers : Eio.Buf_write.t -> writable -> unit
 (** {2 Common Writable Bodies} *)
 
 val content_writer : Content_type.t -> string -> writable
-(** [content_writer content_type content] creates a {!class:writable}
-    request/response body whose content is [content] and content type is
-    [content_type]. *)
+(** [content_writer content_type content] is a request/response body.
+    [content_type] denotes the body content encoded in [content]. *)
 
 val form_values_writer : (string * string list) list -> writable
-(** [form_values_writer key_values] is a {!class:writer} which writes an
-    associated list [key_values] as body and adds HTTP header [Content-Length]
-    to HTTP request or response. *)
+(** [form_values_writer key_values] is a request/response body which encodes a
+    form submission content. The request/response [Content-Type] is
+    "application/x-www.form-urlencoded". *)
 
 (** {1 Readable} *)
 
 type readable
 (** [readable] is a request/response body that can be read.
 
-    See {!val:Request.Server.to_readable} and
-    {!val:Response.Client.to_readable}.
-
-    {!val:read_content} and {!val:read_form_values} are readers that can read
-    these values. *)
+    See {!val:Request.to_readable} and {!val:Response.to_readable}. *)
 
 val make_readable : Header.t -> Eio.Buf_read.t -> readable
 (** [make_readable headers buf_read] makes a readable body from [headers] and
@@ -61,8 +56,8 @@ val read_content : readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]
     if "Content-Length" header is a valid integer value [n] in [readable].
 
-    If ["Content-Length"] header is missing or is an invalid value in [readable]
-    then [None] is returned. *)
+    If ["Content-Length"] header is missing or is an invalid value, then [None]
+    is returned. *)
 
 val read_form_values : readable -> (string * string list) list
 (** [read_form_values readable] is [form_values] if [readable] body
