@@ -31,7 +31,7 @@ type t =
   ; maximum_conns_per_host : int
   ; sw : Eio.Switch.t
   ; net : Eio.Net.t
-  ; cache_mu : Eio.Mutex.t
+  ; mutex : Eio.Mutex.t
   ; cache : connection_stream Cache.t
   }
 
@@ -48,7 +48,7 @@ let make
   ; maximum_conns_per_host
   ; sw
   ; net = (net :> Eio.Net.t)
-  ; cache_mu = Eio.Mutex.create ()
+  ; mutex = Eio.Mutex.create ()
   ; cache = Cache.create 1
   }
 
@@ -73,22 +73,22 @@ let tcp_connect sw ~host ~service net =
     Eio.Exn.reraise_with_context ex bt "connecting to %S:%s" host service
 
 let connection t ((host, service) as k) =
-  Eio.Mutex.lock t.cache_mu;
+  Eio.Mutex.lock t.mutex;
   Fun.protect
     (fun () ->
       match Cache.find_opt t.cache k with
-      | Some (n, s) ->
-        if n <= t.maximum_conns_per_host && Eio.Stream.length s = 0 then (
-          let conn = tcp_connect t.sw ~host ~service t.net in
-          Cache.replace t.cache k (n + 1, s);
-          conn)
-        else Eio.Stream.take s
+      | Some (n, s)
+        when n <= t.maximum_conns_per_host && Eio.Stream.length s = 0 ->
+        let conn = tcp_connect t.sw ~host ~service t.net in
+        Cache.replace t.cache k (n + 1, s);
+        conn
+      | Some (_, s) -> Eio.Stream.take s
       | None ->
         let conn = tcp_connect t.sw ~host ~service t.net in
         let s = Eio.Stream.create t.maximum_conns_per_host in
         Cache.replace t.cache k (1, s);
         conn)
-    ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
+    ~finally:(fun () -> Eio.Mutex.unlock t.mutex)
 
 type request = Request.client Request.t
 
@@ -113,17 +113,13 @@ let do_call t (req : request) f =
       let buf_read = Buf_read.of_flow ~initial_size ~max_size:max_int conn in
       let res = Response.parse_client_response buf_read in
       let x = f res in
-      Eio.Mutex.lock t.cache_mu;
+      Eio.Mutex.lock t.mutex;
       Fun.protect
         (fun () ->
-          match Cache.find_opt t.cache k with
-          | Some (n, s) ->
-            Eio.Stream.add s conn;
-            Cache.replace t.cache k (n, s)
-          | None -> ())
-        ~finally:(fun () ->
           Response.close res;
-          Eio.Mutex.unlock t.cache_mu);
+          let _n, s = Cache.find t.cache k in
+          Eio.Stream.add s conn)
+        ~finally:(fun () -> Eio.Mutex.unlock t.mutex);
       x)
 
 type url = string
