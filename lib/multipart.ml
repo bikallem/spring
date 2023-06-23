@@ -187,8 +187,24 @@ let find_file_field name t = Map.find_opt name t.files
 
 (* Writer *)
 
-let make_part ?filename ?(headers = Header.empty) body form_name =
-  { t = body; form_name; filename; headers; body_eof = false }
+type writable = Eio.Flow.source
+
+let writable_value_part ~form_name ~value =
+  { t = Eio.Flow.string_source value
+  ; form_name
+  ; filename = None
+  ; headers = Header.empty
+  ; body_eof = true
+  }
+
+let writable_file_part ?(headers = Header.empty) ~filename ~form_name body =
+  let filename = Some filename in
+  { t = (body :> Eio.Flow.source)
+  ; form_name
+  ; filename
+  ; headers
+  ; body_eof = false
+  }
 
 let write_part bw boundary part =
   let params =
@@ -209,7 +225,7 @@ let write_part bw boundary part =
   |> Eio.Buf_read.take_all
   |> Eio.Buf_write.string bw
 
-let writable boundary parts =
+let writable ~boundary parts =
   let buf = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink buf in
   Eio.Buf_write.with_flow s (fun bw ->

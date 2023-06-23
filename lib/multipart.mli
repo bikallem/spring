@@ -82,18 +82,24 @@ val find_file_field : string -> form -> file_field option
 
 (** {1 Writing Multipart} *)
 
-val make_part :
-     ?filename:string
-  -> ?headers:Header.t
-  -> (#Eio.Flow.source as 'a)
-  -> string
-  -> 'a part
-(** [make_part ~file_name ~headers part_body form_name] creates a mulitpart
-    [part] that can be written to a {!class:Body.writable}.
+type writable
 
-    @param filename is the part [filename] attribute.
-    @param headers is HTTP headers for [part] *)
+val writable_value_part : form_name:string -> value:string -> writable part
+(** [writable_value_part ~form_name ~value] creates a writable part containing
+    string [value] and a form field name of [form_name]. *)
 
-val writable : string -> #Eio.Flow.source part list -> Body.writable
-(** [writeable boundary parts] creates a multipart request/response
-    {!class:Body.writable} body. *)
+val writable_file_part :
+     ?headers:Header.t
+  -> filename:string
+  -> form_name:string
+  -> #Eio.Flow.source
+  -> writable part
+(** [writable_file_part ~filename ~form_name body] creates a file form field
+    writable part. [body] points to a file source. [filename] is the name of the
+    file pointed to by [body] and [form_name] is the name of the form field.
+
+    @param headers is a set of HTTP headers for. Default is {!val:Header.empty}. *)
+
+val writable : boundary:string -> writable part list -> Body.writable
+(** [writeable ~boundary parts] creates a multipart request/response
+    {!type:Body.writable} body with the boundary value [boundary]. *)

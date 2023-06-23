@@ -106,11 +106,11 @@ val form_field1 : Multipart.file_field = <abstr>
 A `Buffer.t` sink to test `Body.writer`.
 
 ```ocaml
-let test_writer f =
+let test_writable f =
   Eio_main.run @@ fun env ->
   let b = Buffer.create 10 in
   let s = Eio.Flow.buffer_sink b in
-  let body : Body.writable = f () in
+  let body = f () in
   Eio.Buf_write.with_flow s (fun bw ->
     Body.write_headers bw body;
     Eio.Buf_write.string bw "\r\n";
@@ -122,13 +122,13 @@ let test_writer f =
 Writable with 2 parts.
 
 ```ocaml
-# let p1 = Multipart.make_part ~filename:"a.txt" (Eio.Flow.string_source "content of a.txt") "file";;
-val p1 : Eio.Flow.source Multipart.part = <abstr>
+# let p1 = Multipart.writable_file_part ~filename:"a.txt" ~form_name:"file" (Eio.Flow.string_source "content of a.txt");;
+val p1 : Multipart.writable Multipart.part = <abstr>
 
-# let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "detail";;
-val p2 : Eio.Flow.source Multipart.part = <abstr>
+# let p2 = Multipart.writable_value_part ~form_name:"detail" ~value:"file is a text file.";;
+val p2 : Multipart.writable Multipart.part = <abstr>
 
-# test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1;p2];;
+# test_writable @@ fun () -> Multipart.writable ~boundary:"--A1B2C3" [p1;p2];;
 +Content-Length: 190
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +
@@ -147,10 +147,10 @@ val p2 : Eio.Flow.source Multipart.part = <abstr>
 Writable with only one part. 
 
 ```ocaml
-# let p1 = Multipart.make_part ~filename:"a.txt" (Eio.Flow.string_source "content of a.txt") "file";;
-val p1 : Eio.Flow.source Multipart.part = <abstr>
+# let p1 = Multipart.writable_file_part ~filename:"a.txt" ~form_name:"file" (Eio.Flow.string_source "content of a.txt");;
+val p1 : Multipart.writable Multipart.part = <abstr>
 
-# test_writer @@ fun () -> Multipart.writable "--A1B2C3" [p1];;
+# test_writable @@ fun () -> Multipart.writable ~boundary:"--A1B2C3" [p1];;
 +Content-Length: 107
 +Content-Type: multipart/formdata; boundary=--A1B2C3
 +

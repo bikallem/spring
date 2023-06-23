@@ -121,18 +121,18 @@ val res : Csrf.response = <abstr>
 Mulitpart/formdata form.
 
 ```ocaml
-# let p1 = 
+# let p1 =
   let tok = Spring__Secret.encrypt_base64 nonce key csrf_tok in
-  let token_name = Csrf.token_name form_codec in 
-  Multipart.make_part (Eio.Flow.string_source tok) token_name ;;
-val p1 : Eio.Flow.source Multipart.part = <abstr>
+  let token_name = Csrf.token_name form_codec in
+  Multipart.writable_value_part ~form_name:token_name ~value:tok ;;
+val p1 : Multipart.writable Multipart.part = <abstr>
 
-# let p2 = Multipart.make_part (Eio.Flow.string_source "file is a text file.") "file1";;
-val p2 : Eio.Flow.source Multipart.part = <abstr>
+# let p2 = Multipart.writable_value_part ~form_name:"file1" ~value:"file is a text file." ;;
+val p2 : Multipart.writable Multipart.part = <abstr>
 
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
-    let form_body = Multipart.writable "--A1B2C3" [p1;p2] in
+    let form_body = Multipart.writable ~boundary:"--A1B2C3" [p1;p2] in
     Request.make_client_request
         ~host:"www.example.com"
         ~resource:"www.example.com/post_form"
