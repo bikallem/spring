@@ -98,7 +98,9 @@ val writable_file_part :
     writable part. [body] points to a file source. [filename] is the name of the
     file pointed to by [body] and [form_name] is the name of the form field.
 
-    @param headers is a set of HTTP headers for. Default is {!val:Header.empty}. *)
+    @param headers
+      is a set of HTTP headers for the created part. Default is
+      {!val:Header.empty}. *)
 
 val writable : boundary:string -> writable part list -> Body.writable
 (** [writeable ~boundary parts] creates a multipart request/response
