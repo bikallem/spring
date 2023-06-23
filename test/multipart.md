@@ -31,7 +31,7 @@ val rdr : Multipart.reader = <abstr>
 - : string = "AaB03x"
 ```
 
-## Multipart.next_part
+## Multipart.next_part/read_all
 
 ```ocaml
 # let p = Multipart.next_part rdr;;
@@ -49,16 +49,10 @@ val p : Multipart.reader Multipart.part = <abstr>
 +}
 - : unit = ()
 
-# let flow = Multipart.as_flow p;;
-val flow : Eio.Flow.source = <obj>
-
-# let r = Eio.Buf_read.of_flow ~max_size:max_int flow ;;
-val r : Eio.Buf_read.t = <abstr>
-
-# Eio.Buf_read.take_all  r;;
+# Multipart.read_all p;;
 - : string = "Larry"
 
-# Eio.Flow.single_read flow (Cstruct.create 10) ;;
+# Eio.Flow.single_read (Multipart.as_flow p) (Cstruct.create 10) ;;
 Exception: End_of_file.
 
 # let p2 = Multipart.next_part rdr;;
@@ -70,16 +64,10 @@ val p2 : Multipart.reader Multipart.part = <abstr>
 # Multipart.form_name p2;;
 - : string option = Some "files"
 
-# let flow2 = Multipart.as_flow p2;;
-val flow2 : Eio.Flow.source = <obj>
-
-# let r = Eio.Buf_read.of_flow ~max_size:max_int flow2;;
-val r : Eio.Buf_read.t = <abstr>
-
-# Eio.Buf_read.take_all r;;
+# Multipart.read_all p2;;
 - : string = "... contents of file1.txt ..."
 
-# Eio.Flow.single_read flow2 (Cstruct.create 10) ;;
+# Eio.Flow.single_read (Multipart.as_flow p2) (Cstruct.create 10) ;;
 Exception: End_of_file.
 
 # Multipart.next_part rdr;;

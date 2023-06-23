@@ -104,6 +104,13 @@ let as_flow (p : reader part) : Eio.Flow.source =
     method read_into = read_into p
   end
 
+let read_all p =
+  let buf = Buffer.create 10 in
+  let sink = Eio.Flow.buffer_sink buf in
+  let source = as_flow p in
+  Eio.Flow.copy source sink;
+  Buffer.contents buf
+
 let next_part (t : reader) =
   let ln = read_line t in
   if not (is_boundary_delimiter t.dash_boundary ln) then

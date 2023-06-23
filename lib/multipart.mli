@@ -42,6 +42,9 @@ val next_part : reader -> reader part
 val as_flow : reader part -> Eio.Flow.source
 (** [as_flow p] is [fs] - a {!class:Eio.Flow.source} for part body [p]. *)
 
+val read_all : reader part -> string
+(** [read_all p] reads content from part body [p] until end-of-file. *)
+
 (** {1 Writing Multipart Body} *)
 
 val make_part :
