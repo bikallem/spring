@@ -38,7 +38,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
         let anticsrf_part = Multipart.next_part rdr in
         let* anticsrf_field = Multipart.form_name anticsrf_part in
         if String.equal anticsrf_field token_name then
-          Multipart.reader_flow anticsrf_part
+          Multipart.as_flow anticsrf_part
           |> Buf_read.of_flow ~max_size:Int.max_int
           |> Buf_read.take_all
           |> Option.some

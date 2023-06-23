@@ -49,7 +49,7 @@ val p : Multipart.reader Multipart.part = <abstr>
 +}
 - : unit = ()
 
-# let flow = Multipart.reader_flow p;;
+# let flow = Multipart.as_flow p;;
 val flow : Eio.Flow.source = <obj>
 
 # let r = Eio.Buf_read.of_flow ~max_size:max_int flow ;;
@@ -70,7 +70,7 @@ val p2 : Multipart.reader Multipart.part = <abstr>
 # Multipart.form_name p2;;
 - : string option = Some "files"
 
-# let flow2 = Multipart.reader_flow p2;;
+# let flow2 = Multipart.as_flow p2;;
 val flow2 : Eio.Flow.source = <obj>
 
 # let r = Eio.Buf_read.of_flow ~max_size:max_int flow2;;

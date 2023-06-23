@@ -97,7 +97,7 @@ let read_into (p : reader part) dst =
     else write_data ln
 
 (* part body flow *)
-let reader_flow (p : reader part) : Eio.Flow.source =
+let as_flow (p : reader part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
 

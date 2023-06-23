@@ -39,8 +39,8 @@ val next_part : reader -> reader part
     @raise End_of_file if there are not more parts to be read from [t].
     @raise Failure if [t] contains invalid multipart [part] data. *)
 
-val reader_flow : reader part -> Eio.Flow.source
-(** [reader_flow p] is the part [p] body {!class:Eio.Flow.source}. *)
+val as_flow : reader part -> Eio.Flow.source
+(** [as_flow p] is [fs] - a {!class:Eio.Flow.source} for part body [p]. *)
 
 (** {1 Writing Multipart Body} *)
 
