@@ -61,8 +61,8 @@ val host : client t -> string
 (** [host t] is the server host name which handles the request [t]. *)
 
 val port : client t -> int option
-(** [port t] is the [Some p] if a port component exists in [Host] header in [t].
-    It is [None] otherwise. *)
+(** [port t] is [Some p] if a port component exists in [Host] header in [t]. It
+    is [None] otherwise. *)
 
 val add_cookie : name:string -> value:string -> client t -> client t
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
