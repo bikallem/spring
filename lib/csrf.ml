@@ -13,42 +13,41 @@ type codec =
   }
 
 let form_codec ?(token_name = "__csrf_token__") key =
-  { token_name
-  ; encode =
-      (fun tok ->
-        let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
-        Secret.encrypt_base64 nonce key tok)
-  ; decode =
-      (fun (req : request) ->
-        let open Option.Syntax in
-        let headers = Request.headers req in
-        let* ct = Header.(find_opt headers content_type) in
-        let* tok =
-          match (Content_type.media_type ct :> string * string) with
-          | "application", "x-www-form-urlencoded" -> (
-            let* toks =
-              Request.to_readable req
-              |> Body.read_form_values
-              |> List.assoc_opt token_name
-            in
-            match toks with
-            | tok :: _ -> Some tok
-            | _ -> None)
-          | "multipart", "formdata" ->
-            let rdr = Request.to_readable req |> Multipart.reader in
-            (* Note: anticsrf field must be the first field in multipart/formdata form. *)
-            let anticsrf_part = Multipart.next_part rdr in
-            let* anticsrf_field = Multipart.form_name anticsrf_part in
-            if String.equal anticsrf_field token_name then
-              Multipart.reader_flow anticsrf_part
-              |> Buf_read.of_flow ~max_size:Int.max_int
-              |> Buf_read.take_all
-              |> Option.some
-            else None
-          | _ -> None
+  let encode tok =
+    let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
+    Secret.encrypt_base64 nonce key tok
+  in
+  let decode (req : request) =
+    let open Option.Syntax in
+    let headers = Request.headers req in
+    let* ct = Header.(find_opt headers content_type) in
+    let* tok =
+      match (Content_type.media_type ct :> string * string) with
+      | "application", "x-www-form-urlencoded" -> (
+        let* toks =
+          Request.to_readable req
+          |> Body.read_form_values
+          |> List.assoc_opt token_name
         in
-        Secret.decrypt_base64 key tok |> Option.some)
-  }
+        match toks with
+        | tok :: _ -> Some tok
+        | _ -> None)
+      | "multipart", "formdata" ->
+        let rdr = Request.to_readable req |> Multipart.reader in
+        (* Note: anticsrf field must be the first field in multipart/formdata form. *)
+        let anticsrf_part = Multipart.next_part rdr in
+        let* anticsrf_field = Multipart.form_name anticsrf_part in
+        if String.equal anticsrf_field token_name then
+          Multipart.reader_flow anticsrf_part
+          |> Buf_read.of_flow ~max_size:Int.max_int
+          |> Buf_read.take_all
+          |> Option.some
+        else None
+      | _ -> None
+    in
+    Secret.decrypt_base64 key tok |> Option.some
+  in
+  { token_name; encode; decode }
 
 let token_name (c : codec) = c.token_name
 
