@@ -9,8 +9,8 @@
 
     {b IMF fixdate is the recommended date format.}
 
-    For RFC 850 if the year value is [>= 50] then the cencure is [19] else it is
-    [20]. *)
+    For RFC 850 if the year value is [>= 50] then the century value of the year
+    is [19] else it is [20]. *)
 
 type t = Ptime.t
 
