@@ -54,8 +54,6 @@ let token_name (c : codec) = c.token_name
 let token (req : request) (c : codec) =
   Request.find_session_data c.token_name req
 
-let decode_token (req : request) (c : codec) = c.decode req
-
 let enable_protection (req : request) (c : codec) =
   match Request.find_session_data c.token_name req with
   | Some _ -> ()
@@ -87,7 +85,7 @@ let protect_request
   let open Option.Syntax in
   match
     let* csrf_session_tok = token req c in
-    let+ csrf_tok = decode_token req c in
+    let+ csrf_tok = c.decode req in
     (csrf_session_tok, csrf_tok)
   with
   | Some (tok1, tok2) when String.equal tok1 tok2 -> f req
