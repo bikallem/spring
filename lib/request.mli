@@ -1,7 +1,7 @@
-(** [Request] provides types and function to manipulate HTTP Requests. *)
+(** HTTP Request. *)
 
 type 'a t
-(** [t] is a HTTP request. *)
+(** [t] is a HTTP request that represents both client and server request. *)
 
 (** {1 Common Request Details} *)
 
