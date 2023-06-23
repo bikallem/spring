@@ -67,6 +67,9 @@ val p2 : Multipart.reader Multipart.part = <abstr>
 # Multipart.read_all p2;;
 - : string = "... contents of file1.txt ..."
 
+# Multipart.read_all p2;;
+- : string = ""
+
 # Eio.Flow.single_read (Multipart.as_flow p2) (Cstruct.create 10) ;;
 Exception: End_of_file.
 
