@@ -1,8 +1,14 @@
 type 'a t =
-  { version : Version.t; status : Status.t; headers : Header.t; x : 'a }
+  { version : Version.t
+  ; status : Status.t
+  ; headers : Header.t
+  ; x : 'a
+  }
 
 let version t = t.version
+
 let status t = t.status
+
 let headers t = t.headers
 
 let find_set_cookie_ name headers =
@@ -35,9 +41,13 @@ let pp_ version status headers fmt =
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
 let find_set_cookie name t = find_set_cookie_ name t.headers
+
 let pp fmt t = pp_ t.version t.status t.headers fmt
 
-type client = { buf_read : Eio.Buf_read.t; mutable closed : bool }
+type client =
+  { buf_read : Eio.Buf_read.t
+  ; mutable closed : bool
+  }
 
 let make_client_response
     ?(version = Version.http1_1)
@@ -74,8 +84,11 @@ let parse_client_response buf_read =
 exception Closed
 
 let buf_read t = if t.x.closed then raise Closed else t.x.buf_read
+
 let closed t = t.x.closed
+
 let close t = t.x.closed <- true
+
 let to_readable t = Body.make_readable t.headers t.x.buf_read
 
 (* Server Response *)
@@ -139,7 +152,9 @@ let none_body_response status =
   make_server_response ~headers ~status Body.none
 
 let not_found = none_body_response Status.not_found
+
 let internal_server_error = none_body_response Status.internal_server_error
+
 let bad_request = none_body_response Status.bad_request
 
 let write_server_response w (t : server t) =

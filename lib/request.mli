@@ -9,8 +9,11 @@ type resource = string
 (** [resource] is the request uri path *)
 
 val meth : _ t -> Method.t
+
 val resource : _ t -> resource
+
 val version : _ t -> Version.t
+
 val headers : _ t -> Header.t
 
 val supports_chunked_trailers : _ t -> bool
@@ -55,6 +58,7 @@ val make_client_request :
     @param port the [host] port. Default is [None]. *)
 
 val host : client t -> string
+
 val port : client t -> int option
 
 val add_cookie : name:string -> value:string -> client t -> client t

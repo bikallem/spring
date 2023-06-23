@@ -6,7 +6,9 @@ type 'a t
 (** {1 Common Response Details} *)
 
 val version : _ t -> Version.t
+
 val status : _ t -> Status.t
+
 val headers : _ t -> Header.t
 
 val find_set_cookie : string -> _ t -> Set_cookie.t option

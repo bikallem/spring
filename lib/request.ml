@@ -10,8 +10,11 @@ type 'a t =
   }
 
 let meth t = t.meth
+
 let resource t = t.resource
+
 let version t = t.version
+
 let headers t = t.headers
 
 let supports_chunked_trailers t =
@@ -69,7 +72,11 @@ let pp_fields fmt fields =
   in
   Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
 
-type client = { host : string; port : int option; body : Body.writable }
+type client =
+  { host : string
+  ; port : int option
+  ; body : Body.writable
+  }
 
 let host_port_to_string (host, port) =
   match port with
@@ -100,6 +107,7 @@ let make_client_request
   }
 
 let host t = t.x.host
+
 let port t = t.x.port
 
 let add_cookie ~name ~value t =
@@ -180,6 +188,7 @@ let make_server_request
   }
 
 let client_addr t = t.x.client_addr
+
 let session_data t = t.x.session_data
 
 let add_session_data ~name ~value t =

@@ -72,4 +72,5 @@ let spring_cmd =
   Cmd.group info [ ohtml_cmd; key_cmd ]
 
 let main () = exit (Cmd.eval spring_cmd)
+
 let () = main ()

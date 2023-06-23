@@ -1,7 +1,10 @@
 open Spring
 
 module Fruit = struct
-  type t = Apple | Orange | Pineapple
+  type t =
+    | Apple
+    | Orange
+    | Pineapple
 
   let t : t Router.arg =
     Router.make_arg "Fruit" (function
@@ -20,6 +23,7 @@ let fruit_page fruit (_req : request) =
   | Pineapple -> Printf.sprintf "Pineapple has scaly skin"
 
 let about_page i (_req : request) = Format.sprintf "about_page - %d" i
+
 let full_rest_page url _req = Format.sprintf "full rest page: %s" url
 
 let home_int_page i (_req : request) =
@@ -31,6 +35,7 @@ let wildcard_page s url _req =
   Printf.sprintf "Wildcard page. %s. Remaining url: %s" s url
 
 let numbers_page id code _req = Printf.sprintf "int32: %ld, int64: %Ld." id code
+
 let root_page (_req : request) = "Root page"
 
 let contact_page name number _req =
@@ -76,6 +81,7 @@ let router =
       ])
 
 let pp_route r = List.hd r |> Router.pp_route Format.std_formatter
+
 let pp_match req = Router.match' req router
 
 let route1 =

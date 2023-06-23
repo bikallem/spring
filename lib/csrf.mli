@@ -23,6 +23,7 @@ type key = string
 (** [key] is an alias for 32 bytes long randomly generated string. *)
 
 type request = Request.server Request.t
+
 type response = Response.server Response.t
 
 type codec

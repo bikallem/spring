@@ -12,6 +12,7 @@ module Ast_builder = Ast_builder.Default
 module String = Stdlib.String
 
 let ( let* ) r f = Result.bind r f
+
 let ( >>= ) = ( let* )
 
 let findi f l =

@@ -4,8 +4,11 @@ type writable =
   }
 
 let make_writable ~write_body ~write_headers = { write_body; write_headers }
+
 let none = { write_body = (fun _ -> ()); write_headers = (fun _ -> ()) }
+
 let write_body buf_write body = body.write_body buf_write
+
 let write_headers buf_write body = body.write_headers buf_write
 
 let content_writer content_type content =
@@ -24,11 +27,17 @@ let form_values_writer assoc_list =
   in
   content_writer content_type content
 
-type readable = { headers : Header.t; buf_read : Eio.Buf_read.t }
+type readable =
+  { headers : Header.t
+  ; buf_read : Eio.Buf_read.t
+  }
 
 let make_readable headers buf_read = { headers; buf_read }
+
 let headers r = r.headers
+
 let buf_read r = r.buf_read
+
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : readable) =

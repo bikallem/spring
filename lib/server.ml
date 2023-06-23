@@ -1,5 +1,7 @@
 type request = Request.server Request.t
+
 type response = Response.server Response.t
+
 type handler = request -> response
 
 let not_found_handler : handler = fun (_ : request) -> Response.not_found
@@ -149,6 +151,7 @@ let make_app_server
         let env =
           (object
              method clock = clock
+
              method secure_random = (secure_random :> Eio.Flow.source)
            end
             :> Mirage_crypto_rng_eio.env)
@@ -165,10 +168,15 @@ let make_app_server
 type 'a request_target = ('a, response) Router.request_target
 
 let add_route = Router.add
+
 let get rt f app = Router.add Method.get rt f app
+
 let head rt f t = Router.add Method.head rt f t
+
 let delete rt f t = Router.add Method.delete rt f t
+
 let post rt f t = Router.add Method.post rt f t
+
 let put rt f t = Router.add Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =

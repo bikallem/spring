@@ -58,6 +58,7 @@ type url = string
 (** [url] is the full HTTP request url. [wwww.example.com/products] *)
 
 type request = Request.client Request.t
+
 type response = Response.client Response.t
 
 type 'a handler = response -> 'a

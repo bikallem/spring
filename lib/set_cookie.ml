@@ -16,6 +16,7 @@ and same_site = string
 type name_value = string * string
 
 let strict = "Strict"
+
 let lax = "Lax"
 
 let make
@@ -155,14 +156,23 @@ let encode t =
   Buffer.contents b
 
 let name t = t.name
+
 let value t = t.value
+
 let expires t = t.expires
+
 let max_age t = t.max_age
+
 let domain t = t.domain
+
 let path t = t.path
+
 let secure t = t.secure
+
 let http_only t = t.http_only
+
 let extensions t = t.extensions
+
 let same_site t = t.same_site
 
 let expire t =

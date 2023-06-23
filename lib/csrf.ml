@@ -1,6 +1,9 @@
 type token = string
+
 type key = string
+
 type request = Request.server Request.t
+
 type response = Response.server Response.t
 
 type codec =

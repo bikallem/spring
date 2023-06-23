@@ -6,10 +6,13 @@
 (* Connection cache using Hashtbl. *)
 module Cache = Hashtbl.Make (struct
   type t = host * service
+
   and host = string (* eg. www.example.com *)
+
   and service = string (* port eg. 80, 8080 *)
 
   let equal (a : t) (b : t) = Stdlib.( = ) a b
+
   let hash = Hashtbl.hash
 end)
 
@@ -91,7 +94,9 @@ let connection t ((host, service) as k) =
     ~finally:(fun () -> Eio.Mutex.unlock t.cache_mu)
 
 type request = Request.client Request.t
+
 type response = Response.client Response.t
+
 type 'a handler = response -> 'a
 
 let do_call t (req : request) f =
@@ -178,5 +183,7 @@ let call ~conn req =
   Response.parse_client_response buf_read
 
 let buf_write_initial_size t = t.write_initial_size
+
 let buf_read_initial_size t = t.read_initial_size
+
 let timeout t = t.timeout

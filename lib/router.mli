@@ -35,10 +35,15 @@ type 'a arg
     function as an argument. *)
 
 val int : int arg
+
 val int32 : int32 arg
+
 val int64 : int64 arg
+
 val float : float arg
+
 val bool : bool arg
+
 val string : string arg
 
 val make_arg : string -> (string -> 'a option) -> 'a arg
@@ -66,7 +71,10 @@ val make_arg : string -> (string -> 'a option) -> 'a arg
 
     {[
       module Fruit = struct
-        type t = Apple | Orange | Pineapple
+        type t =
+          | Apple
+          | Orange
+          | Pineapple
 
         let t : t Wtr.arg =
           Wtr.arg "Fruit" (function
@@ -111,9 +119,13 @@ type rest = string
 type request = Request.server Request.t
 
 val nil : (request -> 'b, 'b) request_target
+
 val rest : (rest -> request -> 'b, 'b) request_target
+
 val slash : (request -> 'b, 'b) request_target
+
 val exact : string -> ('a, 'b) request_target -> ('a, 'b) request_target
+
 val arg : 'c arg -> ('a, 'b) request_target -> ('c -> 'a, 'b) request_target
 
 val query_arg :
@@ -170,5 +182,7 @@ val match' : request -> 'a t -> 'a option
 (* {1 Pretty Printers} *)
 
 val pp_request_target : Format.formatter -> ('a, 'b) request_target -> unit
+
 val pp_route : Format.formatter -> 'b route -> unit
+
 val pp : Format.formatter -> 'a t -> unit

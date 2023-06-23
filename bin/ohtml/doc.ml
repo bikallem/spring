@@ -27,7 +27,10 @@ and code =
   | Code_at of string_val
   | Code_text of string
   | Code_element of
-      { tag_name : string; attributes : attribute list; children : code list }
+      { tag_name : string
+      ; attributes : attribute list
+      ; children : code list
+      }
 
 and string_val = string
 

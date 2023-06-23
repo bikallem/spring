@@ -1,4 +1,9 @@
-type t = { type_ : string; sub_type : string; parameters : string String.Map.t }
+type t =
+  { type_ : string
+  ; sub_type : string
+  ; parameters : string String.Map.t
+  }
+
 type media_type = string * string
 
 open Buf_read.Syntax

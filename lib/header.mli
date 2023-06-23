@@ -23,11 +23,13 @@ val lname : string -> lname
 (** [lname s] converts [s] to {!type:lname} *)
 
 val lname_equal : lname -> lname -> bool
+
 val lname_of_name : name -> lname
 
 (** {1 Codecs} *)
 
 type 'a encode = 'a -> string
+
 type 'a decode = string -> 'a
 
 (** {1 Header} *)
@@ -104,18 +106,27 @@ val set_cookie : Set_cookie.t header
 (** {1 Create} *)
 
 val empty : t
+
 val singleton : name:string -> value:string -> t
+
 val is_empty : t -> bool
+
 val of_list : (string * string) list -> t
+
 val to_list : t -> (lname * string) list
+
 val to_canonical_list : t -> (name * string) list
+
 val length : t -> int
 
 (** {1 Add} *)
 
 val add : t -> 'a header -> 'a -> t
+
 val add_unless_exists : t -> 'a header -> 'a -> t
+
 val append : t -> t -> t
+
 val append_list : t -> (string * string) list -> t
 
 (** {1 Find} *)
@@ -145,11 +156,13 @@ val replace : t -> 'a header -> 'a -> t
 (** {1 Iter/Filter} *)
 
 val iter : (lname -> string -> unit) -> t -> unit
+
 val filter : (lname -> string -> bool) -> t -> t
 
 (** {1 Pretty Printer} *)
 
 val easy_fmt : t -> Easy_format.t
+
 val pp : Format.formatter -> t -> unit
 
 (** {1 Parse} *)

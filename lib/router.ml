@@ -10,12 +10,14 @@ module String = Stdlib.String
 
 (* Arg id type. *)
 type 'a witness = ..
+
 type (_, _) eq = Eq : ('a, 'a) eq
 
 module type Ty = sig
   type t
 
   val witness : t witness
+
   val eq : 'a witness -> ('a, t) eq option
 end
 
@@ -24,6 +26,7 @@ type 'a id = (module Ty with type t = 'a)
 let new_id (type a) () =
   let module Ty = struct
     type t = a
+
     type 'a witness += Ty : t witness
 
     let witness = Ty
@@ -38,20 +41,30 @@ let eq : type a b. a id -> b id -> (a, b) eq option =
  fun (module TyA) (module TyB) -> TyB.eq TyA.witness
 
 (* Arg *)
-type 'a arg = { name : string; decode : string -> 'a option; id : 'a id }
+type 'a arg =
+  { name : string
+  ; decode : string -> 'a option
+  ; id : 'a id
+  }
 
 let make_arg name decode =
   let id = new_id () in
   { name; decode; id }
 
 let int = make_arg "int" int_of_string_opt
+
 let int32 = make_arg "int32" Int32.of_string_opt
+
 let int64 = make_arg "int64" Int64.of_string_opt
+
 let float = make_arg "float" float_of_string_opt
+
 let string = make_arg "string" (fun a -> Some a)
+
 let bool = make_arg "bool" bool_of_string_opt
 
 type rest = string
+
 type request = Request.server Request.t
 
 type ('a, 'b) request_target =
@@ -68,14 +81,18 @@ type ('a, 'b) request_target =
       -> ('c -> 'a, 'b) request_target
 
 let nil = Nil
+
 let rest = Rest
+
 let slash = Slash
+
 let exact s request_target = Exact (s, request_target)
 
 let query_exact name value request_target =
   Query_exact (name, value, request_target)
 
 let arg d request_target = Arg (d, request_target)
+
 let query_arg name d request_target = Query_arg (name, d, request_target)
 
 (* Existential to encode request_target component/node type. *)
@@ -91,13 +108,19 @@ type node =
 (* Routes and Router *)
 
 type arg_value = Arg_value : 'c arg * 'c -> arg_value
+
 type 'c route = Route : Method.t * ('a, 'c) request_target * 'a -> 'c route
-type 'a t = { route : 'a route option; routes : (node * 'a t) list }
+
+type 'a t =
+  { route : 'a route option
+  ; routes : (node * 'a t) list
+  }
 
 let route : Method.t -> ('a, 'b) request_target -> 'a -> 'b route =
  fun method' request_target f -> Route (method', request_target, f)
 
 let empty = { route = None; routes = [] }
+
 let is_empty t = t.routes = []
 
 let node_equal a b =

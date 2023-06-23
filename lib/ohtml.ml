@@ -27,12 +27,17 @@ let escape_attr attr_val =
   Buffer.contents escaped
 
 type attribute =
-  | Name_val of { name : string; value : string }
+  | Name_val of
+      { name : string
+      ; value : string
+      }
   | Bool of string
   | Null
 
 let attribute ~name ~value = Name_val { name; value }
+
 let bool name = Bool name
+
 let null = Null
 
 let write_attribute attr : t =

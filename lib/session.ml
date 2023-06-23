@@ -1,8 +1,11 @@
 module Data = Map.Make (String)
 
 type nonce = Cstruct.t
+
 type data = string
+
 type key = string
+
 type session_data = string Data.t
 
 type codec =
@@ -40,5 +43,7 @@ let cookie_codec ?(cookie_name = "___SPRING_SESSION___") key =
   }
 
 let cookie_name (t : codec) = t.cookie_name
+
 let decode data (t : codec) = t.decode data
+
 let encode ~nonce session_data (t : codec) = t.encode nonce session_data

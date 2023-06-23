@@ -100,6 +100,7 @@ let read_into (p : reader part) dst =
 let reader_flow (p : reader part) : Eio.Flow.source =
   object
     inherit Eio.Flow.source
+
     method read_into = read_into p
   end
 
@@ -122,7 +123,9 @@ let next_part (t : reader) =
     | None -> failwith "multipart: \"Content-Disposition\" header not found"
 
 let file_name p = p.filename
+
 let form_name p = p.form_name
+
 let headers p = p.headers
 
 let make_part ?filename ?(headers = Header.empty) body form_name =

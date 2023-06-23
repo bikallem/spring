@@ -3,6 +3,7 @@
 (** {1 Handler} *)
 
 type request = Request.server Request.t
+
 type response = Response.server Response.t
 
 type handler = request -> response

@@ -64,6 +64,7 @@ let tokenize i =
     f i.lexbuf
 
 let pop i = ignore (Stack.pop i.tokenizer : lexer)
+
 let push i lexer = Stack.push lexer i.tokenizer
 
 let rec loop (i : input) checkpoint =
@@ -112,7 +113,8 @@ let rec loop (i : input) checkpoint =
       push i Lexer.start_tag
     | Tag_close | Tag_slash_close -> pop i
     | _ -> ());
-    let startp = i.lexbuf.lex_start_p and endp = i.lexbuf.lex_curr_p in
+    let startp = i.lexbuf.lex_start_p
+    and endp = i.lexbuf.lex_curr_p in
     let checkpoint = I.offer checkpoint (!token, startp, endp) in
     loop i checkpoint
   | I.Shifting _ | I.AboutToReduce _ ->

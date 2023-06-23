@@ -15,16 +15,27 @@ end)
 type t = M.t
 
 let encoding s = s
+
 let compress = "compress"
+
 let deflate = "deflate"
+
 let gzip = "gzip"
+
 let chunked = "chunked"
+
 let singleton enc = M.singleton enc
+
 let is_empty = M.is_empty
+
 let exists t d = M.mem d t
+
 let add t d = M.add d t
+
 let remove t d = M.remove d t
+
 let iter = M.iter
+
 let encode t = M.to_seq t |> List.of_seq |> String.concat ~sep:", "
 
 let decode v =

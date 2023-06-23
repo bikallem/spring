@@ -11,11 +11,13 @@ type t
 (** {1 Create} *)
 
 type name_value = string * string
+
 type same_site = private string
 
 (** {1 Same Site} *)
 
 val strict : same_site
+
 val lax : same_site
 
 (** {1 Create} *)
@@ -40,19 +42,29 @@ val make :
     @param secure Default value is [true]. *)
 
 val decode : string -> t
+
 val encode : t -> string
 
 (** {1 Cookie Attributes} *)
 
 val name : t -> string
+
 val value : t -> string
+
 val expires : t -> Ptime.t option
+
 val max_age : t -> int option
+
 val domain : t -> [ `raw ] Domain_name.t option
+
 val path : t -> string option
+
 val secure : t -> bool
+
 val http_only : t -> bool
+
 val extensions : t -> string list
+
 val same_site : t -> same_site option
 
 (** {1 Expire a Cookie} *)
