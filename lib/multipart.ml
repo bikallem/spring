@@ -1,3 +1,5 @@
+(* Stream *)
+
 type reader =
   { r : Buf_read.t
   ; boundary : string
@@ -37,11 +39,17 @@ let boundary t = t.boundary
 
 type 'a part =
   { t : 'a
-  ; form_name : string option
+  ; form_name : string
   ; filename : string option
   ; headers : Header.t
   ; mutable body_eof : bool (* true if body read is complete. *)
   }
+
+let file_name p = p.filename
+
+let form_name p = p.form_name
+
+let headers p = p.headers
 
 let skip_whitespace s =
   String.filter
@@ -121,7 +129,11 @@ let next_part (t : reader) =
     | Some d ->
       if String.equal "form-data" (Content_disposition.disposition d) then
         let filename = Content_disposition.find_param d "filename" in
-        let form_name = Content_disposition.find_param d "name" in
+        let form_name =
+          match Content_disposition.find_param d "name" with
+          | Some name -> name
+          | None -> raise (Failure "'name' attribute missing from part")
+        in
         { t; filename; form_name; headers; body_eof = false }
       else
         failwith
@@ -129,20 +141,60 @@ let next_part (t : reader) =
            \"form-data\" value"
     | None -> failwith "multipart: \"Content-Disposition\" header not found"
 
-let file_name p = p.filename
+(* Form *)
 
-let form_name p = p.form_name
+module Map = Map.Make (String)
 
-let headers p = p.headers
+type value_field = string
+
+type file_field = string part
+
+type form =
+  { values : value_field Map.t
+  ; files : file_field Map.t
+  }
+
+let make_file_part part =
+  let content = read_all part in
+  { t = content
+  ; form_name = part.form_name
+  ; filename = part.filename
+  ; headers = part.headers
+  ; body_eof = true
+  }
+
+let form body =
+  let reader = reader body in
+  let rec aux t =
+    try
+      let part = next_part reader in
+      match file_name part with
+      | Some _ ->
+        let file_part = make_file_part part in
+        aux { t with files = Map.add part.form_name file_part t.files }
+      | None ->
+        let content = read_all part in
+        aux { t with values = Map.add part.form_name content t.values }
+    with End_of_file -> t
+  in
+  aux { values = Map.empty; files = Map.empty }
+
+let file_content p = p.t
+
+let find_value_field name t = Map.find_opt name t.values
+
+let find_file_field name t = Map.find_opt name t.files
+
+(* Writer *)
 
 let make_part ?filename ?(headers = Header.empty) body form_name =
-  { t = body; form_name = Some form_name; filename; headers; body_eof = false }
+  { t = body; form_name; filename; headers; body_eof = false }
 
 let write_part bw boundary part =
   let params =
     List.filter_map
       (fun (k, v) -> Option.bind v (fun x -> Some (k, x)))
-      [ ("name", part.form_name); ("filename", part.filename) ]
+      [ ("name", Some part.form_name); ("filename", part.filename) ]
   in
   let headers =
     let cd = Content_disposition.make ~params "form-data" in

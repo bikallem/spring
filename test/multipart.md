@@ -8,15 +8,13 @@ let body content_type_hdr txt =
   let buf_read = Eio.Buf_read.of_string txt in
   Body.make_readable headers buf_read 
 ;;
+
+let body_txt1 ="--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--"
 ```
 
 ## Multipart.reader
 
 ```ocaml
-# let body_txt1 ="--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--";;
-val body_txt1 : string =
-  "--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--"
-
 # let rdr = Multipart.reader (body "multipart/form-data" body_txt1);;
 Exception: Invalid_argument "body: boundary value not found".
 
@@ -41,7 +39,7 @@ val p : Multipart.reader Multipart.part = <abstr>
 - : string option = None
 
 # Multipart.form_name p ;;
-- : string option = Some "submit-name"
+- : string = "submit-name"
 
 # Multipart.headers p |> (Eio.traceln "%a" Header.pp) ;;
 +{
@@ -62,7 +60,7 @@ val p2 : Multipart.reader Multipart.part = <abstr>
 - : string option = Some "file1.txt"
 
 # Multipart.form_name p2;;
-- : string option = Some "files"
+- : string = "files"
 
 # Multipart.read_all p2;;
 - : string = "... contents of file1.txt ..."
@@ -75,6 +73,32 @@ Exception: End_of_file.
 
 # Multipart.next_part rdr;;
 Exception: End_of_file.
+```
+
+## Multipart.form
+
+```ocaml
+# let form = Multipart.form (body "multipart/form-data; boundary=AaB03x" body_txt1);;
+val form : Multipart.form = <abstr>
+
+# Multipart.find_value_field "submit-name" form ;;
+- : string option = Some "Larry"
+
+# let form_field1 = Multipart.find_file_field "files" form |> Option.get ;;
+val form_field1 : Multipart.file_field = <abstr>
+
+# Multipart.file_name form_field1 ;;
+- : string option = Some "file1.txt"
+
+# Multipart.file_content form_field1;;
+- : string = "... contents of file1.txt ..."
+
+# Eio.traceln "%a" Header.pp @@ Multipart.headers form_field1;;
++{
++  Content-Disposition:  form-data; name="files"; filename="file1.txt";
++  Content-Type:  text/plain
++}
+- : unit = ()
 ```
 
 ## Multipart.writable

@@ -36,7 +36,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
         let rdr = Request.to_readable req |> Multipart.reader in
         (* Note: anticsrf field must be the first field in multipart/formdata form. *)
         let anticsrf_part = Multipart.next_part rdr in
-        let* anticsrf_field = Multipart.form_name anticsrf_part in
+        let anticsrf_field = Multipart.form_name anticsrf_part in
         if String.equal anticsrf_field token_name then
           Some (Multipart.read_all anticsrf_part)
         else None

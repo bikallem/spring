@@ -9,7 +9,7 @@ type 'a part
 val file_name : 'a part -> string option
 (** [file_name p] is the file name of part [p]. *)
 
-val form_name : 'a part -> string option
+val form_name : 'a part -> string
 (** [form_name p] is the form name of part [p]. *)
 
 val headers : 'a part -> Header.t
@@ -46,6 +46,39 @@ val as_flow : reader part -> Eio.Flow.source
 
 val read_all : reader part -> string
 (** [read_all p] reads content from multipart [p] until end-of-file. *)
+
+(** {1 Reading Parts to a Form} *)
+
+type form
+(** [form] is a parsed, in-memory multipart/formdata representation. *)
+
+val form : Body.readable -> form
+(** [form readable] reads all parts of a multipart encoded [readable] into a
+    {!type:Form.t}.
+
+    The parts are read into a memory buffer; therefore it may not be an
+    efficient way to read a multipart [readable] when there are a large number
+    of parts or if individual parts are large.
+
+    As an alternative memory efficient mechanism to this function, see
+    {{!section:streaming} Streaming API}. *)
+
+type value_field = string
+(** [value_field] is a string value form field. *)
+
+type file_field = string part
+(** [file_field] is a form field which encapsulates a file content. *)
+
+val file_content : file_field -> string
+(** [file_content ff] is the content of file field [ff]. *)
+
+val find_value_field : string -> form -> value_field option
+(** [find_value_field name] is [Some v] if a form field with name [name] exists
+    in [t]. Otherwise it is [None]. *)
+
+val find_file_field : string -> form -> file_field option
+(** [find_file_field name] is [Some ff] if a form field of type
+    {!type:file_field} with name [name] exists in [t]. Otherwise it is [None]. *)
 
 (** {1 Writing Multipart} *)
 
