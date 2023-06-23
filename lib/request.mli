@@ -17,7 +17,7 @@ val version : _ t -> Version.t
 val headers : _ t -> Header.t
 
 val supports_chunked_trailers : _ t -> bool
-(** [supports_chunked_trailers t] is [true] is request [t] has header "TE:
+(** [supports_chunked_trailers t] is [true] if request [t] has header "TE:
     trailers". It is [false] otherwise. *)
 
 val keep_alive : _ t -> bool
@@ -58,8 +58,11 @@ val make_client_request :
     @param port the [host] port. Default is [None]. *)
 
 val host : client t -> string
+(** [host t] is the server host name which handles the request [t]. *)
 
 val port : client t -> int option
+(** [port t] is the [Some p] if a port component exists in [Host] header in [t].
+    It is [None] otherwise. *)
 
 val add_cookie : name:string -> value:string -> client t -> client t
 (** [add_cookie ~name ~value t] is [t] with cookie pair [name,value] added to
