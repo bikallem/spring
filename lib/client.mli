@@ -1,14 +1,7 @@
-(** [Client] is a HTTP/1.1 client.
+(** HTTP/1.1 client.
 
     [Client] implements connection reuse based on [host] and [port] attributes
     of a HTTP/1.1 connection.
-
-    To enable efficient client connection reuse, ensure that
-    {!val:Response.close_body} is applied after completing reading a [response]
-    body.
-
-    Alternately, connection reuse mechanism can be avoided by using {!val:call}
-    function.
 
     See {{!common} for common client use cases}. *)
 
