@@ -104,4 +104,7 @@ val writable_file_part :
 
 val writable : boundary:string -> writable part list -> Body.writable
 (** [writeable ~boundary parts] creates a multipart request/response
-    {!type:Body.writable} body with the boundary value [boundary]. *)
+    {!type:Body.writable} body with the boundary value [boundary].
+
+    [boundary] must conform to the standards as enumerated at
+    https://datatracker.ietf.org/doc/html/rfc7578#section-4.1 *)
