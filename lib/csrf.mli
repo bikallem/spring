@@ -82,7 +82,7 @@ val form_field : request -> codec -> Ohtml.t
 
     - Ensure {!val:enable_protection} is called before using the component [v].
 
-    - Ensure component [v] is the first defined form field when using in the
+    - Ensure component [v] is the first defined form field when using it in the
       context of a [multipart/formdata] form.
 
     Example [hello.ohtml] form:
