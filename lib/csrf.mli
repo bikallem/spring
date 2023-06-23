@@ -78,9 +78,9 @@ val form_field : request -> codec -> Ohtml.t
     element which encapsulates CSRF token. Use [v] in the context of a HTML
     request form.
 
-    {b Note} Guidelines on usage of the component [v]
+    {b Note} Guidelines on usage of the component [v]:
 
-    - Encure {!val:enable_protection} is called before using the component
+    - Ensure {!val:enable_protection} is called before using the component [v].
 
     - Ensure component [v] is the first defined form field when using in the
       context of a [multipart/formdata] form.
