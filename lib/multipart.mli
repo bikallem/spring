@@ -15,14 +15,17 @@ val form_name : 'a part -> string option
 val headers : 'a part -> Header.t
 (** [headers p] is headers associated with part [p]. *)
 
-(** {1 Reading Multipart Body} *)
+(** {1:streaming Reading Parts as Streams}
+
+    The streaming api below supports reading one part at a time. As such, using
+    streaming api could result in an efficient memory usage as compared to
+    {!val:form}. *)
 
 type reader
-(** [reader] represents HTTP multipart request/response body initialized from a
-    {!class:Body.readable}. *)
+(** [reader] is a streaming HTTP multipart request/response body reader. *)
 
 val reader : Body.readable -> reader
-(** [reader body] is {!type:t} initialized from body [body].
+(** [reader body] is a reader for multipart body [body].
 
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
@@ -33,19 +36,18 @@ val boundary : reader -> string
     https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
 
 val next_part : reader -> reader part
-(** [next_part t] returns the next multipart [part] that is ready to be
-    consumed.
+(** [next_part reader] is the next multipart [part] in [reader].
 
     @raise End_of_file if there are not more parts to be read from [t].
     @raise Failure if [t] contains invalid multipart [part] data. *)
 
 val as_flow : reader part -> Eio.Flow.source
-(** [as_flow p] is [fs] - a {!class:Eio.Flow.source} for part body [p]. *)
+(** [as_flow p] is an eio {!class:Eio.Flow.source} for multipart [p]. *)
 
 val read_all : reader part -> string
-(** [read_all p] reads content from part body [p] until end-of-file. *)
+(** [read_all p] reads content from multipart [p] until end-of-file. *)
 
-(** {1 Writing Multipart Body} *)
+(** {1 Writing Multipart} *)
 
 val make_part :
      ?filename:string
