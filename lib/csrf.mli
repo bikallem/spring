@@ -75,11 +75,15 @@ exception Csrf_protection_not_enabled
 
 val form_field : request -> codec -> Ohtml.t
 (** [form_field req t] is an Ohtml component [v]. [v] contains hidden HTML input
-    element which encodes CSRF token. Use [v] in the context of a HTML request
-    form.
+    element which encapsulates CSRF token. Use [v] in the context of a HTML
+    request form.
 
-    Ensure this element is the first defined form field when using in the
-    context of a [multipart/formdata] form.
+    {b Note} Guidelines on usage of the component [v]
+
+    - Encure {!val:enable_protection} is called before using the component
+
+    - Ensure component [v] is the first defined form field when using in the
+      context of a [multipart/formdata] form.
 
     Example [hello.ohtml] form:
 
@@ -90,10 +94,6 @@ val form_field : request -> codec -> Ohtml.t
         ...
       </form>
     ]}
-
-    {b Note} Ensure {!val:enable_protection} is called before using this
-    function.
-
     @raise Csrf_protected_not_enabled if CSRF is not enabled for the request. *)
 
 val protect_request :
