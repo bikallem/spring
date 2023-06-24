@@ -26,31 +26,32 @@ val headers : 'a part -> Header.t
     streaming api could result in an efficient memory usage as compared to
     {!val:form}. *)
 
-type reader
-(** [reader] is a streaming HTTP multipart request/response body reader. *)
+type stream
+(** [stream] is a streaming HTTP multipart request/response body reader. *)
 
-val reader : Body.readable -> reader
-(** [reader body] is a reader for multipart body [body].
+val stream : Body.readable -> stream
+(** [stream body] creates a streaming reader for multipart encoded body [body].
 
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
       header. *)
 
-val boundary : reader -> string
-(** [boundary t] is the MIME boundary value as specified in
-    https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
+val boundary : stream -> string
+(** [boundary s] is the Multipart MIME boundary value decoded by [s]. Bounday
+    value is specified in https://www.rfc-editor.org/rfc/rfc7578#section-4.1 *)
 
-val next_part : reader -> reader part
-(** [next_part reader] is the next multipart [part] in [reader].
+val next_part : stream -> stream part
+(** [next_part s] is part [p] - the next multipart in stream [s].
 
-    @raise End_of_file if there are not more parts to be read from [t].
-    @raise Failure if [t] contains invalid multipart [part] data. *)
+    @raise End_of_file if there are no more parts in stream [s].
+    @raise Failure
+      if stream [s] encounters any error while parsing the next multipart. *)
 
-val as_flow : reader part -> Eio.Flow.source
-(** [as_flow p] is an eio {!class:Eio.Flow.source} for multipart [p]. *)
+val as_flow : stream part -> Eio.Flow.source
+(** [as_flow p] creates an eio {!class:Eio.Flow.source} for content of part [p]. *)
 
-val read_all : reader part -> string
-(** [read_all p] reads content from multipart [p] until end-of-file. *)
+val read_all : stream part -> string
+(** [read_all p] reads content from part [p] until end-of-file. *)
 
 (** {1 Reading Parts to a Form} *)
 

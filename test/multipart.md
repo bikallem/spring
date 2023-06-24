@@ -12,14 +12,14 @@ let body content_type_hdr txt =
 let body_txt1 ="--AaB03x\r\nContent-Disposition: form-data; name=\"submit-name\"\r\n\r\nLarry\r\n--AaB03x\r\nContent-Disposition: form-data; name=\"files\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n... contents of file1.txt ...\r\n--AaB03x--"
 ```
 
-## Multipart.reader
+## Multipart.stream
 
 ```ocaml
-# let rdr = Multipart.reader (body "multipart/form-data" body_txt1);;
+# let rdr = Multipart.stream (body "multipart/form-data" body_txt1);;
 Exception: Invalid_argument "body: boundary value not found".
 
-# let rdr = Multipart.reader (body "multipart/form-data; boundary=AaB03x" body_txt1);;
-val rdr : Multipart.reader = <abstr>
+# let rdr = Multipart.stream (body "multipart/form-data; boundary=AaB03x" body_txt1);;
+val rdr : Multipart.stream = <abstr>
 ```
 
 ## Multipart.boundary
@@ -33,7 +33,7 @@ val rdr : Multipart.reader = <abstr>
 
 ```ocaml
 # let p = Multipart.next_part rdr;;
-val p : Multipart.reader Multipart.part = <abstr>
+val p : Multipart.stream Multipart.part = <abstr>
 
 # Multipart.file_name p ;;
 - : string option = None
@@ -54,7 +54,7 @@ val p : Multipart.reader Multipart.part = <abstr>
 Exception: End_of_file.
 
 # let p2 = Multipart.next_part rdr;;
-val p2 : Multipart.reader Multipart.part = <abstr>
+val p2 : Multipart.stream Multipart.part = <abstr>
 
 # Multipart.file_name p2;;
 - : string option = Some "file1.txt"

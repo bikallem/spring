@@ -1,6 +1,6 @@
 (* Stream *)
 
-type reader =
+type stream =
   { r : Buf_read.t
   ; boundary : string
   ; dash_boundary : string
@@ -12,7 +12,7 @@ type reader =
 
 open Option.Syntax
 
-let reader body =
+let stream body =
   let boundary =
     match
       let* ct = Header.(find_opt (Body.headers body) content_type) in
@@ -33,7 +33,7 @@ let reader body =
   ; eof = false
   }
 
-let boundary t = t.boundary
+let boundary s = s.boundary
 
 (* Part *)
 
@@ -80,7 +80,7 @@ let read_line t =
     ln)
   else Buf_read.line t.r
 
-let read_into (p : reader part) dst =
+let read_into p dst =
   let write_data data =
     let data_len = String.length data in
     let n = min (Cstruct.length dst) data_len in
@@ -105,7 +105,7 @@ let read_into (p : reader part) dst =
     else write_data ln
 
 (* part body flow *)
-let as_flow (p : reader part) : Eio.Flow.source =
+let as_flow p : Eio.Flow.source =
   object
     inherit Eio.Flow.source
 
@@ -119,12 +119,12 @@ let read_all p =
   Eio.Flow.copy source sink;
   Buffer.contents buf
 
-let next_part (t : reader) =
-  let ln = read_line t in
-  if not (is_boundary_delimiter t.dash_boundary ln) then
+let next_part s =
+  let ln = read_line s in
+  if not (is_boundary_delimiter s.dash_boundary ln) then
     failwith @@ "mulitpart: expecting a new part; got line \"" ^ ln ^ "\""
   else
-    let headers = Header.parse t.r in
+    let headers = Header.parse s.r in
     match Header.(find_opt headers content_disposition) with
     | Some d ->
       if String.equal "form-data" (Content_disposition.disposition d) then
@@ -134,7 +134,7 @@ let next_part (t : reader) =
           | Some name -> name
           | None -> raise (Failure "'name' attribute missing from part")
         in
-        { t; filename; form_name; headers; body_eof = false }
+        { t = s; filename; form_name; headers; body_eof = false }
       else
         failwith
           "multipart: \"Content-Disposition\" header doesn't contain \
@@ -164,10 +164,10 @@ let make_file_part part =
   }
 
 let form body =
-  let reader = reader body in
+  let s = stream body in
   let rec aux t =
     try
-      let part = next_part reader in
+      let part = next_part s in
       match file_name part with
       | Some _ ->
         let file_part = make_file_part part in
