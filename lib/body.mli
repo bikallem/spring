@@ -5,7 +5,7 @@
     Request/Response body that can be written. *)
 
 type writable
-(** [writable] encapsulats a specific mechanism to write a request/response
+(** [writable] encapsulates a specific mechanism to write a request/response
     body. *)
 
 val make_writable :
