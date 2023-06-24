@@ -83,13 +83,13 @@ let parse_client_response buf_read =
 
 exception Closed
 
-let buf_read t = if t.x.closed then raise Closed else t.x.buf_read
-
 let closed t = t.x.closed
 
 let close t = t.x.closed <- true
 
-let to_readable t = Body.make_readable t.headers t.x.buf_read
+let readable t = Body.make_readable t.headers t.x.buf_read
+
+let buf_read t = if t.x.closed then raise Closed else t.x.buf_read
 
 (* Server Response *)
 

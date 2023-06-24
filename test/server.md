@@ -40,7 +40,7 @@ let handler req =
         Client.get client "localhost:8081" (fun res ->
           Eio.traceln "Route: /";
           Eio.traceln "%a" Header.pp (Response.headers res);
-          let body = Response.to_readable res in
+          let body = Response.readable res in
           Eio.traceln "%s" (Body.read_content body |> Option.get);
           Eio.traceln "";
           Eio.traceln "Route: /upload";
@@ -52,7 +52,7 @@ let handler req =
       in
       Client.post client body "localhost:8081/upload" (fun res ->
         Eio.traceln "%a" Header.pp (Response.headers res);
-        let body = Response.to_readable res in
+        let body = Response.readable res in
         Eio.traceln "%s" (Body.read_content body |> Option.get));
       Server.shutdown server
     );;
@@ -95,7 +95,7 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
       Eio.Switch.run @@ fun sw ->
       let client = Client.make sw env#net in
       Client.get client "localhost:8081" (fun res ->
-          let body = Response.to_readable res in
+          let body = Response.readable res in
           Eio.traceln "Resource (/): %s" (Body.read_content body |> Option.get)); 
 
       Client.get client "localhost:8081/products" (fun res ->

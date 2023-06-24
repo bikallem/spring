@@ -56,15 +56,15 @@ note that we can specify port in the url.
   Eio.Switch.run @@ fun sw ->
   let t = Client.make sw net in
   Client.get t "www.example.com" (fun res ->
-    let body = Response.to_readable res in
+    let body = Response.readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.example.com/products" (fun res ->
-    let body = Response.to_readable res in
+    let body = Response.readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get));
 
   Client.get t "www.mirage.org:8080" (fun res ->
-    let body = Response.to_readable res in
+    let body = Response.readable res in
     Eio.traceln "%s" (Body.read_content body |> Option.get))
   ;;
 +net: getaddrinfo ~service:80 www.example.com

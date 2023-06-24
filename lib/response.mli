@@ -36,11 +36,6 @@ val parse_client_response : Eio.Buf_read.t -> client t
 
 exception Closed
 
-val buf_read : client t -> Eio.Buf_read.t
-(** [buf_read t] is buffered reader associated with [t].
-
-    @raise Closed if [t] is already closed. *)
-
 val closed : client t -> bool
 (** [closed response] is [true] if [response] is closed. [false] otherwise. *)
 
@@ -49,8 +44,17 @@ val close : client t -> unit
     body is closed subsequent calls to read the [response] body will result in
     raising {!exception:Closed}. *)
 
-val to_readable : client t -> Body.readable
-(** [to_readable t] converts [t] to {!type:Body.readable}. *)
+(** {2 Reading Body} *)
+
+val readable : client t -> Body.readable
+(** [readable t] converts [t] to {!type:Body.readable}.
+
+    See {{!section:Body.readers} Readers}. *)
+
+val buf_read : client t -> Eio.Buf_read.t
+(** [buf_read t] is buffered reader associated with [t].
+
+    @raise Closed if [t] is already closed. *)
 
 (** {1 Server Response} *)
 
