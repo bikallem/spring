@@ -1,19 +1,24 @@
-(** [Multipart] implements HTTP MIME multipart parsing as defined in
-    {{:https://tools.ietf.org/html/rfc7578} RFC 7578}. *)
+(** [Multipart] implements HTTP MIME multipart codec as defined in
+    {{:https://tools.ietf.org/html/rfc7578} RFC 7578}. Multipart is also known
+    more popularly as forms in web development. *)
 
-(** {1 Part} *)
+(** {1 Part}
+
+    A part broadly represents a form field in a form. *)
 
 type 'a part
 (** [part] is a single part of a multipart request/response body. *)
 
 val file_name : 'a part -> string option
-(** [file_name p] is the file name of part [p]. *)
+(** [file_name p] is [Some filename] if part [p] if a file part. Otherwise it is
+    [None]. *)
 
 val form_name : 'a part -> string
-(** [form_name p] is the form name of part [p]. *)
+(** [form_name p] is the form field name of part [p]. *)
 
 val headers : 'a part -> Header.t
-(** [headers p] is headers associated with part [p]. *)
+(** [headers p] is headers associated with part [p]. It is a {!val:Header.empty}
+    if part [p] is a form value field. *)
 
 (** {1:streaming Reading Parts as Streams}
 
