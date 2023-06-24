@@ -38,7 +38,7 @@ val form_values_writer : (string * string list) list -> writable
 type readable
 (** [readable] is a request/response body that can be read.
 
-    See {!val:Request.to_readable} and {!val:Response.to_readable}. *)
+    See {!val:Request.readable} and {!val:Response.readable}. *)
 
 val make_readable : Header.t -> Eio.Buf_read.t -> readable
 (** [make_readable headers buf_read] makes a readable body from [headers] and
