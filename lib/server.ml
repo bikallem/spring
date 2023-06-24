@@ -133,8 +133,8 @@ let make_app_server
   in
   let session_codec =
     match session_codec with
-    | Some x -> (x :> Session.codec)
-    | None -> (Session.cookie_codec key :> Session.codec)
+    | Some x -> x
+    | None -> Session.cookie_codec key
   in
   let clock = (clock :> Eio.Time.clock) in
   let net = (net :> Eio.Net.t) in
