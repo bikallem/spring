@@ -7,13 +7,19 @@
 
 (** {1 Part}
 
-    A part broadly represents a form field in a form. *)
+    A part is a form field in a form. It encapsulates two data types:
+
+    + {i Value} is a key/value data value where [key] is the form field
+      name.
+    + {i File} holds data from a file. It has additional attributes such as
+      headers, and filename in addition to the form field name and actual file
+      content. *)
 
 type 'a part
 (** [part] is a single part of a multipart request/response body. *)
 
 val file_name : 'a part -> string option
-(** [file_name p] is [Some filename] if part [p] if a file part. Otherwise it is
+(** [file_name p] is [Some filename] if part [p] is a file part. Otherwise it is
     [None]. *)
 
 val form_name : 'a part -> string
