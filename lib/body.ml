@@ -20,7 +20,7 @@ let writable_content content_type content =
         Header.write_header w Header.content_type content_type)
   }
 
-let form_values_writer assoc_list =
+let writable_form_values assoc_list =
   let content = Uri.encoded_of_query assoc_list in
   let content_type =
     Content_type.make ("application", "x-www-form-urlencoded")

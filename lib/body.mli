@@ -31,9 +31,9 @@ val writable_content : Content_type.t -> string -> writable
     [content_type] denotes the type of [content] encoded in [body]. It manifests
     in HTTP request/response [Content-Type] header. *)
 
-val form_values_writer : (string * string list) list -> writable
-(** [form_values_writer key_values] is a request/response body which encodes a
-    form submission content. The request/response [Content-Type] is
+val writable_form_values : (string * string list) list -> writable
+(** [writable_form_values key_values] is a writable [body] which encodes a form
+    submission content. Its [Content-Type] header is encoded as
     "application/x-www.form-urlencoded". *)
 
 (** {1 Readable} *)

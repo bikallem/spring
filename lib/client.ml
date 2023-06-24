@@ -163,7 +163,7 @@ let post t body url =
   do_call t req
 
 let post_form_values t form_values url =
-  let body = Body.form_values_writer form_values in
+  let body = Body.writable_form_values form_values in
   post t body url
 
 let call ~conn req =

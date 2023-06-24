@@ -62,7 +62,7 @@ Return OK response if the CSRF token in form matches the one in session.
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key csrf_tok in
     let token_name = Csrf.token_name form_codec in 
-    let body = Body.form_values_writer 
+    let body = Body.writable_form_values 
       [(token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
       ]
@@ -94,7 +94,7 @@ Return `Bad Request` response if the CSRF tokens dont' match.
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
     let token_name = Csrf.token_name form_codec in 
-    let body = Body.form_values_writer 
+    let body = Body.writable_form_values 
       [(token_name, [tok]);
        ("name2", ["val c"; "val d"; "val e"])
       ]

@@ -31,10 +31,10 @@ val content_type : Content_type.t = <abstr>
 - : unit = ()
 ```
 
-## form_values_writer
+## writable_form_values
 
 ```ocaml
-# test_writer @@ Body.form_values_writer [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] ;;
+# test_writer @@ Body.writable_form_values [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] ;;
 +Content-Length: 59
 +Content-Type: application/x-www-form-urlencoded
 +name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e
