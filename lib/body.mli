@@ -14,7 +14,7 @@ val make_writable :
   -> writable
 (** [make_writable ~write_body ~write_headers] creates a writable [body].
 
-    [write_body] writes he reqeust/response [body].
+    [write_body] writes reqeust/response [body].
 
     [write_headers] writes headers associated with [body] *)
 
