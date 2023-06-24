@@ -1,6 +1,9 @@
-(** [Multipart] implements HTTP MIME multipart codec as defined in
-    {{:https://tools.ietf.org/html/rfc7578} RFC 7578}. Multipart is also known
-    more popularly as forms in web development. *)
+(** [Multipart] is HTTP MIME multipart codec as defined in
+    {{:https://tools.ietf.org/html/rfc7578} RFC 7578}. It is also known more
+    popularly as forms in web development.
+
+    It supports both {{!section:streaming} Streaming} and {{!section:form}
+    Non-Streaming} processing of multipart/form data. *)
 
 (** {1 Part}
 
@@ -56,7 +59,7 @@ val as_flow : stream part -> Eio.Flow.source
 val read_all : stream part -> string
 (** [read_all p] reads content from part [p] until end-of-file. *)
 
-(** {1 Reading Parts to a Form} *)
+(** {1:form Reading Parts to a Form} *)
 
 type form
 (** [form] is a parsed, in-memory multipart/formdata representation. *)
