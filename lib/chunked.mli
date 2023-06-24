@@ -21,7 +21,7 @@ val data : t -> string option
 val extensions : t -> (string * string option) list
 (** [extensions t] is a list of extensions associated with chunk [t].*)
 
-(** {1 Writer} *)
+(** {1:writable Writable Bodies} *)
 
 type write_chunk = (t -> unit) -> unit
 (** [write_chunk f] specifies HTTP chunks to be written by a
@@ -63,7 +63,7 @@ val writable :
       header "TE" with value "trailers" in requests. See
       {!val:Request.supports_chunked_trailers}. *)
 
-(** {1 Reader} *)
+(** {1:reader Reader} *)
 
 val read_chunked : (t -> unit) -> Body.readable -> Header.t option
 (** [read_chunked f readable] is [Some updated_headers] if "Transfer-Encoding"

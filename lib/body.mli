@@ -22,7 +22,12 @@ val write_headers : Eio.Buf_write.t -> writable -> unit
 
 (** {2 Common Writable Bodies}
 
-    Request/Response bodies that can be written. *)
+    Request/Response bodies that can be written.
+
+    Additional [writable] bodies :
+
+    + {{!section:Chunked.writable} Writable HTTP Chunked Body}
+    + {{!section:Multipart.writable} Writable Multipart/Form Body} *)
 
 val writable_content : Content_type.t -> string -> writable
 (** [writable_content content_type content] is a fixed-length writable [body]
@@ -57,7 +62,13 @@ val buf_read : readable -> Eio.Buf_read.t
 
 (** {2:readers Readers}
 
-    Some common request/reponse readers. *)
+    Some common request/response readers.
+
+    Additional readers :
+
+    + {{!section:Multipart.streaming} Multipart Streaming}
+    + {{!section:Multipart.form} Multipart Form}
+    + {{!section:Chunked.reader} Reading HTTP Chunked Body} *)
 
 val read_content : readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]

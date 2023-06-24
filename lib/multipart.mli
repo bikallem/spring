@@ -97,7 +97,7 @@ val find_file_field : string -> form -> file_field option
 (** [find_file_field name] is [Some ff] if a form field of type
     {!type:file_field} with name [name] exists in [t]. Otherwise it is [None]. *)
 
-(** {1 Writing Multipart} *)
+(** {1:writable Writable Multipart} *)
 
 type writable
 (** [writable] is a part that can be written. *)
