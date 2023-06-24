@@ -20,10 +20,14 @@ val write_body : Eio.Buf_write.t -> writable -> unit
 val write_headers : Eio.Buf_write.t -> writable -> unit
 (** [write_headers buf_write body] writes [body] onto [buf_write]. *)
 
-(** {2 Common Writable Bodies} *)
+(** {2 Common Writable Bodies}
 
-val content_writer : Content_type.t -> string -> writable
-(** [content_writer content_type content] is a request/response [body].
+    Request/Response bodies that can be written. *)
+
+val writable_content : Content_type.t -> string -> writable
+(** [writable_content content_type content] is a a fixed-length writable with
+    content [content]. [content_type] is the header value for [Content-Type]
+    header.
 
     [content_type] denotes the type of [content] encoded in body. It manifests
     in HTTP request/response [Content-Type] header. *)

@@ -127,14 +127,14 @@ let text content =
   let content_type =
     Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "plain")
   in
-  let body = Body.content_writer content_type content in
+  let body = Body.writable_content content_type content in
   make_server_response body
 
 let html content =
   let content_type =
     Content_type.make ~params:[ ("charset", "uf-8") ] ("text", "html")
   in
-  let body = Body.content_writer content_type content in
+  let body = Body.writable_content content_type content in
   make_server_response body
 
 let ohtml o =

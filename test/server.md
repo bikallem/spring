@@ -46,7 +46,7 @@ let handler req =
           Eio.traceln "Route: /upload";
           let body =
             let content_type = Content_type.make ("text", "plain") in
-            Body.content_writer content_type "hello world" 
+            Body.writable_content content_type "hello world" 
           in
           body)
       in

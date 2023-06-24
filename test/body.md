@@ -18,13 +18,13 @@ let test_writer (body: Body.writable) =
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## content_writer
+## writable_content
 
 ```ocaml
 # let content_type = Content_type.make ("text", "plain");;
 val content_type : Content_type.t = <abstr>
 
-# test_writer @@ Body.content_writer content_type "hello world";;
+# test_writer @@ Body.writable_content content_type "hello world";;
 +Content-Length: 11
 +Content-Type: text/plain
 +hello world

@@ -11,7 +11,7 @@ let write_body buf_write body = body.write_body buf_write
 
 let write_headers buf_write body = body.write_headers buf_write
 
-let content_writer content_type content =
+let writable_content content_type content =
   let content_length = String.length content in
   { write_body = (fun w -> Eio.Buf_write.string w content)
   ; write_headers =
@@ -25,7 +25,7 @@ let form_values_writer assoc_list =
   let content_type =
     Content_type.make ("application", "x-www-form-urlencoded")
   in
-  content_writer content_type content
+  writable_content content_type content
 
 type readable =
   { headers : Header.t
