@@ -50,9 +50,7 @@ let response_date : #Eio.Time.clock -> pipeline =
 
 let strict_http clock next = response_date clock @@ host_header @@ next
 
-type router = response Router.t
-
-let router_pipeline : router -> pipeline =
+let router_pipeline : response Router.t -> pipeline =
  fun router next req ->
   match Router.match' req router with
   | Some response -> response
@@ -81,12 +79,13 @@ let session_pipeline (session_codec : Session.codec) : pipeline =
 type 'a t =
   { clock : Eio.Time.clock
   ; net : Eio.Net.t
-  ; handler : handler
+  ; handler : 'a t -> handler
   ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
   ; stop_u : unit Eio.Promise.u
+  ; x : 'a
   }
 
-type http = handler
+type http = unit
 
 let make_http_server
     ?(max_connections = Int.max_int)
@@ -101,14 +100,13 @@ let make_http_server
   in
   { clock = (clock :> Eio.Time.clock)
   ; net = (net :> Eio.Net.t)
-  ; handler
+  ; handler = (fun _ -> handler)
   ; run
   ; stop_u
+  ; x = ()
   }
 
 type app = response Router.t
-
-let empty_router = Router.empty
 
 let make_app_server
     ?(max_connections = Int.max_int)
@@ -119,8 +117,7 @@ let make_app_server
     ~on_error
     ~secure_random
     (clock : #Eio.Time.clock)
-    (net : #Eio.Net.t)
-    router =
+    (net : #Eio.Net.t) =
   let stop, stop_u = Eio.Promise.create () in
   let key =
     match master_key with
@@ -142,10 +139,11 @@ let make_app_server
   { clock = (clock :> Eio.Time.clock)
   ; net = (net :> Eio.Net.t)
   ; handler =
-      strict_http clock
-      @@ session_pipeline session_codec
-      @@ router_pipeline router
-      @@ handler
+      (fun t ->
+        strict_http clock
+        @@ session_pipeline session_codec
+        @@ router_pipeline t.x
+        @@ handler)
   ; run =
       (fun socket handler ->
         let env =
@@ -163,21 +161,25 @@ let make_app_server
             Eio.Net.run_server ~max_connections ?additional_domains ~stop
               ~on_error socket handler))
   ; stop_u
+  ; x = Router.empty
   }
 
 type 'a request_target = ('a, response) Router.request_target
 
-let add_route = Router.add
+let add_route : Method.t -> 'f request_target -> 'f -> app t -> app t =
+ fun meth rt f t ->
+  let x = Router.add meth rt f t.x in
+  { t with x }
 
-let get rt f app = Router.add Method.get rt f app
+let get rt f t = add_route Method.get rt f t
 
-let head rt f t = Router.add Method.head rt f t
+let head rt f t = add_route Method.head rt f t
 
-let delete rt f t = Router.add Method.delete rt f t
+let delete rt f t = add_route Method.delete rt f t
 
-let post rt f t = Router.add Method.post rt f t
+let post rt f t = add_route Method.post rt f t
 
-let put rt f t = Router.add Method.put rt f t
+let put rt f t = add_route Method.put rt f t
 
 let rec handle_request clock client_addr reader writer flow handler =
   let write = Response.write_server_response writer in
@@ -202,7 +204,7 @@ let connection_handler handler clock flow client_addr =
       handle_request clock client_addr reader writer flow handler)
 
 let run socket t =
-  let connection_handler = connection_handler t.handler t.clock in
+  let connection_handler = connection_handler (t.handler t) t.clock in
   t.run socket connection_handler
 
 let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =

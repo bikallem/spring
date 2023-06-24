@@ -72,9 +72,7 @@ val strict_http : #Eio.Time.clock -> pipeline
         Server.run_local server
     ]} *)
 
-type router = response Router.t
-
-val router_pipeline : router -> pipeline
+val router_pipeline : response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
 
@@ -121,9 +119,6 @@ type app
     - [session_pipeline]
     - [router_pipeline] *)
 
-val empty_router : router
-(** [empty_router] is a router without any configured routes. *)
-
 val make_app_server :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
@@ -134,9 +129,8 @@ val make_app_server :
   -> secure_random:#Eio.Flow.source
   -> #Eio.Time.clock
   -> #Eio.Net.t
-  -> router
   -> app t
-(** [make_app_server t ~secure_random ~on_error clock net] is {!type:app} [t].
+(** [make_app_server t ~secure_random ~on_error clock net] is an app server [t].
 
     @param handler
       specifies handler to be added after [router_pipeline] is executed. The
@@ -164,56 +158,40 @@ val make_app_server :
 
 type 'a request_target = ('a, response) Router.request_target
 
-val get : 'f request_target -> 'f -> router -> router
+val get : 'f request_target -> 'f -> app t -> app t
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
     and [request_target] *)
 
-val head : 'f request_target -> 'f -> router -> router
+val head : 'f request_target -> 'f -> app t -> app t
 (** [head request_target f t] is [t] with a route that matches HTTP HEAD method
     and [request_target]. *)
 
-val delete : 'f request_target -> 'f -> router -> router
+val delete : 'f request_target -> 'f -> app t -> app t
 (** [delete request_target f t] is [t] with a route that matches HTTP DELETE
     method and [request_target]. *)
 
-val post : 'f request_target -> 'f -> router -> router
+val post : 'f request_target -> 'f -> app t -> app t
 (** [post request_target f t] is [t] with a route that matches HTTP POST method
     and [request_target]. *)
 
-val put : 'f request_target -> 'f -> router -> router
+val put : 'f request_target -> 'f -> app t -> app t
 (** [put request_target f t] is [t] with a route that matches HTTP PUT method
     and [request_target]. *)
 
-val add_route : Method.t -> 'f request_target -> 'f -> router -> router
+val add_route : Method.t -> 'f request_target -> 'f -> app t -> app t
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
 
 (** {1 Running Servers} *)
 
 val run : Eio.Net.listening_socket -> _ t -> unit
-(** [run socket t] runs a HTTP/1.1 server listening on socket [socket].
-
-    {[
-      Eio_main.run @@ fun env ->
-      Eio.Switch.run @@ fun sw ->
-      let addr = Eio.Net.Ipaddr.of_raw "2606:2800:220:1:248:1893:25c8:1946" in
-      let socket = Eio.Net.listen ~backlog:5 ~sw env#net (`Tcp (addr, 80)) in
-      let handler _req = Cohttp_eio.Response.text "hello world" in
-      let server = Server.make ~on_error:raise env#clock handler in
-      Cohttp_eio.Server.run socket server
-    ]} *)
+(** [run socket t] runs a HTTP/1.1 server [t] listening on socket [socket]. *)
 
 val run_local :
   ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> _ t -> unit
-(** [run_local t] runs server on TCP/IP address [localhost] and by default on
-    port [80].
+(** [run_local t] runs HTTP/1.1 server [t] on a local TCP/IP address
+    [localhost].
 
-    {[
-      Eio_main.run @@ fun env ->
-      let handler _req = Cohttp_eio.Response.text "hello world" in
-      let server = Cohttp_eio.make ~on_error:raise env#clock env#net handler in
-      Cohttp_eio.Server.run_local server
-    ]}
     @param reuse_addr
       configures listening socket to reuse [localhost] address. Default value is
       [true].
@@ -228,4 +206,4 @@ val connection_handler :
 
 val shutdown : _ t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
-    inflight connections to complete. *)
+    inflight connections to complete and finally stops server [t]. *)
