@@ -91,8 +91,8 @@ let make_http_server
     ?(max_connections = Int.max_int)
     ?additional_domains
     ~on_error
-    (clock : #Eio.Time.clock)
-    (net : #Eio.Net.t)
+    clock
+    net
     handler =
   let stop, stop_u = Eio.Promise.create () in
   let run =
@@ -116,8 +116,8 @@ let make_app_server
     ?master_key
     ~on_error
     ~secure_random
-    (clock : #Eio.Time.clock)
-    (net : #Eio.Net.t) =
+    clock
+    net =
   let stop, stop_u = Eio.Promise.create () in
   let key =
     match master_key with
