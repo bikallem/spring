@@ -205,7 +205,9 @@ let find_session_data name t =
   Option.bind t.x.session_data (fun session_data ->
       Session.Data.find_opt name session_data)
 
-let to_readable t = Body.make_readable t.headers t.x.buf_read
+let readable t = Body.make_readable t.headers t.x.buf_read
+
+let buf_read t = t.x.buf_read
 
 let parse_server_request ?session client_addr (buf_read : Buf_read.t) =
   let open Eio.Buf_read.Syntax in

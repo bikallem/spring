@@ -20,7 +20,7 @@ let handler req =
   match Request.resource req with
   | "/" -> Response.text "root"
   | "/upload" -> (
-    match Request.to_readable req |> Body.read_content with
+    match Request.readable req |> Body.read_content with
     | Some a -> Response.text a
     | None -> Response.bad_request)
   | _ -> Response.not_found

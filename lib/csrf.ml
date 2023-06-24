@@ -25,7 +25,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
       match (Content_type.media_type ct :> string * string) with
       | "application", "x-www-form-urlencoded" -> (
         let* toks =
-          Request.to_readable req
+          Request.readable req
           |> Body.read_form_values
           |> List.assoc_opt token_name
         in
@@ -33,7 +33,7 @@ let form_codec ?(token_name = "__csrf_token__") key =
         | tok :: _ -> Some tok
         | _ -> None)
       | "multipart", "formdata" ->
-        let rdr = Request.to_readable req |> Multipart.stream in
+        let rdr = Request.readable req |> Multipart.stream in
         (* Note: anticsrf field must be the first field in multipart/formdata form. *)
         let anticsrf_part = Multipart.next_part rdr in
         let anticsrf_field = Multipart.form_name anticsrf_part in

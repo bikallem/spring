@@ -9,8 +9,7 @@
 
     A part is a form field in a form. It encapsulates two data types:
 
-    + {i Value} is a key/value data value where [key] is the form field
-      name.
+    + {i Value} is a key/value data value where [key] is the form field name.
     + {i File} holds data from a file. It has additional attributes such as
       headers, and filename in addition to the form field name and actual file
       content. *)

@@ -122,8 +122,15 @@ val find_session_data : string -> server t -> string option
 (** [find_session_data name t] is [Some v] is session data with name [name]
     exists in [t]. Otherwise it is [None]. *)
 
-val to_readable : server t -> Body.readable
-(** [to_readable t] converts [t] to {!type:Body.readable}. *)
+(** {2 Reading Body} *)
+
+val readable : server t -> Body.readable
+(** [readable t] converts [t] to {!type:Body.readable}.
+
+    See {{!section:Body.readers} Readers}. *)
+
+val buf_read : server t -> Eio.Buf_read.t
+(** [buf_read t] is an eio bufferred reader associated with server request [t]. *)
 
 val parse_server_request :
      ?session:Session.codec
