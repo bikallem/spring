@@ -14,9 +14,9 @@ val make_writable :
   -> writable
 (** [make_writable ~write_body ~write_headers] creates a writable [body].
 
-    [write_body] encodes the reqeust/response [body].
+    [write_body] writes he reqeust/response [body].
 
-    [write_headers] encodes headers associated with [body] *)
+    [write_headers] writes headers associated with [body] *)
 
 val none : writable
 (** [none] is a no-op [writable] that represents the absence of HTTP request or
