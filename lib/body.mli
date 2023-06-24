@@ -9,6 +9,11 @@ val make_writable :
      write_body:(Eio.Buf_write.t -> unit)
   -> write_headers:(Eio.Buf_write.t -> unit)
   -> writable
+(** [make_writable ~write_body ~write_headers] creates a writable [body].
+
+    [write_body] encodes the reqeust/response [body].
+
+    [write_headers] encodes headers associated with [body] *)
 
 val none : writable
 (** [none] is a no-op [writable] that represents the absence of HTTP request or
