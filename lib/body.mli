@@ -25,11 +25,10 @@ val write_headers : Eio.Buf_write.t -> writable -> unit
     Request/Response bodies that can be written. *)
 
 val writable_content : Content_type.t -> string -> writable
-(** [writable_content content_type content] is a a fixed-length writable with
-    content [content]. [content_type] is the header value for [Content-Type]
-    header.
+(** [writable_content content_type content] is a fixed-length writable [body]
+    with content [content].
 
-    [content_type] denotes the type of [content] encoded in body. It manifests
+    [content_type] denotes the type of [content] encoded in [body]. It manifests
     in HTTP request/response [Content-Type] header. *)
 
 val form_values_writer : (string * string list) list -> writable
