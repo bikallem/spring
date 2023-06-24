@@ -1,9 +1,12 @@
 (** HTTP request and response body. *)
 
-(** {1 Writable} *)
+(** {1 Writable}
+
+    Request/Response body that can be written. *)
 
 type writable
-(** [writable] is a body that can be written. *)
+(** [writable] encapsulats a specific mechanism to write a request/response
+    body. *)
 
 val make_writable :
      write_body:(Eio.Buf_write.t -> unit)
