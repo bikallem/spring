@@ -23,8 +23,7 @@ val headers : 'a part -> Header.t
 (** {1:streaming Reading Parts as Streams}
 
     The streaming api supports processing multipart/form without a complete
-    in-memory representation of data. one part/form-fi As such, using streaming
-    api could result in an efficient memory usage as compared to {!val:form}. *)
+    in-memory representation of data. *)
 
 type stream
 (** [stream] is a part/form-field stream. It reads parts/form-fields one at a
