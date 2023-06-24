@@ -52,7 +52,7 @@ val buf_read : readable -> Eio.Buf_read.t
 (** [buf_read r] is buffered reader {!type:Eio.Buf_read.t} associated with
     readable body [r]. *)
 
-(** {2 Common Body Readers} *)
+(** {2:readers Readers} *)
 
 val read_content : readable -> string option
 (** [read_content readable] is [Some content], where [content] is of length [n]
