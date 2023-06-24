@@ -136,33 +136,31 @@ let make_app_server
     | Some x -> (x :> Session.codec)
     | None -> (Session.cookie_codec key :> Session.codec)
   in
-  { clock = (clock :> Eio.Time.clock)
-  ; net = (net :> Eio.Net.t)
-  ; handler =
-      (fun t ->
-        strict_http clock
-        @@ session_pipeline session_codec
-        @@ router_pipeline t.x
-        @@ handler)
-  ; run =
-      (fun socket handler ->
-        let env =
-          (object
-             method clock = clock
+  let clock = (clock :> Eio.Time.clock) in
+  let net = (net :> Eio.Net.t) in
+  let handler t =
+    strict_http clock
+    @@ session_pipeline session_codec
+    @@ router_pipeline t.x
+    @@ handler
+  in
+  let run socket handler =
+    let env =
+      (object
+         method clock = clock
 
-             method secure_random = (secure_random :> Eio.Flow.source)
-           end
-            :> Mirage_crypto_rng_eio.env)
-        in
-        Mirage_crypto_rng_eio.run
-          (module Mirage_crypto_rng.Fortuna)
-          env
-          (fun () ->
-            Eio.Net.run_server ~max_connections ?additional_domains ~stop
-              ~on_error socket handler))
-  ; stop_u
-  ; x = Router.empty
-  }
+         method secure_random = (secure_random :> Eio.Flow.source)
+       end
+        :> Mirage_crypto_rng_eio.env)
+    in
+    Mirage_crypto_rng_eio.run
+      (module Mirage_crypto_rng.Fortuna)
+      env
+      (fun () ->
+        Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+          socket handler)
+  in
+  { clock; net; handler; run; stop_u; x = Router.empty }
 
 type 'a request_target = ('a, response) Router.request_target
 
