@@ -22,15 +22,17 @@ val headers : 'a part -> Header.t
 
 (** {1:streaming Reading Parts as Streams}
 
-    The streaming api supports reading one part at a time. As such, using
-    streaming api could result in an efficient memory usage as compared to
-    {!val:form}. *)
+    The streaming api supports processing multipart/form without a complete
+    in-memory representation of data. one part/form-fi As such, using streaming
+    api could result in an efficient memory usage as compared to {!val:form}. *)
 
 type stream
-(** [stream] is a streaming HTTP multipart request/response body reader. *)
+(** [stream] is a part/form-field stream. It reads parts/form-fields one at a
+    time. *)
 
 val stream : Body.readable -> stream
-(** [stream body] creates a streaming reader for multipart encoded body [body].
+(** [stream body] creates a stream for multipart encoded HTTP request/response
+    body [body].
 
     @raise Invalid_argument
       if [body] doesn't contain valid MIME [boundary] value in "Content-Type"
