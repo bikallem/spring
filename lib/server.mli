@@ -152,11 +152,9 @@ val make_app_server :
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
 
-(** {1 Router}
-
-    Use spring ppx and [%r ] syntax to add routes to a router. *)
-
 type 'a request_target = ('a, response) Router.request_target
+(** [request_target] is the request path for router. Use [spring] ppx and
+    [\[%r \]] syntax to add routes to a router. *)
 
 val get : 'f request_target -> 'f -> app t -> app t
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
