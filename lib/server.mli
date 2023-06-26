@@ -64,7 +64,7 @@ type pipeline = handler -> handler
 
       let () =
         Eio_main.run @@ fun env ->
-        let server = Server.make ~on_error:raise env#clock env#net handler in
+        let server = Server.make_http_server ~on_error:raise env#clock env#net handler in
         Server.run_local server
     ]}
 
