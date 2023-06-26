@@ -2,9 +2,31 @@ type request = Request.server Request.t
 
 type response = Response.server Response.t
 
+(* handler *)
 type handler = request -> response
 
 let not_found_handler : handler = fun (_ : request) -> Response.not_found
+
+let file_handler ~root_dir filepath =
+  let root_dir = Fpath.(normalize @@ v root_dir) in
+  fun (_req : Request.server Request.t) ->
+    let filepath = Fpath.(append root_dir @@ v filepath) in
+    match Bos.OS.File.read filepath with
+    | Ok content ->
+      let ct =
+        Fpath.filename filepath
+        |> Magic_mime.lookup
+        |> String.cut ~sep:"/"
+        |> Option.get
+        |> Content_type.make
+      in
+      Body.writable_content ct content |> Response.make_server_response
+    | Error _ as err -> (
+      match Bos.OS.File.exists filepath with
+      | Ok true | Error _ -> Rresult.R.failwith_error_msg err
+      | Ok false -> Response.not_found)
+
+(* pipeline *)
 
 type pipeline = handler -> handler
 
@@ -75,25 +97,6 @@ let session_pipeline (session_codec : Session.codec) : pipeline =
         (cookie_name, encrypted_data)
     in
     Response.add_set_cookie cookie response
-
-let file_handler ~root_dir filepath =
-  let root_dir = Fpath.(normalize @@ v root_dir) in
-  fun (_req : Request.server Request.t) ->
-    let filepath = Fpath.(append root_dir @@ v filepath) in
-    match Bos.OS.File.read filepath with
-    | Ok content ->
-      let ct =
-        Fpath.filename filepath
-        |> Magic_mime.lookup
-        |> String.cut ~sep:"/"
-        |> Option.get
-        |> Content_type.make
-      in
-      Body.writable_content ct content |> Response.make_server_response
-    | Error _ as err -> (
-      match Bos.OS.File.exists filepath with
-      | Ok true | Error _ -> Rresult.R.failwith_error_msg err
-      | Ok false -> Response.not_found)
 
 type 'a t =
   { clock : Eio.Time.clock
