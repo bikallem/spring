@@ -58,6 +58,10 @@
    (>= 0.11.1))
   (mirage-crypto-rng-eio
    (>= 0.11.1))
+  (fpath (>= 0.7.3))
+  (bos (>= 0.2.1))
+  (rresult (>= 0.7.0))
+  (magic-mime (>= 1.3.0))
   (fmt
    (and
     (>= 0.9.0)

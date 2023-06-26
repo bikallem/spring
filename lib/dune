@@ -14,6 +14,10 @@
   ppxlib
   csexp
   base64
+  fpath
+  bos
+  rresult
+  magic-mime
   mirage-crypto
   mirage-crypto-rng
   mirage-crypto-rng-eio))
