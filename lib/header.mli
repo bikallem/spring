@@ -103,6 +103,10 @@ val set_cookie : Set_cookie.t header
 (** [set_cookie] is the [Set-Cookie] header as specified in
     https://datatracker.ietf.org/doc/html/rfc6265 *)
 
+val last_modified : Date.t header
+(** [last_modified] is the [Last-Modified] header as specified in
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified *)
+
 (** {1 Create} *)
 
 val empty : t

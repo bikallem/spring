@@ -76,6 +76,8 @@ let set_cookie =
   ; encode = Set_cookie.encode
   }
 
+let last_modified = { date with name = "last-modified" }
+
 let empty = []
 
 let singleton ~name ~value = [ (lname name, value) ]
