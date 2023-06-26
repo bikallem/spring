@@ -15,7 +15,6 @@
   csexp
   base64
   fpath
-  bos
   magic-mime
   mirage-crypto
   mirage-crypto-rng
