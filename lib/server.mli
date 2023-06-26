@@ -12,9 +12,14 @@ type handler = request -> response
 val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
 
-val serve_files : root_dir:string -> string -> handler
-(** [serve_files ~root_dir filepath] is a handler that returns a HTTP response
-    containing file content pointed to by [root-dir ^ '/' ^ filepath].
+val serve_dir :
+  on_error:(string -> response) -> dir_path:string -> string -> handler
+(** [serve_dir ~on_error ~dir_path filepath] is a [handler] that returns a HTTP
+    response containing file content pointed to by [filepath] in directory
+    [dir_path].
+
+    The handler returns [Response.not_found] if a file pointed to by [filepath]
+    doesn't exist in [dir_path].
 
     {b Usage}
 
@@ -24,10 +29,10 @@ val serve_files : root_dir:string -> string -> handler
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let serve_files = Server.serve_files ~root_dir:"./public" in
+        let serve_dir = Server.serve_dir ~dir_path:"./public" in
         Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
           env#clock env#net
-        |> Server.get [%r "/public/:string"] serve_files
+        |> Server.get [%r "/public/:string"] serve_dir
     ]}
 
     Serve files in local directory "./public/" recursively, i.e. serve files in
@@ -37,11 +42,14 @@ val serve_files : root_dir:string -> string -> handler
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let serve_files = Server.serve_files ~root_dir:"./public" in
+        let serve_dir = Server.serve_dir ~dir_path:"./public" in
         Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
           env#clock env#net
-        |> Server.get [%r "/public/**"] serve_files
-    ]} *)
+        |> Server.get [%r "/public/**"] serve_dir
+    ]}
+    @param on_error
+      the error handler that is called when [handler] encounters an error while
+      reading files in [dir_path] and [filepath]. *)
 
 (** {1 Pipeline}*)
 

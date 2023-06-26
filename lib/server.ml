@@ -7,10 +7,10 @@ type handler = request -> response
 
 let not_found_handler : handler = fun (_ : request) -> Response.not_found
 
-let serve_files ~root_dir filepath =
-  let root_dir = Fpath.(normalize @@ v root_dir) in
+let serve_dir ~on_error ~dir_path filepath =
+  let dir_path = Fpath.(normalize @@ v dir_path) in
   fun (_req : Request.server Request.t) ->
-    let filepath = Fpath.(append root_dir @@ v filepath) in
+    let filepath = Fpath.(append dir_path @@ v filepath) in
     match Bos.OS.File.read filepath with
     | Ok content ->
       let ct =
@@ -21,9 +21,9 @@ let serve_files ~root_dir filepath =
         |> Content_type.make
       in
       Body.writable_content ct content |> Response.make_server_response
-    | Error _ as err -> (
+    | Error (`Msg err) -> (
       match Bos.OS.File.exists filepath with
-      | Ok true | Error _ -> Rresult.R.failwith_error_msg err
+      | Ok true | Error _ -> on_error err
       | Ok false -> Response.not_found)
 
 (* pipeline *)
