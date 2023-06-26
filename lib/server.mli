@@ -7,7 +7,7 @@ type request = Request.server Request.t
 type response = Response.server Response.t
 
 type handler = request -> response
-(** [handler] is a HTTP request handler. *)
+(** [handler] responds to HTTP request by returning a HTTP response. *)
 
 val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
@@ -64,7 +64,9 @@ type pipeline = handler -> handler
 
       let () =
         Eio_main.run @@ fun env ->
-        let server = Server.make_http_server ~on_error:raise env#clock env#net handler in
+        let server =
+          Server.make_http_server ~on_error:raise env#clock env#net handler
+        in
         Server.run_local server
     ]}
 
