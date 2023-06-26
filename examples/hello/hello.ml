@@ -27,7 +27,7 @@ let () =
   Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
     env#clock env#net
   |> Server.get [%r "/public/**"] serve_dir
-  |> Server.get [%r "/"] @@ serve_dir "index.html" 
+  |> Server.get [%r "/"] @@ serve_dir "index.html"
   |> Server.get [%r "/hello"] say_hello
   |> Server.get [%r "/products"] display_products
   |> Server.run_local ~port:8080

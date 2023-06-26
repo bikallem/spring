@@ -9,10 +9,12 @@ let not_found_handler : handler = fun (_ : request) -> Response.not_found
 
 let serve_dir ~on_error ~dir_path filepath =
   let dir_path = Fpath.(normalize @@ v dir_path) in
+  let ( let* ) r f = Result.bind r f in
+  let ( let+ ) r f = Result.map f r in
   fun (_req : Request.server Request.t) ->
     let filepath = Fpath.(append dir_path @@ v filepath) in
-    match Bos.OS.File.read filepath with
-    | Ok content ->
+    match
+      let* content = Bos.OS.File.read filepath in
       let ct =
         Fpath.filename filepath
         |> Magic_mime.lookup
@@ -20,7 +22,15 @@ let serve_dir ~on_error ~dir_path filepath =
         |> Option.get
         |> Content_type.make
       in
-      Body.writable_content ct content |> Response.make_server_response
+      let+ headers =
+        let+ stat = Bos.OS.Path.stat filepath in
+        let lm = Ptime.of_float_s stat.st_mtime |> Option.get in
+        Header.(add empty last_modified lm)
+      in
+      let body = Body.writable_content ct content in
+      Response.make_server_response ~headers body
+    with
+    | Ok res -> res
     | Error (`Msg err) -> (
       match Bos.OS.File.exists filepath with
       | Ok true | Error _ -> on_error err
