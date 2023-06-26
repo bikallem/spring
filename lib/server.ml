@@ -7,34 +7,31 @@ type handler = request -> response
 
 let not_found_handler : handler = fun (_ : request) -> Response.not_found
 
-let serve_dir ~on_error ~dir_path filepath =
-  let dir_path = Fpath.(normalize @@ v dir_path) in
-  let ( let* ) r f = Result.bind r f in
-  let ( let+ ) r f = Result.map f r in
-  fun (_req : Request.server Request.t) ->
-    let filepath = Fpath.(append dir_path @@ v filepath) in
-    match
-      let* content = Bos.OS.File.read filepath in
-      let ct =
-        Fpath.filename filepath
-        |> Magic_mime.lookup
-        |> String.cut ~sep:"/"
-        |> Option.get
-        |> Content_type.make
+let serve_dir ~on_error ~dir_path filepath (_req : Request.server Request.t) =
+  let filepath = Eio.Path.(dir_path / filepath) in
+  match
+    let content = Eio.Path.load filepath in
+    let ct =
+      Fpath.v @@ snd filepath
+      |> Fpath.filename
+      |> Magic_mime.lookup
+      |> String.cut ~sep:"/"
+      |> Option.get
+      |> Content_type.make
+    in
+    let headers =
+      let mtime =
+        Eio.Path.with_open_in filepath @@ fun p -> (Eio.File.stat p).mtime
       in
-      let+ headers =
-        let+ stat = Bos.OS.Path.stat filepath in
-        let lm = Ptime.of_float_s stat.st_mtime |> Option.get in
-        Header.(add empty last_modified lm)
-      in
-      let body = Body.writable_content ct content in
-      Response.make_server_response ~headers body
-    with
-    | Ok res -> res
-    | Error (`Msg err) -> (
-      match Bos.OS.File.exists filepath with
-      | Ok true | Error _ -> on_error err
-      | Ok false -> Response.not_found)
+      let lm = Ptime.of_float_s mtime |> Option.get in
+      Header.(add empty last_modified lm)
+    in
+    let body = Body.writable_content ct content in
+    Response.make_server_response ~headers body
+  with
+  | res -> res
+  | exception Eio.Io (Eio.Fs.E (Not_found _), _) -> Response.not_found
+  | exception exn -> on_error exn
 
 (* pipeline *)
 

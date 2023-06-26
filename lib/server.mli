@@ -13,7 +13,10 @@ val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
 
 val serve_dir :
-  on_error:(string -> response) -> dir_path:string -> string -> handler
+     on_error:(exn -> response)
+  -> dir_path:Eio.Fs.dir Eio.Path.t
+  -> string
+  -> handler
 (** [serve_dir ~on_error ~dir_path filepath] is a [handler] that returns a HTTP
     response containing file content pointed to by [filepath] in directory
     [dir_path].

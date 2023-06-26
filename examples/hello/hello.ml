@@ -22,7 +22,8 @@ let () =
   Printexc.record_backtrace true;
   Eio_main.run @@ fun env ->
   let serve_dir =
-    Server.serve_dir ~on_error:failwith ~dir_path:"./examples/hello/public"
+    let dir_path = Eio.Path.(env#fs / "./examples/hello/public") in
+    Server.serve_dir ~on_error:raise ~dir_path
   in
   Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
     env#clock env#net
