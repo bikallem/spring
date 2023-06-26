@@ -21,7 +21,7 @@ val serve_dir :
     The handler returns [Response.not_found] if a file pointed to by [filepath]
     doesn't exist in [dir_path].
 
-    {b Usage}
+    {b Usage with [Router.t]}
 
     Serve files in local directory "./public" - non recursively, i.e. url path
     such as ["/public/style.css" , "/public/a.js", "/public/a.html"] etc.
