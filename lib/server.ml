@@ -7,7 +7,7 @@ type handler = request -> response
 
 let not_found_handler : handler = fun (_ : request) -> Response.not_found
 
-let file_handler ~root_dir filepath =
+let serve_files ~root_dir filepath =
   let root_dir = Fpath.(normalize @@ v root_dir) in
   fun (_req : Request.server Request.t) ->
     let filepath = Fpath.(append root_dir @@ v filepath) in

@@ -12,8 +12,8 @@ type handler = request -> response
 val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
 
-val file_handler : root_dir:string -> string -> handler
-(** [serve_file ~root_dir filepath] is a handler that returns a HTTP response
+val serve_files : root_dir:string -> string -> handler
+(** [serve_files ~root_dir filepath] is a handler that returns a HTTP response
     containing file content pointed to by [root-dir ^ '/' ^ filepath].
 
     {b Usage}
@@ -24,10 +24,10 @@ val file_handler : root_dir:string -> string -> handler
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let file_handler = Server.file_handler ~root_dir:"./public" in
+        let serve_files = Server.serve_files ~root_dir:"./public" in
         Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
           env#clock env#net
-        |> Server.get [%r "/public/:string"] file_handler
+        |> Server.get [%r "/public/:string"] serve_files
     ]}
 
     Serve files in local directory "./public/" recursively, i.e. serve files in
@@ -37,10 +37,10 @@ val file_handler : root_dir:string -> string -> handler
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let file_handler = Server.file_handler ~root_dir:"./public" in
+        let serve_files = Server.serve_files ~root_dir:"./public" in
         Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
           env#clock env#net
-        |> Server.get [%r "/public/**"] file_handler
+        |> Server.get [%r "/public/**"] serve_files
     ]} *)
 
 (** {1 Pipeline}*)

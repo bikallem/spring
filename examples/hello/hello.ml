@@ -21,10 +21,10 @@ let _csrf_protec _req =
 let () =
   Printexc.record_backtrace true;
   Eio_main.run @@ fun env ->
-  let file_handler = Server.file_handler ~root_dir:"./examples/hello/public" in
+  let serve_files = Server.serve_files ~root_dir:"./examples/hello/public" in
   Server.make_app_server ~on_error:raise ~secure_random:env#secure_random
     env#clock env#net
-  |> Server.get [%r "/public/**"] file_handler
+  |> Server.get [%r "/public/**"] serve_files
   |> Server.get [%r "/"] say_hello
   |> Server.get [%r "/products"] display_products
   |> Server.run_local ~port:8080
