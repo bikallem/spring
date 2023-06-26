@@ -23,6 +23,9 @@ let fmt = Format.std_formatter
 # test_get "/public/images/image1.jpg";;
 - : string option = Some "file path: images/image1.jpg"
 
+# test_get "/public/";;
+- : string option = Some "file path: "
+
 # test_get "/home/100001.1/";
 - : string option = Some "Float page. number : 100001.100000"
 
