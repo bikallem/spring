@@ -111,6 +111,10 @@ val if_modified_since : Date.t header
 (** [if_modified_since] is the [If-Modified-Since] header as specified in
     https://www.rfc-editor.org/rfc/rfc9110#name-if-modified-since *)
 
+val expires : Expires.t header
+(** [expires] is the [Expires] header as specified in
+    https://www.rfc-editor.org/rfc/rfc9111#field.expires *)
+
 (** {1 Create} *)
 
 val empty : t
