@@ -20,11 +20,11 @@ let serve_dir ~on_error ~dir_path filepath (_req : Request.server Request.t) =
       |> Content_type.make
     in
     let headers =
-      let mtime =
-        Eio.Path.with_open_in filepath @@ fun p -> (Eio.File.stat p).mtime
-      in
-      let lm = Ptime.of_float_s mtime |> Option.get in
-      Header.(add empty last_modified lm)
+      Eio.Path.with_open_in filepath @@ fun p ->
+      (Eio.File.stat p).mtime
+      |> Ptime.of_float_s 
+      |> Option.get
+      |> Header.(add empty last_modified)
     in
     let body = Body.writable_content ct content in
     Response.make_server_response ~headers body
