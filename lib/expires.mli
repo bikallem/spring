@@ -1,8 +1,6 @@
 (** [Expires] HTTP header as specified in
 
-    https://www.rfc-editor.org/rfc/rfc9111#field.expires.
-
-    A valid *)
+    https://www.rfc-editor.org/rfc/rfc9111#field.expires. *)
 
 type t
 (** [t] represents a Expires HTTP header value. A valid [t] holds date value
