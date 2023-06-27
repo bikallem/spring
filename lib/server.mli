@@ -129,6 +129,29 @@ val default_make_handler : make_handler
     - [session_pipeline]
     - [router_pipeline] *)
 
+val clock : t -> Eio.Time.clock
+(** [clock t] is the eio clock implementation used by [t]. It is usually
+    [Eio.Stdenv.t#clock]. *)
+
+val net : t -> Eio.Net.t
+(** [net t] is the network interface used by [t]. It is usually
+    [Eio.Stdenv.t#net]. *)
+
+val master_key : t -> string
+(** [master_key t] is a 32 bytes long value used to decrypt/encrypt sensitive
+    data. The value can be read from a specific file [master.key] or an
+    environment variable [__SPRING_MASTER_KEY__]. *)
+
+val session_codec : t -> Session.codec option
+(** [session_codec t] is the [Some session_codec] if [t] is initialized with a
+    session codec. Otherwise it is [None]. *)
+
+val make_handler : t -> make_handler
+(** [make_handler t] is the [make_handler] function used by [t]. *)
+
+val router : t -> response Router.t
+(** [router t] is the router used by [t]. *)
+
 val make :
      ?max_connections:int
   -> ?additional_domains:#Eio.Domain_manager.t * int
@@ -158,11 +181,12 @@ val make :
       value is [Session.cookie_codec].
     @param master_key
       is a randomly generated unique key which is used to decrypt/encrypt data.
-      If a value is not provided, it is set to a value from one of the options
+      If a value is not provided, it is read from one of the sources below
       below:
 
       - environment variable [___SPRING_MASTER_KEY___]
-      - file [master.key]
+      - file [master.key]. The [master.key] file can be generated using
+        [spring.exe key] command.
     @param csrf_token_name
       is the form field name which holds the anticsrf token value. The default
       value is "__csrf_token__".

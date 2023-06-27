@@ -108,13 +108,13 @@ type t =
   ; net : Eio.Net.t
   ; master_key : string (* encryption/decyption key - Base64 encoded. *)
   ; session_codec : Session.codec option
-  ; make_handler : t -> handler
+  ; make_handler : make_handler
   ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
   ; stop_u : unit Eio.Promise.u
   ; router : response Router.t
   }
 
-type make_handler = t -> handler
+and make_handler = t -> handler
 
 let default_make_handler t =
   let session_codec =
@@ -127,6 +127,18 @@ let default_make_handler t =
   @@ session_pipeline session_codec
   @@ router_pipeline t.router
   @@ not_found_handler
+
+let clock t = t.clock
+
+let net t = t.net
+
+let master_key t = t.master_key
+
+let session_codec t = t.session_codec
+
+let make_handler t = t.make_handler
+
+let router t = t.router
 
 let make
     ?(max_connections = Int.max_int)
