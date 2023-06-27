@@ -22,7 +22,7 @@ let serve_dir ~on_error ~dir_path filepath (_req : Request.server Request.t) =
     let headers =
       Eio.Path.with_open_in filepath @@ fun p ->
       (Eio.File.stat p).mtime
-      |> Ptime.of_float_s 
+      |> Ptime.of_float_s
       |> Option.get
       |> Header.(add empty last_modified)
     in
@@ -105,42 +105,34 @@ let session_pipeline (session_codec : Session.codec) : pipeline =
     in
     Response.add_set_cookie cookie response
 
-type 'a t =
+type t =
   { clock : Eio.Time.clock
   ; net : Eio.Net.t
-  ; handler : 'a t -> handler
+  ; master_key : string (* encryption/decyption key - Base64 encoded. *)
+  ; session_codec : Session.codec option
+  ; make_handler : t -> handler
   ; run : Eio.Net.listening_socket -> Eio.Net.connection_handler -> unit
   ; stop_u : unit Eio.Promise.u
-  ; x : 'a
+  ; router : response Router.t
   }
 
-type http = unit
+type make_handler = t -> handler
 
-let make_http_server
-    ?(max_connections = Int.max_int)
-    ?additional_domains
-    ~on_error
-    clock
-    net
-    handler =
-  let stop, stop_u = Eio.Promise.create () in
-  let run =
-    Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
+let default_make_handler t =
+  let session_codec =
+    match t.session_codec with
+    | Some x -> x
+    | None -> Session.cookie_codec t.master_key
   in
-  { clock = (clock :> Eio.Time.clock)
-  ; net = (net :> Eio.Net.t)
-  ; handler = (fun _ -> handler)
-  ; run
-  ; stop_u
-  ; x = ()
-  }
+  strict_http t.clock
+  @@ session_pipeline session_codec
+  @@ router_pipeline t.router
+  @@ not_found_handler
 
-type app = response Router.t
-
-let make_app_server
+let make
     ?(max_connections = Int.max_int)
     ?additional_domains
-    ?(handler = not_found_handler)
+    ?make_handler
     ?session_codec
     ?master_key
     ~on_error
@@ -148,7 +140,7 @@ let make_app_server
     clock
     net =
   let stop, stop_u = Eio.Promise.create () in
-  let key =
+  let master_key =
     match master_key with
     | Some key -> key
     | None ->
@@ -160,43 +152,46 @@ let make_app_server
       in
       Base64.decode_exn ~pad:false key
   in
-  let session_codec =
-    match session_codec with
-    | Some x -> x
-    | None -> Session.cookie_codec key
-  in
   let clock = (clock :> Eio.Time.clock) in
   let net = (net :> Eio.Net.t) in
-  let handler t =
-    strict_http clock
-    @@ session_pipeline session_codec
-    @@ router_pipeline t.x
-    @@ handler
+  let make_handler =
+    match make_handler with
+    | Some mh -> mh
+    | None -> default_make_handler
   in
   let run socket handler =
-    let env =
-      (object
-         method clock = clock
-
-         method secure_random = (secure_random :> Eio.Flow.source)
-       end
-        :> Mirage_crypto_rng_eio.env)
-    in
-    Mirage_crypto_rng_eio.run
-      (module Mirage_crypto_rng.Fortuna)
-      env
+    Eio.Fiber.first
+      (fun () -> Eio.Promise.await stop)
       (fun () ->
+        let env =
+          (object
+             method clock = clock
+
+             method secure_random = (secure_random :> Eio.Flow.source)
+           end
+            :> Mirage_crypto_rng_eio.env)
+        in
+        Mirage_crypto_rng_eio.run (module Mirage_crypto_rng.Fortuna) env
+        @@ fun () ->
         Eio.Net.run_server ~max_connections ?additional_domains ~stop ~on_error
           socket handler)
   in
-  { clock; net; handler; run; stop_u; x = Router.empty }
+  { clock
+  ; net
+  ; master_key
+  ; session_codec
+  ; make_handler
+  ; run
+  ; stop_u
+  ; router = Router.empty
+  }
 
 type 'a request_target = ('a, response) Router.request_target
 
-let add_route : Method.t -> 'f request_target -> 'f -> app t -> app t =
+let add_route : Method.t -> 'f request_target -> 'f -> t -> t =
  fun meth rt f t ->
-  let x = Router.add meth rt f t.x in
-  { t with x }
+  let router = Router.add meth rt f t.router in
+  { t with router }
 
 let get rt f t = add_route Method.get rt f t
 
@@ -231,7 +226,7 @@ let connection_handler handler clock flow client_addr =
       handle_request clock client_addr reader writer flow handler)
 
 let run socket t =
-  let connection_handler = connection_handler (t.handler t) t.clock in
+  let connection_handler = connection_handler (t.make_handler t) t.clock in
   t.run socket connection_handler
 
 let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =

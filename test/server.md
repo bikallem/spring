@@ -10,7 +10,6 @@ let now = ref 1623940778.27033591
 let fake_clock real_clock = object (_ : #Eio.Time.clock)
   method now = !now
   method sleep_until time =
-    Eio.Time.sleep_until real_clock time;
     now := max !now time
 end
 
@@ -28,9 +27,12 @@ let handler req =
 
 ## Server.run/Server.run_local
 
+<!-- $MDX set-SPRING_MASTER_KEY=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA -->
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net handler in 
+  let server = Server.make ~on_error:raise ~secure_random:env#secure_random 
+    ~make_handler:(fun _ -> handler) env#clock env#net 
+  in
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->
@@ -88,7 +90,10 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
 
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net final_handler in 
+  let server = 
+    Server.make ~on_error:raise ~secure_random:env#secure_random 
+        ~make_handler:(fun _ -> final_handler) env#clock env#net 
+  in
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->
@@ -261,8 +266,11 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
 
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let handler = Server.strict_http (fake_clock env#clock) @@ handler in
-  let server = Server.make_http_server ~on_error:raise (fake_clock env#clock) env#net handler in 
+  let make_handler _t = Server.strict_http (fake_clock env#clock) @@ handler in
+  let server = 
+    Server.make ~on_error:raise ~secure_random:env#secure_random ~make_handler 
+        env#clock env#net 
+  in 
   Eio.Fiber.both 
     (fun () -> Server.run_local ~port:8081 server)
     (fun () ->
