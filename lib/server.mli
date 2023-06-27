@@ -12,48 +12,6 @@ type handler = request -> response
 val not_found_handler : handler
 (** [not_found_handler] return HTTP 404 response. *)
 
-val serve_dir :
-     on_error:(exn -> response)
-  -> dir_path:Eio.Fs.dir Eio.Path.t
-  -> string
-  -> handler
-(** [serve_dir ~on_error ~dir_path filepath] is a [handler] that returns a HTTP
-    response containing file content pointed to by [filepath] in directory
-    [dir_path].
-
-    The handler returns [Response.not_found] if a file pointed to by [filepath]
-    doesn't exist in [dir_path].
-
-    {b Usage with [Router.t]}
-
-    Serve files in local directory "./public" - non recursively, i.e. url path
-    such as ["/public/style.css" , "/public/a.js", "/public/a.html"] etc.
-
-    {[
-      let () =
-        Eio_main.run @@ fun env ->
-        let serve_dir = Server.serve_dir ~dir_path:"./public" in
-        Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
-          env#net
-        |> Server.get [%r "/public/:string"] serve_dir
-    ]}
-
-    Serve files in local directory "./public/" recursively, i.e. serve files in
-    url path
-    ["/public/css/a.css" "/public/css/b.css", "/public/js/a.js",  "/public/js/b.js"]
-
-    {[
-      let () =
-        Eio_main.run @@ fun env ->
-        let serve_dir = Server.serve_dir ~dir_path:"./public" in
-        Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
-          env#net
-        |> Server.get [%r "/public/**"] serve_dir
-    ]}
-    @param on_error
-      the error handler that is called when [handler] encounters an error while
-      reading files in [dir_path] and [filepath]. *)
-
 (** {1 Pipeline}*)
 
 type pipeline = handler -> handler
@@ -222,6 +180,60 @@ val put : 'f request_target -> 'f -> t -> t
 val add_route : Method.t -> 'f request_target -> 'f -> t -> t
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
+
+(** {1 File Server} *)
+
+val serve_dir :
+     on_error:(exn -> response)
+  -> dir_path:#Eio.Fs.dir Eio.Path.t
+  -> (string -> request -> response) request_target
+  -> t
+  -> t
+(** [serve_dir ~on_error ~dir_path route_url t] is a HTTP server [t] with the
+    ability to serve static files located in directory path [dir_path]. It
+    serves files for requests with request path matching [route_url].
+
+    Use ppx [\[%r "" \]] to specify [route_url]. See {{!section:usage} Usage}.
+
+    [t] will respond with [Response.not_found] if a file requested in
+    [route_url] doesn't exist in [dir_path].
+
+    {b Caching Support}
+
+    Caching support is as follows:
+
+    + Add [Last-Modified, Expires and Cache-Control] headers to responses.
+    + Respond to [If-Modified-Since] requests.
+
+    {:usage Usage}
+
+    Serve files in local directory "./public" - non recursively, i.e. url path
+    such as ["/public/style.css" , "/public/a.js", "/public/a.html"] etc.
+
+    {[
+      let () =
+        Eio_main.run @@ fun env ->
+        let dir_path = Eio.Path.(env#fs / "./public") in
+        Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
+          env#net
+        |> Server.serve_dir ~on_error:raise ~dir_path [%r "/public/:string"]
+    ]}
+
+    Serve files in local directory "./public/" recursively, i.e. serve files in
+    url path
+    ["/public/css/a.css" "/public/css/b.css", "/public/js/a.js",  "/public/js/b.js"]
+
+    {[
+      let () =
+        Eio_main.run @@ fun env ->
+        let dir_path = Eio.Path.(env#fs / "./public") in
+        Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
+          env#net
+        |> Server.serve_dir ~on_error:raise ~dir_path [%r "/public/**"]
+    ]}
+    @param on_error
+      error handler that is called when [t] encounters an error - other than the
+      not found error - while reading files in [dir_path] *)
 
 (** {1 Running Servers} *)
 
