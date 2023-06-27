@@ -190,32 +190,34 @@ let put rt f t = add_route Method.put rt f t
 
 (*-- File Server --*)
 
+let serve_file_ ~on_error filepath =
+  match
+    let content = Eio.Path.load filepath in
+    let ct =
+      Fpath.v @@ snd filepath
+      |> Fpath.filename
+      |> Magic_mime.lookup
+      |> String.cut ~sep:"/"
+      |> Option.get
+      |> Content_type.make
+    in
+    let headers =
+      Eio.Path.with_open_in filepath @@ fun p ->
+      (Eio.File.stat p).mtime
+      |> Ptime.of_float_s
+      |> Option.get
+      |> Header.(add empty last_modified)
+    in
+    let body = Body.writable_content ct content in
+    Response.make_server_response ~headers body
+  with
+  | res -> res
+  | exception Eio.Io (Eio.Fs.E (Not_found _), _) -> Response.not_found
+  | exception exn -> on_error exn
+
 let serve_dir ~on_error ~dir_path url t =
   let get_handler filepath (_req : Request.server Request.t) =
-    let filepath = Eio.Path.(dir_path / filepath) in
-    match
-      let content = Eio.Path.load filepath in
-      let ct =
-        Fpath.v @@ snd filepath
-        |> Fpath.filename
-        |> Magic_mime.lookup
-        |> String.cut ~sep:"/"
-        |> Option.get
-        |> Content_type.make
-      in
-      let headers =
-        Eio.Path.with_open_in filepath @@ fun p ->
-        (Eio.File.stat p).mtime
-        |> Ptime.of_float_s
-        |> Option.get
-        |> Header.(add empty last_modified)
-      in
-      let body = Body.writable_content ct content in
-      Response.make_server_response ~headers body
-    with
-    | res -> res
-    | exception Eio.Io (Eio.Fs.E (Not_found _), _) -> Response.not_found
-    | exception exn -> on_error exn
+    serve_file_ ~on_error Eio.Path.(dir_path / filepath)
   in
   get url get_handler t
 
