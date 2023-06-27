@@ -121,13 +121,14 @@ type make_handler = t -> handler
 (** [make_handler] makes a HTTP request handler from [t]. *)
 
 val default_make_handler : make_handler
-(** [default_make_handler] is a [make_handler] with the following pipelines
-    preconfigured :
+(** [default_make_handler] is a [make_handler] with the following pipelines and
+    handlers preconfigured :
 
-    - [response_date]
-    - [host_header]
-    - [session_pipeline]
-    - [router_pipeline] *)
+    - {{!val:response_date} Response Date}
+    - {{!val:host_header} Host Header}
+    - {{!val:session_pipeline} Session Pipeline}
+    - {{!val:router_pipeline} Router Pipeline}
+    - {{!val:not_found_handler} Not Found Handler} *)
 
 val clock : t -> Eio.Time.clock
 (** [clock t] is the eio clock implementation used by [t]. It is usually
