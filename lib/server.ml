@@ -192,7 +192,10 @@ let put rt f t = add_route Method.put rt f t
 
 let file_last_modified filepath =
   Eio.Path.with_open_in filepath @@ fun p ->
-  (Eio.File.stat p).mtime |> Ptime.of_float_s |> Option.get
+  (Eio.File.stat p).mtime
+  |> Ptime.of_float_s
+  |> Option.get
+  |> Ptime.truncate ~frac_s:0
 
 let serve_file_ ~on_error filepath =
   match
