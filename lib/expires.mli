@@ -3,9 +3,9 @@
     https://www.rfc-editor.org/rfc/rfc9111#field.expires. *)
 
 type t
-(** [t] represents a Expires HTTP header value. A valid [t] holds date value
-    that is conformant with HTTP datetime format. An expired value holds non
-    conformant HTTP datetime value.
+(** [t] represents a Expires HTTP header value. [t] holds either a datetime
+    value that conforms to HTTP datetime format or an expired value which
+    doesn't conform to a HTTP datetime value.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9110#field.date} HTTP date time}. *)
 
