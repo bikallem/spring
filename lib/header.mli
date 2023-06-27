@@ -105,7 +105,11 @@ val set_cookie : Set_cookie.t header
 
 val last_modified : Date.t header
 (** [last_modified] is the [Last-Modified] header as specified in
-    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified *)
+    https://www.rfc-editor.org/rfc/rfc9110#field.last-modified *)
+
+val if_modified_since : Date.t header
+(** [if_modified_since] is the [If-Modified-Since] header as specified in
+    https://www.rfc-editor.org/rfc/rfc9110#name-if-modified-since *)
 
 (** {1 Create} *)
 

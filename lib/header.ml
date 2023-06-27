@@ -78,6 +78,8 @@ let set_cookie =
 
 let last_modified = { date with name = "last-modified" }
 
+let if_modified_since = { date with name = "if-modified-since" }
+
 let empty = []
 
 let singleton ~name ~value = [ (lname name, value) ]
