@@ -215,6 +215,7 @@ let serve_file_ ~on_error filepath =
       |> Option.get
       |> Header.(add empty last_modified)
     in
+    let headers = Header.(add headers expires Expires.expired) in
     let body = Body.writable_content ct content in
     Response.make_server_response ~headers body
   with
