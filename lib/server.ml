@@ -225,18 +225,24 @@ let file_not_modified_response req last_modified' =
   let status = Status.not_modified in
   Response.make_server_response ~version ~status ~headers Body.none
 
+let file_handler ~on_error filepath (req : Request.server Request.t) =
+  match Header.(find_opt (Request.headers req) if_modified_since) with
+  | Some if_modified_since ->
+    let last_modified' = file_last_modified filepath in
+    if Ptime.is_later last_modified' ~than:if_modified_since then
+      serve_file_ ~on_error filepath
+    else file_not_modified_response req last_modified'
+  | None -> serve_file_ ~on_error filepath
+
 let serve_dir ~on_error ~dir_path url t =
-  let get_handler filepath (req : Request.server Request.t) =
+  let get_handler filepath =
     let filepath = Eio.Path.(dir_path / filepath) in
-    match Header.(find_opt (Request.headers req) if_modified_since) with
-    | Some if_modified_since ->
-      let last_modified' = file_last_modified filepath in
-      if Ptime.is_later last_modified' ~than:if_modified_since then
-        serve_file_ ~on_error filepath
-      else file_not_modified_response req last_modified'
-    | None -> serve_file_ ~on_error filepath
+    file_handler ~on_error filepath
   in
   get url get_handler t
+
+let serve_file ~on_error ~filepath url t =
+  get url (file_handler ~on_error filepath) t
 
 let rec handle_request clock client_addr reader writer flow handler =
   let write = Response.write_server_response writer in

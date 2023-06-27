@@ -236,6 +236,13 @@ val serve_dir :
       error handler that is called when [t] encounters an error - other than the
       not found error - while reading files in [dir_path] *)
 
+val serve_file :
+     on_error:(exn -> response)
+  -> filepath:#Eio.Fs.dir Eio.Path.t
+  -> (request -> response) request_target
+  -> t
+  -> t
+
 (** {1 Running Servers} *)
 
 val run : Eio.Net.listening_socket -> t -> unit
