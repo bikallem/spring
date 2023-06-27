@@ -181,7 +181,7 @@ val add_route : Method.t -> 'f request_target -> 'f -> t -> t
 (** [add_route meth request_target f t] adds route made from
     [meth],[request_target] and [f] to [t]. *)
 
-(** {1 File Server} *)
+(** {2 File Server} *)
 
 val serve_dir :
      on_error:(exn -> response)
@@ -189,9 +189,10 @@ val serve_dir :
   -> (string -> request -> response) request_target
   -> t
   -> t
-(** [serve_dir ~on_error ~dir_path route_url t] is a HTTP server [t] with the
-    ability to serve static files located in directory path [dir_path]. It
-    serves files for requests with request path matching [route_url].
+(** [serve_dir ~on_error ~dir_path route_url t] adds static file serving
+    capability to HTTP server [t]. [t] serves static files located in directory
+    path [dir_path] in response to requests with request path matching url value
+    [route_url].
 
     Use ppx [\[%r "" \]] to specify [route_url]. See {{!section:usage} Usage}.
 
