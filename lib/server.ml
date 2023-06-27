@@ -77,8 +77,6 @@ let response_date : #Eio.Time.clock -> pipeline =
       let body = Response.body res in
       Response.make_server_response ~version ~headers ~status body)
 
-let strict_http clock next = response_date clock @@ host_header @@ next
-
 let router_pipeline : response Router.t -> pipeline =
  fun router next req ->
   match Router.match' req router with
@@ -124,7 +122,8 @@ let default_make_handler t =
     | Some x -> x
     | None -> Session.cookie_codec t.master_key
   in
-  strict_http t.clock
+  response_date t.clock
+  @@ host_header
   @@ session_pipeline session_codec
   @@ router_pipeline t.router
   @@ not_found_handler

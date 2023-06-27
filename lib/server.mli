@@ -103,11 +103,6 @@ val response_date : #Eio.Time.clock -> pipeline
 
    https://www.rfc-editor.org/rfc/rfc9110#section-6.6.1 *)
 
-val strict_http : #Eio.Time.clock -> pipeline
-(** [strict_http] is a convenience pipeline that include both {!val:host_header}
-    and {!val:response_date} pipeline. The pipeline intends to more strictly
-    follow the relevant HTTP specifications. *)
-
 val router_pipeline : response Router.t -> pipeline
 (** [router_pipeline router] is a pipeline which multiplexes incoming requests
     based on [router]. *)
@@ -127,9 +122,10 @@ type make_handler = t -> handler
 
 val default_make_handler : make_handler
 (** [default_make_handler] is a [make_handler] with the following pipelines
-    preconfigured for :
+    preconfigured :
 
-    - [strict_http]
+    - [response_date]
+    - [host_header]
     - [session_pipeline]
     - [router_pipeline] *)
 

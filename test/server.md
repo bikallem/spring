@@ -260,13 +260,17 @@ val h : Server.handler = <fun>
 ```
 
 
-## Server.strict_http
+## Server.host_header/response_data
 
 Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/rfc9112#section-3.2
 
 ```ocaml
 # Eio_main.run @@ fun env ->
-  let make_handler _t = Server.strict_http (fake_clock env#clock) @@ handler in
+  let make_handler _t = 
+    Server.response_date (fake_clock env#clock) 
+    @@ Server.host_header
+    @@ handler 
+  in
   let server = 
     Server.make ~on_error:raise ~secure_random:env#secure_random ~make_handler 
         env#clock env#net 
