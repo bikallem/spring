@@ -57,13 +57,39 @@ val serve_dir :
 (** {1 Pipeline}*)
 
 type pipeline = handler -> handler
-(** [pipeline] is the HTTP request processsing pipeline. It is usually used with
-    OCaml infix function, [@@].
+(** [pipeline] is a combinator for combining one or more HTTP request handlers.
 
-    The [handler] handler demonstrates how various [pipeline]s can be
-    constructed and used with {!val:make}. The handlers are executed in the
-    order they are combined, i.e. first the [router] is executed then the
-    [Server.not_found_handler]. *)
+    The type [pipeline] is equivalent to a longer form
+    [fun next_handler req -> response ].
+
+    We can generally combine one of more [pipelines] using OCaml infix function,
+    [@@].
+
+    {b Usage}
+
+    [router] below is an example [pipeline] that routes incoming request based
+    on request [resource] value. It only handles ["/"] resource path and any
+    other values are delegated to the [next] handler. Note we use [@@] to
+    combine [router] pipeline with the builtin handler {!val:not_found_handler}.
+
+    {[
+      let router : Server.pipeline =
+       fun next req ->
+        match Request.resource req with
+        | "/" -> Response.text "hello, there"
+        | _ -> next req
+
+      let make_handler _t = router @@ Server.not_found_handler
+
+      let () =
+        Eio_main.run @@ fun env ->
+        Server.make ~on_error:raise ~secure_random:env#secure_random
+          ~make_handler env#clock env#net
+        |> Server.run_local
+    ]}
+
+    The handlers are executed in the order they are combined, i.e. first the
+    [router] is executed then the [Server.not_found_handler]. *)
 
 val host_header : pipeline
 (** [host_header_pipeline] validates an incoming request for valid "Host" header
