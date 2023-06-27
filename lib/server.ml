@@ -188,7 +188,7 @@ let post rt f t = add_route Method.post rt f t
 
 let put rt f t = add_route Method.put rt f t
 
-(*-- File Server --*)
+(* +-- File Server --+*)
 
 let file_last_modified filepath =
   Eio.Path.with_open_in filepath @@ fun p ->
@@ -246,6 +246,8 @@ let serve_dir ~on_error ~dirpath url t =
 
 let serve_file ~on_error ~filepath url t =
   get url (file_handler ~on_error filepath) t
+
+(* +-- server loop --+ *)
 
 let rec handle_request clock client_addr reader writer flow handler =
   let write = Response.write_server_response writer in
