@@ -190,6 +190,10 @@ let put rt f t = add_route Method.put rt f t
 
 (*-- File Server --*)
 
+let file_last_modified filepath =
+  Eio.Path.with_open_in filepath @@ fun p ->
+  (Eio.File.stat p).mtime |> Ptime.of_float_s |> Option.get
+
 let serve_file_ ~on_error filepath =
   match
     let content = Eio.Path.load filepath in
@@ -215,9 +219,22 @@ let serve_file_ ~on_error filepath =
   | exception Eio.Io (Eio.Fs.E (Not_found _), _) -> Response.not_found
   | exception exn -> on_error exn
 
+let file_not_modified_response req last_modified' =
+  let headers = Header.(add empty last_modified last_modified') in
+  let version = Request.version req in
+  let status = Status.not_modified in
+  Response.make_server_response ~version ~status ~headers Body.none
+
 let serve_dir ~on_error ~dir_path url t =
-  let get_handler filepath (_req : Request.server Request.t) =
-    serve_file_ ~on_error Eio.Path.(dir_path / filepath)
+  let get_handler filepath (req : Request.server Request.t) =
+    let filepath = Eio.Path.(dir_path / filepath) in
+    match Header.(find_opt (Request.headers req) if_modified_since) with
+    | Some if_modified_since ->
+      let last_modified' = file_last_modified filepath in
+      if Ptime.is_later last_modified' ~than:if_modified_since then
+        serve_file_ ~on_error filepath
+      else file_not_modified_response req last_modified'
+    | None -> serve_file_ ~on_error filepath
   in
   get url get_handler t
 
