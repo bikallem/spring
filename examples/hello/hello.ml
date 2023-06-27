@@ -25,14 +25,14 @@ let shutdown server _req =
 let () =
   Printexc.record_backtrace true;
   Eio_main.run @@ fun env ->
-  let dir_path = Eio.Path.(env#fs / "./examples/hello/public") in
-  let filepath = Eio.Path.(dir_path / "index.html") in
+  let dirpath = Eio.Path.(env#fs / "./examples/hello/public") in
+  let filepath = Eio.Path.(dirpath / "index.html") in
   let server =
     Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
       env#net
   in
   server
-  |> Server.serve_dir ~on_error:raise ~dir_path [%r "/public/**"]
+  |> Server.serve_dir ~on_error:raise ~dirpath [%r "/public/**"]
   |> Server.serve_file ~on_error:raise ~filepath [%r "/"]
   |> Server.get [%r "/hello/:string"] say_hello
   |> Server.get [%r "/products"] display_products

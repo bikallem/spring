@@ -185,19 +185,19 @@ val add_route : Method.t -> 'f request_target -> 'f -> t -> t
 
 val serve_dir :
      on_error:(exn -> response)
-  -> dir_path:#Eio.Fs.dir Eio.Path.t
+  -> dirpath:#Eio.Fs.dir Eio.Path.t
   -> (string -> request -> response) request_target
   -> t
   -> t
-(** [serve_dir ~on_error ~dir_path route_url t] adds static file serving
+(** [serve_dir ~on_error ~dirpath route_url t] adds static file serving
     capability to HTTP server [t]. [t] serves static files located in directory
-    path [dir_path] in response to requests with request path matching url value
+    path [dirpath] in response to requests with request path matching url value
     [route_url].
 
     Use ppx [\[%r "" \]] to specify [route_url]. See {{!section:usage} Usage}.
 
     [t] will respond with [Response.not_found] if a file requested in
-    [route_url] doesn't exist in [dir_path].
+    [route_url] doesn't exist in [dirpath].
 
     {b Caching Support}
 
@@ -214,10 +214,10 @@ val serve_dir :
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let dir_path = Eio.Path.(env#fs / "./public") in
+        let dirpath = Eio.Path.(env#fs / "./public") in
         Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
           env#net
-        |> Server.serve_dir ~on_error:raise ~dir_path [%r "/public/:string"]
+        |> Server.serve_dir ~on_error:raise ~dirpath [%r "/public/:string"]
     ]}
 
     Serve files in local directory "./public/" recursively, i.e. serve files in
@@ -227,14 +227,14 @@ val serve_dir :
     {[
       let () =
         Eio_main.run @@ fun env ->
-        let dir_path = Eio.Path.(env#fs / "./public") in
+        let dirpath = Eio.Path.(env#fs / "./public") in
         Server.make ~on_error:raise ~secure_random:env#secure_random env#clock
           env#net
-        |> Server.serve_dir ~on_error:raise ~dir_path [%r "/public/**"]
+        |> Server.serve_dir ~on_error:raise ~dirpath [%r "/public/**"]
     ]}
     @param on_error
       error handler that is called when [t] encounters an error - other than the
-      not found error - while reading files in [dir_path] *)
+      not found error - while reading files in [dirpath] *)
 
 val serve_file :
      on_error:(exn -> response)

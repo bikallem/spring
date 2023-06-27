@@ -237,9 +237,9 @@ let file_handler ~on_error filepath (req : Request.server Request.t) =
     else file_not_modified_response req last_modified'
   | None -> serve_file_ ~on_error filepath
 
-let serve_dir ~on_error ~dir_path url t =
+let serve_dir ~on_error ~dirpath url t =
   let get_handler filepath =
-    let filepath = Eio.Path.(dir_path / filepath) in
+    let filepath = Eio.Path.(dirpath / filepath) in
     file_handler ~on_error filepath
   in
   get url get_handler t
