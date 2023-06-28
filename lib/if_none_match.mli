@@ -22,7 +22,7 @@ val is_any : t -> bool
 
 val contains_entity_tag : (Etag.t -> bool) -> t -> bool
 (** [contains_entity_tag f t] is [b]. [b] is [true] if [f] evaluates to [true]
-    for at least one of the entity tags in [t]. [etag]. Otherwise it is [false].
+    for at least one of the entity tags in [t]. Otherwise it is [false].
 
     If [any t = true] then [b] is always [true]. *)
 
