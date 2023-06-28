@@ -62,3 +62,5 @@ let encode = function
         write_etag etags
     in
     write_etag etags
+
+let pp fmt t = Format.fprintf fmt "%s" @@ encode t

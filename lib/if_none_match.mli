@@ -31,3 +31,6 @@ val decode : string -> t
 
 val encode : t -> string
 (** [encode t] encodes [t] into a raw [If-None-Match] header value. *)
+
+val pp : Format.formatter -> t -> unit
+(** [pp fmt t] pretty prints [t] onto [fmt]. *)
