@@ -74,3 +74,5 @@ let weak_equal a b =
 let encode = function
   | Weak etag_chars -> "W/\"" ^ etag_chars ^ "\""
   | Strong etag_chars -> "\"" ^ etag_chars ^ "\""
+
+let pp fmt t = Format.fprintf fmt "%s" @@ encode t

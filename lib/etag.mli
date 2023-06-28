@@ -12,6 +12,18 @@ val make : ?weak:bool -> string -> t
       if [true] then a weak [ETag] value is created. Default is [false].
     @raise Invalid_arg if [s] contains invalid [ETag] characters. *)
 
+val parse : consume:[ `All | `Prefix ] -> Buf_read.t -> t
+(** [parse ~consume buf_read] decodes [t] from [buf_read].
+
+    [consume = `All] denotes that [buf_read] must be fully read when [t] is
+    decoded.
+
+    [consume = `Prefix] denotes that [buf_read] can contain additional data when
+    [t] is decoded.
+
+    @raise Invalid_arg
+      if [consume = `All] and [buf_read] is not at the end of input. *)
+
 val decode : string -> t
 (** [decode v] decodes [v] into an [ETag] header value if [v] conforms to [ETag]
     value format. *)
@@ -43,14 +55,5 @@ val weak_equal : equal
 val encode : t -> string
 (** [encode t] encodes [t] to a string. *)
 
-val parse : consume:[ `All | `Prefix ] -> Buf_read.t -> t
-(** [parse ~consume buf_read] decodes [t] from [buf_read].
-
-    [consume = `All] denotes that [buf_read] must be fully read when [t] is
-    decoded.
-
-    [consume = `Prefix] denotes that [buf_read] can contain additional data when
-    [t] is decoded.
-
-    @raise Invalid_arg
-      if [consume = `All] and [buf_read] is not at the end of input. *)
+val pp : Format.formatter -> t -> unit
+(** [pp fmt t] is pretty prints [t] onto fmt. *)
