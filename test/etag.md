@@ -68,22 +68,6 @@ Etag.equal.
 - : bool = true
 ```
 
-Etag.compare.
-
-```ocaml
-# Etag.compare etag1 etag2;;
-- : int = 1
-
-# Etag.compare etag2 etag1;;
-- : int = -1
-
-# Etag.compare etag1 etag1;;
-- : int = 0
-
-# Etag.compare etag2 etag2;;
-- : int = 0
-```
-
 Invalid ETag value.
 
 ```ocaml
