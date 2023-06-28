@@ -85,6 +85,12 @@ let expires =
 
 let etag = { name = "etag"; decode = Etag.decode; encode = Etag.encode }
 
+let if_none_match =
+  { name = "if-none-match"
+  ; decode = If_none_match.decode
+  ; encode = If_none_match.encode
+  }
+
 (* +-- Create --+ *)
 
 let empty = []

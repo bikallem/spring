@@ -119,6 +119,10 @@ val etag : Etag.t header
 (** [etag] is the [ETag] header as specified in
     https://www.rfc-editor.org/rfc/rfc9110#field.etag *)
 
+val if_none_match : If_none_match.t header
+(** [if_none_match] is the [If-None-Match] header as specified in
+    https://www.rfc-editor.org/rfc/rfc9110#name-if-none-match *)
+
 (** {1 Create} *)
 
 val empty : t

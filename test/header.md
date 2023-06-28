@@ -257,3 +257,15 @@ val h1 : Header.t = <abstr>
 +"r2d2xxxx"
 - : unit = ()
 ```
+
+If-None-Match header.
+
+```ocaml
+
+# let h1 = Header.of_list ["if-none-match", {|"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"|}];;
+val h1 : Header.t = <abstr>
+
+# Header.(find h1 if_none_match) |> Eio.traceln "%a" If_none_match.pp ;;
++"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
+- : unit = ()
+```
