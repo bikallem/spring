@@ -115,6 +115,10 @@ val expires : Expires.t header
 (** [expires] is the [Expires] header as specified in
     https://www.rfc-editor.org/rfc/rfc9111#field.expires *)
 
+val etag : Etag.t header
+(** [etag] is the [ETag] header as specified in
+    https://www.rfc-editor.org/rfc/rfc9110#field.etag *)
+
 (** {1 Create} *)
 
 val empty : t

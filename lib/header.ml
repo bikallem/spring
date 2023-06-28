@@ -83,6 +83,10 @@ let if_modified_since = { date with name = "if-modified-since" }
 let expires =
   { name = "expires"; decode = Expires.decode; encode = Expires.encode }
 
+let etag = { name = "etag"; decode = Etag.decode; encode = Etag.encode }
+
+(* +-- Create --+ *)
+
 let empty = []
 
 let singleton ~name ~value = [ (lname name, value) ]

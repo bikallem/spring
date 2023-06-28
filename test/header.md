@@ -244,3 +244,16 @@ val headers : Header.t = <abstr>
 +
 - : unit = ()
 ```
+
+## Header.header values
+
+ETag header.
+
+```ocaml
+# let h1 = Header.of_list ["etag", {|"r2d2xxxx"|}];;
+val h1 : Header.t = <abstr>
+
+# Eio.traceln "%a" Etag.pp Header.(find h1 etag);;
++"r2d2xxxx"
+- : unit = ()
+```
