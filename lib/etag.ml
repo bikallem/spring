@@ -68,3 +68,10 @@ let weak_equal a b =
 let encode = function
   | Weak etag_chars -> "W/\"" ^ etag_chars ^ "\""
   | Strong etag_chars -> "\"" ^ etag_chars ^ "\""
+
+let compare a b =
+  match (a, b) with
+  | Weak a, Weak b -> String.compare a b
+  | Weak _, Strong _ -> -1
+  | Strong _, Weak _ -> 1
+  | Strong a, Strong b -> String.compare a b

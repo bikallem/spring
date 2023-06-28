@@ -42,3 +42,8 @@ val weak_equal : equal
 
 val encode : t -> string
 (** [encode t] encodes [t] to a string. *)
+
+val compare : t -> t -> int
+(** [compare a b] is an ordinal comparison function. A weak value [a] as
+    compared to a strong value [b] returns -1. [chars a] and [char b] values are
+    compared according to {!val:String.compare}. *)
