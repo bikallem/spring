@@ -56,7 +56,7 @@ Exception: Invalid_argument "[entity_tags] is empty".
 Retrieve entity tags.
 
 ```ocaml
-# If_none_match.entity_tags t = etags;;
+# If_none_match.entity_tags t = Some etags;;
 - : bool = true
 ```
 
@@ -69,6 +69,7 @@ Decode a strong etag value.
 val t1 : If_none_match.t = <abstr>
 
 # If_none_match.entity_tags t1 
+  |> Option.get
   |> List.iter (fun etag -> Eio.traceln "%s" (Etag.encode etag)) ;;
 +"c3piozzzz"
 - : unit = ()
@@ -81,6 +82,7 @@ Decode a weak etag value.
 val t2 : If_none_match.t = <abstr>
 
 # If_none_match.entity_tags t2 
+  |> Option.get
   |> List.iter (fun etag -> Eio.traceln "%s" (Etag.encode etag)) ;;
 +W/"xyzzy"
 - : unit = ()
@@ -93,6 +95,7 @@ Decode a list of strong etag values.
 val t3 : If_none_match.t = <abstr>
 
 # If_none_match.entity_tags t3
+  |> Option.get
   |> List.iter (fun etag -> Eio.traceln "%s" (Etag.encode etag)) ;;
 +"xyzzy"
 +"r2d2xxxx"
@@ -107,6 +110,7 @@ Decode a list of weak etag values.
 val t4 : If_none_match.t = <abstr>
 
 # If_none_match.entity_tags t4
+  |> Option.get
   |> List.iter (fun etag -> Eio.traceln "%s" (Etag.encode etag)) ;;
 +W/"xyzzy"
 +W/"r2d2xxxx"
@@ -121,6 +125,7 @@ Decode a list of weak and strong etag values.
 val t5 : If_none_match.t = <abstr>
 
 # If_none_match.entity_tags t5
+  |> Option.get
   |> List.iter (fun etag -> Eio.traceln "%s" (Etag.encode etag)) ;;
 +"xyzzy"
 +W/"r2d2xxxx"

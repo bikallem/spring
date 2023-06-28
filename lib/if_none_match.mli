@@ -13,9 +13,9 @@ val make : Etag.t list -> t
 
     @raise Invalid_arg if [entity_tags = \[\]]. *)
 
-val entity_tags : t -> Etag.t list
-(** [entity_tags t] is a list of entity tags as exists in [t]. It is [\[\]] if
-    [any t = true]. *)
+val entity_tags : t -> Etag.t list option
+(** [entity_tags t] is [Some entity_tags] where [entity_tags] is a list of
+    entity tags as exists in [t]. It is [None] if [any t = true]. *)
 
 val is_any : t -> bool
 (** [is_any t] is [true] if [t] is an {!val:any} value. Otherwise it is [false]. *)

@@ -9,8 +9,8 @@ let make = function
   | etags -> Entity_tags etags
 
 let entity_tags = function
-  | Any -> []
-  | Entity_tags etags -> etags
+  | Any -> None
+  | Entity_tags etags -> Some etags
 
 let is_any = function
   | Any -> true
