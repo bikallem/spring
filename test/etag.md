@@ -42,6 +42,13 @@ val etag2 : Etag.t = <abstr>
 - : string = "W/\"xyzzy\""
 ```
 
+Decode empty string.
+
+```ocaml
+# Etag.decode {|""|};;
+- : Etag.t = <abstr>
+```
+
 Etag.equal.
 
 ```ocaml
