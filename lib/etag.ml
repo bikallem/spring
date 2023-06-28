@@ -28,8 +28,7 @@ let opaque_tag buf_read =
   if Buf_read.at_end_of_input buf_read then tag
   else invalid_arg "[v] contains invalid ETag value"
 
-let decode v =
-  let buf_read = Buf_read.of_string v in
+let parse buf_read =
   match Buf_read.peek_char buf_read with
   | Some 'W' ->
     Buf_read.string "W/" buf_read;
@@ -37,6 +36,10 @@ let decode v =
     Weak etag_chars
   | Some '"' -> Strong (opaque_tag buf_read)
   | Some _ | None -> invalid_arg "[v] contains invalid ETag value"
+
+let decode v =
+  let buf_read = Buf_read.of_string v in
+  parse buf_read
 
 let chars = function
   | Weak v -> v
