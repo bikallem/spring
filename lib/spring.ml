@@ -11,6 +11,7 @@ module Content_disposition = Content_disposition
 module Set_cookie = Set_cookie
 module Cookie = Cookie
 module Expires = Expires
+module Etag = Etag
 module Header = Header
 
 (* Body *)
