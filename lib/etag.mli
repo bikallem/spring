@@ -5,8 +5,8 @@ type t
 (** [t] is a valid [ETag] header value. *)
 
 val make : ?weak:bool -> string -> t
-(** [make s] creates [ETag] value [t]. [s] is validated to ensure only valid
-    [ETag] characters are present.
+(** [make s] creates [ETag] value [t] from [s]. [s] is validated to ensure only
+    valid [ETag] characters are present.
 
     @param weak
       if [true] then a weak [ETag] value is created. Default is [false].
