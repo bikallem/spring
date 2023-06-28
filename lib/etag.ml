@@ -22,24 +22,27 @@ let make ?(weak = false) s =
     | false -> Strong s
   else invalid_arg @@ "[s] contains invalid ETag value"
 
-let opaque_tag buf_read =
+let opaque_tag ~consume buf_read =
   let open Buf_read.Syntax in
   let tag = (Buf_read.char '"' *> etag_chars <* Buf_read.char '"') buf_read in
-  if Buf_read.at_end_of_input buf_read then tag
-  else invalid_arg "[v] contains invalid ETag value"
+  match consume with
+  | `All ->
+    if Buf_read.at_end_of_input buf_read then tag
+    else invalid_arg "[v] contains invalid ETag value"
+  | `Prefix -> tag
 
-let parse buf_read =
+let parse ~consume buf_read =
   match Buf_read.peek_char buf_read with
   | Some 'W' ->
     Buf_read.string "W/" buf_read;
-    let etag_chars = opaque_tag buf_read in
+    let etag_chars = opaque_tag ~consume buf_read in
     Weak etag_chars
-  | Some '"' -> Strong (opaque_tag buf_read)
+  | Some '"' -> Strong (opaque_tag ~consume buf_read)
   | Some _ | None -> invalid_arg "[v] contains invalid ETag value"
 
 let decode v =
   let buf_read = Buf_read.of_string v in
-  parse buf_read
+  parse ~consume:`All buf_read
 
 let chars = function
   | Weak v -> v

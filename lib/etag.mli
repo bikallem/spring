@@ -43,6 +43,14 @@ val weak_equal : equal
 val encode : t -> string
 (** [encode t] encodes [t] to a string. *)
 
-val parse : Buf_read.t -> t
-(** [parse buf_read] is {!val:decode} except it requires a {!val:Buf_read.t}
-    value [buf_read]. *)
+val parse : consume:[ `All | `Prefix ] -> Buf_read.t -> t
+(** [parse ~consume buf_read] decodes [t] from [buf_read].
+
+    [consume = `All] denotes that [buf_read] must be fully read when [t] is
+    decoded.
+
+    [consume = `Prefix] denotes that [buf_read] can contain additional data when
+    [t] is decoded.
+
+    @raise Invalid_arg
+      if [consume = `All] and [buf_read] is not at the end of input. *)
