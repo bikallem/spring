@@ -1,4 +1,4 @@
-(** HTTP [If-None-Match] header as specified is
+(** HTTP [If-None-Match] header as specified in
     https://www.rfc-editor.org/rfc/rfc9110#field.if-match *)
 
 type t
