@@ -14,6 +14,10 @@
 
 type t = Ptime.t
 
+val of_ptime : Ptime.t -> t
+(** [of_ptime ptime] is [t] created from [ptime]. Decimal fractional seconds in
+    [ptime] are truncated. *)
+
 val decode : string -> t
 (** [decode v] decodes [v] into a {!val:Ptime.t} value.
 
@@ -25,4 +29,17 @@ val encode : t -> string
 (** [encode date] converts [date] into IMF fixdate format. *)
 
 val now : #Eio.Time.clock -> t
-(** [now clock] is [ptime] where [ptime] is the current date time value. *)
+(** [now clock] is [t] where [t] is the current datetime timestamp. *)
+
+val compare : t -> t -> int
+(** [compare a b] is [-1] if [a] is less than [b], [1] if [a] is greater than
+    [b] and [0] if [a] is equal to [b]. *)
+
+val equal : t -> t -> bool
+(** [equal a b] is [true] if [a] and [b] are the same values. Otherwise it is
+    [false].
+
+    [equal a b = (compare a b = 0)]. *)
+
+val pp : Format.formatter -> t -> unit
+(** [pp fmt t] pretty prints [t] onto [fmt]. *)

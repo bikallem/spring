@@ -54,3 +54,22 @@ let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
 +2022-10-24 16:12:15 +00:00
 - : unit = ()
 ```
+
+## Date.of_ptime
+
+```ocaml
+# let p = Ptime_clock.now ();;
+val p : Ptime.t = <abstr>
+
+# let d1 = Date.of_ptime p;;
+val d1 : Ptime.t = <abstr>
+
+# let d2 = Date.of_ptime p;;
+val d2 : Ptime.t = <abstr>
+
+# Date.equal d1 d2;;
+- : bool = true
+
+# Date.compare d1 d2;;
+- : int = 0
+```
