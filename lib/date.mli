@@ -12,7 +12,7 @@
     For RFC 850 if the year value is [>= 50] then the century value of the year
     is [19] else it is [20]. *)
 
-type t = Ptime.t
+type t
 
 val of_ptime : Ptime.t -> t
 (** [of_ptime ptime] is HTTP timestamp created using date/time values in

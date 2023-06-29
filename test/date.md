@@ -8,24 +8,24 @@ open Spring
 
 ```ocaml
 # let date1 = Date.decode "Sun, 06 Nov 1994 08:49:37 GMT";;
-val date1 : Ptime.t = <abstr>
+val date1 : Date.t = <abstr>
 
-# Eio.traceln "%a" Ptime.pp date1 ;;
-+1994-11-06 08:49:37 +00:00
+# Eio.traceln "%a" Date.pp date1 ;;
++Sun, 06 Nov 1994 08:49:37 GMT
 - : unit = ()
 
 # let date2 = Date.decode "Sunday, 06-Nov-94 08:49:37 GMT";;
-val date2 : Ptime.t = <abstr>
+val date2 : Date.t = <abstr>
 
-# Eio.traceln "%a" Ptime.pp date2 ;;
-+1994-11-06 08:49:37 +00:00
+# Eio.traceln "%a" Date.pp date2 ;;
++Sun, 06 Nov 1994 08:49:37 GMT
 - : unit = ()
 
 # let date3 = Date.decode "Sun Nov  6 08:49:37 1994";;
-val date3 : Ptime.t = <abstr>
+val date3 : Date.t = <abstr>
 
-# Eio.traceln "%a" Ptime.pp date3 ;;
-+1994-11-06 08:49:37 +00:00
+# Eio.traceln "%a" Date.pp date3 ;;
++Sun, 06 Nov 1994 08:49:37 GMT
 - : unit = ()
 ```
 
@@ -50,8 +50,8 @@ let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
 ```
 
 ```ocaml
-# Date.now mock_clock |> Eio.traceln "%a" Ptime.pp;; 
-+2022-10-24 16:12:15 +00:00
+# Date.now mock_clock |> Eio.traceln "%a" Date.pp;; 
++Mon, 24 Oct 2022 16:12:15 GMT
 - : unit = ()
 ```
 
@@ -69,10 +69,10 @@ let now = 1623940778.27033591
 val p : Ptime.t = <abstr>
 
 # let d1 = Date.of_ptime p ;;
-val d1 : Ptime.t = <abstr>
+val d1 : Date.t = <abstr>
 
 # let d2 = Date.of_float_s now |> Option.get;;
-val d2 : Ptime.t = <abstr>
+val d2 : Date.t = <abstr>
 
 # Date.equal d1 d2;;
 - : bool = true
@@ -91,7 +91,7 @@ val d2 : Ptime.t = <abstr>
 
 ```ocaml
 # let d3 = Date.of_ptime @@ Ptime_clock.now ();;
-val d3 : Ptime.t = <abstr>
+val d3 : Date.t = <abstr>
 
 # Date.is_later d3 ~than:d1, Date.is_later d3 ~than:d2;;
 - : bool * bool = (true, true)
