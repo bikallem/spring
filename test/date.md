@@ -55,16 +55,23 @@ let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
 - : unit = ()
 ```
 
-## Date.of_ptime
+## Date.of_ptime/of_float_s/equal/compare/is_later/is_earlier
 
 ```ocaml
-# let p = Ptime_clock.now ();;
+let now = 1623940778.27033591
+```
+
+`Date.t` created using same value `now` are equal.
+
+```ocaml
+
+# let p = Ptime.of_float_s now |> Option.get;;
 val p : Ptime.t = <abstr>
 
-# let d1 = Date.of_ptime p;;
+# let d1 = Date.of_ptime p ;;
 val d1 : Ptime.t = <abstr>
 
-# let d2 = Date.of_ptime p;;
+# let d2 = Date.of_float_s now |> Option.get;;
 val d2 : Ptime.t = <abstr>
 
 # Date.equal d1 d2;;
@@ -72,4 +79,23 @@ val d2 : Ptime.t = <abstr>
 
 # Date.compare d1 d2;;
 - : int = 0
+
+# Date.is_later d1 ~than:d2, Date.is_later d2 ~than:d1;;
+- : bool * bool = (false, false)
+
+# Date.is_earlier d1 ~than:d2, Date.is_earlier d2 ~than:d1;;
+- : bool * bool = (false, false)
+```
+
+`Date.t` created later returns `true` when comparing `is_later/is_earlier` with `d3`.
+
+```ocaml
+# let d3 = Date.of_ptime @@ Ptime_clock.now ();;
+val d3 : Ptime.t = <abstr>
+
+# Date.is_later d3 ~than:d1, Date.is_later d3 ~than:d2;;
+- : bool * bool = (true, true)
+
+# Date.is_earlier d1 ~than:d3, Date.is_earlier d1 ~than:d3;;
+- : bool * bool = (true, true)
 ```

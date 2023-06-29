@@ -124,6 +124,8 @@ let asctime_date =
 
 let of_ptime ptime = Ptime.truncate ~frac_s:0 ptime
 
+let of_float_s d = Float.trunc d |> Ptime.of_float_s
+
 let decode v =
   let r () = Buf_read.of_string v in
   let date, time =
@@ -171,5 +173,9 @@ let now (clock : #Eio.Time.clock) =
 let compare = Ptime.compare
 
 let equal = Ptime.equal
+
+let is_later = Ptime.is_later
+
+let is_earlier = Ptime.is_earlier
 
 let pp fmt t = Format.fprintf fmt "%s" @@ encode t
