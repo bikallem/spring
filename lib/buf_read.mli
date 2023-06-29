@@ -10,6 +10,10 @@ val ows : unit parser
 
 val space : unit parser
 
+val quoted_pair : char parser
+
+val qd_text : char parser
+
 val quoted_string : string parser
 
 val parameters : (string * string) list parser
