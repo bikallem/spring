@@ -17,3 +17,7 @@ val parameters : (string * string) list parser
 val cookie_pair : (string * string) parser
 
 val list1 : 'a parser -> 'a list parser
+(** [list1 p] is a parser that parses at least one element as defined by [p].
+
+    Implement HTTP RFC list element syntax - #element. See
+    https://www.rfc-editor.org/rfc/rfc9110#name-lists-rule-abnf-extension *)
