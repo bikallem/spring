@@ -32,6 +32,8 @@ module Directive = struct
     | Key_val { encode; _ } -> Some encode
 end
 
+type bool_directive = bool Directive.t
+
 let max_age =
   let decode s =
     let buf_read = Buf_read.of_string s in

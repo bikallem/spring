@@ -5,15 +5,16 @@
 
 module Directive : sig
   type 'a t
-  (** [t] is a request or response cache directive. A directive is either a bool
-      directive or not. A bool directive is one which doesn't have a
-      corresponding value. *)
+  (** [t] is a cache directive, such as [no-cache, max-age=5, private] etc. *)
 
   val name : 'a t -> string
   (** [name t] is the name of the cache-directive [t]. *)
 
   val is_bool : 'a t -> bool
-  (** [is_bool t] is [true] if [t] is a bool directive. *)
+  (** [is_bool t] is [true] if [t] is a bool directive. A bool directive doesn't
+      have a corresponding value associated with it, e.g.
+      [no-cache, private, public] etc. [max-age] is not a bool directive as it
+      has a value associated with it. *)
 
   type 'a decode = string -> 'a
 
@@ -31,6 +32,12 @@ module Directive : sig
 
       It is [None] if [t] is a bool directive. *)
 end
+
+type bool_directive = bool Directive.t
+(** [bool_directive] a bool directive is one which doesn't have a corresponding
+    value.
+
+    See {!val:Directive.is_bool}. *)
 
 val max_age : int Directive.t
 (** [max_age] is [max-age] directive. It holds value [d]. [d] is time in
