@@ -4,7 +4,7 @@ let file_last_modified filepath =
   Eio.Path.with_open_in filepath @@ fun p -> (Eio.File.stat p).mtime
 
 let file_last_modified_header_v last_modified =
-  Float.trunc last_modified |> Ptime.of_float_s |> Option.get
+  Float.trunc last_modified |> Date.of_float_s |> Option.get
 
 let file_etag_header_v last_modified =
   Printf.sprintf "%.6f" last_modified
@@ -60,7 +60,7 @@ let handle_get ~on_error filepath (req : Request.server Request.t) =
          let* if_modified_since' =
            Header.(find_opt headers if_modified_since)
          in
-         if Ptime.is_later last_modified' ~than:if_modified_since' then None
+         if Date.is_later last_modified' ~than:if_modified_since' then None
          else
            let headers = Header.(add empty last_modified last_modified') in
            Some (file_not_modified_response headers req)
