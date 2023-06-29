@@ -247,6 +247,17 @@ val headers : Header.t = <abstr>
 
 ## Header.header values
 
+If-Modified-Since header.
+
+```ocaml
+# let h1 = Header.of_list ["if-modified-since", "Wed, 28 Jun 2023 10:55:19 GMT"];;
+val h1 : Header.t = <abstr>
+
+# Eio.traceln "%a" Date.pp Header.(find h1 if_modified_since);;
++Wed, 28 Jun 2023 10:55:19 GMT
+- : unit = ()
+```
+
 ETag header.
 
 ```ocaml
