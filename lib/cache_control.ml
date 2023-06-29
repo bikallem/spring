@@ -19,6 +19,10 @@ module Directive = struct
     | Bool name -> name
     | Key_val { name; _ } -> name
 
+  let is_bool : type a. a t -> bool = function
+    | Bool _ -> true
+    | Key_val _ -> false
+
   let decode : type a. a t -> a decode option = function
     | Bool _ -> None
     | Key_val { decode; _ } -> Some decode
@@ -66,6 +70,16 @@ let find_opt : type a. a Directive.t -> t -> a option =
       if String.equal directive_name find_name then decode_value d v else loop l
   in
   loop t
+
+let coerce_bool_directive : type a. a Directive.t -> a = function
+  | Bool _ -> false
+  | _ -> raise Not_found
+
+let find : type a. a Directive.t -> t -> a =
+ fun d t ->
+  match find_opt d t with
+  | Some v -> v
+  | None -> coerce_bool_directive d
 
 let cache_directive buf_read =
   let name = Buf_read.token buf_read in

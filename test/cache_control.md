@@ -4,7 +4,7 @@
 open Spring
 ```
 
-## add
+## add/find_opt/find
 
 ```ocaml
 # Cache_control.(find_opt max_age empty);;
@@ -19,11 +19,17 @@ val t1 : Cache_control.t = <abstr>
 # Cache_control.(find_opt no_cache t1);;
 - : bool option = None
 
+# Cache_control.(find no_cache t1);;
+- : bool = false
+
 # let t1 = Cache_control.(add no_cache t1);;
 val t1 : Cache_control.t = <abstr>
 
 # Cache_control.(find_opt no_cache t1);;
 - : bool option = Some true
+
+# Cache_control.(find no_cache t1);;
+- : bool = true
 ```
 
 ## decode
