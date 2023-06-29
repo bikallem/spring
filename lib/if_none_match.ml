@@ -29,19 +29,8 @@ let decode s =
       Buf_read.char '*' buf_read;
       Any
     | Some (_ : char) ->
-      let rec parse_etags () =
-        let etag = parse_etag buf_read in
-        etag
-        ::
-        (Buf_read.ows buf_read;
-         match Buf_read.peek_char buf_read with
-         | Some ',' ->
-           Buf_read.char ',' buf_read;
-           Buf_read.ows buf_read;
-           parse_etags ()
-         | _ -> [])
-      in
-      Entity_tags (parse_etags ())
+      let etags = Buf_read.list1 parse_etag buf_read in
+      Entity_tags etags
     | None -> invalid_arg "[s] contains invalid [If-None-Match] value"
   in
   if Buf_read.at_end_of_input buf_read then t
