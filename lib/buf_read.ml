@@ -114,3 +114,28 @@ let cookie_value : string parser =
   | Some _ | None -> cookie_octet
 
 let cookie_pair : (string * string) parser = token <* char '=' <*> cookie_value
+
+(* +-- #element - https://www.rfc-editor.org/rfc/rfc9110#name-lists-rule-abnf-extension --+ *)
+
+let rec next_element p t =
+  match (ows *> peek_char) t with
+  | Some ',' -> (
+    char ',' t;
+    ows t;
+    match peek_char t with
+    | Some ',' -> next_element p t
+    | Some _ ->
+      let x = p t in
+      x :: next_element p t
+    | None -> [])
+  | Some c -> failwith @@ Printf.sprintf "[list1] expected ',' but got %c" c
+  | None -> []
+
+let list1 (p : 'a parser) t =
+  (* TODO why doesn't this code work (p t :: next_element p t)? but the one below
+     works. Is this mis compilation ? *)
+  let x = p t in
+  let l = x :: next_element p t in
+  match l with
+  | [] -> failwith "[list1] empty elements, requires at least one element"
+  | l -> l
