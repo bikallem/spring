@@ -23,7 +23,7 @@ val lax : same_site
 (** {1 Create} *)
 
 val make :
-     ?expires:Ptime.t
+     ?expires:Date.t
   -> ?max_age:int
   -> ?domain:[ `raw ] Domain_name.t
   -> ?path:string
@@ -51,7 +51,7 @@ val name : t -> string
 
 val value : t -> string
 
-val expires : t -> Ptime.t option
+val expires : t -> Date.t option
 
 val max_age : t -> int option
 

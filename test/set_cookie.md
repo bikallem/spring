@@ -27,8 +27,8 @@ val t : Set_cookie.t = <abstr>
 ## Set_cookie.expires
 
 ```ocaml
-# Set_cookie.expires t |> Option.get |> Eio.traceln "%a" Ptime.pp ;;
-+2021-06-09 10:18:14 +00:00
+# Set_cookie.expires t |> Option.get |> Eio.traceln "%a" Date.pp ;;
++Wed, 09 Jun 2021 10:18:14 GMT
 - : unit = ()
 ```
 

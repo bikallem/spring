@@ -1,7 +1,7 @@
 type t =
   { name : string
   ; value : string
-  ; expires : Ptime.t option
+  ; expires : Date.t option
   ; max_age : int option
   ; domain : [ `raw ] Domain_name.t option
   ; path : string option
