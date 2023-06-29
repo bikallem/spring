@@ -199,12 +199,16 @@ val serve_dir :
     [t] will respond with [Response.not_found] if a file requested in
     [route_url] doesn't exist in [dirpath].
 
-    {b Caching Support}
+    {:file_server_caching Caching Headers}
 
-    Caching support is as follows:
+    [t] adds HTTP caching headers [Last-Modified], [ETag], [Expires] and
+    [Cache-Control] to responses.
 
-    + Add [Last-Modified, Expires and Cache-Control] headers to responses.
-    + Respond to [If-Modified-Since] requests.
+    {:file_server_conditional Conditional Requests}
+
+    [t] responds to conditional requests with [If-None-Match] and
+    [If-Modified-Since] headers. If both are present, then [If-None-Match] is
+    given preference as it is more accurate than [If-Modified-Since].
 
     {:usage Usage}
 
