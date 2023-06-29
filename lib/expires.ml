@@ -1,6 +1,6 @@
 type t =
   | Expired
-  | Date of Ptime.t
+  | Date of Date.t
 
 let decode v =
   match Date.decode v with
@@ -17,6 +17,6 @@ let is_expired = function
   | Expired -> true
   | Date _ -> false
 
-let ptime = function
+let date = function
   | Expired -> None
   | Date d -> Some d

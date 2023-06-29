@@ -22,6 +22,6 @@ val is_expired : t -> bool
 (** [is_expired t] is [true] if [t] is an expired value. [false] otherwise. An
     expired value [t] has an invalid HTTP date value. *)
 
-val ptime : t -> Ptime.t option
-(** [ptime t] is [Some ptime] if [t] holds a valid HTTP date time value. It is
+val date : t -> Date.t option
+(** [date t] is [Some date] if [t] holds a valid HTTP date time value. It is
     [None] otherwise. *)
