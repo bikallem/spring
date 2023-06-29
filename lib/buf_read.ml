@@ -1,10 +1,5 @@
 include Eio.Buf_read
 
-let take_while1 p r =
-  match take_while p r with
-  | "" -> raise End_of_file
-  | x -> x
-
 let token =
   take_while1 (function
     | '0' .. '9'

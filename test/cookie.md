@@ -15,7 +15,7 @@ val t : Cookie.t = <abstr>
 
 ```ocaml
 # Cookie.decode "";; 
-Exception: End_of_file.
+Exception: Failure "take_while1".
 
 # Cookie.decode "a";; 
 Exception: End_of_file.

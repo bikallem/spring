@@ -49,7 +49,7 @@ Valid cases.
 
 ```ocaml
 # let p = Buf_read.take_while1 (function 'a' .. 'z' -> true | _ -> false);;
-val p : Buf_read.t -> string = <fun>
+val p : string Buf_read.parser = <fun>
 
 # Buf_read.list1 p (Buf_read.of_string "foo, bar");;
 - : string list = ["foo"; "bar"]
@@ -65,13 +65,13 @@ Invalid cases - `take_while1` requires at least one character.
 
 ```ocaml
 # Buf_read.list1 p (Buf_read.of_string "");;
-Exception: End_of_file.
+Exception: Failure "take_while1".
 
 # Buf_read.list1 p (Buf_read.of_string ",");;
-Exception: End_of_file.
+Exception: Failure "take_while1".
 
 # Buf_read.list1 p (Buf_read.of_string ",    ,");;
-Exception: End_of_file.
+Exception: Failure "take_while1".
 ```
 
 Valid caess - `take_while` allows empty string.
