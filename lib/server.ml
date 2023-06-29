@@ -44,7 +44,7 @@ let response_date : #Eio.Time.clock -> pipeline =
     | status when Status.informational status || Status.server_error status ->
       res
     | _ ->
-      let now = Eio.Time.now clock |> Ptime.of_float_s |> Option.get in
+      let now = Date.now clock in
       let headers = Header.(add_unless_exists headers date now) in
       let version = Response.version res in
       let status = Response.status res in
