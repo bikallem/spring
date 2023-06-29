@@ -21,13 +21,13 @@ let b s = Buf_read.of_string s
 - : char = 'v'
 ```
 
-## Buf_read.qd_text
+## Buf_read.quoted_text
 
 ```ocaml
-# Buf_read.qd_text @@ b "\t";;
+# Buf_read.quoted_text @@ b "\t";;
 - : char = '\t'
 
-# Buf_read.qd_text @@ b "a";;
+# Buf_read.quoted_text @@ b "a";;
 - : char = 'a'
 ```
 
