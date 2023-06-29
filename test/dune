@@ -8,6 +8,7 @@
   fmt
   cstruct
   ptime
+  ptime.clock.os
   domain-name
   spring
   base64
