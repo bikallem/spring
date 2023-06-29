@@ -25,3 +25,13 @@ val t1 : Cache_control.t = <abstr>
 # Cache_control.(find_opt no_cache t1);;
 - : bool option = Some true
 ```
+
+## decode
+
+```ocaml
+# let t2 = Cache_control.decode "max-age=604800,  must-revalidate, no-store, private,public";;
+val t2 : Cache_control.t = <abstr>
+
+# Cache_control.(find_opt max_age t2);;
+- : int option = Some 604800
+```

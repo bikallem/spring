@@ -66,3 +66,22 @@ let find_opt : type a. a Directive.t -> t -> a option =
       if String.equal directive_name find_name then decode_value d v else loop l
   in
   loop t
+
+let cache_directive buf_read =
+  let name = Buf_read.token buf_read in
+  match Buf_read.peek_char buf_read with
+  | Some '=' ->
+    Buf_read.char '=' buf_read;
+    (* -- token / quoted_string -- *)
+    let v =
+      match Buf_read.peek_char buf_read with
+      | Some '"' -> Buf_read.quoted_string buf_read
+      | Some _ -> Buf_read.token buf_read
+      | None -> failwith "[cache_directive] invalid cache-directive value"
+    in
+    (name, Some v)
+  | Some _ | None -> (name, None)
+
+let decode s =
+  let buf_read = Buf_read.of_string s in
+  Buf_read.list1 cache_directive buf_read

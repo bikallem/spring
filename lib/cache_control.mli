@@ -41,3 +41,6 @@ val add : ?v:'a -> 'a Directive.t -> t -> t
 
 val find_opt : 'a Directive.t -> t -> 'a option
 (** [find_opt d t] is [Some v] if a directive [d] exists in [t]. *)
+
+val decode : string -> t
+(** [decode s] decodes [s] into [t]. *)
