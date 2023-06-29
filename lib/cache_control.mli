@@ -47,6 +47,9 @@ val max_age : int Directive.t
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
 
 val no_cache : bool Directive.t
+(** [no_cache] is [no-cache] directive.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
 
 (** {1 Cache-Control} *)
 
