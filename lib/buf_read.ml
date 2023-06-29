@@ -134,3 +134,10 @@ let list1 (p : 'a parser) t =
   match l with
   | [] -> failwith "[list1] empty elements, requires at least one element"
   | l -> l
+
+let digit =
+  take_while1 (function
+    | '0' .. '9' -> true
+    | _ -> false)
+
+let delta_seconds t = digit t |> int_of_string

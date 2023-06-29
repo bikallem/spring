@@ -74,7 +74,7 @@ Exception: Failure "take_while1".
 Exception: Failure "take_while1".
 ```
 
-Valid caess - `take_while` allows empty string.
+Valid cases - `take_while` allows empty string.
 
 ```ocaml
 # let p = Buf_read.take_while (function 'a' .. 'z' -> true | _ -> false);;
@@ -88,4 +88,17 @@ val p : string Buf_read.parser = <fun>
 
 # Buf_read.list1 p (Buf_read.of_string ",    ,");;
 - : string list = [""]
+```
+
+## delta_seconds
+
+```ocaml
+# Buf_read.(delta_seconds (of_string "234"));;
+- : int = 234
+
+# Buf_read.(delta_seconds (of_string "5"));;
+- : int = 5
+
+# Buf_read.(delta_seconds (of_string ""));;
+Exception: Failure "take_while1".
 ```

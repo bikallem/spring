@@ -25,3 +25,10 @@ val list1 : 'a parser -> 'a list parser
 
     Implement HTTP RFC list element syntax - #element. See
     https://www.rfc-editor.org/rfc/rfc9110#name-lists-rule-abnf-extension *)
+
+val delta_seconds : int parser
+(** [delta_seconds] parses [s]. [s] is a non-negative integer representing time
+    span in seconds.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#delta-seconds} HTTP
+    delta-seconds}. *)
