@@ -13,8 +13,9 @@ module Directive : sig
   val is_bool : 'a t -> bool
   (** [is_bool t] is [true] if [t] is a bool directive. A bool directive doesn't
       have a corresponding value associated with it, e.g.
-      [no-cache, private, public] etc. [max-age] is not a bool directive as it
-      has a value associated with it. *)
+      [no-cache, private, public] etc.
+
+      [max-age] is not a bool directive as it has a value associated with it. *)
 
   type 'a decode = string -> 'a
 
