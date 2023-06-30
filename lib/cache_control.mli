@@ -11,7 +11,9 @@ module Directive : sig
   (** [name t] is the name of the cache-directive [t]. *)
 
   val is_bool : 'a t -> bool
-  (** [is_bool t] is [true] if [t] is a bool directive. *)
+  (** [is_bool t] is [true] if [t] is a bool directive.
+
+      See {!type:bool_directive}. *)
 
   type 'a decode = string -> 'a
 
