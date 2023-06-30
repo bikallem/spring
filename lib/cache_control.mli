@@ -74,7 +74,7 @@ val find : 'a Directive.t -> t -> 'a
     denoted by [d].
 
     If [Directive.is_bool d = true] then [v = true] denotes the existence of
-    directive [d].
+    directive [d] and [v = false] denotes the absence of [d] in [t].
 
     @raise Not_found
       if [d] is not found in [t] and [Directive.is_bool d = false]. *)
