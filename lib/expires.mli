@@ -29,6 +29,8 @@ val decode : string -> t
 val encode : t -> string
 (** [encode t] converts [t] into a string representation *)
 
+(** {2 HTTP Date Timestamp} *)
+
 val date : t -> Date.t option
 (** [date t] is [Some date] if [t] holds a valid HTTP date time value. It is
     [None] otherwise. *)
