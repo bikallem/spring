@@ -159,3 +159,11 @@ val s1 : string =
 # s1 = s;;
 - : bool = true
 ```
+
+## pp
+
+```ocaml
+# Eio.traceln "%a" Cache_control.pp t2;;
++max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
+- : unit = ()
+```

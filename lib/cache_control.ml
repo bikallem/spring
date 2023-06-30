@@ -174,3 +174,7 @@ let proxy_revalidate = Directive.make_bool_directive "must-revalidate"
 let public = Directive.make_bool_directive "public"
 
 let s_maxage = delta_seconds_directive "s-maxage"
+
+(* +-- Pretty Printer --+ *)
+
+let pp fmt t = Format.fprintf fmt "%s" @@ encode t

@@ -226,3 +226,8 @@ val s_maxage : delta_seconds Directive.t
     {b Usage} HTTP response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-s-maxage} s-maxage}. *)
+
+(** {1 Pretty Printer} *)
+
+val pp : Format.formatter -> t -> unit
+(** [pp fmt t] pretty prints [t] onto [fmt]. *)
