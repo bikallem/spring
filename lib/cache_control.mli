@@ -45,10 +45,14 @@ val max_age : int Directive.t
 (** [max_age] is [max-age] directive. It holds value [d]. [d] is time in
     seconds.
 
+    It is used in both HTTP requests and responses.
+
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
 
 val no_cache : Directive.bool'
 (** [no_cache] is [no-cache] directive.
+
+    It can be used in both requests and responses.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
 
