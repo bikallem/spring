@@ -10,7 +10,7 @@ type t
     timestamp}. *)
 
 val expired : t
-(** [expired] is an expired value. It is encoded as "0".
+(** [expired] is an expired value.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#section-5.3-7} 'expired'
     encoding}. *)
