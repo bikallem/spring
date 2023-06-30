@@ -247,6 +247,23 @@ val headers : Header.t = <abstr>
 
 ## Header.header values
 
+Last-Modified header.
+
+```ocaml
+# let h1 = Header.of_list ["last-modified","Wed, 28 Jun 2023 10:55:19 GMT"];;
+val h1 : Header.t = <abstr>
+
+# Eio.traceln "%a" Date.pp Header.(find h1 last_modified);;
++Wed, 28 Jun 2023 10:55:19 GMT
+- : unit = ()
+
+# Eio.traceln "%a" Header.pp h1;;
++{
++  Last-Modified:  Wed, 28 Jun 2023 10:55:19 GMT
++}
+- : unit = ()
+```
+
 If-Modified-Since header.
 
 ```ocaml
