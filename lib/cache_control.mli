@@ -170,3 +170,11 @@ val only_if_cached : Directive.bool'
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-only-if-cached}
     only-if-cached}. *)
+
+val must_revalidate : Directive.bool'
+(** [must_revalidate] is [must-revalidate] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-revalidate}
+    must-revalidate}. *)
