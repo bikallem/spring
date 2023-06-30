@@ -16,6 +16,11 @@ module Directive : sig
   type 'a t
   (** [t] is a cache-control directive value. *)
 
+  type name = string
+  (** [name] is a directive name. It is case-sensitive. *)
+
+  (** {2:bool_directive Bool} *)
+
   type bool' = bool t
   (** [bool'] is a cache-directive that doesn't have a corresponding value
       associated with it, e.g. [no-cache, private, public] etc.
@@ -25,8 +30,15 @@ module Directive : sig
 
       See {!val:is_bool}. *)
 
-  type name = string
-  (** [name] is a directive name. It is case-sensitive. *)
+  val make_bool_directive : name -> bool'
+  (** [make_bool_directive name] makes a bool directive with name [name]. *)
+
+  val is_bool : 'a t -> bool
+  (** [is_bool t] is [true] if [t] is a bool directive.
+
+      See {!type:bool_directive}. *)
+
+  (** {2:name_value_directive Name Value} *)
 
   type 'a decode = string -> 'a
   (** [decode] is the decoder function for a non-bool directive. It decodes
@@ -35,13 +47,10 @@ module Directive : sig
       {b Quoted String Value}
 
       If the encoded directive value is a quoted string, i.e.
-      [Cache-Control: custom="val1"], then the decoder will recieve value [s]
+      [Cache-Control: custom="val1"], then the decoder will receive value [s]
       with the surrounding double quotes - ["val1"]. *)
 
   type 'a encode = 'a -> string
-
-  val make_bool_directive : name -> bool'
-  (** [make_bool_directive name] makes a bool directive with name [name]. *)
 
   val make : name -> 'a decode -> 'a encode -> 'a t
   (** [make name decode encode] makes a name value directive with name [name]
@@ -49,11 +58,6 @@ module Directive : sig
 
   val name : 'a t -> name
   (** [name t] is the name of the cache-directive [t]. *)
-
-  val is_bool : 'a t -> bool
-  (** [is_bool t] is [true] if [t] is a bool directive.
-
-      See {!type:bool_directive}. *)
 
   val decode : 'a t -> 'a decode option
   (** [decode t] is [Some f] if directive [t] is not a bool directive. [f] is
