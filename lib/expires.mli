@@ -13,7 +13,7 @@ val of_date : Date.t -> t
 (** [of_date d] creates [Expires] header value from HTTP Date timestamp [d]. *)
 
 val expired : t
-(** [expired] is an expired value.
+(** [expired] represents an invalid HTTP Date timestamp value.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#section-5.3-7} 'expired'
     encoding}. *)
