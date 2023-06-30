@@ -108,7 +108,9 @@ let decode_cache_directive buf_read =
       match Buf_read.peek_char buf_read with
       | Some '"' -> "\"" ^ Buf_read.quoted_string buf_read ^ "\""
       | Some _ -> Buf_read.token buf_read
-      | None -> failwith "[cache_directive] invalid cache-directive value"
+      | None ->
+        failwith
+        @@ Printf.sprintf "[cache_directive: %s] value missing after '='" name
     in
     (name, Some v)
   | Some _ | None -> (name, None)

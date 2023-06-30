@@ -112,11 +112,18 @@ Decoding correctly decodes redundant whitespaces before/after `,'.
 - : Cache_control.t = <abstr>
 ```
 
-Error when the decode value is empty.
+Exception when the decode value is empty.
 
 ```
 # Cache_control.decode "";;
 Exception: Failure "take_while1".
+```
+
+Exception when name-value directive is missing a value after `=`.
+
+```ocaml
+# Cache_control.decode "max-age=";; 
+Exception: Failure "[cache_directive: max-age] value missing after '='".
 ```
 
 ## encode
