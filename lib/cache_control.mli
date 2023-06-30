@@ -60,8 +60,9 @@ val empty : t
 (** [empty] is an empty [Cache-Control] value. *)
 
 val add : ?v:'a -> 'a Directive.t -> t -> t
-(** [add ?v d t] is a new Cache-Control value with directive definition [d] and
-    directive value [v] added to [t]. *)
+(** [add ?v d t] adds cache-control directive [d] with value [v] to [t].
+
+    If [Directive.is_bool d = true] then [v] is ignored. *)
 
 val find_opt : 'a Directive.t -> t -> 'a option
 (** [find_opt d t] is [Some v] if directive [d] exists in [t]. [v] is value as
