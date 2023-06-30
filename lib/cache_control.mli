@@ -155,3 +155,10 @@ val no_store : Directive.bool'
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
+
+val no_transform : Directive.bool'
+(** [no_transform] is [no-transform] directive.
+
+    {b Usage} HTTP request and response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)

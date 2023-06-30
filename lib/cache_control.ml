@@ -139,3 +139,5 @@ let min_fresh = delta_seconds_directive "min-fresh"
 let no_cache = Directive.make_bool_directive "no-cache"
 
 let no_store = Directive.make_bool_directive "no-store"
+
+let no_transform = Directive.make_bool_directive "no-transform"
