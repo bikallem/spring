@@ -83,7 +83,7 @@ let find : type a. a Directive.t -> t -> a =
   | Some v -> v
   | None -> coerce_bool_directive d
 
-let cache_directive buf_read =
+let decode_cache_directive buf_read =
   let name = Buf_read.token buf_read in
   match Buf_read.peek_char buf_read with
   | Some '=' ->
@@ -100,7 +100,7 @@ let cache_directive buf_read =
 
 let decode s =
   let buf_read = Buf_read.of_string s in
-  Buf_read.list1 cache_directive buf_read
+  Buf_read.list1 decode_cache_directive buf_read
 
 let encode_cache_directive buf (name, v) =
   Buffer.add_string buf name;
