@@ -80,8 +80,8 @@ val find : 'a Directive.t -> t -> 'a
 (** [find d t] is [v] if directive [d] exists in [t]. [v] is the value as
     denoted by [d].
 
-    If [Directive.is_bool d = true] then [v = true] denotes the existence of
-    directive [d] and [v = false] denotes the absence of [d] in [t].
+    If [Directive.is_bool d = true] then [v = true] and [v = false] denotes the
+    existence and absence respectively of directive [d] in [t].
 
     @raise Not_found
       if [d] is not found in [t] and [Directive.is_bool d = false]. *)
