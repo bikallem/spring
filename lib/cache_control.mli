@@ -105,6 +105,13 @@ val no_cache : Directive.bool'
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
 
+val no_store : Directive.bool'
+(** [no_store] is [no-store] directive.
+
+    {b Usage} HTTP request and response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
+
 (** {1 Cache-Control} *)
 
 type t
