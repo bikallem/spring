@@ -24,16 +24,12 @@ An expired value returns `true` for `is_expired`.
 ## of_date
 
 ```ocaml
-let now = ref 1623940778.27033591
-
-let fake_clock = object (_ : #Eio.Time.clock)
-  method now = !now
-  method sleep_until _time = failwith "not implemented"
-end
+let clock = Eio_mock.Clock.make ()
+let _ = Eio_mock.Clock.set_time clock 1623940778.27033591
 ```
 
 ```ocaml
-# let e = Expires.of_date @@ Date.now fake_clock;;
+# let e = Expires.of_date @@ Date.now clock;;
 val e : Expires.t = <abstr>
 
 # Expires.is_expired e;;
