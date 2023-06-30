@@ -1,12 +1,15 @@
 (** HTTP Cache-Control header as specified in
-    https://www.rfc-editor.org/rfc/rfc9111#name-cache-control *)
+    https://www.rfc-editor.org/rfc/rfc9111#name-cache-control
+
+    Supports both {{!section:standard_directives} Standard Directives} and
+    extending with {{!custom directives} Custom Directives}. *)
 
 (** {1:directives Directives} *)
 
 (** [Directive] controls various caching functionality in HTTP client or server,
     e.g. [Cache-Control : no-cache, max-age=5, private, custom="val1"].
 
-    {! Extending Directives}
+    {:custom_directives Extending Directives}
 
     Creating custom directives is supported via {!val:make} and
     {!val:make_bool_directive} functions. See
@@ -124,7 +127,7 @@ val decode : string -> t
 val encode : t -> string
 (** [encode t] is the string representation of [t]. *)
 
-(** {1 Standard Directives} *)
+(** {1:standard_directives Standard Directives} *)
 
 type delta_seconds = int
 (** [delta_seconds] is time in seconds. *)
