@@ -46,6 +46,19 @@ val t1 : Cache_control.t = <abstr>
 - : bool = true
 ```
 
+Parameter `[v]` is ignored when adding bool directives. 
+
+```ocaml
+# let t1 = Cache_control.(add ~v:false no_cache empty);;
+val t1 : Cache_control.t = <abstr>
+
+# Cache_control.(find_opt no_cache t1);;
+- : bool option = Some true
+
+# Cache_control.(find no_cache t1);;
+- : bool = true
+```
+
 ## decode
 
 ```ocaml
