@@ -81,6 +81,19 @@ let find : type a. a Directive.t -> t -> a =
   | Some v -> v
   | None -> coerce_bool_directive d
 
+let remove : type a. a Directive.t -> t -> t =
+ fun d t ->
+  let find_name = Directive.name d in
+  let rec loop t =
+    match t with
+    | [] -> t
+    | ((directive_name, _) as x) :: t ->
+      if String.equal directive_name find_name then loop t else x :: loop t
+  in
+  loop t
+
+(* +-- Codec --+ *)
+
 let decode_cache_directive buf_read =
   let name = Buf_read.token buf_read in
   match Buf_read.peek_char buf_read with

@@ -108,6 +108,10 @@ val find : 'a Directive.t -> t -> 'a
     @raise Not_found
       if [d] is not found in [t] and [Directive.is_bool d = false]. *)
 
+val remove : 'a Directive.t -> t -> t
+(** [remove d t] removes directive [d] from [t] if [d] exists in [t]. Otherwise
+    [t] is unchanged. *)
+
 (** {1:codec Codec} *)
 
 val decode : string -> t

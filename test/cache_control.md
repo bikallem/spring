@@ -91,6 +91,19 @@ val t1 : Cache_control.t = <abstr>
 - : bool = true
 ```
 
+## remove
+
+```ocaml
+# Cache_control.(find no_cache t1);;
+- : bool = true
+
+# let t1 = Cache_control.(remove no_cache t1);;
+val t1 : Cache_control.t = <abstr>
+
+# Cache_control.(find no_cache t1);;
+- : bool = false
+```
+
 ## decode
 
 ```ocaml
