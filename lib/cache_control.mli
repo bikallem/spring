@@ -3,9 +3,18 @@
 
 (** {1:directive Directives} *)
 
+(** [Directive] controls various caching functionality in HTTP client or server,
+    e.g. [Cache-Control : no-cache, max-age=5, private, custom="val1"].
+
+    {! Extending Directives}
+
+    Creating custom directives is supported via {!val:make} and
+    {!val:make_bool_directive} functions. See
+    {{!https://www.rfc-editor.org/rfc/rfc9111#name-extension-directives}
+    Extension Directives}. *)
 module Directive : sig
   type 'a t
-  (** [t] is a cache directive, such as [no-cache, max-age=5, private] etc. *)
+  (** [t] is a cache-control directive value. *)
 
   type bool' = bool t
   (** [bool'] is a cache-directive that doesn't have a corresponding value
@@ -17,9 +26,17 @@ module Directive : sig
       See {!val:is_bool}. *)
 
   type name = string
-  (** [name] is the directive name. *)
+  (** [name] is a directive name. It is case-sensitive. *)
 
   type 'a decode = string -> 'a
+  (** [decode] is the decoder function for a non-bool directive. It decodes
+      string value [s] into a required typed value.
+
+      {b Quoted String Value}
+
+      If the encoded directive value is a quoted string, i.e.
+      [Cache-Control: custom="val1"], then the decoder will recieve value [s]
+      with the surrounding double quotes - ["val1"]. *)
 
   type 'a encode = 'a -> string
 
