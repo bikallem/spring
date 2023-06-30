@@ -201,3 +201,10 @@ val proxy_revalidate : Directive.bool'
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-proxy-revalidate}
     proxy-revalidate}. *)
+
+val public : Directive.bool'
+(** [public] is [public] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-public} public}. *)
