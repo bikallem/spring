@@ -20,3 +20,5 @@ let decode v =
 let encode = function
   | Date d -> Date.encode d
   | Expired v -> v
+
+let pp fmt t = Format.fprintf fmt "%s" @@ encode t

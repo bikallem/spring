@@ -12,3 +12,11 @@ An expired value returns `true` for `is_expired`.
 # Expires.(is_expired expired);;
 - : bool = true
 ```
+
+## pp
+
+```ocaml
+# Eio.traceln "%a" Expires.pp Expires.expired;;
++0
+- : unit = ()
+```
