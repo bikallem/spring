@@ -34,13 +34,15 @@ module Directive = struct
     | Name_val { encode; _ } -> Some encode
 end
 
-let max_age =
+let delta_seconds_directive name =
   let decode s =
     let buf_read = Buf_read.of_string s in
     Buf_read.delta_seconds buf_read
   in
   let encode = string_of_int in
-  Directive.Name_val { Directive.name = "max-age"; decode; encode }
+  Directive.Name_val { Directive.name; decode; encode }
+
+let max_age = delta_seconds_directive "max-age"
 
 let no_cache = Directive.Bool "no-cache"
 
