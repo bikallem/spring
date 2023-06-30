@@ -80,5 +80,10 @@ val find : 'a Directive.t -> t -> 'a
     @raise Not_found
       if [d] is not found in [t] and [Directive.is_bool d = false]. *)
 
+(** {1:codec Codec} *)
+
 val decode : string -> t
 (** [decode s] decodes [s] into [t]. *)
+
+val encode : t -> string
+(** [encode t] is the string representation of [t]. *)

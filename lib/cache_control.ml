@@ -101,3 +101,23 @@ let cache_directive buf_read =
 let decode s =
   let buf_read = Buf_read.of_string s in
   Buf_read.list1 cache_directive buf_read
+
+let write_directive_value buf (name, v) =
+  Buffer.add_string buf name;
+  match v with
+  | Some v ->
+    Buffer.add_char buf '=';
+    Buffer.add_string buf v
+  | None -> ()
+
+let encode = function
+  | [] -> ""
+  | v :: t ->
+    let buf = Buffer.create 10 in
+    write_directive_value buf v;
+    List.iter
+      (fun v ->
+        Buffer.add_string buf ", ";
+        write_directive_value buf v)
+      t;
+    Buffer.contents buf

@@ -37,7 +37,11 @@ val t1 : Cache_control.t = <abstr>
 ## decode
 
 ```ocaml
-# let t2 = Cache_control.decode "max-age=604800,  must-revalidate, no-store, private,public";;
+let s ="max-age=604800, must-revalidate, no-store, private, public";;
+```
+
+```ocaml
+# let t2 = Cache_control.decode s;
 val t2 : Cache_control.t = <abstr>
 
 # Cache_control.(find_opt max_age t2);;
@@ -45,4 +49,22 @@ val t2 : Cache_control.t = <abstr>
 
 # Cache_control.decode "";;
 Exception: Failure "take_while1".
+```
+
+Decoding correctly takes whitespaces before/after `,'.
+
+```ocaml
+# Cache_control.decode "max-age=604800,    must-revalidate, no-store,private   , public";;
+- : Cache_control.t = <abstr>
+```
+
+## encode
+
+```ocaml
+# let s1 = Cache_control.encode t2;;
+val s1 : string =
+  "max-age=604800, must-revalidate, no-store, private, public"
+
+# s1 = s;;
+- : bool = true
 ```
