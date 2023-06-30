@@ -247,53 +247,68 @@ val headers : Header.t = <abstr>
 
 ## Header.header values
 
+```ocaml
+let test_header hdr pp t =
+  Eio.traceln "Find: %a" pp @@ Header.(find t hdr);
+  Eio.traceln "Header.pp: %a" Header.pp t;;
+```
+
 Last-Modified header.
 
 ```ocaml
-# let h1 = Header.of_list ["last-modified","Wed, 28 Jun 2023 10:55:19 GMT"];;
-val h1 : Header.t = <abstr>
-
-# Eio.traceln "%a" Date.pp Header.(find h1 last_modified);;
-+Wed, 28 Jun 2023 10:55:19 GMT
-- : unit = ()
-
-# Eio.traceln "%a" Header.pp h1;;
-+{
-+  Last-Modified:  Wed, 28 Jun 2023 10:55:19 GMT
-+}
+# test_header Header.last_modified Date.pp
+    @@ Header.of_list ["last-modified","Wed, 28 Jun 2023 10:55:19 GMT"];;
++Find: Wed, 28 Jun 2023 10:55:19 GMT
++Header.pp: {
++             Last-Modified:  Wed, 28 Jun 2023 10:55:19 GMT
++           }
 - : unit = ()
 ```
 
 If-Modified-Since header.
 
 ```ocaml
-# let h1 = Header.of_list ["if-modified-since", "Wed, 28 Jun 2023 10:55:19 GMT"];;
-val h1 : Header.t = <abstr>
+# test_header Header.if_modified_since Date.pp
+    @@ Header.of_list ["if-modified-since", "Wed, 28 Jun 2023 10:55:19 GMT"];;
++Find: Wed, 28 Jun 2023 10:55:19 GMT
++Header.pp: {
++             If-Modified-Since:  Wed, 28 Jun 2023 10:55:19 GMT
++           }
+- : unit = ()
+```
 
-# Eio.traceln "%a" Date.pp Header.(find h1 if_modified_since);;
-+Wed, 28 Jun 2023 10:55:19 GMT
+Expires header.
+
+```ocaml
+# test_header Header.expires Expires.pp 
+    @@ Header.of_list ["expires", "Wed, 28 Jun 2023 10:55:19 GMT"];;
++Find: Wed, 28 Jun 2023 10:55:19 GMT
++Header.pp: {
++             Expires:  Wed, 28 Jun 2023 10:55:19 GMT
++           }
 - : unit = ()
 ```
 
 ETag header.
 
 ```ocaml
-# let h1 = Header.of_list ["etag", {|"r2d2xxxx"|}];;
-val h1 : Header.t = <abstr>
-
-# Eio.traceln "%a" Etag.pp Header.(find h1 etag);;
-+"r2d2xxxx"
+# test_header Header.etag Etag.pp 
+    @@ Header.of_list ["etag", {|"r2d2xxxx"|}];;
++Find: "r2d2xxxx"
++Header.pp: {
++             Etag:  "r2d2xxxx"
++           }
 - : unit = ()
 ```
 
 If-None-Match header.
 
 ```ocaml
-
-# let h1 = Header.of_list ["if-none-match", {|"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"|}];;
-val h1 : Header.t = <abstr>
-
-# Header.(find h1 if_none_match) |> Eio.traceln "%a" If_none_match.pp ;;
-+"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
+# test_header Header.if_none_match If_none_match.pp 
+    @@ Header.of_list ["if-none-match", {|"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"|}];;
++Find: "xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
++Header.pp: {
++             If-None-Match:  "xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
++           }
 - : unit = ()
 ```
