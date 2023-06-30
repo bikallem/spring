@@ -91,7 +91,7 @@ let decode_cache_directive buf_read =
     (* -- token / quoted_string -- *)
     let v =
       match Buf_read.peek_char buf_read with
-      | Some '"' -> Buf_read.quoted_string buf_read
+      | Some '"' -> "\"" ^ Buf_read.quoted_string buf_read ^ "\""
       | Some _ -> Buf_read.token buf_read
       | None -> failwith "[cache_directive] invalid cache-directive value"
     in

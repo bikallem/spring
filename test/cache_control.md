@@ -37,7 +37,7 @@ val t1 : Cache_control.t = <abstr>
 ## decode
 
 ```ocaml
-let s ="max-age=604800, must-revalidate, no-store, private, public";;
+let s ={|max-age=604800, must-revalidate, no-store, private, public, custom1="val1"|};;
 ```
 
 ```ocaml
@@ -63,7 +63,7 @@ Decoding correctly takes whitespaces before/after `,'.
 ```ocaml
 # let s1 = Cache_control.encode t2;;
 val s1 : string =
-  "max-age=604800, must-revalidate, no-store, private, public"
+  "max-age=604800, must-revalidate, no-store, private, public, custom1=\"val1\""
 
 # s1 = s;;
 - : bool = true
