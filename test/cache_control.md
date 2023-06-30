@@ -103,16 +103,20 @@ val t2 : Cache_control.t = <abstr>
 
 # Cache_control.(find_opt max_age t2);;
 - : int option = Some 604800
-
-# Cache_control.decode "";;
-Exception: Failure "take_while1".
 ```
 
-Decoding correctly takes whitespaces before/after `,'.
+Decoding correctly decodes redundant whitespaces before/after `,'.
 
 ```ocaml
 # Cache_control.decode "max-age=604800,    must-revalidate, no-store,private   , public";;
 - : Cache_control.t = <abstr>
+```
+
+Error when the decode value is empty.
+
+```
+# Cache_control.decode "";;
+Exception: Failure "take_while1".
 ```
 
 ## encode
