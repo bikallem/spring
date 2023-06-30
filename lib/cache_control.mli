@@ -11,11 +11,7 @@ module Directive : sig
   (** [name t] is the name of the cache-directive [t]. *)
 
   val is_bool : 'a t -> bool
-  (** [is_bool t] is [true] if [t] is a bool directive. A bool directive doesn't
-      have a corresponding value associated with it, e.g.
-      [no-cache, private, public] etc.
-
-      [max-age] is not a bool directive as it has a value associated with it. *)
+  (** [is_bool t] is [true] if [t] is a bool directive. *)
 
   type 'a decode = string -> 'a
 
@@ -35,7 +31,10 @@ module Directive : sig
 end
 
 type bool_directive = bool Directive.t
-(** [bool_directive] a bool directive is one which doesn't have a corresponding
+(** [bool_directive] a cache-directive that doesn't have a corresponding value
+    associated with it, e.g. [no-cache, private, public] etc.
+
+    [max-age] is not a bool directive as it has a value associated with it.
     value.
 
     See {!val:Directive.is_bool}. *)
