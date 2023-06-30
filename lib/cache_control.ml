@@ -34,6 +34,8 @@ module Directive = struct
     | Name_val { encode; _ } -> Some encode
 end
 
+type delta_seconds = int
+
 let delta_seconds_directive name =
   let decode s =
     let buf_read = Buf_read.of_string s in

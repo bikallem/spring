@@ -41,17 +41,18 @@ module Directive : sig
       It is [None] if [t] is a bool directive. *)
 end
 
-val max_age : int Directive.t
-(** [max_age] is [max-age] directive. It holds value [d]. [d] is time in
-    seconds.
+type delta_seconds = int
+(** [delta_seconds] is time in seconds. *)
+
+val max_age : delta_seconds Directive.t
+(** [max_age] is [max-age] directive.
 
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
 
-val max_stale : int Directive.t
-(** [max_stale] is [max-stale] directive. It holds value [d] representing time
-    in seconds.
+val max_stale : delta_seconds Directive.t
+(** [max_stale] is [max-stale] directive.
 
     {b Usage} HTTP request.
 
