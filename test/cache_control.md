@@ -91,6 +91,16 @@ val t1 : Cache_control.t = <abstr>
 - : bool = true
 ```
 
+## exists
+
+```ocaml
+# Cache_control.(exists no_cache t1);;
+- : bool = true
+
+# Cache_control.(exists max_age t1);;
+- : bool = false
+```
+
 ## remove
 
 ```ocaml

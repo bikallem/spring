@@ -81,6 +81,12 @@ let find : type a. a Directive.t -> t -> a =
   | Some v -> v
   | None -> coerce_bool_directive d
 
+let exists : type a. a Directive.t -> t -> bool =
+ fun d t ->
+  match find_opt d t with
+  | Some _ -> true
+  | None -> false
+
 let remove : type a. a Directive.t -> t -> t =
  fun d t ->
   let find_name = Directive.name d in

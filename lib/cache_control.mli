@@ -108,6 +108,10 @@ val find : 'a Directive.t -> t -> 'a
     @raise Not_found
       if [d] is not found in [t] and [Directive.is_bool d = false]. *)
 
+val exists : 'a Directive.t -> t -> bool
+(** [exists d t] is like [find]. However, instead of raising [Not_found] it
+    returns a [false]. *)
+
 val remove : 'a Directive.t -> t -> t
 (** [remove d t] removes directive [d] from [t] if [d] exists in [t]. Otherwise
     [t] is unchanged. *)
