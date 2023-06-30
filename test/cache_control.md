@@ -6,6 +6,8 @@ open Spring
 
 ## add/find_opt/find
 
+Test that we can add, find `max_age` and `no-cache` directive.
+
 ```ocaml
 # Cache_control.(find_opt max_age empty);;
 - : int option = None
@@ -40,4 +42,7 @@ val t2 : Cache_control.t = <abstr>
 
 # Cache_control.(find_opt max_age t2);;
 - : int option = Some 604800
+
+# Cache_control.decode "";;
+Exception: Failure "take_while1".
 ```
