@@ -178,3 +178,11 @@ val must_revalidate : Directive.bool'
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-revalidate}
     must-revalidate}. *)
+
+val must_understand : Directive.bool'
+(** [must_understand] is [must-understand] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-understand}
+    must-understand}. *)
