@@ -68,7 +68,7 @@ val find_opt : 'a Directive.t -> t -> 'a option
 (** [find_opt d t] is [Some v] if directive [d] exists in [t]. [v] is value as
     denoted by [d].
 
-    It is [None] if [d] doesn't exis in [t]. *)
+    It is [None] if [d] doesn't exist in [t]. *)
 
 val find : 'a Directive.t -> t -> 'a
 (** [find d t] is [v] if directive [d] exists in [t]. [v] is the value as
