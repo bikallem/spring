@@ -15,19 +15,19 @@ module Directive = struct
     | Bool : name -> bool t
     | Name_val : 'a name_val -> 'a t
 
-  type bool' = bool t
-
-  let make_bool_directive name = Bool name
-
-  let make name decode encode = Name_val { name; decode; encode }
-
   let name : type a. a t -> string = function
     | Bool name -> name
     | Name_val { name; _ } -> name
 
+  type bool' = bool t
+
+  let make_bool_directive name = Bool name
+
   let is_bool : type a. a t -> bool = function
     | Bool _ -> true
     | Name_val _ -> false
+
+  let make name decode encode = Name_val { name; decode; encode }
 
   let decode : type a. a t -> a decode option = function
     | Bool _ -> None

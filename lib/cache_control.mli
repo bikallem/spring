@@ -19,6 +19,9 @@ module Directive : sig
   type name = string
   (** [name] is a directive name. It is case-sensitive. *)
 
+  val name : 'a t -> name
+  (** [name t] is the name of the cache-directive [t]. *)
+
   (** {2:bool_directive Bool} *)
 
   type bool' = bool t
@@ -57,9 +60,6 @@ module Directive : sig
   val make : name -> 'a decode -> 'a encode -> 'a t
   (** [make name decode encode] makes a name value directive with name [name]
       and decoder/encoder funtions [decode]/[encode] respectively. *)
-
-  val name : 'a t -> name
-  (** [name t] is the name of the cache-directive [t]. *)
 
   val decode : 'a t -> 'a decode option
   (** [decode t] is [Some f] if directive [t] is not a bool directive. [f] is
