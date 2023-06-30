@@ -41,8 +41,8 @@ module Directive : sig
   (** {2:name_value_directive Name Value} *)
 
   type 'a decode = string -> 'a
-  (** [decode] is the decoder function for a non-bool directive. It decodes
-      string value [s] into a required typed value.
+  (** [decode] is the decoder function for a name value directive. It decodes
+      string value [s] into a required OCaml typed value.
 
       {b Quoted String Value}
 
@@ -51,6 +51,8 @@ module Directive : sig
       with the surrounding double quotes - ["val1"]. *)
 
   type 'a encode = 'a -> string
+  (** [encode] is the encoder function for a name value directive. It encodes a
+      typed Ocaml value into a string value. *)
 
   val make : name -> 'a decode -> 'a encode -> 'a t
   (** [make name decode encode] makes a name value directive with name [name]
