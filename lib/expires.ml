@@ -1,22 +1,22 @@
 type t =
-  | Expired
+  | Expired of string
   | Date of Date.t
 
-let expired = Expired
+let expired = Expired "0"
 
 let is_expired = function
-  | Expired -> true
+  | Expired _ -> true
   | Date _ -> false
 
 let date = function
-  | Expired -> None
+  | Expired _ -> None
   | Date d -> Some d
 
 let decode v =
   match Date.decode v with
   | d -> Date d
-  | exception _ -> Expired
+  | exception _ -> Expired v
 
 let encode = function
   | Date d -> Date.encode d
-  | Expired -> "-1"
+  | Expired v -> v

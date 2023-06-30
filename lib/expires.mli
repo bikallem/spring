@@ -19,13 +19,13 @@ val is_expired : t -> bool
 (** [is_expired t] is [true] if [t] is an expired value. [false] otherwise. An
     expired value [t] has an invalid HTTP date value. *)
 
-(** {2 HTTP Date Timestamp} *)
+(** {1 HTTP Date Timestamp} *)
 
 val date : t -> Date.t option
 (** [date t] is [Some date] if [t] holds a valid HTTP date time value. It is
     [None] otherwise. *)
 
-(** {2 Codec} *)
+(** {1 Codec} *)
 
 val decode : string -> t
 (** [decode v] decodes string [v] into a valid expires value [t].
