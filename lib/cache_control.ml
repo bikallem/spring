@@ -102,7 +102,7 @@ let decode s =
   let buf_read = Buf_read.of_string s in
   Buf_read.list1 cache_directive buf_read
 
-let write_directive_value buf (name, v) =
+let encode_cache_directive buf (name, v) =
   Buffer.add_string buf name;
   match v with
   | Some v ->
@@ -114,10 +114,10 @@ let encode = function
   | [] -> ""
   | v :: t ->
     let buf = Buffer.create 10 in
-    write_directive_value buf v;
+    encode_cache_directive buf v;
     List.iter
       (fun v ->
         Buffer.add_string buf ", ";
-        write_directive_value buf v)
+        encode_cache_directive buf v)
       t;
     Buffer.contents buf
