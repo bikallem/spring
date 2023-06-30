@@ -193,3 +193,11 @@ val private' : Directive.bool'
     {b Usage} HTTP response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-private} private}. *)
+
+val proxy_revalidate : Directive.bool'
+(** [proxy_revalidate] is [proxy-revalidate] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-proxy-revalidate}
+    proxy-revalidate}. *)
