@@ -7,6 +7,15 @@ module Directive : sig
   type 'a t
   (** [t] is a cache directive, such as [no-cache, max-age=5, private] etc. *)
 
+  type bool' = bool t
+  (** [bool'] is a cache-directive that doesn't have a corresponding value
+      associated with it, e.g. [no-cache, private, public] etc.
+
+      [max-age] is not a bool directive as it has a value associated with it.
+      value.
+
+      See {!val:is_bool}. *)
+
   val name : 'a t -> string
   (** [name t] is the name of the cache-directive [t]. *)
 
@@ -32,22 +41,13 @@ module Directive : sig
       It is [None] if [t] is a bool directive. *)
 end
 
-type bool_directive = bool Directive.t
-(** [bool_directive] a cache-directive that doesn't have a corresponding value
-    associated with it, e.g. [no-cache, private, public] etc.
-
-    [max-age] is not a bool directive as it has a value associated with it.
-    value.
-
-    See {!val:Directive.is_bool}. *)
-
 val max_age : int Directive.t
 (** [max_age] is [max-age] directive. It holds value [d]. [d] is time in
     seconds.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
 
-val no_cache : bool Directive.t
+val no_cache : Directive.bool'
 (** [no_cache] is [no-cache] directive.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)

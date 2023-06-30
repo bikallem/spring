@@ -15,6 +15,8 @@ module Directive = struct
     | Bool : name -> bool t
     | Name_val : 'a name_val -> 'a t
 
+  type bool' = bool t
+
   let name : type a. a t -> string = function
     | Bool name -> name
     | Name_val { name; _ } -> name
@@ -31,8 +33,6 @@ module Directive = struct
     | Bool _ -> None
     | Name_val { encode; _ } -> Some encode
 end
-
-type bool_directive = bool Directive.t
 
 let max_age =
   let decode s =
