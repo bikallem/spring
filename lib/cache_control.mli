@@ -16,17 +16,20 @@ module Directive : sig
 
       See {!val:is_bool}. *)
 
-  val name : 'a t -> string
+  type name = string
+  (** [name] is the directive name. *)
+
+  type 'a decode = string -> 'a
+
+  type 'a encode = 'a -> string
+
+  val name : 'a t -> name
   (** [name t] is the name of the cache-directive [t]. *)
 
   val is_bool : 'a t -> bool
   (** [is_bool t] is [true] if [t] is a bool directive.
 
       See {!type:bool_directive}. *)
-
-  type 'a decode = string -> 'a
-
-  type 'a encode = 'a -> string
 
   val decode : 'a t -> 'a decode option
   (** [decode t] is [Some f] if directive [t] is not a bool directive. [f] is
