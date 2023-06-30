@@ -26,6 +26,10 @@ module Directive : sig
   val make_bool_directive : name -> bool'
   (** [make_bool_directive name] makes a bool directive with name [name]. *)
 
+  val make : name -> 'a decode -> 'a encode -> 'a t
+  (** [make name decode encode] makes a name value directive with name [name]
+      and decoder/encoder funtions [decode]/[encode] respectively. *)
+
   val name : 'a t -> name
   (** [name t] is the name of the cache-directive [t]. *)
 

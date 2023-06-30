@@ -19,6 +19,8 @@ module Directive = struct
 
   let make_bool_directive name = Bool name
 
+  let make name decode encode = Name_val { name; decode; encode }
+
   let name : type a. a t -> string = function
     | Bool name -> name
     | Name_val { name; _ } -> name
@@ -39,12 +41,9 @@ end
 type delta_seconds = int
 
 let delta_seconds_directive name =
-  let decode s =
-    let buf_read = Buf_read.of_string s in
-    Buf_read.delta_seconds buf_read
-  in
+  let decode = int_of_string in
   let encode = string_of_int in
-  Directive.Name_val { Directive.name; decode; encode }
+  Directive.make name decode encode
 
 let max_age = delta_seconds_directive "max-age"
 

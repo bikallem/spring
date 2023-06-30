@@ -23,6 +23,19 @@ val d : Cache_control.Directive.bool' = <abstr>
 - : bool = true
 ```
 
+## make 
+
+```ocaml
+# let d1 = Cache_control.Directive.make "max-age" int_of_string string_of_int;;
+val d1 : int Cache_control.Directive.t = <abstr>
+
+# Cache_control.Directive.name d1;;
+- : string = "max-age"
+
+# Cache_control.Directive.is_bool d1;;
+- : bool = false
+```
+
 ## add/find_opt/find
 
 Add and find `max_age` directive.
