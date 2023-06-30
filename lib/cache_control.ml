@@ -53,7 +53,11 @@ let add : type a. ?v:a -> a Directive.t -> t -> t =
   let v =
     match d with
     | Bool _ -> None
-    | Key_val { encode; _ } -> Some (encode (Option.get v))
+    | Key_val { encode; _ } -> (
+      match v with
+      | Some v -> Some (encode v)
+      | None ->
+        invalid_arg "[v] is [None] but is required for non bool directives")
   in
   (Directive.name d, v) :: t
 

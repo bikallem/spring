@@ -6,7 +6,7 @@ open Spring
 
 ## add/find_opt/find
 
-Test that we can add, find `max_age` and `no-cache` directive.
+Add and find `max_age` directive.
 
 ```ocaml
 # Cache_control.(find_opt max_age empty);;
@@ -17,7 +17,19 @@ val t1 : Cache_control.t = <abstr>
 
 # Cache_control.(find_opt max_age t1);;
 - : int option = Some 5
+```
 
+Adding with `[v = None]` for non bool directive results in `Invalid_arg` exception.
+
+```ocaml
+# Cache_control.(add max_age empty);;
+Exception:
+Invalid_argument "[v] is [None] but is required for non bool directives".
+```
+
+Add and find `no-cache` directive.
+
+```ocaml
 # Cache_control.(find_opt no_cache t1);;
 - : bool option = None
 

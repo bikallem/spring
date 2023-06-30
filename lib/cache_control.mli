@@ -62,7 +62,11 @@ val empty : t
 val add : ?v:'a -> 'a Directive.t -> t -> t
 (** [add ?v d t] adds cache-control directive [d] with value [v] to [t].
 
-    If [Directive.is_bool d = true] then [v] is ignored. *)
+    If [Directive.is_bool d = true] then [v] is ignored.
+
+    @raise Invalid_arg
+      if [Directive.is_bool d = false] and [v = None] since a non bool directive
+      requires a value. *)
 
 val find_opt : 'a Directive.t -> t -> 'a option
 (** [find_opt d t] is [Some v] if directive [d] exists in [t]. [v] is value as
