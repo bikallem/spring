@@ -48,6 +48,8 @@ let max_age = delta_seconds_directive "max-age"
 
 let max_stale = delta_seconds_directive "max-stale"
 
+let min_fresh = delta_seconds_directive "min-fresh"
+
 let no_cache = Directive.Bool "no-cache"
 
 type t = (string * string option) list

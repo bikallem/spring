@@ -58,6 +58,13 @@ val max_stale : delta_seconds Directive.t
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-stale} max-stale} *)
 
+val min_fresh : delta_seconds Directive.t
+(** [min_fresh] is [min-fresh] directive.
+
+    {b Usage} HTTP request.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-min-fresh} min-fresh} *)
+
 val no_cache : Directive.bool'
 (** [no_cache] is [no-cache] directive.
 
