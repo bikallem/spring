@@ -8,6 +8,10 @@ let is_expired = function
   | Expired -> true
   | Date _ -> false
 
+let date = function
+  | Expired -> None
+  | Date d -> Some d
+
 let decode v =
   match Date.decode v with
   | d -> Date d
@@ -16,7 +20,3 @@ let decode v =
 let encode = function
   | Date d -> Date.encode d
   | Expired -> "-1"
-
-let date = function
-  | Expired -> None
-  | Date d -> Some d
