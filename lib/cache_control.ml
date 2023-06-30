@@ -13,23 +13,23 @@ module Directive = struct
 
   type 'a t =
     | Bool : name -> bool t
-    | Key_val : 'a key_val -> 'a t
+    | Name_val : 'a key_val -> 'a t
 
   let name : type a. a t -> string = function
     | Bool name -> name
-    | Key_val { name; _ } -> name
+    | Name_val { name; _ } -> name
 
   let is_bool : type a. a t -> bool = function
     | Bool _ -> true
-    | Key_val _ -> false
+    | Name_val _ -> false
 
   let decode : type a. a t -> a decode option = function
     | Bool _ -> None
-    | Key_val { decode; _ } -> Some decode
+    | Name_val { decode; _ } -> Some decode
 
   let encode : type a. a t -> a encode option = function
     | Bool _ -> None
-    | Key_val { encode; _ } -> Some encode
+    | Name_val { encode; _ } -> Some encode
 end
 
 type bool_directive = bool Directive.t
@@ -40,7 +40,7 @@ let max_age =
     Buf_read.delta_seconds buf_read
   in
   let encode = string_of_int in
-  Directive.Key_val { Directive.name = "max-age"; decode; encode }
+  Directive.Name_val { Directive.name = "max-age"; decode; encode }
 
 let no_cache = Directive.Bool "no-cache"
 
@@ -53,7 +53,7 @@ let add : type a. ?v:a -> a Directive.t -> t -> t =
   let v =
     match d with
     | Bool _ -> None
-    | Key_val { encode; _ } -> (
+    | Name_val { encode; _ } -> (
       match v with
       | Some v -> Some (encode v)
       | None ->
@@ -65,7 +65,7 @@ let decode_value : type a. a Directive.t -> string option -> a option =
  fun d v ->
   match d with
   | Directive.Bool _ -> Some true
-  | Key_val { decode; _ } -> Option.map decode v
+  | Name_val { decode; _ } -> Option.map decode v
 
 let find_opt : type a. a Directive.t -> t -> a option =
  fun d t ->
