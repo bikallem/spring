@@ -74,44 +74,6 @@ module Directive : sig
       It is [None] if [t] is a bool directive. *)
 end
 
-type delta_seconds = int
-(** [delta_seconds] is time in seconds. *)
-
-val max_age : delta_seconds Directive.t
-(** [max_age] is [max-age] directive.
-
-    {b Usage} HTTP request and response.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
-
-val max_stale : delta_seconds Directive.t
-(** [max_stale] is [max-stale] directive.
-
-    {b Usage} HTTP request.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-stale} max-stale} *)
-
-val min_fresh : delta_seconds Directive.t
-(** [min_fresh] is [min-fresh] directive.
-
-    {b Usage} HTTP request.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-min-fresh} min-fresh} *)
-
-val no_cache : Directive.bool'
-(** [no_cache] is [no-cache] directive.
-
-    {b Usage} HTTP request and response.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
-
-val no_store : Directive.bool'
-(** [no_store] is [no-store] directive.
-
-    {b Usage} HTTP request and response.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
-
 (** {1 Cache-Control} *)
 
 type t
@@ -153,3 +115,43 @@ val decode : string -> t
 
 val encode : t -> string
 (** [encode t] is the string representation of [t]. *)
+
+(** {1 Standard Directives} *)
+
+type delta_seconds = int
+(** [delta_seconds] is time in seconds. *)
+
+val max_age : delta_seconds Directive.t
+(** [max_age] is [max-age] directive.
+
+    {b Usage} HTTP request and response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-age} max-age} *)
+
+val max_stale : delta_seconds Directive.t
+(** [max_stale] is [max-stale] directive.
+
+    {b Usage} HTTP request.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-max-stale} max-stale} *)
+
+val min_fresh : delta_seconds Directive.t
+(** [min_fresh] is [min-fresh] directive.
+
+    {b Usage} HTTP request.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-min-fresh} min-fresh} *)
+
+val no_cache : Directive.bool'
+(** [no_cache] is [no-cache] directive.
+
+    {b Usage} HTTP request and response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
+
+val no_store : Directive.bool'
+(** [no_store] is [no-store] directive.
+
+    {b Usage} HTTP request and response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)

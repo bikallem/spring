@@ -38,23 +38,6 @@ module Directive = struct
     | Name_val { encode; _ } -> Some encode
 end
 
-type delta_seconds = int
-
-let delta_seconds_directive name =
-  let decode = int_of_string in
-  let encode = string_of_int in
-  Directive.make name decode encode
-
-let max_age = delta_seconds_directive "max-age"
-
-let max_stale = delta_seconds_directive "max-stale"
-
-let min_fresh = delta_seconds_directive "min-fresh"
-
-let no_cache = Directive.make_bool_directive "no-cache"
-
-let no_store = Directive.make_bool_directive "no-store"
-
 type t = (string * string option) list
 
 let empty = []
@@ -138,3 +121,21 @@ let encode = function
         encode_cache_directive buf v)
       t;
     Buffer.contents buf
+
+(* +-- Standard Directives --+ *)
+type delta_seconds = int
+
+let delta_seconds_directive name =
+  let decode = int_of_string in
+  let encode = string_of_int in
+  Directive.make name decode encode
+
+let max_age = delta_seconds_directive "max-age"
+
+let max_stale = delta_seconds_directive "max-stale"
+
+let min_fresh = delta_seconds_directive "min-fresh"
+
+let no_cache = Directive.make_bool_directive "no-cache"
+
+let no_store = Directive.make_bool_directive "no-store"
