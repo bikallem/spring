@@ -2,6 +2,8 @@ type t =
   | Expired of string
   | Date of Date.t
 
+let of_date d = Date d
+
 let expired = Expired "0"
 
 let is_expired = function

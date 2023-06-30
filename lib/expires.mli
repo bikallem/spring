@@ -9,6 +9,9 @@ type t
     See {{!https://www.rfc-editor.org/rfc/rfc9110#field.date} HTTP Date
     timestamp}. *)
 
+val of_date : Date.t -> t
+(** [of_date d] creates [Expires] header value from HTTP Date timestamp [d]. *)
+
 val expired : t
 (** [expired] is an expired value.
 
