@@ -162,3 +162,11 @@ val no_transform : Directive.bool'
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
+
+val only_if_cached : Directive.bool'
+(** [only_if_cached] is [only-if-cached] directive.
+
+    {b Usage} HTTP request.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-only-if-cached}
+    only-if-cached}. *)

@@ -141,3 +141,5 @@ let no_cache = Directive.make_bool_directive "no-cache"
 let no_store = Directive.make_bool_directive "no-store"
 
 let no_transform = Directive.make_bool_directive "no-transform"
+
+let only_if_cached = Directive.make_bool_directive "only-if-cached"
