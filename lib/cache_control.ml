@@ -17,6 +17,8 @@ module Directive = struct
 
   type bool' = bool t
 
+  let make_bool_directive name = Bool name
+
   let name : type a. a t -> string = function
     | Bool name -> name
     | Name_val { name; _ } -> name
@@ -50,7 +52,7 @@ let max_stale = delta_seconds_directive "max-stale"
 
 let min_fresh = delta_seconds_directive "min-fresh"
 
-let no_cache = Directive.Bool "no-cache"
+let no_cache = Directive.make_bool_directive "no-cache"
 
 type t = (string * string option) list
 

@@ -23,6 +23,9 @@ module Directive : sig
 
   type 'a encode = 'a -> string
 
+  val make_bool_directive : name -> bool'
+  (** [make_bool_directive name] makes a bool directive with name [name]. *)
+
   val name : 'a t -> name
   (** [name t] is the name of the cache-directive [t]. *)
 

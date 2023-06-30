@@ -4,6 +4,25 @@
 open Spring
 ```
 
+## make_bool_directive
+
+```ocaml
+# let d = Cache_control.Directive.make_bool_directive "no-cache";;
+val d : Cache_control.Directive.bool' = <abstr>
+
+# Cache_control.Directive.name d;;
+- : string = "no-cache"
+
+# Cache_control.Directive.decode d;;
+- : bool Cache_control.Directive.decode option = None
+
+# Cache_control.Directive.encode d;;
+- : bool Cache_control.Directive.encode option = None
+
+# Cache_control.Directive.is_bool d;;
+- : bool = true
+```
+
 ## add/find_opt/find
 
 Add and find `max_age` directive.
