@@ -5,7 +5,7 @@ module Directive = struct
 
   type name = string
 
-  type 'a key_val =
+  type 'a name_val =
     { name : name
     ; decode : 'a decode
     ; encode : 'a encode
@@ -13,7 +13,7 @@ module Directive = struct
 
   type 'a t =
     | Bool : name -> bool t
-    | Name_val : 'a key_val -> 'a t
+    | Name_val : 'a name_val -> 'a t
 
   let name : type a. a t -> string = function
     | Bool name -> name
