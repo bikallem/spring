@@ -186,3 +186,10 @@ val must_understand : Directive.bool'
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-understand}
     must-understand}. *)
+
+val private' : Directive.bool'
+(** [private'] is [private] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-private} private}. *)

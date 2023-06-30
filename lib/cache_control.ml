@@ -147,3 +147,5 @@ let only_if_cached = Directive.make_bool_directive "only-if-cached"
 let must_revalidate = Directive.make_bool_directive "must-revalidate"
 
 let must_understand = Directive.make_bool_directive "must-understand"
+
+let private' = Directive.make_bool_directive "private"
