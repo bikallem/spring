@@ -1,7 +1,7 @@
 (** HTTP Cache-Control header as specified in
     https://www.rfc-editor.org/rfc/rfc9111#name-cache-control *)
 
-(** {1:directive Directives} *)
+(** {1:directives Directives} *)
 
 (** [Directive] controls various caching functionality in HTTP client or server,
     e.g. [Cache-Control : no-cache, max-age=5, private, custom="val1"].
