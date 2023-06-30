@@ -208,3 +208,10 @@ val public : Directive.bool'
     {b Usage} HTTP response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-public} public}. *)
+
+val s_maxage : delta_seconds Directive.t
+(** [s_maxage] is [s-maxage] directive.
+
+    {b Usage} HTTP response.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9111#name-s-maxage} s-maxage}. *)

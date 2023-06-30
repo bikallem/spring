@@ -153,3 +153,5 @@ let private' = Directive.make_bool_directive "private"
 let proxy_revalidate = Directive.make_bool_directive "must-revalidate"
 
 let public = Directive.make_bool_directive "public"
+
+let s_maxage = delta_seconds_directive "s-maxage"
