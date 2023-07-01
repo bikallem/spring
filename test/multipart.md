@@ -4,7 +4,7 @@
 open Spring
 
 let body content_type_hdr txt = 
-  let headers = Header.of_list ["content-type", content_type_hdr] in
+  let headers = Headers.of_list ["content-type", content_type_hdr] in
   let buf_read = Eio.Buf_read.of_string txt in
   Body.make_readable headers buf_read 
 ;;
@@ -41,7 +41,7 @@ val p : Multipart.stream Multipart.part = <abstr>
 # Multipart.form_name p ;;
 - : string = "submit-name"
 
-# Multipart.headers p |> (Eio.traceln "%a" Header.pp) ;;
+# Multipart.headers p |> (Eio.traceln "%a" Headers.pp) ;;
 +{
 +  Content-Disposition:  form-data; name="submit-name"
 +}
@@ -93,7 +93,7 @@ val form_field1 : Multipart.file_field = <abstr>
 # Multipart.file_content form_field1;;
 - : string = "... contents of file1.txt ..."
 
-# Eio.traceln "%a" Header.pp @@ Multipart.headers form_field1;;
+# Eio.traceln "%a" Headers.pp @@ Multipart.headers form_field1;;
 +{
 +  Content-Disposition:  form-data; name="files"; filename="file1.txt";
 +  Content-Type:  text/plain

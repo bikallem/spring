@@ -9,7 +9,7 @@ val version : _ t -> Version.t
 
 val status : _ t -> Status.t
 
-val headers : _ t -> Header.t
+val headers : _ t -> Headers.t
 
 val find_set_cookie : string -> _ t -> Set_cookie.t option
 (** [find_set_cookie name t] is [Some v] if HTTP [Set-Cookie] header with name
@@ -26,7 +26,7 @@ type client
 val make_client_response :
      ?version:Version.t
   -> ?status:Status.t
-  -> ?headers:Header.t
+  -> ?headers:Headers.t
   -> Eio.Buf_read.t
   -> client t
 
@@ -64,7 +64,7 @@ type server
 val make_server_response :
      ?version:Version.t
   -> ?status:Status.t
-  -> ?headers:Header.t
+  -> ?headers:Headers.t
   -> Body.writable
   -> server t
 

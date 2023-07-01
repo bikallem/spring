@@ -14,7 +14,7 @@ val resource : _ t -> resource
 
 val version : _ t -> Version.t
 
-val headers : _ t -> Header.t
+val headers : _ t -> Headers.t
 
 val supports_chunked_trailers : _ t -> bool
 (** [supports_chunked_trailers t] is [true] if request [t] has header "TE:
@@ -42,7 +42,7 @@ type client
 
 val make_client_request :
      ?version:Version.t
-  -> ?headers:Header.t
+  -> ?headers:Headers.t
   -> ?port:int
   -> host:string
   -> resource:resource
@@ -54,7 +54,7 @@ val make_client_request :
     [t]. [meth] is the HTTP request method. [body] is the request body.
 
     @param version HTTP version of [t]. Default is [1.1].
-    @param headers HTTP request headers of [t]. Default is [Header.empty] .
+    @param headers HTTP request headers of [t]. Default is [Headers.empty] .
     @param port the [host] port. Default is [None]. *)
 
 val host : client t -> string
@@ -85,7 +85,7 @@ type server
 
 val make_server_request :
      ?version:Version.t
-  -> ?headers:Header.t
+  -> ?headers:Headers.t
   -> ?session_data:Session.session_data
   -> resource:resource
   -> Method.t
@@ -95,7 +95,7 @@ val make_server_request :
 (** [make_server_request meth client_addr buf_read] is HTTP request [t].
 
     @param version HTTP version of [t]. Default is [1.1].
-    @param headers HTTP request headers of [t]. Default is [Header.empty] .
+    @param headers HTTP request headers of [t]. Default is [Headers.empty] .
     @param session_data is the Session data for the request. Default is [None]. *)
 
 val client_addr : server t -> Eio.Net.Sockaddr.stream

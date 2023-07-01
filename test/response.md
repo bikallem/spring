@@ -29,7 +29,7 @@ let make_buf_read () =
 # let res = Response.parse_client_response @@ make_buf_read () ;;
 val res : Response.client Response.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Response.headers res ;;
+# Eio.traceln "%a" Headers.pp @@ Response.headers res ;;
 +{
 +  Content-Length:  13;
 +  Date:  Wed, 08 Feb 2023 16:18:17 GMT;
@@ -129,7 +129,7 @@ val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
 
 # let write_trailer f =
     let trailer_headers =
-        Header.of_list
+        Headers.of_list
         [
           ("Expires", "Wed, 21 Oct 2015 07:28:00 GMT");
           ("Header1", "Header1 value text");
@@ -137,7 +137,7 @@ val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
         ]
     in
     f trailer_headers;;
-val write_trailer : (Header.t -> 'a) -> 'a = <fun>
+val write_trailer : (Headers.t -> 'a) -> 'a = <fun>
 ```
 
 Writes chunked response trailer headers.

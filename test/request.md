@@ -38,7 +38,7 @@ val r : Request.server Request.t = <abstr>
 # Request.keep_alive r ;;
 - : bool = true
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  TE;
@@ -54,7 +54,7 @@ val r : Request.server Request.t = <abstr>
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "keep-alive, TE";;
 val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  keep-alive, TE;
@@ -73,7 +73,7 @@ val r : Request.server Request.t = <abstr>
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "close, TE";;
 val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  close, TE;
@@ -91,7 +91,7 @@ val r : Request.server Request.t = <abstr>
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "TE" ;;
 val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  TE;
@@ -110,7 +110,7 @@ val r : Request.server Request.t = <abstr>
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "close, TE" ;;
 val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  close, TE;
@@ -128,7 +128,7 @@ val r : Request.server Request.t = <abstr>
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "keep-alive, TE" ;;
 val r : Request.server Request.t = <abstr>
 
-# Eio.traceln "%a" Header.pp @@ Request.headers r;;
+# Eio.traceln "%a" Headers.pp @@ Request.headers r;;
 +{
 +  Host:  www.example.com;
 +  Connection:  keep-alive, TE;
@@ -180,8 +180,8 @@ let parse_method m =
 Pretty-print `client Request.t`.
 
 ```ocaml
-# let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
-val headers : Header.t = <abstr>
+# let headers = Headers.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
+val headers : Headers.t = <abstr>
 # let req = 
     Request.make_client_request
       ~version:Version.http1_1 
@@ -211,8 +211,8 @@ val req : Request.client Request.t = <abstr>
 Pretty-print `Request.server`.
 
 ```ocaml
-# let headers = Header.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
-val headers : Header.t = <abstr>
+# let headers = Headers.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
+val headers : Headers.t = <abstr>
 # let req = 
     Request.make_server_request
       ~version:Version.http1_1 
@@ -242,8 +242,8 @@ val req : Request.server Request.t = <abstr>
 ## Request.find_cookie
 
 ```ocaml
-# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
-val headers : Header.t = <abstr>
+# let headers = Headers.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
+val headers : Headers.t = <abstr>
 
 # let req = 
     Request.make_server_request
@@ -292,8 +292,8 @@ val req : Request.client Request.t = <abstr>
 ## Request.remove_cookie
 
 ```ocaml
-# let headers = Header.of_list ["Cookie", "SID=31d4d96e407aad42;lang=en"] ;;
-val headers : Header.t = <abstr>
+# let headers = Headers.of_list ["Cookie", "SID=31d4d96e407aad42;lang=en"] ;;
+val headers : Headers.t = <abstr>
 
 # let req = 
     Request.make_client_request

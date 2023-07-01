@@ -16,8 +16,8 @@ let writable_content content_type content =
   { write_body = (fun w -> Eio.Buf_write.string w content)
   ; write_headers =
       (fun w ->
-        Header.write_header w Header.content_length content_length;
-        Header.write_header w Header.content_type content_type)
+        Headers.write_header w Headers.content_length content_length;
+        Headers.write_header w Headers.content_type content_type)
   }
 
 let writable_form_values assoc_list =
@@ -28,7 +28,7 @@ let writable_form_values assoc_list =
   writable_content content_type content
 
 type readable =
-  { headers : Header.t
+  { headers : Headers.t
   ; buf_read : Eio.Buf_read.t
   }
 
@@ -41,14 +41,14 @@ let buf_read r = r.buf_read
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : readable) =
-  match Header.(find_opt t.headers content_length) with
+  match Headers.(find_opt t.headers content_length) with
   | Some len -> ( try Some (Buf_read.take len t.buf_read) with _ -> None)
   | None -> None
 
 let read_form_values (t : readable) =
   match
     let* content = read_content t in
-    let* content_type = Header.(find_opt t.headers content_type) in
+    let* content_type = Headers.(find_opt t.headers content_type) in
     match (Content_type.media_type content_type :> string * string) with
     | "application", "x-www-form-urlencoded" ->
       Some (Uri.query_of_encoded content)

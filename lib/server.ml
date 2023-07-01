@@ -21,7 +21,7 @@ type pipeline = handler -> handler
 let host_header : pipeline =
  fun (next : handler) req ->
   let headers = Request.headers req in
-  let hosts = Header.(find_all headers host) in
+  let hosts = Headers.(find_all headers host) in
   let len = List.length hosts in
   if len = 0 || len > 1 then Response.bad_request
   else
@@ -37,7 +37,7 @@ let response_date : #Eio.Time.clock -> pipeline =
  fun clock next req ->
   let res = next req in
   let headers = Response.headers res in
-  match Header.(find_opt headers date) with
+  match Headers.(find_opt headers date) with
   | Some _ -> res
   | None -> (
     match Response.status res with
@@ -45,7 +45,7 @@ let response_date : #Eio.Time.clock -> pipeline =
       res
     | _ ->
       let now = Date.now clock in
-      let headers = Header.(add_unless_exists headers date now) in
+      let headers = Headers.(add_unless_exists headers date now) in
       let version = Response.version res in
       let status = Response.status res in
       let body = Response.body res in

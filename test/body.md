@@ -47,7 +47,7 @@ val content_type : Content_type.t = <abstr>
 let test_reader body headers f =
   Eio_main.run @@ fun env ->
     let buf_read = Eio.Buf_read.of_string body in
-    let headers = Header.of_list headers in
+    let headers = Headers.of_list headers in
     let r = Body.make_readable headers buf_read in
     f r;;
 ```

@@ -37,14 +37,15 @@ type write_chunk = (t -> unit) -> unit
         f (Last_chunk {extensions = []);
     ]} *)
 
-type write_trailer = (Header.t -> unit) -> unit
+type write_trailer = (Headers.t -> unit) -> unit
 (** [write_trailer f] specifies HTTP chunked trailer headers to be written by a
     {!type:Body.writer}. We specify the trailer headers by applying [f headers].
 
     {[
       let write_trailer f =
         let headers =
-          Http.Header.init_with [ ("Expires", "Wed, 21 Oct 2015 07:28:00 GMT") ]
+          Http.Headers.init_with
+            [ ("Expires", "Wed, 21 Oct 2015 07:28:00 GMT") ]
         in
         f headers
     ]} *)
@@ -65,7 +66,7 @@ val writable :
 
 (** {1:reader Reader} *)
 
-val read_chunked : (t -> unit) -> Body.readable -> Header.t option
+val read_chunked : (t -> unit) -> Body.readable -> Headers.t option
 (** [read_chunked f readable] is [Some updated_headers] if "Transfer-Encoding"
     header value is "chunked" in [request]. Each chunk is applied as [f chunk].
     [updated_headers] is the updated headers as specified by the chunked

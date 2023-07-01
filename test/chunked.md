@@ -35,7 +35,7 @@ Writes both chunked body and trailer since `ua_supports_trailer:true`.
 val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
 # let write_trailer f =
     let trailer_headers =
-      Header.of_list
+      Headers.of_list
         [
           ("Expires", "Wed, 21 Oct 2015 07:28:00 GMT");
           ("Header1", "Header1 value text");
@@ -43,7 +43,7 @@ val write_chunk : (Chunked.t -> 'a) -> 'a = <fun>
         ]
     in
     f trailer_headers;;
-val write_trailer : (Header.t -> 'a) -> 'a = <fun>
+val write_trailer : (Headers.t -> 'a) -> 'a = <fun>
 
 # test_writer (Chunked.writable ~ua_supports_trailer:true write_chunk write_trailer) ;;
 +Resuming ...
@@ -89,7 +89,7 @@ Writes only chunked body and not the trailers since `ua_supports_trailer:false`.
 let test_reader body headers f =
   Eio_main.run @@ fun env ->
     let buf_read = Eio.Buf_read.of_string body in
-    let headers = Header.of_list headers in
+    let headers = Headers.of_list headers in
     let r = Body.make_readable headers buf_read in
     f r
 
@@ -122,9 +122,9 @@ header list.
 +]
 +
 +[size = 0 ]
-val headers : Header.t option = Some <abstr>
+val headers : Headers.t option = Some <abstr>
 
-# Header.pp Format.std_formatter (Option.get headers) ;;
+# Headers.pp Format.std_formatter (Option.get headers) ;;
 {
   Content-Length:  23;
   Header1:  Header1 value text
@@ -154,9 +154,9 @@ Returns `Header2` since it is specified in the request `Trailer` header.
 +]
 +
 +[size = 0 ]
-val headers : Header.t option = Some <abstr>
+val headers : Headers.t option = Some <abstr>
 
-# Eio.traceln "%a" Header.pp (Option.get headers) ;;
+# Eio.traceln "%a" Headers.pp (Option.get headers) ;;
 +{
 +  Content-Length:  23;
 +  Header2:  Header2 value text;
@@ -173,7 +173,7 @@ Nothing is read if `Transfer-Encoding: chunked` header is missing.
       body
       ["Trailer", "Expires, Header1, Header2"; "Transfer-Encoding", "gzip"]
       (Chunked.read_chunked f);;
-val headers : Header.t option = None
+val headers : Headers.t option = None
 
 # headers = None;;
 - : bool = true
@@ -205,7 +205,7 @@ let body = "7;ext1=ext1_v;ext2=ext2_v;ext3\r\nMozilla\r\n9\r\nDeveloper\r\n7\r\n
 +]
 +
 +[size = 0 ]
-val headers : Header.t option = Some <abstr>
+val headers : Headers.t option = Some <abstr>
 
 # headers = None;;
 - : bool = false

@@ -1,7 +1,7 @@
 type 'a t =
   { version : Version.t
   ; status : Status.t
-  ; headers : Header.t
+  ; headers : Headers.t
   ; x : 'a
   }
 
@@ -12,7 +12,7 @@ let status t = t.status
 let headers t = t.headers
 
 let find_set_cookie_ name headers =
-  Header.(find_all headers set_cookie)
+  Headers.(find_all headers set_cookie)
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
 
 let field lbl v =
@@ -28,7 +28,7 @@ let pp_ version status headers fmt =
     ; field "Status" (Status.to_string status)
     ; Label
         ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Header.easy_fmt headers )
+        , Headers.easy_fmt headers )
     ]
   in
   let list_p =
@@ -52,7 +52,7 @@ type client =
 let make_client_response
     ?(version = Version.http1_1)
     ?(status = Status.ok)
-    ?(headers = Header.empty)
+    ?(headers = Headers.empty)
     buf_read =
   let client = { buf_read; closed = false } in
   { version; status; headers; x = client }
@@ -77,7 +77,7 @@ let p_status =
 let parse_client_response buf_read =
   let version = (Version.p <* Buf_read.space) buf_read in
   let status = Buf_read.(p_status <* crlf) buf_read in
-  let headers = Header.parse buf_read in
+  let headers = Headers.parse buf_read in
   let client = { buf_read; closed = false } in
   { version; headers; status; x = client }
 
@@ -98,14 +98,14 @@ type server = Body.writable
 let make_server_response
     ?(version = Version.http1_1)
     ?(status = Status.ok)
-    ?(headers = Header.empty)
+    ?(headers = Headers.empty)
     body =
   { version; status; headers; x = body }
 
 let body t = t.x
 
 let add_set_cookie v t =
-  let headers = Header.(add t.headers set_cookie v) in
+  let headers = Headers.(add t.headers set_cookie v) in
   { t with headers }
 
 let remove_set_cookie name t =
@@ -113,16 +113,16 @@ let remove_set_cookie name t =
     | [] -> []
     | ((hdr_name, v) as x) :: tl ->
       let nm =
-        Header.(Definition.name set_cookie |> Definition.lname_of_name)
+        Headers.(Definition.name set_cookie |> Definition.lname_of_name)
       in
       if
-        Header.Definition.lname_equal hdr_name nm
+        Headers.Definition.lname_equal hdr_name nm
         && (String.equal name @@ Set_cookie.(decode v |> name))
       then tl
       else x :: aux tl
   in
-  let headers = aux (Header.to_list t.headers) in
-  let headers = Header.of_list (headers :> (string * string) list) in
+  let headers = aux (Headers.to_list t.headers) in
+  let headers = Headers.of_list (headers :> (string * string) list) in
   { t with headers }
 
 let text content =
@@ -150,7 +150,7 @@ let chunked_response ~ua_supports_trailer write_chunk write_trailer =
   |> make_server_response
 
 let none_body_response status =
-  let headers = Header.singleton ~name:"Content-Length" ~value:"0" in
+  let headers = Headers.singleton ~name:"Content-Length" ~value:"0" in
   make_server_response ~headers ~status Body.none
 
 let not_found = none_body_response Status.not_found
@@ -167,6 +167,6 @@ let write_server_response w (t : server t) =
   Eio.Buf_write.string w status;
   Eio.Buf_write.string w "\r\n";
   Body.write_headers w t.x;
-  Header.write w t.headers;
+  Headers.write w t.headers;
   Eio.Buf_write.string w "\r\n";
   Body.write_body w t.x

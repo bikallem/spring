@@ -15,7 +15,7 @@ open Option.Syntax
 let stream body =
   let boundary =
     match
-      let* ct = Header.(find_opt (Body.headers body) content_type) in
+      let* ct = Headers.(find_opt (Body.headers body) content_type) in
       Content_type.find_param ct "boundary"
     with
     | Some v -> v
@@ -41,7 +41,7 @@ type 'a part =
   { t : 'a
   ; form_name : string
   ; filename : string option
-  ; headers : Header.t
+  ; headers : Headers.t
   ; mutable body_eof : bool (* true if body read is complete. *)
   }
 
@@ -124,8 +124,8 @@ let next_part s =
   if not (is_boundary_delimiter s.dash_boundary ln) then
     failwith @@ "mulitpart: expecting a new part; got line \"" ^ ln ^ "\""
   else
-    let headers = Header.parse s.r in
-    match Header.(find_opt headers content_disposition) with
+    let headers = Headers.parse s.r in
+    match Headers.(find_opt headers content_disposition) with
     | Some d ->
       if String.equal "form-data" (Content_disposition.disposition d) then
         let filename = Content_disposition.find_param d "filename" in
@@ -193,11 +193,11 @@ let writable_value_part ~form_name ~value =
   { t = Eio.Flow.string_source value
   ; form_name
   ; filename = None
-  ; headers = Header.empty
+  ; headers = Headers.empty
   ; body_eof = true
   }
 
-let writable_file_part ?(headers = Header.empty) ~filename ~form_name body =
+let writable_file_part ?(headers = Headers.empty) ~filename ~form_name body =
   let filename = Some filename in
   { t = (body :> Eio.Flow.source)
   ; form_name
@@ -214,12 +214,12 @@ let write_part bw boundary part =
   in
   let headers =
     let cd = Content_disposition.make ~params "form-data" in
-    Header.(add part.headers content_disposition cd)
+    Headers.(add part.headers content_disposition cd)
   in
   Eio.Buf_write.string bw "--";
   Eio.Buf_write.string bw boundary;
   Eio.Buf_write.string bw "\r\n";
-  Header.write bw headers;
+  Headers.write bw headers;
   Eio.Buf_write.string bw "\r\n";
   Eio.Buf_read.of_flow ~max_size:max_int part.t
   |> Eio.Buf_read.take_all

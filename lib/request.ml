@@ -4,7 +4,7 @@ type 'a t =
   { meth : Method.t
   ; resource : resource
   ; version : Version.t
-  ; headers : Header.t
+  ; headers : Headers.t
   ; x : 'a
   ; pp : Format.formatter -> 'a t -> unit
   }
@@ -18,14 +18,14 @@ let version t = t.version
 let headers t = t.headers
 
 let supports_chunked_trailers t =
-  match Header.(find_opt t.headers te) with
+  match Headers.(find_opt t.headers te) with
   | Some te' -> Te.(exists te' trailers)
   | None -> false
 
 let keep_alive t =
   let close =
     let open Option.Syntax in
-    let* connection = Header.(find_opt t.headers connection) in
+    let* connection = Headers.(find_opt t.headers connection) in
     let conn_vals = String.cuts ~sep:"," connection in
     if List.exists (String.equal "close") conn_vals then Some true
     else if List.exists (String.equal "keep-alive") conn_vals then Some false
@@ -39,7 +39,7 @@ let keep_alive t =
 
 let find_cookie name t =
   let open Option.Syntax in
-  let* cookie = Header.(find_opt t.headers cookie) in
+  let* cookie = Headers.(find_opt t.headers cookie) in
   Cookie.find_opt name cookie
 
 let field lbl v =
@@ -56,7 +56,7 @@ let fields version meth resource headers (f : unit -> Easy_format.t list) =
     ; field "URI" resource
     ; Label
         ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Header.easy_fmt headers )
+        , Headers.easy_fmt headers )
     ]
   in
   l @ f ()
@@ -85,7 +85,7 @@ let host_port_to_string (host, port) =
 
 let make_client_request
     ?(version = Version.http1_1)
-    ?(headers = Header.empty)
+    ?(headers = Headers.empty)
     ?port
     ~host
     ~resource
@@ -112,29 +112,29 @@ let port t = t.x.port
 
 let add_cookie ~name ~value t =
   let cookie_hdr =
-    match Header.(find_opt t.headers cookie) with
+    match Headers.(find_opt t.headers cookie) with
     | Some cookie_hdr -> cookie_hdr
     | None -> Cookie.empty
   in
   let cookie_hdr = Cookie.add ~name ~value cookie_hdr in
-  let headers = Header.(replace t.headers cookie cookie_hdr) in
+  let headers = Headers.(replace t.headers cookie cookie_hdr) in
   { t with headers }
 
 let remove_cookie cookie_name t =
   let cookie' =
-    match Header.(find_opt t.headers cookie) with
+    match Headers.(find_opt t.headers cookie) with
     | Some cookie' -> cookie'
     | None -> Cookie.empty
   in
   let cookie' = Cookie.remove ~name:cookie_name cookie' in
-  let headers = Header.(replace t.headers cookie cookie') in
+  let headers = Headers.(replace t.headers cookie cookie') in
   { t with headers }
 
 let write_client_request t w =
-  let headers = Header.(add_unless_exists t.headers user_agent "cohttp-eio") in
+  let headers = Headers.(add_unless_exists t.headers user_agent "cohttp-eio") in
   let te' = Te.(singleton trailers) in
-  let headers = Header.(add headers te te') in
-  let headers = Header.(add headers connection "TE") in
+  let headers = Headers.(add headers te te') in
+  let headers = Headers.(add headers connection "TE") in
   let meth = (Method.to_string t.meth :> string) in
   let version = Version.to_string t.version in
   Eio.Buf_write.string w meth;
@@ -145,9 +145,9 @@ let write_client_request t w =
   Eio.Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
   let host' = host_port_to_string (t.x.host, t.x.port) in
-  Header.(write_header w host host');
+  Headers.(write_header w host host');
   Body.write_headers w t.x.body;
-  Header.write w headers;
+  Headers.write w headers;
   Eio.Buf_write.string w "\r\n";
   Body.write_body w t.x.body
 
@@ -159,7 +159,7 @@ type server =
 
 let make_server_request
     ?(version = Version.http1_1)
-    ?(headers = Header.empty)
+    ?(headers = Headers.empty)
     ?session_data
     ~resource
     meth
@@ -218,11 +218,11 @@ let parse_server_request ?session client_addr (buf_read : Buf_read.t) =
   in
   let resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space) buf_read in
   let version = (Version.p <* Buf_read.crlf) buf_read in
-  let headers = Header.parse buf_read in
+  let headers = Headers.parse buf_read in
   let session_data =
     let open Option.Syntax in
     let* session = session in
-    let* cookie = Header.(find_opt headers cookie) in
+    let* cookie = Headers.(find_opt headers cookie) in
     let cookie_name = Session.cookie_name session in
     let+ session_data = Cookie.find_opt cookie_name cookie in
     Session.decode session_data session

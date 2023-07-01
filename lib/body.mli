@@ -56,12 +56,12 @@ type readable
 
     See {!val:Request.readable} and {!val:Response.readable}. *)
 
-val make_readable : Header.t -> Eio.Buf_read.t -> readable
+val make_readable : Headers.t -> Eio.Buf_read.t -> readable
 (** [make_readable headers buf_read] makes a readable body from [headers] and
     [buf_read]. *)
 
-val headers : readable -> Header.t
-(** [headers r] is HTTP headers {!type:Header.t} associated with readable body
+val headers : readable -> Headers.t
+(** [headers r] is HTTP headers {!type:Headers.t} associated with readable body
     [r]. *)
 
 val buf_read : readable -> Eio.Buf_read.t

@@ -41,7 +41,7 @@ let handler req =
       let body = 
         Client.get client "localhost:8081" (fun res ->
           Eio.traceln "Route: /";
-          Eio.traceln "%a" Header.pp (Response.headers res);
+          Eio.traceln "%a" Headers.pp (Response.headers res);
           let body = Response.readable res in
           Eio.traceln "%s" (Body.read_content body |> Option.get);
           Eio.traceln "";
@@ -53,7 +53,7 @@ let handler req =
           body)
       in
       Client.post client body "localhost:8081/upload" (fun res ->
-        Eio.traceln "%a" Header.pp (Response.headers res);
+        Eio.traceln "%a" Headers.pp (Response.headers res);
         let body = Response.readable res in
         Eio.traceln "%s" (Body.read_content body |> Option.get));
       Server.shutdown server
@@ -353,8 +353,8 @@ val session : Session.codec = <abstr>
 # let session_cookie = make_session_cookie session key ;;
 val session_cookie : Cookie.t = <abstr>
 
-# let headers = Header.(add empty cookie session_cookie);;
-val headers : Header.t = <abstr>
+# let headers = Headers.(add empty cookie session_cookie);;
+val headers : Headers.t = <abstr>
 
 # let req = Request.make_server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
 val req : Request.server Request.t = <abstr>
@@ -368,7 +368,7 @@ val handler : 'a -> Response.server Response.t = <fun>
   (Server.session_pipeline session @@ handler) req ;;
 val res : Server.response = <abstr>
 
-# let set_cookie = Header.(find (Response.headers res) set_cookie);; 
+# let set_cookie = Headers.(find (Response.headers res) set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
@@ -393,7 +393,7 @@ val handler : Request.server Request.t -> Response.server Response.t = <fun>
   (Server.session_pipeline session @@ handler) req ;;
 val res : Server.response = <abstr>
 
-# let set_cookie = Header.(find (Response.headers res) set_cookie);; 
+# let set_cookie = Headers.(find (Response.headers res) set_cookie);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;

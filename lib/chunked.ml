@@ -73,7 +73,7 @@ let chunk_size =
    https://portswigger.net/web-security/request-smuggling
    Allowed headers are defined in 2nd paragraph of
    https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2 *)
-let is_trailer_header_allowed (h : Header.Definition.lname) =
+let is_trailer_header_allowed (h : Headers.Definition.lname) =
   match (h :> string) with
   | "transfer-encoding"
   | "content-length"
@@ -111,16 +111,16 @@ let is_trailer_header_allowed (h : Header.Definition.lname) =
 (* Request indicates which headers will be sent in chunk trailer part by
    specifying the headers in comma separated value in 'Trailer' header. *)
 let request_trailer_headers headers =
-  match Header.(find_opt headers trailer) with
+  match Headers.(find_opt headers trailer) with
   | Some v ->
     List.map
-      (fun h -> String.trim h |> Header.Definition.lname)
+      (fun h -> String.trim h |> Headers.Definition.lname)
       (String.cuts ~sep:"," v)
   | None -> []
 
 (* Chunk decoding algorithm is explained at
    https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3 *)
-let parse_chunk (total_read : int) (headers : Header.t) =
+let parse_chunk (total_read : int) (headers : Headers.t) =
   let open Buf_read.Syntax in
   let* sz = chunk_size in
   match sz with
@@ -136,37 +136,37 @@ let parse_chunk (total_read : int) (headers : Header.t) =
        The spec at https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.3
        specifies that 'Content-Length' and 'Transfer-Encoding' headers must be
        updated. *)
-    let* trailer_headers = Header.parse in
+    let* trailer_headers = Headers.parse in
     let request_trailer_headers = request_trailer_headers headers in
     let trailer_headers =
-      Header.filter
+      Headers.filter
         (fun name _ ->
           List.mem name request_trailer_headers
           && is_trailer_header_allowed name)
         trailer_headers
     in
-    let request_headers = Header.append headers trailer_headers in
+    let request_headers = Headers.append headers trailer_headers in
     (* Remove either just the 'chunked' from Transfer-Encoding header value or
        remove the header entirely if value is empty. *)
     let request_headers =
-      match Header.(find_opt request_headers transfer_encoding) with
+      match Headers.(find_opt request_headers transfer_encoding) with
       | Some te' ->
         let te' = Transfer_encoding.(remove te' chunked) in
         if Transfer_encoding.is_empty te' then
-          Header.(remove request_headers transfer_encoding)
-        else Header.(replace request_headers transfer_encoding te')
+          Headers.(remove request_headers transfer_encoding)
+        else Headers.(replace request_headers transfer_encoding te')
       | None -> assert false
     in
     (* Remove 'Trailer' from request headers. *)
-    let headers = Header.(remove request_headers trailer) in
+    let headers = Headers.(remove request_headers trailer) in
     (* Add Content-Length header *)
-    let headers = Header.(add headers content_length total_read) in
+    let headers = Headers.(add headers content_length total_read) in
     Buf_read.return @@ `Last_chunk (extensions, headers)
   | sz -> failwith (Format.sprintf "Invalid chunk size: %d" sz)
 
 type write_chunk = (t -> unit) -> unit
 
-type write_trailer = (Header.t -> unit) -> unit
+type write_trailer = (Headers.t -> unit) -> unit
 
 let writable ~ua_supports_trailer write_chunk write_trailer =
   let write_body writer =
@@ -195,18 +195,18 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
         Eio.Buf_write.string writer "\r\n"
     in
     write_chunk write_body;
-    if ua_supports_trailer then write_trailer (fun h -> Header.write writer h);
+    if ua_supports_trailer then write_trailer (fun h -> Headers.write writer h);
     Eio.Buf_write.string writer "\r\n"
   in
   let write_headers w =
     let t_enc = Transfer_encoding.(singleton chunked) in
-    Header.write_header w Header.transfer_encoding t_enc
+    Headers.write_header w Headers.transfer_encoding t_enc
   in
   Body.make_writable ~write_body ~write_headers
 
 let read_chunked f (body : Body.readable) =
   let headers = Body.headers body in
-  match Header.(find_opt headers transfer_encoding) with
+  match Headers.(find_opt headers transfer_encoding) with
   | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
     let rec chunk_loop f =

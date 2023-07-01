@@ -24,9 +24,9 @@ val file_name : 'a part -> string option
 val form_name : 'a part -> string
 (** [form_name p] is the form field name of part [p]. *)
 
-val headers : 'a part -> Header.t
-(** [headers p] is headers associated with part [p]. It is a {!val:Header.empty}
-    if part [p] is a form value field. *)
+val headers : 'a part -> Headers.t
+(** [headers p] is headers associated with part [p]. It is a
+    {!val:Headers.empty} if part [p] is a form value field. *)
 
 (** {1:streaming Reading Parts as Streams}
 
@@ -107,7 +107,7 @@ val writable_value_part : form_name:string -> value:string -> writable part
     string [value] and a form field name of [form_name]. *)
 
 val writable_file_part :
-     ?headers:Header.t
+     ?headers:Headers.t
   -> filename:string
   -> form_name:string
   -> #Eio.Flow.source
@@ -118,7 +118,7 @@ val writable_file_part :
 
     @param headers
       is a set of HTTP headers for the created part. Default is
-      {!val:Header.empty}. *)
+      {!val:Headers.empty}. *)
 
 val writable : boundary:string -> writable part list -> Body.writable
 (** [writeable ~boundary parts] creates a multipart request/response

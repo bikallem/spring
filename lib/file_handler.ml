@@ -22,13 +22,13 @@ let serve last_modified' etag' filepath =
     |> Option.get
     |> Content_type.make
   in
-  let headers = Header.(add empty last_modified last_modified') in
-  let headers = Header.(add headers etag etag') in
-  let headers = Header.(add headers expires Expires.expired) in
+  let headers = Headers.(add empty last_modified last_modified') in
+  let headers = Headers.(add headers etag etag') in
+  let headers = Headers.(add headers expires Expires.expired) in
   let cache_control' =
     Cache_control.(add private' empty) |> Cache_control.(add must_revalidate)
   in
-  let headers = Header.(add headers cache_control cache_control') in
+  let headers = Headers.(add headers cache_control cache_control') in
   let body = Body.writable_content ct content in
   Response.make_server_response ~headers body
 
@@ -50,23 +50,23 @@ let handle_get ~on_error filepath (req : Request.server Request.t) =
     let headers = Request.headers req in
     match
       ((* +-- https://datatracker.ietf.org/doc/html/rfc7232#section-3.2 --+ *)
-       let* if_none_match = Header.(find_opt headers if_none_match) in
+       let* if_none_match = Headers.(find_opt headers if_none_match) in
        let etag_matched =
          If_none_match.contains_entity_tag
            (fun etag -> Etag.weak_equal etag etag')
            if_none_match
        in
        if etag_matched then
-         let headers = Header.(add empty etag etag') in
+         let headers = Headers.(add empty etag etag') in
          Some (file_not_modified_response headers req)
        else None)
       |> if_none @@ fun () ->
          let* if_modified_since' =
-           Header.(find_opt headers if_modified_since)
+           Headers.(find_opt headers if_modified_since)
          in
          if Date.is_later last_modified' ~than:if_modified_since' then None
          else
-           let headers = Header.(add empty last_modified last_modified') in
+           let headers = Headers.(add empty last_modified last_modified') in
            Some (file_not_modified_response headers req)
     with
     | Some res -> res
