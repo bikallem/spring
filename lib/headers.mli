@@ -215,7 +215,7 @@ val parse : Eio.Buf_read.t -> t
 (** {1 Write Header} *)
 
 val write_header : Eio.Buf_write.t -> 'a Definition.t -> 'a -> unit
-(** [write_header bw hdr v] writes header/value [hdr/v] tow [bw]. *)
+(** [write_header bw hdr v] writes header/value [hdr/v] to [bw]. *)
 
 val write : Eio.Buf_write.t -> t -> unit
 (** [write bw t] writes headers [t] to [bw]. *)
