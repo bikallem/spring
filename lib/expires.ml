@@ -10,6 +10,12 @@ let is_expired = function
   | Expired _ -> true
   | Date _ -> false
 
+let equal a b =
+  match (a, b) with
+  | Expired _, Expired _ -> true
+  | Date a, Date b -> Date.equal a b
+  | _ -> false
+
 let date = function
   | Expired _ -> None
   | Date d -> Some d
