@@ -49,11 +49,6 @@ val headers : Headers.t = <abstr>
 - : (Headers.Definition.lname * string) list =
 [("content-type", "text/html"); ("age", "40");
  ("transfer-encoding", "chunked"); ("content-length", "2000")]
-
-# Headers.to_canonical_list headers ;;
-- : (Headers.Definition.name * string) list =
-[("Content-Type", "text/html"); ("Age", "40");
- ("Transfer-Encoding", "chunked"); ("Content-Length", "2000")]
 ```
 
 ## Add

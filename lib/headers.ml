@@ -105,9 +105,6 @@ let of_list t = List.map (fun (k, v) -> (Definition.lname k, v)) t
 
 let to_list = Fun.id
 
-let to_canonical_list t =
-  List.map (fun (k, v) -> (Definition.canonical_name k, v)) t
-
 let length t = List.length t
 
 let exists { Definition.name; _ } t =

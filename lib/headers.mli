@@ -149,8 +149,6 @@ val to_list : t -> (Definition.lname * string) list
 (** [to_list t] is an associative list of [name] and [value] where [name] is the
     name of a header and [value] is the string representation of a value. *)
 
-val to_canonical_list : t -> (Definition.name * string) list
-
 val length : t -> int
 (** [length t] is count of header values in [t]. *)
 
