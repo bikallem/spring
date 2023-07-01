@@ -208,17 +208,32 @@ val cc2 : Cache_control.t = <abstr>
 
 ## Standard Directives
 
+Test the directive as follows:
+
+1. Print name.
+2. Print is_bool.
+3. If a bool directive, then do 4 - 6.
+4. decode s1 to v1.
+5. encode v1 to s2.
+5. decode s2 to v2.
+6. ensure v1 and v2 equal. 
+
 ```ocaml
-let test_directive ?v d = 
+let test_name_val s1 d =
+    let decode = Cache_control.Directive.decode d |> Option.get in
+    let encode = Cache_control.Directive.encode d |> Option.get in
+    let v1 = decode s1 in
+    let s2 = encode v1 in
+    let v2 = decode s2 in
+    Eio.traceln "s1: %s, s2: %s" s1 s2;
+    Eio.traceln "(v1 = v2) -> %b" (v1 = v2)
+
+let test_directive ?v d =
     Eio.traceln "name: %s" @@ Cache_control.Directive.name d;
     let is_bool = Cache_control.Directive.is_bool d in
     Eio.traceln "is_bool: %b" @@ is_bool;
     if is_bool then ()
-    else
-        let v_fmt = Cache_control.Directive.value_fmt d in
-        Cache_control.Directive.decode d
-        |> Option.map (fun decode -> decode @@ Option.get v) 
-        |> Eio.traceln "%a" (Fmt.option v_fmt)
+    else test_name_val (Option.get v) d
 ```
 
 max-age.
@@ -227,7 +242,8 @@ max-age.
 # test_directive ~v:"5" Cache_control.max_age;;
 +name: max-age
 +is_bool: false
-+5
++s1: 5, s2: 5
++(v1 = v2) -> true
 - : unit = ()
 ```
 
@@ -237,6 +253,7 @@ max-stale.
 # test_directive ~v:"2333" Cache_control.max_stale
 +name: max-stale
 +is_bool: false
-+2333
++s1: 2333, s2: 2333
++(v1 = v2) -> true
 - : unit = ()
 ```
