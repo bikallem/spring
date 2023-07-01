@@ -8,6 +8,8 @@ module Definition = struct
 
   type lname = string
 
+  let lname = String.Ascii.lowercase
+
   let lname_equal = String.equal
 
   let lname_of_name = String.Ascii.lowercase
@@ -22,8 +24,8 @@ module Definition = struct
     ; encode : 'a encode
     }
 
-  let make decode encode name =
-    let name = String.Ascii.lowercase name in
+  let make name decode encode =
+    let name = lname name in
     { name; decode; encode }
 
   let name (type a) (hdr : a t) = canonical_name hdr.name
@@ -33,124 +35,82 @@ module Definition = struct
   let encode (type a) (v : a) (t : a t) = t.encode v
 end
 
-type name = string
-
-type lname = string
-
-let canonical_name s =
-  String.cuts ~sep:"-" s
-  |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
-  |> String.concat ~sep:"-"
-
-let lname = String.Ascii.lowercase
-
-let lname_equal = String.equal
-
-let lname_of_name = String.Ascii.lowercase
-
-type 'a encode = 'a -> string
-
-type 'a decode = string -> 'a
-
-type t = (lname * string) list
-
-type 'a header =
-  { name : lname
-  ; decode : 'a decode
-  ; encode : 'a encode
-  }
-
-let header decode encode name = { name = lname name; decode; encode }
-
-let name (type a) (hdr : a header) = canonical_name hdr.name
-
-let encode (type a) (hdr : a header) (v : a) = hdr.encode v
+(* +-- Standard Haeader Definitions --+*)
 
 let content_length =
-  { name = "content-length"; decode = int_of_string; encode = string_of_int }
+  Definition.make "content-length" int_of_string string_of_int
 
 let content_type =
-  { name = "content-type"
-  ; decode = Content_type.decode
-  ; encode = Content_type.encode
-  }
+  Definition.make "content-type" Content_type.decode Content_type.encode
 
 let content_disposition =
-  { name = "content-disposition"
-  ; decode = Content_disposition.decode
-  ; encode = Content_disposition.encode
-  }
+  Definition.make "content-disposition" Content_disposition.decode
+    Content_disposition.encode
 
 (* TODO Host header - https://httpwg.org/specs/rfc9110.html#field.host *)
-let host = { name = "host"; decode = Fun.id; encode = Fun.id }
+let host = Definition.make "host" Fun.id Fun.id
 
 (** TODO Trailer header - https://httpwg.org/specs/rfc9110.html#field.trailer *)
-let trailer = { name = "trailer"; decode = Fun.id; encode = Fun.id }
+let trailer = Definition.make "trailer" Fun.id Fun.id
 
 let transfer_encoding =
-  { name = "transfer-encoding"
-  ; decode = Transfer_encoding.decode
-  ; encode = Transfer_encoding.encode
-  }
+  Definition.make "transfer-encoding" Transfer_encoding.decode
+    Transfer_encoding.encode
 
-let te = { name = "te"; decode = Te.decode; encode = Te.encode }
+let te = Definition.make "te" Te.decode Te.encode
 
 (* TODO Connection header *)
-let connection = { name = "connection"; decode = Fun.id; encode = Fun.id }
+let connection = Definition.make "connection" Fun.id Fun.id
 
 (* TODO User-Agent spec at https://httpwg.org/specs/rfc9110.html#rfc.section.10.1.5 *)
-let user_agent = { name = "user-agent"; decode = Fun.id; encode = Fun.id }
+let user_agent = Definition.make "user-agent" Fun.id Fun.id
 
-let date = { name = "date"; decode = Date.decode; encode = Date.encode }
+let date = Definition.make "date" Date.decode Date.encode
 
-let cookie = { name = "cookie"; decode = Cookie.decode; encode = Cookie.encode }
+let cookie = Definition.make "cookie" Cookie.decode Cookie.encode
 
 let set_cookie =
-  { name = "set-cookie"
-  ; decode = Set_cookie.decode
-  ; encode = Set_cookie.encode
-  }
+  Definition.make "set-cookie" Set_cookie.decode Set_cookie.encode
 
-let last_modified = { date with name = "last-modified" }
+let last_modified = Definition.make "last-modified" Date.decode Date.encode
 
-let if_modified_since = { date with name = "if-modified-since" }
+let if_modified_since =
+  Definition.make "if-modified-since" Date.decode Date.encode
 
-let expires =
-  { name = "expires"; decode = Expires.decode; encode = Expires.encode }
+let expires = Definition.make "expires" Expires.decode Expires.encode
 
-let etag = { name = "etag"; decode = Etag.decode; encode = Etag.encode }
+let etag = Definition.make "etag" Etag.decode Etag.encode
 
 let if_none_match =
-  { name = "if-none-match"
-  ; decode = If_none_match.decode
-  ; encode = If_none_match.encode
-  }
+  Definition.make "if-none-match" If_none_match.decode If_none_match.encode
 
 let cache_control =
-  { name = "cache-control"
-  ; decode = Cache_control.decode
-  ; encode = Cache_control.encode
-  }
+  Definition.make "cache-control" Cache_control.decode Cache_control.encode
+
+(** +-- Header --+ *)
+
+type t = (Definition.lname * string) list
 
 (* +-- Create --+ *)
 
 let empty = []
 
-let singleton ~name ~value = [ (lname name, value) ]
+let singleton ~name ~value = [ (Definition.lname name, value) ]
 
 let is_empty = function
   | [] -> true
   | _ -> false
 
-let of_list t = List.map (fun (k, v) -> (lname k, v)) t
+let of_list t = List.map (fun (k, v) -> (Definition.lname k, v)) t
 
 let to_list = Fun.id
 
-let to_canonical_list t = List.map (fun (k, v) -> (canonical_name k, v)) t
+let to_canonical_list t =
+  List.map (fun (k, v) -> (Definition.canonical_name k, v)) t
 
 let length t = List.length t
 
-let exists t { name; _ } =
+let exists t { Definition.name; _ } =
   let rec aux = function
     | [] -> false
     | [ (name1, _); (name2, _) ] ->
@@ -159,7 +119,7 @@ let exists t { name; _ } =
   in
   aux t
 
-let add t { name; encode; _ } v = (name, encode v) :: t
+let add t { Definition.name; encode; _ } v = (name, encode v) :: t
 
 let add_unless_exists t hdr v = if exists t hdr then t else add t hdr v
 
@@ -167,7 +127,7 @@ let append t1 t2 = t1 @ t2
 
 let append_list (t : t) l = t @ l
 
-let find t { name; decode; _ } =
+let find t { Definition.name; decode; _ } =
   let rec aux = function
     | [] -> raise_notrace Not_found
     | (name', v) :: [] ->
@@ -179,7 +139,7 @@ let find t { name; decode; _ } =
   in
   aux t
 
-let find_opt t { name; decode; _ } =
+let find_opt t { Definition.name; decode; _ } =
   let decode v = try Some (decode v) with _ -> None in
   let rec aux = function
     | [] -> None
@@ -191,7 +151,7 @@ let find_opt t { name; decode; _ } =
   in
   aux t
 
-let find_all t { name; decode; _ } =
+let find_all t { Definition.name; decode; _ } =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | [ (name', v) ] -> if String.equal name name' then [ decode v ] else []
@@ -210,7 +170,7 @@ let find_all t { name; decode; _ } =
   in
   aux t
 
-let remove_first t { name; _ } =
+let remove_first t { Definition.name; _ } =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | ((name', _) as x) :: tl ->
@@ -218,7 +178,7 @@ let remove_first t { name; _ } =
   in
   aux t
 
-let remove t { name; _ } =
+let remove t { Definition.name; _ } =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | [ (name', _) ] as l -> if String.equal name name' then [] else l
@@ -237,7 +197,7 @@ let remove t { name; _ } =
   in
   aux t
 
-let replace t { name; encode; _ } v =
+let replace t { Definition.name; encode; _ } v =
   let[@tail_mod_cons] rec aux seen = function
     | [] -> if not seen then [ (name, encode v) ] else []
     | (name', _) :: tl when String.equal name name' ->
@@ -266,7 +226,9 @@ let easy_fmt t =
     ; wrap_body = `Force_breaks
     }
   in
-  let t = to_list t |> List.map (fun (k, v) -> field (canonical_name k) v) in
+  let t =
+    to_list t |> List.map (fun (k, v) -> field (Definition.canonical_name k) v)
+  in
   List (("{", ";", "}", p), t)
 
 let pp fmt t = Easy_format.Pretty.to_formatter fmt (easy_fmt t)
@@ -296,15 +258,15 @@ let parse r =
 
 let write_header_ buf_write k v =
   let f = Eio.Buf_write.string buf_write in
-  f @@ canonical_name k;
+  f @@ Definition.canonical_name k;
   f ": ";
   f v;
   f "\r\n"
 
-let write_header : type a. Eio.Buf_write.t -> a header -> a -> unit =
+let write_header : type a. Eio.Buf_write.t -> a Definition.t -> a -> unit =
  fun buf_write h v ->
-  let v = encode h v in
-  let k = name h in
+  let v = Definition.encode v h in
+  let k = Definition.name h in
   write_header_ buf_write k v
 
 let write buf_write t = iter (fun k v -> write_header_ buf_write k v) t

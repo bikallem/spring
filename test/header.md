@@ -6,30 +6,30 @@ open Spring
 
 ## Name/Canonical names 
 
-`canonical_name`
+`Definition.canonical_name`
 
 ```ocaml
-# Header.canonical_name "accept-encoding";;
-- : Header.name = "Accept-Encoding"
+# Header.Definition.canonical_name "accept-encoding";;
+- : Header.Definition.name = "Accept-Encoding"
 
-# Header.canonical_name "content-length";;
-- : Header.name = "Content-Length"
+# Header.Definition.canonical_name "content-length";;
+- : Header.Definition.name = "Content-Length"
 
-# Header.canonical_name "Age";;
-- : Header.name = "Age"
+# Header.Definition.canonical_name "Age";;
+- : Header.Definition.name = "Age"
 
-# Header.canonical_name "cONTENt-tYPE";;
-- : Header.name = "Content-Type"
+# Header.Definition.canonical_name "cONTENt-tYPE";;
+- : Header.Definition.name = "Content-Type"
 ```
 
-`lname`
+`Definition.lname`
 
 ```ocaml
-# let content_type = Header.lname "Content-type";;
-val content_type : Header.lname = "content-type"
+# let content_type = Header.Definition.lname "Content-type";;
+val content_type : Header.Definition.lname = "content-type"
 
-# let age = Header.lname "Age";;
-val age : Header.lname = "age"
+# let age = Header.Definition.lname "Age";;
+val age : Header.Definition.lname = "age"
 ```
 
 ## Creation
@@ -46,12 +46,12 @@ val l : (string * string) list =
 val headers : Header.t = <abstr>
 
 # Header.to_list headers;;   
-- : (Header.lname * string) list =
+- : (Header.Definition.lname * string) list =
 [("content-type", "text/html"); ("age", "40");
  ("transfer-encoding", "chunked"); ("content-length", "2000")]
 
 # Header.to_canonical_list headers ;;
-- : (Header.name * string) list =
+- : (Header.Definition.name * string) list =
 [("Content-Type", "text/html"); ("Age", "40");
  ("Transfer-Encoding", "chunked"); ("Content-Length", "2000")]
 ```
@@ -104,7 +104,7 @@ val h1 : Header.t = <abstr>
 - : int option = None
 
 # Header.to_list h;;
-- : (Header.lname * string) list =
+- : (Header.Definition.lname * string) list =
 [("content-type", "text/plain"); ("content-length", "20");
  ("content-length", "10")]
 
@@ -112,7 +112,7 @@ val h1 : Header.t = <abstr>
 val h2 : Header.t = <abstr>
 
 # Header.to_list h2;;
-- : (Header.lname * string) list =
+- : (Header.Definition.lname * string) list =
 [("content-type", "text/plain"); ("content-length", "300")]
 
 # Header.(find_opt h2 content_length);;

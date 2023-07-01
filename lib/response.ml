@@ -112,9 +112,11 @@ let remove_set_cookie name t =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | ((hdr_name, v) as x) :: tl ->
-      let nm = Header.(name set_cookie |> lname_of_name) in
+      let nm =
+        Header.(Definition.name set_cookie |> Definition.lname_of_name)
+      in
       if
-        Header.lname_equal hdr_name nm
+        Header.Definition.lname_equal hdr_name nm
         && (String.equal name @@ Set_cookie.(decode v |> name))
       then tl
       else x :: aux tl

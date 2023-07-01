@@ -73,7 +73,7 @@ let chunk_size =
    https://portswigger.net/web-security/request-smuggling
    Allowed headers are defined in 2nd paragraph of
    https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2 *)
-let is_trailer_header_allowed (h : Header.lname) =
+let is_trailer_header_allowed (h : Header.Definition.lname) =
   match (h :> string) with
   | "transfer-encoding"
   | "content-length"
@@ -113,7 +113,9 @@ let is_trailer_header_allowed (h : Header.lname) =
 let request_trailer_headers headers =
   match Header.(find_opt headers trailer) with
   | Some v ->
-    List.map (fun h -> String.trim h |> Header.lname) (String.cuts ~sep:"," v)
+    List.map
+      (fun h -> String.trim h |> Header.Definition.lname)
+      (String.cuts ~sep:"," v)
   | None -> []
 
 (* Chunk decoding algorithm is explained at
