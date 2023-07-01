@@ -99,3 +99,30 @@ val d3 : Date.t = <abstr>
 # Date.is_earlier d1 ~than:d3, Date.is_earlier d1 ~than:d3;;
 - : bool * bool = (true, true)
 ```
+
+## equal 
+
+Decoding a value, encoding and decoding it back. `Date.t` should be equal.
+
+```ocaml
+# let v1 = "Thu, 17 Jun 2021 14:39:38 GMT";;
+val v1 : string = "Thu, 17 Jun 2021 14:39:38 GMT"
+
+# let dd1 = Date.decode v1;; 
+val dd1 : Date.t = <abstr>
+
+# let v2 = Date.encode dd1;;
+val v2 : string = "Thu, 17 Jun 2021 14:39:38 GMT"
+
+# String.equal v1 v2;;
+- : bool = true
+
+# let dd2 = Date.decode v2;;
+val dd2 : Date.t = <abstr>
+
+# Date.equal dd1 dd2
+- : bool = true
+
+# Date.compare dd1 dd2;;
+- : int = 0
+```
