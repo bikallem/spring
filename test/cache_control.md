@@ -183,3 +183,25 @@ val s1 : string =
 # Cache_control.(equal t1 empty);;
 - : bool = true
 ```
+
+## Full lifecycle - decode, encode, decode, equal
+
+1. decode a cache-control value to `cc1`
+2. encode `cc1` to `s2`
+3. decode `cc2` from `s2`
+4. `cc1` and `cc2` should be equal
+
+```ocaml
+# let cc1 = Cache_control.decode s1;;
+val cc1 : Cache_control.t = <abstr>
+
+# let s2 = Cache_control.encode cc1;;
+val s2 : string =
+  "max-age=604800, must-revalidate, no-store, private, public, custom1=\"val1\""
+
+# let cc2 = Cache_control.decode s1;;
+val cc2 : Cache_control.t = <abstr>
+
+# Cache_control.equal cc1 cc2;;
+- : bool = true
+```
