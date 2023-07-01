@@ -92,6 +92,9 @@ val s2 : string = "Thu, 17 Jun 2021 14:39:38 GMT"
 
 # let e2 = Expires.decode s2;;
 val e2 : Expires.t = <abstr>
+
+# Expires.equal e1 e2;;
+- : bool = true
 ```
 
 ## equal
