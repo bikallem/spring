@@ -91,6 +91,12 @@ let if_none_match =
   ; encode = If_none_match.encode
   }
 
+let cache_control =
+  { name = "cache-control"
+  ; decode = Cache_control.decode
+  ; encode = Cache_control.encode
+  }
+
 (* +-- Create --+ *)
 
 let empty = []

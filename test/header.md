@@ -312,3 +312,16 @@ If-None-Match header.
 +           }
 - : unit = ()
 ```
+
+Cache-Control header.
+
+```ocaml
+# test_header Header.cache_control Cache_control.pp 
+    @@ Header.of_list ["cache-control", {|max-age=604800, must-revalidate, no-store, private, public, custom1="val1"|}];;
++Find: max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
++Header.pp: {
++             Cache-Control:
++               max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
++           }
+- : unit = ()
+```

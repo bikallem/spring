@@ -123,6 +123,10 @@ val if_none_match : If_none_match.t header
 (** [if_none_match] is the [If-None-Match] header as specified in
     https://www.rfc-editor.org/rfc/rfc9110#name-if-none-match *)
 
+val cache_control : Cache_control.t header
+(** [cache_control] is [Cache-Control] header as specified in
+    https://www.rfc-editor.org/rfc/rfc9111#name-cache-control *)
+
 (** {1 Create} *)
 
 val empty : t
