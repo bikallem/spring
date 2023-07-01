@@ -25,6 +25,10 @@ let serve last_modified' etag' filepath =
   let headers = Header.(add empty last_modified last_modified') in
   let headers = Header.(add headers etag etag') in
   let headers = Header.(add headers expires Expires.expired) in
+  let cache_control' =
+    Cache_control.(add private' empty) |> Cache_control.(add must_revalidate)
+  in
+  let headers = Header.(add headers cache_control cache_control') in
   let body = Body.writable_content ct content in
   Response.make_server_response ~headers body
 
