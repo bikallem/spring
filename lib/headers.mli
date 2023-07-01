@@ -54,7 +54,7 @@ module Definition : sig
       defined in [t]. *)
 end
 
-(** {1:standard_header_definitions Standard Header Definition} *)
+(** {1:standard_header_definitions Standard Header Definitions} *)
 
 val content_length : int Definition.t
 (** [content_length] is the [Content-Length] header as defined in
