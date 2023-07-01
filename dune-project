@@ -36,6 +36,8 @@
    (>= 1.1.0))
   (astring
    (>= 0.8.5))
+  (fmt
+   (>= 0.9.0))
   (domain-name
    (>= 0.4.0))
   (menhir
@@ -62,10 +64,6 @@
    (>= 0.7.3))
   (magic-mime
    (>= 1.3.0))
-  (fmt
-   (and
-    (>= 0.9.0)
-    :with-test))
   (cstruct
    (and
     (>= 6.1.1)

@@ -10,6 +10,7 @@
   easy-format
   uri
   astring
+  fmt
   domain-name
   ppxlib
   csexp
