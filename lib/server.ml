@@ -202,14 +202,14 @@ let serve_file ~on_error ~filepath url t =
 
 (* +-- server loop --+ *)
 
-let rec handle_request clock client_addr buf_read writer flow handler =
-  let write = Response.write_server_response writer in
+let rec handle_request clock client_addr buf_read buf_write flow handler =
+  let write = Response.write_server_response buf_write in
   match Request.parse_server_request client_addr buf_read with
   | req ->
     let response = handler req in
     write response;
     if Request.keep_alive req then
-      handle_request clock client_addr buf_read writer flow handler
+      handle_request clock client_addr buf_read buf_write flow handler
   | (exception End_of_file)
   | (exception Eio.Io (Eio.Net.E (Connection_reset _), _)) -> ()
   | exception (Failure _ as ex) ->
@@ -221,8 +221,8 @@ let rec handle_request clock client_addr buf_read writer flow handler =
 
 let connection_handler handler clock flow client_addr =
   let reader = Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int flow in
-  Eio.Buf_write.with_flow flow (fun writer ->
-      handle_request clock client_addr reader writer flow handler)
+  Eio.Buf_write.with_flow flow (fun buf_write ->
+      handle_request clock client_addr reader buf_write flow handler)
 
 let run socket t =
   let connection_handler = connection_handler (t.make_handler t) t.clock in
