@@ -4,12 +4,27 @@
 open Spring
 ```
 
-## expired/is_expired
+## expired/is_expired/expired_value
 
-An expired value returns `true` for `is_expired`.
+1. An expired value returns `true` for `is_expired`.
+2. Expires.expired value is encoded as `0`.
+2. An expired value `ed` is any invalid HTTP Date.t value.
+3. Two expired values with two different invalid HTTP Date.t values are equal.
 
 ```ocaml
 # Expires.(is_expired expired);;
+- : bool = true
+
+# Expires.(expired_value expired);;
+- : string option = Some "0"
+
+# let ed = Expires.decode "-1";;
+val ed : Expires.t = <abstr>
+
+# Expires.is_expired ed;;
+- : bool = true
+
+# Expires.(equal ed expired);;
 - : bool = true
 ```
 
