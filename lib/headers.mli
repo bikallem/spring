@@ -131,21 +131,28 @@ val cache_control : Cache_control.t Definition.t
 type t
 (** [t] represents a collection of HTTP headers. *)
 
-(** {1 Create} *)
-
 val empty : t
+(** [empty] is an empty headers value. *)
 
 val singleton : name:string -> value:string -> t
+(** [singleton ~name ~value] is [t] initialized with a single header with name
+    [name] and value [value]. *)
 
 val is_empty : t -> bool
+(** [is_empty t] is [true] if [b] is an empty headers value. *)
 
 val of_list : (string * string) list -> t
+(** [of_list l] creates a headers value from an associated list of [name,value]
+    [l].*)
 
 val to_list : t -> (Definition.lname * string) list
+(** [to_list t] is an associative list of [name] and [value] where [name] is the
+    name of a header and [value] is the string representation of a value. *)
 
 val to_canonical_list : t -> (Definition.name * string) list
 
 val length : t -> int
+(** [length t] is count of header values in [t]. *)
 
 (** {1 Add} *)
 
