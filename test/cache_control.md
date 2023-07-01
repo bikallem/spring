@@ -250,10 +250,21 @@ max-age.
 max-stale.
 
 ```ocaml
-# test_directive ~v:"2333" Cache_control.max_stale
+# test_directive ~v:"2333" Cache_control.max_stale;;
 +name: max-stale
 +is_bool: false
 +s1: 2333, s2: 2333
++(v1 = v2) -> true
+- : unit = ()
+```
+
+min-fresh.
+
+```ocaml
+# test_directive ~v:"555" Cache_control.min_fresh;;
++name: min-fresh
++is_bool: false
++s1: 555, s2: 555
 +(v1 = v2) -> true
 - : unit = ()
 ```
