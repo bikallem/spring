@@ -26,7 +26,7 @@ val d : Cache_control.Directive.bool' = <abstr>
 ## make 
 
 ```ocaml
-# let d1 = Cache_control.Directive.make "max-age" int_of_string string_of_int;;
+# let d1 = Cache_control.Directive.make "max-age" int_of_string string_of_int Fmt.int;;
 val d1 : int Cache_control.Directive.t = <abstr>
 
 # Cache_control.Directive.name d1;;
@@ -204,4 +204,39 @@ val cc2 : Cache_control.t = <abstr>
 
 # Cache_control.equal cc1 cc2;;
 - : bool = true
+```
+
+## Standard Directives
+
+```ocaml
+let test_directive ?v d = 
+    Eio.traceln "name: %s" @@ Cache_control.Directive.name d;
+    let is_bool = Cache_control.Directive.is_bool d in
+    Eio.traceln "is_bool: %b" @@ is_bool;
+    if is_bool then ()
+    else
+        let v_fmt = Cache_control.Directive.value_fmt d in
+        Cache_control.Directive.decode d
+        |> Option.map (fun decode -> decode @@ Option.get v) 
+        |> Eio.traceln "%a" (Fmt.option v_fmt)
+```
+
+max-age.
+
+```ocaml
+# test_directive ~v:"5" Cache_control.max_age;;
++name: max-age
++is_bool: false
++5
+- : unit = ()
+```
+
+max-stale.
+
+```ocaml
+# test_directive ~v:"2333" Cache_control.max_stale
++name: max-stale
++is_bool: false
++2333
+- : unit = ()
 ```
