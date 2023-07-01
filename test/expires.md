@@ -77,6 +77,12 @@ val e2 : Expires.t = <abstr>
 
 ## decode/encode
 
+1. Decode from `s1` to `e1`.
+2. Encode `e1` to `s2`.
+3. `s1` is equal to `s2`.
+4. Decode `s2` to `e2`.
+5. `e1` is equal to `e2`.
+
 ```ocaml
 # let s1 = "Thu, 17 Jun 2021 14:39:38 GMT";;
 val s1 : string = "Thu, 17 Jun 2021 14:39:38 GMT"
