@@ -119,6 +119,10 @@ val remove : 'a Directive.t -> t -> t
 (** [remove d t] removes directive [d] from [t] if [d] exists in [t]. Otherwise
     [t] is unchanged. *)
 
+val equal : t -> t -> bool
+(** [equal a b] is [true] if [a] and [b] contains the same directives and
+    values. *)
+
 (** {1:codec Codec} *)
 
 val decode : string -> t

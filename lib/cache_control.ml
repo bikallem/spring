@@ -98,6 +98,14 @@ let remove : type a. a Directive.t -> t -> t =
   in
   loop t
 
+let equal a b =
+  List.equal
+    (fun (name1, v1) (name2, v2) ->
+      let value_equal = Option.equal String.equal v1 v2 in
+      let name_equal = String.equal name1 name2 in
+      name_equal && value_equal)
+    a b
+
 (* +-- Codec --+ *)
 
 let decode_cache_directive buf_read =

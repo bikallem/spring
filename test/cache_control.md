@@ -167,3 +167,19 @@ val s1 : string =
 +max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
 - : unit = ()
 ```
+
+## equal
+
+```ocaml
+# Cache_control.equal t2 t2;;
+- : bool = true
+
+# Cache_control.equal t2 t1;;
+- : bool = false
+
+# Cache_control.(equal empty empty);;
+- : bool = true
+
+# Cache_control.(equal t1 empty);;
+- : bool = true
+```
