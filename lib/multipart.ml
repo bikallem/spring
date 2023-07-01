@@ -15,7 +15,7 @@ open Option.Syntax
 let stream body =
   let boundary =
     match
-      let* ct = Headers.(find_opt (Body.headers body) content_type) in
+      let* ct = Headers.(find_opt content_type @@ Body.headers body) in
       Content_type.find_param ct "boundary"
     with
     | Some v -> v
@@ -125,7 +125,7 @@ let next_part s =
     failwith @@ "mulitpart: expecting a new part; got line \"" ^ ln ^ "\""
   else
     let headers = Headers.parse s.r in
-    match Headers.(find_opt headers content_disposition) with
+    match Headers.(find_opt content_disposition headers) with
     | Some d ->
       if String.equal "form-data" (Content_disposition.disposition d) then
         let filename = Content_disposition.find_param d "filename" in
@@ -214,7 +214,7 @@ let write_part bw boundary part =
   in
   let headers =
     let cd = Content_disposition.make ~params "form-data" in
-    Headers.(add part.headers content_disposition cd)
+    Headers.(add content_disposition cd part.headers)
   in
   Eio.Buf_write.string bw "--";
   Eio.Buf_write.string bw boundary;

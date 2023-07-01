@@ -353,7 +353,7 @@ val session : Session.codec = <abstr>
 # let session_cookie = make_session_cookie session key ;;
 val session_cookie : Cookie.t = <abstr>
 
-# let headers = Headers.(add empty cookie session_cookie);;
+# let headers = Headers.(add cookie session_cookie empty);;
 val headers : Headers.t = <abstr>
 
 # let req = Request.make_server_request ~headers ~resource:"/products" Method.get client_addr (Eio.Buf_read.of_string "") ;;
@@ -368,7 +368,7 @@ val handler : 'a -> Response.server Response.t = <fun>
   (Server.session_pipeline session @@ handler) req ;;
 val res : Server.response = <abstr>
 
-# let set_cookie = Headers.(find (Response.headers res) set_cookie);; 
+# let set_cookie = Headers.(find set_cookie @@ Response.headers res);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;
@@ -393,7 +393,7 @@ val handler : Request.server Request.t -> Response.server Response.t = <fun>
   (Server.session_pipeline session @@ handler) req ;;
 val res : Server.response = <abstr>
 
-# let set_cookie = Headers.(find (Response.headers res) set_cookie);; 
+# let set_cookie = Headers.(find set_cookie @@ Response.headers res);; 
 val set_cookie : Set_cookie.t = <abstr>
 
 # Set_cookie.name set_cookie;;

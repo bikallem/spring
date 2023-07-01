@@ -12,7 +12,7 @@ let status t = t.status
 let headers t = t.headers
 
 let find_set_cookie_ name headers =
-  Headers.(find_all headers set_cookie)
+  Headers.(find_all set_cookie headers)
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
 
 let field lbl v =
@@ -105,7 +105,7 @@ let make_server_response
 let body t = t.x
 
 let add_set_cookie v t =
-  let headers = Headers.(add t.headers set_cookie v) in
+  let headers = Headers.(add set_cookie v t.headers) in
   { t with headers }
 
 let remove_set_cookie name t =

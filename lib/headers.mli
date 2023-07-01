@@ -149,37 +149,47 @@ val length : t -> int
 
 (** {1 Add} *)
 
-val add : t -> 'a Definition.t -> 'a -> t
+val add : 'a Definition.t -> 'a -> t -> t
+(** [add d v t] adds header with definition [d] and value [v] to [t]. *)
 
-val add_unless_exists : t -> 'a Definition.t -> 'a -> t
+val add_unless_exists : 'a Definition.t -> 'a -> t -> t
+(** [add_unless_exists d v t] adds header [h] with definition [d] and value [v]
+    to [t] iff header [h] doesn't already exist in [t]. *)
 
 val append : t -> t -> t
-
-val append_list : t -> (string * string) list -> t
+(** [append a b] is [t] in which headers in [a] and [b] are added to it. *)
 
 (** {1 Find} *)
 
-val find : t -> 'a Definition.t -> 'a
+val find : 'a Definition.t -> t -> 'a
+(** [find d t] is header value [v] if a header with definition [d] exists in
+    [t]. [v] is as defined by [d].
 
-val find_opt : t -> 'a Definition.t -> 'a option
-(** [find_opt t hdr] is [Some v] is [hdr] exists in [t]. It is [None] otherwise. *)
+    @raise Not_found if header [d] is not found in [t]. *)
 
-val find_all : t -> 'a Definition.t -> 'a list
-(** [find_all t hdr] is [l] - a list of headers matching the definition [hdr] in
-    [t]. *)
+val find_opt : 'a Definition.t -> t -> 'a option
+(** [find_opt d t] is [Some v] if header [d] exists in [t]. It is [None]
+    otherwise. This is an excpetion-safe version of {!val:find}. *)
 
-val exists : t -> 'a Definition.t -> bool
-(** [exists t hdr] is [true] if [hdr] exists in [t]. It is [false] otherwise. *)
+val find_all : 'a Definition.t -> t -> 'a list
+(** [find_all d t] is a list of header values [l] where each item in it matches
+    the header as defined in [d]. [l] is [\[\]] if none of the fields in [t]
+    match [d]. *)
+
+val exists : 'a Definition.t -> t -> bool
+(** [exists d t] is [true] if header [d] exists in [t]. It is [false] otherwise. *)
 
 (** {1 Update/Remove} *)
 
-val remove_first : t -> 'a Definition.t -> t
-(** [remove_first t hdr] removes the first header [hdr] found in [t]. *)
+val remove_first : 'a Definition.t -> t -> t
+(** [remove_first d t ] is [t] with first found header [d] removed in [t]. *)
 
-val remove : t -> 'a Definition.t -> t
-(** [remove_all t hdr] removes all headers in [t] defined by [hdr]. *)
+val remove : 'a Definition.t -> t -> t
+(** [remove_all d t] removes all headers in [t] defined by [d]. *)
 
-val replace : t -> 'a Definition.t -> 'a -> t
+val replace : 'a Definition.t -> 'a -> t -> t
+(** [replace d v t] replaces the value of the first found header [d] with [v] in
+    [t]. *)
 
 (** {1 Iter/Filter} *)
 

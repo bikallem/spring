@@ -110,7 +110,7 @@ let to_canonical_list t =
 
 let length t = List.length t
 
-let exists t { Definition.name; _ } =
+let exists { Definition.name; _ } t =
   let rec aux = function
     | [] -> false
     | [ (name1, _); (name2, _) ] ->
@@ -119,15 +119,13 @@ let exists t { Definition.name; _ } =
   in
   aux t
 
-let add t { Definition.name; encode; _ } v = (name, encode v) :: t
+let add { Definition.name; encode; _ } v t = (name, encode v) :: t
 
-let add_unless_exists t hdr v = if exists t hdr then t else add t hdr v
+let add_unless_exists hdr v t = if exists hdr t then t else add hdr v t
 
 let append t1 t2 = t1 @ t2
 
-let append_list (t : t) l = t @ l
-
-let find t { Definition.name; decode; _ } =
+let find { Definition.name; decode; _ } t =
   let rec aux = function
     | [] -> raise_notrace Not_found
     | (name', v) :: [] ->
@@ -139,7 +137,7 @@ let find t { Definition.name; decode; _ } =
   in
   aux t
 
-let find_opt t { Definition.name; decode; _ } =
+let find_opt { Definition.name; decode; _ } t =
   let decode v = try Some (decode v) with _ -> None in
   let rec aux = function
     | [] -> None
@@ -151,7 +149,7 @@ let find_opt t { Definition.name; decode; _ } =
   in
   aux t
 
-let find_all t { Definition.name; decode; _ } =
+let find_all { Definition.name; decode; _ } t =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | [ (name', v) ] -> if String.equal name name' then [ decode v ] else []
@@ -170,7 +168,7 @@ let find_all t { Definition.name; decode; _ } =
   in
   aux t
 
-let remove_first t { Definition.name; _ } =
+let remove_first { Definition.name; _ } t =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | ((name', _) as x) :: tl ->
@@ -178,7 +176,7 @@ let remove_first t { Definition.name; _ } =
   in
   aux t
 
-let remove t { Definition.name; _ } =
+let remove { Definition.name; _ } t =
   let[@tail_mod_cons] rec aux = function
     | [] -> []
     | [ (name', _) ] as l -> if String.equal name name' then [] else l
@@ -197,7 +195,7 @@ let remove t { Definition.name; _ } =
   in
   aux t
 
-let replace t { Definition.name; encode; _ } v =
+let replace { Definition.name; encode; _ } v t =
   let[@tail_mod_cons] rec aux seen = function
     | [] -> if not seen then [ (name, encode v) ] else []
     | (name', _) :: tl when String.equal name name' ->

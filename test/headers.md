@@ -59,48 +59,48 @@ val headers : Headers.t = <abstr>
 ## Add
 
 ```ocaml
-# let h = Headers.(add empty content_length 10);;
+# let h = Headers.(add content_length 10 empty);;
 val h : Headers.t = <abstr>
 
-# let h = Headers.(add h content_length 20);;
+# let h = Headers.(add content_length 20 h);;
 val h : Headers.t = <abstr>
 
 # let ct = Content_type.make ("text", "plain");;
 val ct : Content_type.t = <abstr>
 
-# let h = Headers.(add h content_type ct);;
+# let h = Headers.(add content_type ct h);;
 val h : Headers.t = <abstr>
 
-# let h = Headers.(add_unless_exists h content_length 20);;
+# let h = Headers.(add_unless_exists content_length 20 h);;
 val h : Headers.t = <abstr>
 ```
 
 ## Find
 
 ```ocaml
-# Headers.(find_opt h content_length);;
+# Headers.(find_opt content_length h);;
 - : int option = Some 20
 
-# Headers.(find_opt h content_length);;
+# Headers.(find_opt content_length h);;
 - : int option = Some 20
 
-# Headers.(find_all h content_length);;
+# Headers.(find_all content_length h);;
 - : int list = [20; 10]
 
-# Headers.(exists h content_length);;
+# Headers.(exists content_length h);;
 - : bool = true
 
-# Headers.(exists h content_type);;
+# Headers.(exists content_type h);;
 - : bool = true
 ```
 
 ## Headers.replace 
 
 ```ocaml
-# let h1 = Headers.(remove headers content_length) ;;
+# let h1 = Headers.(remove content_length headers) ;;
 val h1 : Headers.t = <abstr>
 
-# Headers.(find_opt h1 content_length);;
+# Headers.(find_opt content_length h1);;
 - : int option = None
 
 # Headers.to_list h;;
@@ -108,25 +108,25 @@ val h1 : Headers.t = <abstr>
 [("content-type", "text/plain"); ("content-length", "20");
  ("content-length", "10")]
 
-# let h2 = Headers.(replace h content_length 300);;
+# let h2 = Headers.(replace content_length 300 h);;
 val h2 : Headers.t = <abstr>
 
 # Headers.to_list h2;;
 - : (Headers.Definition.lname * string) list =
 [("content-type", "text/plain"); ("content-length", "300")]
 
-# Headers.(find_opt h2 content_length);;
+# Headers.(find_opt content_length h2);;
 - : int option = Some 300
 
-# Headers.(find_all h2 content_length);;
+# Headers.(find_all content_length h2);;
 - : int list = [300]
 ```
 
 Add the header if it doesn't exist yet.
 
 ```ocaml
-# let h = Headers.(replace empty host "www.example.com") in
-  Headers.(find_opt h host);;
+# let h = Headers.(replace host "www.example.com" empty) in
+  Headers.(find_opt host h);;
 - : string option = Some "www.example.com"
 ```
 
@@ -136,13 +136,13 @@ Add the header if it doesn't exist yet.
 # let h1 = Headers.of_list ["user-agent", "234"; "user-agent", "123"];;
 val h1 : Headers.t = <abstr>
 
-# Headers.(find_all h1 user_agent);;
+# Headers.(find_all user_agent h1);;
 - : string list = ["234"; "123"]
 
-# let h1 = Headers.(remove h1 user_agent);;
+# let h1 = Headers.(remove user_agent h1);;
 val h1 : Headers.t = <abstr>
 
-# Headers.(find_all h1 user_agent);;
+# Headers.(find_all user_agent h1);;
 - : string list = []
 ```
 
@@ -152,13 +152,13 @@ val h1 : Headers.t = <abstr>
 # let h1 = Headers.of_list ["user-agent", "234"; "user-agent", "123"];;
 val h1 : Headers.t = <abstr>
 
-# Headers.(find_all h1 user_agent);;
+# Headers.(find_all user_agent h1);;
 - : string list = ["234"; "123"]
 
-# let h1 = Headers.(remove_first h1 user_agent);;
+# let h1 = Headers.(remove_first user_agent h1);;
 val h1 : Headers.t = <abstr>
 
-# Headers.(find_all h1 user_agent);;
+# Headers.(find_all user_agent h1);;
 - : string list = ["123"]
 ```
 
@@ -172,10 +172,10 @@ val hdr : string =
 # let t = Headers.parse @@ Eio.Buf_read.of_string hdr ;;
 val t : Headers.t = <abstr>
 
-# Headers.(find_opt t host);;
+# Headers.(find_opt host t);;
 - : string option = Some "localhost:1234"
 
-# Headers.(find_opt t content_length);;
+# Headers.(find_opt content_length t);;
 - : int option = Some 10063
 ```
 
@@ -189,11 +189,11 @@ val hdr : string =
 # let t = Headers.parse @@ Eio.Buf_read.of_string hdr ;;
 val t : Headers.t = <abstr>
 
-# Headers.(find_opt t content_type) |> Option.iter (fun x -> Eio.traceln "%s" (Content_type.encode x)) ;;
+# Headers.(find_opt content_type t) |> Option.iter (fun x -> Eio.traceln "%s" (Content_type.encode x)) ;;
 +image/svg+xml
 - : unit = ()
 
-# Headers.(find_opt t content_disposition) |> Option.iter (fun x -> Eio.traceln "%s" (Content_disposition.encode x)) ;;
+# Headers.(find_opt content_disposition t) |> Option.iter (fun x -> Eio.traceln "%s" (Content_disposition.encode x)) ;;
 +form-data; filename="New document 1.2020_08_01_13_16_42.0.svg"; name="name"
 - : unit = ()
 ```
@@ -204,7 +204,7 @@ val t : Headers.t = <abstr>
 # let t = Headers.parse (Eio.Buf_read.of_string "Cookie: SID=31d4d96e407aad42; lang=en\r\n\r\n");;
 val t : Headers.t = <abstr>
 
-# let cookies = Headers.(find_opt t cookie) |> Option.get ;;
+# let cookies = Headers.(find_opt cookie t) |> Option.get ;;
 val cookies : Cookie.t = <abstr>
 
 # Cookie.find_opt "SID" cookies;;
@@ -248,8 +248,8 @@ val headers : Headers.t = <abstr>
 ## Headers.header values
 
 ```ocaml
-let test_header hdr pp t =
-  Eio.traceln "Find: %a" pp @@ Headers.(find t hdr);
+let test_header d pp t =
+  Eio.traceln "Find: %a" pp @@ Headers.(find d t);
   Eio.traceln "Headers.pp: %a" Headers.pp t;;
 ```
 

@@ -41,14 +41,14 @@ let buf_read r = r.buf_read
 let ( let* ) o f = Option.bind o f
 
 let read_content (t : readable) =
-  match Headers.(find_opt t.headers content_length) with
+  match Headers.(find_opt content_length t.headers) with
   | Some len -> ( try Some (Buf_read.take len t.buf_read) with _ -> None)
   | None -> None
 
 let read_form_values (t : readable) =
   match
     let* content = read_content t in
-    let* content_type = Headers.(find_opt t.headers content_type) in
+    let* content_type = Headers.(find_opt content_type t.headers) in
     match (Content_type.media_type content_type :> string * string) with
     | "application", "x-www-form-urlencoded" ->
       Some (Uri.query_of_encoded content)

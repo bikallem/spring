@@ -111,7 +111,7 @@ let is_trailer_header_allowed (h : Headers.Definition.lname) =
 (* Request indicates which headers will be sent in chunk trailer part by
    specifying the headers in comma separated value in 'Trailer' header. *)
 let request_trailer_headers headers =
-  match Headers.(find_opt headers trailer) with
+  match Headers.(find_opt trailer headers) with
   | Some v ->
     List.map
       (fun h -> String.trim h |> Headers.Definition.lname)
@@ -149,18 +149,19 @@ let parse_chunk (total_read : int) (headers : Headers.t) =
     (* Remove either just the 'chunked' from Transfer-Encoding header value or
        remove the header entirely if value is empty. *)
     let request_headers =
-      match Headers.(find_opt request_headers transfer_encoding) with
+      match Headers.(find_opt transfer_encoding request_headers) with
       | Some te' ->
         let te' = Transfer_encoding.(remove te' chunked) in
         if Transfer_encoding.is_empty te' then
-          Headers.(remove request_headers transfer_encoding)
-        else Headers.(replace request_headers transfer_encoding te')
+          Headers.(remove transfer_encoding request_headers)
+        else Headers.(replace transfer_encoding te' request_headers)
       | None -> assert false
     in
     (* Remove 'Trailer' from request headers. *)
-    let headers = Headers.(remove request_headers trailer) in
-    (* Add Content-Length header *)
-    let headers = Headers.(add headers content_length total_read) in
+    let headers =
+      Headers.(remove trailer request_headers)
+      |> Headers.(add content_length total_read)
+    in
     Buf_read.return @@ `Last_chunk (extensions, headers)
   | sz -> failwith (Format.sprintf "Invalid chunk size: %d" sz)
 
@@ -206,7 +207,7 @@ let writable ~ua_supports_trailer write_chunk write_trailer =
 
 let read_chunked f (body : Body.readable) =
   let headers = Body.headers body in
-  match Headers.(find_opt headers transfer_encoding) with
+  match Headers.(find_opt transfer_encoding headers) with
   | Some te when Transfer_encoding.(exists te chunked) ->
     let total_read = ref 0 in
     let rec chunk_loop f =
