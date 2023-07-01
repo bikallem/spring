@@ -5,8 +5,8 @@
 
 (** {1:header_definition Definition}
 
-    A type-safe HTTP header definition primarily defines a header's name, its
-    field value codecs and an OCaml type representation. *)
+    A header definition defines a header's name, its field value codecs and an
+    OCaml type representation. *)
 module Definition : sig
   type name = private string
   (** [name] represents HTTP header name value in a canonical format, i.e. the
