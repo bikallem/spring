@@ -20,6 +20,10 @@ let date = function
   | Expired _ -> None
   | Date d -> Some d
 
+let expired_value = function
+  | Expired v -> Some v
+  | Date _ -> None
+
 let decode v =
   match Date.decode v with
   | d -> Date d

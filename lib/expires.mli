@@ -31,6 +31,10 @@ val date : t -> Date.t option
 (** [date t] is [Some date] if [t] holds a valid HTTP date time value. It is
     [None] otherwise. *)
 
+val expired_value : t -> string option
+(** [expired_value t] is [Some v] if [is_expired t = true]. Otherwise it is
+    [None]. *)
+
 (** {1 Codec} *)
 
 val decode : string -> t
