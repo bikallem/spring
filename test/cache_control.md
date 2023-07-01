@@ -277,3 +277,87 @@ no-cache.
 +is_bool: true
 - : unit = ()
 ```
+
+no-store.
+
+```ocaml
+# test_directive Cache_control.no_store;;
++name: no-store
++is_bool: true
+- : unit = ()
+```
+
+no-transform.
+
+```ocaml
+# test_directive Cache_control.no_transform;;
++name: no-transform
++is_bool: true
+- : unit = ()
+```
+
+only-if-cached.
+
+```ocaml
+# test_directive Cache_control.only_if_cached;;
++name: only-if-cached
++is_bool: true
+- : unit = ()
+```
+
+must_revalidate.
+
+```ocaml
+# test_directive Cache_control.must_revalidate;;
++name: must-revalidate
++is_bool: true
+- : unit = ()
+```
+
+must-understand.
+
+```ocaml
+# test_directive Cache_control.must_understand;;
++name: must-understand
++is_bool: true
+- : unit = ()
+```
+
+private.
+
+```ocaml
+# test_directive Cache_control.private';;
++name: private
++is_bool: true
+- : unit = ()
+```
+
+proxy-revalidate.
+
+```ocaml
+# test_directive Cache_control.proxy_revalidate;;
++name: proxy-revalidate
++is_bool: true
+- : unit = ()
+```
+
+public.
+
+```ocaml
+# test_directive Cache_control.public;;
++name: public
++is_bool: true
+- : unit = ()
+```
+
+s-maxage.
+
+```ocaml
+# test_directive ~v:"5000" Cache_control.s_maxage;;
++name: s-maxage
++is_bool: false
++s1: 5000, s2: 5000
++(v1 = v2) -> true
+- : unit = ()
+```
+
