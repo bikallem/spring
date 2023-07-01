@@ -10,9 +10,9 @@
 module Definition : sig
   type name = private string
   (** [name] is HTTP header name in a canonical format, i.e. the first letter
-      and any letter following a hypen([-]) symbol are converted to upper case.
-      For example, the canonical header name of [accept-encoding] is
-      [Accept-Encoding]. *)
+      and any letter following a hypen([-]) symbol are converted to upper case
+      and all other characters are converted to lower-case. For example, the
+      canonical header name of [accept-encoding] is [Accept-Encoding]. *)
 
   val canonical_name : string -> name
   (** [canonical_name s] creates a canonical name from [s]. *)
