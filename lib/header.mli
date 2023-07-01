@@ -1,6 +1,57 @@
-(** [Header]
+(** A collection of HTTP request and response [field] values. HTTP fields are
+    more popularly known as [headers].
 
-    An extendable and type-safe HTTP Header. *)
+    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-fields} Fields} *)
+
+(** {1:header_definition Definition}
+
+    A type-safe HTTP header definition primarily defines a header's name, its
+    field value codecs and an OCaml type representation. *)
+module Definition : sig
+  type name = private string
+  (** [name] represents HTTP header name value in a canonical format, i.e. the
+      first letter and any letter following a hypen([-]) symbol are converted to
+      upper case. For example, the canonical header name of [accept-encoding] is
+      [Accept-Encoding]. *)
+
+  type lname = private string
+  (** [lname] represents HTTP header name in lowercase form, e.g.
+      [Content-Type -> content-type], [Date -> date],
+      [Transfer-Encoding -> transfer-encoding] etc. See {!val:lname}. *)
+
+  val canonical_name : string -> name
+  (** [canonical_name s] converts [s] to a canonical header name value. See
+      {!type:name}. *)
+
+  val lname_equal : lname -> lname -> bool
+
+  val lname_of_name : name -> lname
+
+  type 'a encode = 'a -> string
+
+  type 'a decode = string -> 'a
+
+  type 'a t
+  (** ['a t] represents a header definition. ['a] represents the OCaml type for
+      header value as encoded by [t]. *)
+
+  val make : 'a decode -> 'a encode -> string -> 'a t
+  (** [header decoder encoder name] is {!type:header}.
+
+      Use this function define new/custom headers. *)
+
+  val name : 'a t -> name
+  (** [name hdr] is the name of [hdr] in canonical form.
+
+      See {!val:canonical_name}. *)
+
+  val decode : string -> 'a t -> 'a
+  (** [decode s t] decodes [s] into value [v] using codecs defined in [t]. *)
+
+  val encode : 'a -> 'a t -> string
+  (** [encode v t] encodes [v] into its string representation using codecs
+      defined in [t]. *)
+end
 
 (** {1 Names} *)
 

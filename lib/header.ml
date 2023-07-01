@@ -1,3 +1,38 @@
+module Definition = struct
+  type name = string
+
+  let canonical_name s =
+    String.cuts ~sep:"-" s
+    |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
+    |> String.concat ~sep:"-"
+
+  type lname = string
+
+  let lname_equal = String.equal
+
+  let lname_of_name = String.Ascii.lowercase
+
+  type 'a encode = 'a -> string
+
+  type 'a decode = string -> 'a
+
+  type 'a t =
+    { name : lname
+    ; decode : 'a decode
+    ; encode : 'a encode
+    }
+
+  let make decode encode name =
+    let name = String.Ascii.lowercase name in
+    { name; decode; encode }
+
+  let name (type a) (hdr : a t) = canonical_name hdr.name
+
+  let decode (type a) s (t : a t) = t.decode s
+
+  let encode (type a) (v : a) (t : a t) = t.encode v
+end
+
 type name = string
 
 type lname = string
