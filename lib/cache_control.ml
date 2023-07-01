@@ -182,7 +182,7 @@ let must_understand = Directive.make_bool_directive "must-understand"
 
 let private' = Directive.make_bool_directive "private"
 
-let proxy_revalidate = Directive.make_bool_directive "must-revalidate"
+let proxy_revalidate = Directive.make_bool_directive "proxy-revalidate"
 
 let public = Directive.make_bool_directive "public"
 
