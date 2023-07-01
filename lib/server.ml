@@ -208,8 +208,9 @@ let rec handle_request clock client_addr buf_read buf_write handler =
   | req ->
     let response = handler req in
     write_response response;
-    if Request.keep_alive req then
-      handle_request clock client_addr buf_read buf_write handler
+
+    if Buf_read.at_end_of_input buf_read then ()
+    else handle_request clock client_addr buf_read buf_write handler
   | (exception End_of_file)
   | (exception Eio.Io (Eio.Net.E (Connection_reset _), _)) -> ()
   | exception (Failure _ as ex) ->
