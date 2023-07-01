@@ -254,9 +254,9 @@ Last-Modified header.
 # test_header Headers.last_modified Date.pp
     @@ Headers.of_list ["last-modified","Wed, 28 Jun 2023 10:55:19 GMT"];;
 +Find: Wed, 28 Jun 2023 10:55:19 GMT
-+Headers.pp: {
-+              Last-Modified:  Wed, 28 Jun 2023 10:55:19 GMT
-+            }
++Headers.pp: [
++              Last-Modified: Wed, 28 Jun 2023 10:55:19 GMT
++            ]
 - : unit = ()
 ```
 
@@ -266,9 +266,9 @@ If-Modified-Since header.
 # test_header Headers.if_modified_since Date.pp
     @@ Headers.of_list ["if-modified-since", "Wed, 28 Jun 2023 10:55:19 GMT"];;
 +Find: Wed, 28 Jun 2023 10:55:19 GMT
-+Headers.pp: {
-+              If-Modified-Since:  Wed, 28 Jun 2023 10:55:19 GMT
-+            }
++Headers.pp: [
++              If-Modified-Since: Wed, 28 Jun 2023 10:55:19 GMT
++            ]
 - : unit = ()
 ```
 
@@ -278,9 +278,9 @@ Expires header.
 # test_header Headers.expires Expires.pp 
     @@ Headers.of_list ["expires", "Wed, 28 Jun 2023 10:55:19 GMT"];;
 +Find: Wed, 28 Jun 2023 10:55:19 GMT
-+Headers.pp: {
-+              Expires:  Wed, 28 Jun 2023 10:55:19 GMT
-+            }
++Headers.pp: [
++              Expires: Wed, 28 Jun 2023 10:55:19 GMT
++            ]
 - : unit = ()
 ```
 
@@ -290,9 +290,9 @@ ETag header.
 # test_header Headers.etag Etag.pp 
     @@ Headers.of_list ["etag", {|"r2d2xxxx"|}];;
 +Find: "r2d2xxxx"
-+Headers.pp: {
-+              Etag:  "r2d2xxxx"
-+            }
++Headers.pp: [
++              Etag: "r2d2xxxx"
++            ]
 - : unit = ()
 ```
 
@@ -302,10 +302,9 @@ If-None-Match header.
 # test_header Headers.if_none_match If_none_match.pp 
     @@ Headers.of_list ["if-none-match", {|"xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"|}];;
 +Find: "xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
-+Headers.pp: {
-+              If-None-Match:
-+                "xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
-+            }
++Headers.pp: [
++              If-None-Match: "xyzzy", W/"r2d2xxxx", "c3piozzz", W/"c3piozzzz"
++            ]
 - : unit = ()
 ```
 
@@ -315,9 +314,9 @@ Cache-Control header.
 # test_header Headers.cache_control Cache_control.pp 
     @@ Headers.of_list ["cache-control", {|max-age=604800, must-revalidate, no-store, private, public, custom1="val1"|}];;
 +Find: max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
-+Headers.pp: {
++Headers.pp: [
 +              Cache-Control:
 +                max-age=604800, must-revalidate, no-store, private, public, custom1="val1"
-+            }
++            ]
 - : unit = ()
 ```

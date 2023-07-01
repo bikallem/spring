@@ -30,18 +30,18 @@ let make_buf_read () =
 val res : Response.client Response.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Response.headers res ;;
-+{
-+  Content-Length:  13;
-+  Date:  Wed, 08 Feb 2023 16:18:17 GMT;
-+  Content-Type:  text/html; charset=utf-8;
-+  X-Powered-By:  Express;
-+  Cache-Control:  public, max-age=86400;
-+  Cf-Cache-Status:  DYNAMIC;
-+  Server:  cloudflare;
-+  Cf-Ray:  7965ae27fa7c75bf-LHR;
-+  Content-Encoding:  br;
-+  X-Firefox-Spdy:  h2
-+}
++[
++  Content-Length: 13;
++  Date: Wed, 08 Feb 2023 16:18:17 GMT;
++  Content-Type: text/html; charset=utf-8;
++  X-Powered-By: Express;
++  Cache-Control: public, max-age=86400;
++  Cf-Cache-Status: DYNAMIC;
++  Server: cloudflare;
++  Cf-Ray: 7965ae27fa7c75bf-LHR;
++  Content-Encoding: br;
++  X-Firefox-Spdy: h2
++]
 - : unit = ()
 ```
 

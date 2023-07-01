@@ -124,11 +124,11 @@ header list.
 +[size = 0 ]
 val headers : Headers.t option = Some <abstr>
 
-# Headers.pp Format.std_formatter (Option.get headers) ;;
-{
-  Content-Length:  23;
-  Header1:  Header1 value text
-}
+# Eio.traceln "%a" Headers.pp (Option.get headers) ;;
++[
++  Content-Length: 23;
++  Header1: Header1 value text
++]
 - : unit = ()
 ```
 
@@ -157,11 +157,11 @@ Returns `Header2` since it is specified in the request `Trailer` header.
 val headers : Headers.t option = Some <abstr>
 
 # Eio.traceln "%a" Headers.pp (Option.get headers) ;;
-+{
-+  Content-Length:  23;
-+  Header2:  Header2 value text;
-+  Header1:  Header1 value text
-+}
++[
++  Content-Length: 23;
++  Header2: Header2 value text;
++  Header1: Header1 value text
++]
 - : unit = ()
 ```
 

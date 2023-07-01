@@ -42,9 +42,9 @@ val p : Multipart.stream Multipart.part = <abstr>
 - : string = "submit-name"
 
 # Multipart.headers p |> (Eio.traceln "%a" Headers.pp) ;;
-+{
-+  Content-Disposition:  form-data; name="submit-name"
-+}
++[
++  Content-Disposition: form-data; name="submit-name"
++]
 - : unit = ()
 
 # Multipart.read_all p;;
@@ -94,10 +94,10 @@ val form_field1 : Multipart.file_field = <abstr>
 - : string = "... contents of file1.txt ..."
 
 # Eio.traceln "%a" Headers.pp @@ Multipart.headers form_field1;;
-+{
-+  Content-Disposition:  form-data; name="files"; filename="file1.txt";
-+  Content-Type:  text/plain
-+}
++[
++  Content-Disposition: form-data; name="files"; filename="file1.txt";
++  Content-Type: text/plain
++]
 - : unit = ()
 ```
 

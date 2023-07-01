@@ -224,9 +224,18 @@ let easy_fmt t =
   let t =
     to_list t |> List.map (fun (k, v) -> field (Definition.canonical_name k) v)
   in
-  List (("{", ";", "}", p), t)
+  List (("[", ";", "]", p), t)
 
-let pp fmt t = Easy_format.Pretty.to_formatter fmt (easy_fmt t)
+let pp fmt t =
+  let sep = Fmt.any ":@ " in
+  let name fmt s = Fmt.pf fmt "%s" @@ Definition.canonical_name s in
+  let headers =
+    Fmt.(vbox @@ list ~sep:semi @@ hvbox ~indent:2 @@ pair ~sep name string)
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '[' ++ cut ++ headers))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char ']')) fmt t
 
 (* parser *)
 

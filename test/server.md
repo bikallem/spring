@@ -59,17 +59,17 @@ let handler req =
       Server.shutdown server
     );;
 +Route: /
-+{
-+  Content-Length:  4;
-+  Content-Type:  text/plain; charset=uf-8
-+}
++[
++  Content-Length: 4;
++  Content-Type: text/plain; charset=uf-8
++]
 +root
 +
 +Route: /upload
-+{
-+  Content-Length:  11;
-+  Content-Type:  text/plain; charset=uf-8
-+}
++[
++  Content-Length: 11;
++  Content-Type: text/plain; charset=uf-8
++]
 +hello world
 - : unit = ()
 ```
@@ -139,9 +139,9 @@ val res1 : Server.response = <abstr>
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
 +  Headers :
-+    {
++    [
 +      Content-Length:  0
-+    }
++    ]
 +}
 - : unit = ()
 ```
@@ -160,9 +160,9 @@ val res1 : Server.response = <abstr>
 +  Version:  HTTP/1.1;
 +  Status:  400 Bad Request;
 +  Headers :
-+    {
++    [
 +      Content-Length:  0
-+    }
++    ]
 +}
 - : unit = ()
 ```
@@ -185,7 +185,7 @@ val res1 : Server.response = <abstr>
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
 +  Headers :
-+    { }
++    [ ]
 +}
 - : unit = ()
 ```
@@ -214,9 +214,9 @@ val h : Server.handler = <fun>
 +  Version:  HTTP/1.1;
 +  Status:  200 OK;
 +  Headers :
-+    {
++    [
 +      Date:  Mon, 24 Oct 2022 16:12:15 GMT
-+    }
++    ]
 +}
 - : unit = ()
 ```
@@ -235,7 +235,7 @@ val h : Server.handler = <fun>
 +  Version:  HTTP/1.1;
 +  Status:  500 Internal Server Error;
 +  Headers :
-+    { }
++    [ ]
 +}
 - : unit = ()
 ```
@@ -254,7 +254,7 @@ val h : Server.handler = <fun>
 +  Version:  HTTP/1.1;
 +  Status:  100 Continue;
 +  Headers :
-+    { }
++    [ ]
 +}
 - : unit = ()
 ```

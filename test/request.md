@@ -39,12 +39,12 @@ val r : Request.server Request.t = <abstr>
 - : bool = true
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 ```
 
@@ -55,12 +55,12 @@ val r : Request.server Request.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  keep-alive, TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: keep-alive, TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 
 # Request.keep_alive r ;;
@@ -74,12 +74,12 @@ val r : Request.server Request.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  close, TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: close, TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 
 # Request.keep_alive r ;;
@@ -92,12 +92,12 @@ val r : Request.server Request.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 
 # Request.keep_alive r ;;
@@ -111,12 +111,12 @@ val r : Request.server Request.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  close, TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: close, TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 
 # Request.keep_alive r ;;
@@ -129,12 +129,12 @@ val r : Request.server Request.t = <abstr>
 val r : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Headers.pp @@ Request.headers r;;
-+{
-+  Host:  www.example.com;
-+  Connection:  keep-alive, TE;
-+  Te:  trailers;
-+  User-Agent:  cohttp-eio
-+}
++[
++  Host: www.example.com;
++  Connection: keep-alive, TE;
++  Te: trailers;
++  User-Agent: cohttp-eio
++]
 - : unit = ()
 
 # Request.keep_alive r ;;
@@ -199,10 +199,10 @@ val req : Request.client Request.t = <abstr>
 +  Method:  get;
 +  URI:  /update;
 +  Headers :
-+    {
++    [
 +      Header1:  val 1;
 +      Header2:  val 2
-+    };
++    ];
 +  Host:  www.example.com:8080
 +}
 - : unit = ()
@@ -230,10 +230,10 @@ val req : Request.server Request.t = <abstr>
 +  Method:  get;
 +  URI:  /update;
 +  Headers :
-+    {
++    [
 +      Header1:  val 1;
 +      Header2:  val 2
-+    };
++    ];
 +  Client Address:  tcp:127.0.0.1:8081
 +}
 - : unit = ()
