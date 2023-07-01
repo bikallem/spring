@@ -268,3 +268,12 @@ min-fresh.
 +(v1 = v2) -> true
 - : unit = ()
 ```
+
+no-cache.
+
+```ocaml
+# test_directive Cache_control.no_cache;;
++name: no-cache
++is_bool: true
+- : unit = ()
+```
