@@ -168,7 +168,7 @@ let encode now =
 
 let now (clock : #Eio.Time.clock) =
   let now = Eio.Time.now clock in
-  Ptime.of_float_s now |> Option.get
+  of_float_s now |> Option.get
 
 let compare = Ptime.compare
 

@@ -45,14 +45,20 @@ val date3 : Date.t = <abstr>
 ## Date.now 
 
 ```ocaml
+let now = 1666627935.85052109 
 let mock_clock = Eio_mock.Clock.make ()
-let () = Eio_mock.Clock.set_time mock_clock 1666627935.85052109
+let () = Eio_mock.Clock.set_time mock_clock now
 ```
 
 ```ocaml
-# Date.now mock_clock |> Eio.traceln "%a" Date.pp;; 
-+Mon, 24 Oct 2022 16:12:15 GMT
-- : unit = ()
+# let d1 = Date.now mock_clock;;
+val d1 : Date.t = <abstr>
+
+# let d2 = Date.of_float_s now |> Option.get;; 
+val d2 : Date.t = <abstr>
+
+# Date.equal d1 d2;;
+- : bool = true
 ```
 
 ## Date.of_ptime/of_float_s/equal/compare/is_later/is_earlier
