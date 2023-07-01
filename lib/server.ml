@@ -202,14 +202,14 @@ let serve_file ~on_error ~filepath url t =
 
 (* +-- server loop --+ *)
 
-let rec handle_request clock client_addr reader writer flow handler =
+let rec handle_request clock client_addr buf_read writer flow handler =
   let write = Response.write_server_response writer in
-  match Request.parse_server_request client_addr reader with
+  match Request.parse_server_request client_addr buf_read with
   | req ->
     let response = handler req in
     write response;
     if Request.keep_alive req then
-      handle_request clock client_addr reader writer flow handler
+      handle_request clock client_addr buf_read writer flow handler
   | (exception End_of_file)
   | (exception Eio.Io (Eio.Net.E (Connection_reset _), _)) -> ()
   | exception (Failure _ as ex) ->
