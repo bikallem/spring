@@ -9,6 +9,7 @@ module Directive = struct
     { name : name
     ; decode : 'a decode
     ; encode : 'a encode
+    ; fmt : 'a Fmt.t
     }
 
   type 'a t =
@@ -27,7 +28,7 @@ module Directive = struct
     | Bool _ -> true
     | Name_val _ -> false
 
-  let make name decode encode = Name_val { name; decode; encode }
+  let make name decode encode fmt = Name_val { name; decode; encode; fmt }
 
   let decode : type a. a t -> a decode option = function
     | Bool _ -> None
@@ -36,6 +37,10 @@ module Directive = struct
   let encode : type a. a t -> a encode option = function
     | Bool _ -> None
     | Name_val { encode; _ } -> Some encode
+
+  let value_fmt : type a. a t -> a Fmt.t = function
+    | Bool _ -> Fmt.bool
+    | Name_val { fmt; _ } -> fmt
 end
 
 type t = (string * string option) list
@@ -155,7 +160,7 @@ type delta_seconds = int
 let delta_seconds_directive name =
   let decode = int_of_string in
   let encode = string_of_int in
-  Directive.make name decode encode
+  Directive.make name decode encode Fmt.int
 
 let max_age = delta_seconds_directive "max-age"
 

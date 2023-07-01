@@ -60,7 +60,7 @@ module Directive : sig
   (** [encode] is the encoder function for a name value directive. It encodes a
       typed Ocaml value into a string value. *)
 
-  val make : name -> 'a decode -> 'a encode -> 'a t
+  val make : name -> 'a decode -> 'a encode -> 'a Fmt.t -> 'a t
   (** [make name decode encode] makes a name value directive with name [name]
       and decoder/encoder funtions [decode]/[encode] respectively. *)
 
@@ -75,6 +75,12 @@ module Directive : sig
       the encoder function for [t].
 
       It is [None] if [t] is a bool directive. *)
+
+  val value_fmt : 'a t -> 'a Fmt.t
+  (** [value_fmt d] is the pretty printer for the value encapsulated by
+      directive [d].
+
+      It is {!val:Fmt.bool} if [is_bool d = true]. *)
 end
 
 (** {1 Cache-Control} *)
