@@ -23,7 +23,11 @@ val is_expired : t -> bool
     expired value [t] has an invalid HTTP date value. *)
 
 val equal : t -> t -> bool
-(** [equal a b] is [true] if [a] and [b] are equal to each other. *)
+(** [equal a b] is [true] if [a] and [b] are equal to each other.
+
+    {b Note:} if [is_expired a = true && is_expired b = true] then
+    [equal a b = true], i.e. two expired values with two different invalid HTTP
+    Date.t values are equal. *)
 
 (** {1 HTTP Date Timestamp} *)
 
