@@ -229,9 +229,8 @@ let easy_fmt t =
 let pp fmt t =
   let sep = Fmt.any ":@ " in
   let name fmt s = Fmt.pf fmt "%s" @@ Definition.canonical_name s in
-  let headers =
-    Fmt.(vbox @@ list ~sep:semi @@ hvbox ~indent:2 @@ pair ~sep name string)
-  in
+  let name_value = Fmt.(hvbox ~indent:2 @@ pair ~sep name string) in
+  let headers = Fmt.(vbox @@ list ~sep:semi @@ name_value) in
   let open_bracket =
     Fmt.(vbox ~indent:2 @@ (const char '[' ++ cut ++ headers))
   in
