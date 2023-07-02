@@ -223,9 +223,12 @@ val t : Set_cookie.t = <abstr>
 
 `New`
 
-# make/name/value/extension
+# Set-Cookie
 
-Extension.
+1. Make a `Set-Cookie` value `t` with extension parameter.
+2. Display name
+3. Display value
+4. Display extension value.
 
 ```ocaml
 # let t = Set_cookie.New.make ~extension:"hello" ~name:"cookie1" "val1";;
@@ -239,4 +242,26 @@ val t : Set_cookie.New.t = <abstr>
 
 # Set_cookie.New.extension t;;
 - : string option = Some "hello"
+```
+
+## Add and find attributes in Set-Cookie
+
+1. Create Date.t value `dt1`.
+2. Add `Expires` attribute with `dt1` `t`.
+3. Find `Expires` attribute in `t` to `dt2`.
+4. `dt1` is equal to `dt2`.
+
+```ocaml
+let dt1 = Date.of_float_s 1623940778.27033591 |> Option.get
+```
+
+```ocaml
+# let t = Set_cookie.New.(add expires dt1 t);;
+val t : Set_cookie.New.t = <abstr>
+
+# let dt2 = Set_cookie.New.(find_opt expires t) |> Option.get;;
+val dt2 : Date.t = <abstr>
+
+# Date.equal dt1 dt2;;
+- : bool = true
 ```

@@ -114,6 +114,11 @@ module New : sig
   val value : t -> string
   (** [value t] is the value of [Set-Cookie] value [t]. *)
 
+  val add : 'a Attribute.t -> 'a -> t -> t
+  (** [add attr v t] adds attribute defined by [attr] and with value [v] to [t].
+
+      If [attr] already exists in [t] then the old value is replaced by [v]. *)
+
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)

@@ -225,30 +225,41 @@ module New = struct
     let name t = t.name
 
     let decode (type a) s t : a = t.decode s
+
+    let encode (type a) (v : a) t : string = t.encode v
   end
 
   let expires =
     Attribute.make "Expires" Date.decode Date.encode (* +-- Set-Cookie --+ *)
 
+  module Map = Map.Make (String)
+
   type t =
     { name : string
     ; value : string
-    ; attributes : (string * string) list
+    ; attributes : string Map.t
     ; extension : string option
     }
   [@@warning "-69"]
 
-  let make ?extension ~name value = { name; value; extension; attributes = [] }
+  let make ?extension ~name value =
+    { name; value; extension; attributes = Map.empty }
 
   let name t = t.name
 
   let value t = t.value
 
+  let add (type a) (attr : a Attribute.t) (v : a) t =
+    let v = Attribute.encode v attr in
+    let name = Attribute.name attr in
+    let attributes = Map.add name v t.attributes in
+    { t with attributes }
+
   let find_opt (type a) (attr : a Attribute.t) t =
     let open Option.Syntax in
     let attr_name = Attribute.name attr in
     match
-      let+ v = List.assoc_opt attr_name t.attributes in
+      let+ v = Map.find_opt attr_name t.attributes in
       Attribute.decode v attr
     with
     | (Some _ | None) as v -> v
