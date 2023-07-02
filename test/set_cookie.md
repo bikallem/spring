@@ -220,3 +220,17 @@ val t : Set_cookie.t = <abstr>
 - : string =
 "SID=31d4d96e407aad42; Path=/; Domain=example.com; Expires=Sun, 06 Nov 1994 08:49:37 GMT; SameSite=Lax; Secure; HttpOnly"
 ```
+
+`New`
+
+# make
+
+Extension.
+
+```ocaml
+# let t = Set_cookie.New.make ~extension:"hello" ~name:"cookie1" "val1";;
+val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.extension t;;
+- : string option = Some "hello"
+```
