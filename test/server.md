@@ -136,12 +136,11 @@ val res1 : Server.response = <abstr>
 
 # Eio.traceln "%a" Response.pp res1 ;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  400 Bad Request;
-+  Headers :
-+    [
-+      Content-Length:  0
-+    ]
++  Version: HTTP/1.1;
++  Status: 400 Bad Request;
++  Headers: [
++             Content-Length: 0
++           ]
 +}
 - : unit = ()
 ```
@@ -157,12 +156,11 @@ val res1 : Server.response = <abstr>
 
 # Eio.traceln "%a" Response.pp res1 ;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  400 Bad Request;
-+  Headers :
-+    [
-+      Content-Length:  0
-+    ]
++  Version: HTTP/1.1;
++  Status: 400 Bad Request;
++  Headers: [
++             Content-Length: 0
++           ]
 +}
 - : unit = ()
 ```
@@ -182,10 +180,11 @@ val res1 : Server.response = <abstr>
 
 # Eio.traceln "%a" Response.pp res1 ;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  200 OK;
-+  Headers :
-+    [ ]
++  Version: HTTP/1.1;
++  Status: 200 OK;
++  Headers: [
++
++           ]
 +}
 - : unit = ()
 ```
@@ -211,12 +210,11 @@ val h : Server.handler = <fun>
 
 # Eio.traceln "%a" Response.pp @@ h req;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  200 OK;
-+  Headers :
-+    [
-+      Date:  Mon, 24 Oct 2022 16:12:15 GMT
-+    ]
++  Version: HTTP/1.1;
++  Status: 200 OK;
++  Headers: [
++             Date: Mon, 24 Oct 2022 16:12:15 GMT
++           ]
 +}
 - : unit = ()
 ```
@@ -232,10 +230,11 @@ val h : Server.handler = <fun>
 
 # Eio.traceln "%a" Response.pp @@ h req;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  500 Internal Server Error;
-+  Headers :
-+    [ ]
++  Version: HTTP/1.1;
++  Status: 500 Internal Server Error;
++  Headers: [
++
++           ]
 +}
 - : unit = ()
 ```
@@ -251,10 +250,11 @@ val h : Server.handler = <fun>
 
 # Eio.traceln "%a" Response.pp @@ h req;;
 +{
-+  Version:  HTTP/1.1;
-+  Status:  100 Continue;
-+  Headers :
-+    [ ]
++  Version: HTTP/1.1;
++  Status: 100 Continue;
++  Headers: [
++
++           ]
 +}
 - : unit = ()
 ```

@@ -15,34 +15,21 @@ let find_set_cookie_ name headers =
   Headers.(find_all set_cookie headers)
   |> List.find_opt (fun sc -> String.equal name @@ Set_cookie.name sc)
 
-let field lbl v =
-  let open Easy_format in
-  let lbl = Atom (lbl ^ ": ", atom) in
-  let v = Atom (v, atom) in
-  Label ((lbl, label), v)
-
-let pp_ version status headers fmt =
-  let open Easy_format in
-  let fields =
-    [ field "Version" (Version.to_string version)
-    ; field "Status" (Status.to_string status)
-    ; Label
-        ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Headers.easy_fmt headers )
-    ]
-  in
-  let list_p =
-    { list with
-      align_closing = true
-    ; indent_body = 2
-    ; wrap_body = `Force_breaks_rec
-    }
-  in
-  Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
-
 let find_set_cookie name t = find_set_cookie_ name t.headers
 
-let pp fmt t = pp_ t.version t.status t.headers fmt
+let pp fmt t =
+  let fields =
+    Fmt.(
+      record ~sep:semi
+        [ Fmt.field "Version" (fun t -> t.version) Version.pp
+        ; Fmt.field "Status" (fun t -> t.status) Status.pp
+        ; Fmt.field "Headers" (fun t -> t.headers) Headers.pp
+        ])
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t
 
 type client =
   { buf_read : Eio.Buf_read.t

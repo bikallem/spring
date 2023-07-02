@@ -210,10 +210,15 @@ val res : Response.server Response.t = <abstr>
 ```ocaml
 # Response.find_set_cookie "ID" res |> Option.iter (Eio.traceln "%a" Set_cookie.pp) ;;
 +{
-+  Name:  ID;
-+  Value:  1234;
-+  Secure;
-+  HttpOnly
++  Name: ID;
++  Value: 1234;
++  Expires: ;
++  Max-Age: ;
++  Domain: ;
++  Path: ;
++  SameSite: ;
++  Secure: true;
++  HttpOnly: true
 +}
 - : unit = ()
 ```
