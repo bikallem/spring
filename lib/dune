@@ -7,7 +7,6 @@
  (libraries
   eio
   ptime
-  easy-format
   uri
   astring
   fmt
