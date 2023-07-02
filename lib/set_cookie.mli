@@ -75,3 +75,38 @@ val expire : t -> t
 (** {1 Pretty Printing} *)
 
 val pp : Format.formatter -> t -> unit
+
+module New : sig
+  (** {1:attribute Set-Cookie Attributes} *)
+
+  module Attribute : sig
+    type 'a t
+    (** ['a t] represents [Set-Cookie] attribute name and codecs to
+        decode/encode attribute value. [a'] represents the OCaml type encoded by
+        [t]. *)
+
+    val name : 'a t -> string
+  end
+
+  val expires : Date.t Attribute.t
+
+  (** {1 Set-Cookie} *)
+
+  type t
+  (** [t] represents a HTTP Set-Cookie header value. *)
+
+  val make : ?extension:string -> name:string -> string -> t
+  (** [make ~name v] creates [Set-Cookie] value [t] with name [name] and value
+      [v].
+
+      @param extension
+        is the extension attribute value for [t]. Default is [None]. *)
+
+  val find_opt : 'a Attribute.t -> t -> 'a option
+  (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
+      it is [None]. *)
+
+  val extension : t -> string option
+  (** [extension t] is [Some v] if an extension attribute value is defined for
+      [t]. *)
+end

@@ -207,3 +207,48 @@ let pp fmt t =
     Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
   in
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t
+
+(* +-- New --+ *)
+
+(* +-- Set-Cookie Attributes --+ *)
+module New = struct
+  module Attribute = struct
+    type 'a t =
+      { name : string
+      ; decode : string -> 'a
+      ; encode : 'a -> string
+      }
+    [@@warning "-69"]
+
+    let make name decode encode = { name; decode; encode }
+
+    let name t = t.name
+
+    let decode (type a) s t : a = t.decode s
+  end
+
+  let expires =
+    Attribute.make "Expires" Date.decode Date.encode (* +-- Set-Cookie --+ *)
+
+  type t =
+    { name : string
+    ; value : string
+    ; attributes : (string * string) list
+    ; extension : string option
+    }
+  [@@warning "-69"]
+
+  let make ?extension ~name value = { name; value; extension; attributes = [] }
+
+  let find_opt (type a) (attr : a Attribute.t) t =
+    let open Option.Syntax in
+    let attr_name = Attribute.name attr in
+    match
+      let+ v = List.assoc_opt attr_name t.attributes in
+      Attribute.decode v attr
+    with
+    | (Some _ | None) as v -> v
+    | exception _ -> None
+
+  let extension t = t.extension
+end
