@@ -89,6 +89,12 @@ module New : sig
   end
 
   val expires : Date.t Attribute.t
+  (** [expires] is the [Expires] [Set-Cookie] attribute. It encapsulates a HTTP
+      Date timestamp.
+
+      See
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-expires-attribute}
+      Expires} *)
 
   (** {1 Set-Cookie} *)
 
