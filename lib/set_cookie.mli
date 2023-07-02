@@ -108,6 +108,12 @@ module New : sig
       @param extension
         is the extension attribute value for [t]. Default is [None]. *)
 
+  val name : t -> string
+  (** [name t] is the name of [Set-Cookie] value [t]. *)
+
+  val value : t -> string
+  (** [value t] is the value of [Set-Cookie] value [t]. *)
+
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)

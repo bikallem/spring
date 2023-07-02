@@ -223,13 +223,19 @@ val t : Set_cookie.t = <abstr>
 
 `New`
 
-# make
+# make/name/value/extension
 
 Extension.
 
 ```ocaml
 # let t = Set_cookie.New.make ~extension:"hello" ~name:"cookie1" "val1";;
 val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.name t;;
+- : string = "cookie1"
+
+# Set_cookie.New.value t;;
+- : string = "val1"
 
 # Set_cookie.New.extension t;;
 - : string option = Some "hello"

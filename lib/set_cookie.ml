@@ -240,6 +240,10 @@ module New = struct
 
   let make ?extension ~name value = { name; value; extension; attributes = [] }
 
+  let name t = t.name
+
+  let value t = t.value
+
   let find_opt (type a) (attr : a Attribute.t) t =
     let open Option.Syntax in
     let attr_name = Attribute.name attr in
