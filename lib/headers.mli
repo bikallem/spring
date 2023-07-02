@@ -204,8 +204,6 @@ val filter : (Definition.lname -> string -> bool) -> t -> t
 
 (** {1 Pretty Printer} *)
 
-val easy_fmt : t -> Easy_format.t
-
 val pp : Format.formatter -> t -> unit
 
 (** {1 Parse} *)

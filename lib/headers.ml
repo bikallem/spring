@@ -205,27 +205,6 @@ let iter f t = List.iter (fun (k, v) -> f k v) t
 
 let filter f t = List.filter (fun (k, v) -> f k v) t
 
-open Easy_format
-
-let field lbl v =
-  let lbl = Atom (lbl ^ ": ", atom) in
-  let v = Atom (v, atom) in
-  Label ((lbl, label), v)
-
-let easy_fmt t =
-  let p =
-    { list with
-      stick_to_label = false
-    ; align_closing = true
-    ; space_after_separator = true
-    ; wrap_body = `Force_breaks
-    }
-  in
-  let t =
-    to_list t |> List.map (fun (k, v) -> field (Definition.canonical_name k) v)
-  in
-  List (("[", ";", "]", p), t)
-
 let pp fmt t =
   let sep = Fmt.any ":@ " in
   let name fmt s = Fmt.pf fmt "%s" @@ Definition.canonical_name s in
