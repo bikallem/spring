@@ -195,15 +195,14 @@ val req : Request.client Request.t = <abstr>
 
 # Eio.traceln "%a" Request.pp req ;;
 +{
-+  Version:  HTTP/1.1;
-+  Method:  get;
-+  URI:  /update;
-+  Headers :
-+    [
-+      Header1:  val 1;
-+      Header2:  val 2
-+    ];
-+  Host:  www.example.com:8080
++  Method: GET;
++  Resource: /update;
++  Version: HTTP/1.1;
++  Headers: [
++             Header1: val 1;
++             Header2: val 2
++           ];
++  Host: www.example.com:8080
 +}
 - : unit = ()
 ```
@@ -226,15 +225,14 @@ val req : Request.server Request.t = <abstr>
 
 # Eio.traceln "%a" Request.pp req ;;
 +{
-+  Version:  HTTP/1.1;
-+  Method:  get;
-+  URI:  /update;
-+  Headers :
-+    [
-+      Header1:  val 1;
-+      Header2:  val 2
-+    ];
-+  Client Address:  tcp:127.0.0.1:8081
++  Method: GET;
++  Resource: /update;
++  Version: HTTP/1.1;
++  Headers: [
++             Header1: val 1;
++             Header2: val 2
++           ];
++  Client Address: tcp:127.0.0.1:8081
 +}
 - : unit = ()
 ```

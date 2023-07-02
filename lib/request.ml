@@ -42,36 +42,6 @@ let find_cookie name t =
   let* cookie = Headers.(find_opt cookie t.headers) in
   Cookie.find_opt name cookie
 
-let field lbl v =
-  let open Easy_format in
-  let lbl = Atom (lbl ^ ": ", atom) in
-  let v = Atom (v, atom) in
-  Label ((lbl, label), v)
-
-let fields version meth resource headers (f : unit -> Easy_format.t list) =
-  let open Easy_format in
-  let l =
-    [ field "Version" (Version.to_string version)
-    ; field "Method" (Method.to_string meth :> string)
-    ; field "URI" resource
-    ; Label
-        ( (Atom ("Headers :", atom), { label with label_break = `Always })
-        , Headers.easy_fmt headers )
-    ]
-  in
-  l @ f ()
-
-let pp_fields fmt fields =
-  let open Easy_format in
-  let list_p =
-    { list with
-      align_closing = true
-    ; indent_body = 2
-    ; wrap_body = `Force_breaks_rec
-    }
-  in
-  Pretty.to_formatter fmt (List (("{", ";", "}", list_p), fields))
-
 type client =
   { host : string
   ; port : int option
@@ -83,6 +53,22 @@ let host_port_to_string (host, port) =
   | Some p -> Format.sprintf "%s:%d" host p
   | None -> host
 
+let pp_fields x_field_pp fmt t =
+  let fields =
+    Fmt.(
+      record ~sep:semi
+        [ Fmt.field "Method" (fun t -> t.meth) Method.pp
+        ; Fmt.field "Resource" (fun t -> t.resource) Fmt.string
+        ; Fmt.field "Version" (fun t -> t.version) Version.pp
+        ; Fmt.field "Headers" (fun t -> t.headers) Headers.pp
+        ; x_field_pp
+        ])
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t
+
 let make_client_request
     ?(version = Version.http1_1)
     ?(headers = Headers.empty)
@@ -92,19 +78,12 @@ let make_client_request
     meth
     body =
   let client = { host; port; body } in
-  { meth
-  ; resource
-  ; version
-  ; headers
-  ; x = client
-  ; pp =
-      (fun fmt t ->
-        let fields =
-          fields t.version t.meth t.resource t.headers @@ fun () ->
-          [ field "Host" (host_port_to_string (t.x.host, t.x.port)) ]
-        in
-        pp_fields fmt fields)
-  }
+  let pp =
+    Fmt.(
+      field "Host" (fun t -> host_port_to_string (t.x.host, t.x.port)) string)
+    |> pp_fields
+  in
+  { meth; resource; version; headers; x = client; pp }
 
 let host t = t.x.host
 
@@ -168,26 +147,11 @@ let make_server_request
     client_addr
     buf_read =
   let server = { client_addr; buf_read; session_data } in
-  { meth
-  ; resource
-  ; version
-  ; headers
-  ; x = server
-  ; pp =
-      (fun fmt t ->
-        let sock_addr =
-          let buf = Buffer.create 10 in
-          let fmt = Format.formatter_of_buffer buf in
-          Format.fprintf fmt "%a" Eio.Net.Sockaddr.pp t.x.client_addr;
-          Format.pp_print_flush fmt ();
-          Buffer.contents buf
-        in
-        let fields =
-          fields t.version t.meth t.resource t.headers @@ fun () ->
-          [ field "Client Address" sock_addr ]
-        in
-        pp_fields fmt fields)
-  }
+  let pp =
+    Fmt.(field "Client Address" (fun t -> t.x.client_addr) Eio.Net.Sockaddr.pp)
+    |> pp_fields
+  in
+  { meth; resource; version; headers; x = server; pp }
 
 let client_addr t = t.x.client_addr
 
