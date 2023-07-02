@@ -188,51 +188,22 @@ let expire t =
   ; same_site = None
   }
 
-open Easy_format
-open Option.Syntax
-
-let field lbl v =
-  let lbl = Atom (lbl ^ ": ", atom) in
-  let v = Atom (v, atom) in
-  Label ((lbl, label), v)
-
 let pp fmt t =
-  let param =
-    { list with
-      stick_to_label = false
-    ; align_closing = true
-    ; space_after_separator = true
-    ; wrap_body = `Force_breaks
-    }
-  in
   let fields =
-    [ ("Name", Some t.name)
-    ; ("Value", Some t.value)
-    ; ( "Expires"
-      , let+ v = t.expires in
-        Date.encode v )
-    ; ( "Max-Age"
-      , let+ v = t.max_age in
-        string_of_int v )
-    ; ( "Domain"
-      , let+ v = t.domain in
-        Domain_name.to_string v )
-    ; ("Path", t.path)
-    ; ("SameSite", t.same_site)
-    ; ("Secure", if t.secure then Some "" else None)
-    ; ("HttpOnly", if t.http_only then Some "" else None)
-    ]
+    Fmt.(
+      record ~sep:semi
+        [ Fmt.field "Name" (fun t -> t.name) Fmt.string
+        ; Fmt.field "Value" (fun t -> t.value) Fmt.string
+        ; Fmt.field "Expires" (fun t -> t.expires) Fmt.(option Date.pp)
+        ; Fmt.field "Max-Age" (fun t -> t.max_age) Fmt.(option int)
+        ; Fmt.field "Domain" (fun t -> t.domain) Fmt.(option Domain_name.pp)
+        ; Fmt.field "Path" (fun t -> t.path) Fmt.(option string)
+        ; Fmt.field "SameSite" (fun t -> t.same_site) Fmt.(option string)
+        ; Fmt.field "Secure" (fun t -> t.secure) Fmt.bool
+        ; Fmt.field "HttpOnly" (fun t -> t.http_only) Fmt.bool
+        ])
   in
-  let fields =
-    List.fold_right
-      (fun (k, v) acc ->
-        match v with
-        | Some "" -> Atom (k, atom) :: acc
-        | Some v -> field k v :: acc
-        | None -> acc)
-      fields []
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
   in
-  let fields =
-    fields @ List.map (fun v -> Atom (v, atom)) (List.rev t.extensions)
-  in
-  Easy_format.Pretty.to_formatter fmt @@ List (("{", ";", "}", param), fields)
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t

@@ -160,17 +160,15 @@ val t : Set_cookie.t = <abstr>
 
 # Eio.traceln "%a" Set_cookie.pp t;;
 +{
-+  Name:  SID;
-+  Value:  31d4d96e407aad42;
-+  Expires:  Sun, 06 Nov 1994 08:49:37 GMT;
-+  Domain:  example.com;
-+  Path:  /;
-+  SameSite:  Strict;
-+  Secure;
-+  HttpOnly;
-+  extension1;
-+  extension2;
-+  extension3
++  Name: SID;
++  Value: 31d4d96e407aad42;
++  Expires: Sun, 06 Nov 1994 08:49:37 GMT;
++  Max-Age: ;
++  Domain: example.com;
++  Path: /;
++  SameSite: Strict;
++  Secure: true;
++  HttpOnly: true
 +}
 - : unit = ()
 ```
@@ -184,9 +182,15 @@ val t : Set_cookie.t = <abstr>
 
 # Set_cookie.expire t |> Eio.traceln "%a" Set_cookie.pp;;
 +{
-+  Name:  SID;
-+  Value;
-+  Max-Age:  -1
++  Name: SID;
++  Value: ;
++  Expires: ;
++  Max-Age: -1;
++  Domain: ;
++  Path: ;
++  SameSite: ;
++  Secure: false;
++  HttpOnly: false
 +}
 - : unit = ()
 ```
