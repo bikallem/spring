@@ -8,6 +8,16 @@ module Buf_read = Spring__Buf_read
 let b s = Buf_read.of_string s
 ```
 
+## Buf_read.take_while1
+
+`take_while1` calls given `on_error` function.
+
+```ocaml
+# Buf_read.take_while1 ~on_error:(fun () -> failwith "invalid name")
+    (function 'a'..'z' -> true | _ -> false) @@ b "";;
+Exception: Failure "invalid name".
+```
+
 ## Buf_read.quoted_pair
 
 ```ocaml

@@ -1,5 +1,12 @@
 include Eio.Buf_read
 
+let take_while1_err () = failwith "take_while1"
+
+let take_while1 ?(on_error = take_while1_err) p r =
+  match take_while p r with
+  | "" -> on_error ()
+  | x -> x
+
 let token =
   take_while1 (function
     | '0' .. '9'

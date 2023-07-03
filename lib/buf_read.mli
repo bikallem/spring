@@ -1,5 +1,11 @@
 include module type of Eio.Buf_read
 
+val take_while1 : ?on_error:(unit -> string) -> (char -> bool) -> string parser
+(** [take_while1 p] is like {!val:Eio.Buf_read.take_while1} except calls
+    [on_error] when it consumes less than one character of input.
+
+    @param on_error By default it fails with "take_while1". *)
+
 val token : string parser
 
 val crlf : unit parser
