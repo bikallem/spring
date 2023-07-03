@@ -246,6 +246,8 @@ val t : Set_cookie.New.t = <abstr>
 
 ## Add and find attributes in Set-Cookie
 
+Expires attribute.
+
 1. Create Date.t value `dt1`.
 2. Add `Expires` attribute with `dt1` `t`.
 3. Find `Expires` attribute in `t` to `dt2`.
