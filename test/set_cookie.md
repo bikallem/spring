@@ -263,11 +263,11 @@ val t : Set_cookie.New.t = <abstr>
 +extension:
 - : unit = ()
 
-# let t = Set_cookie.New.decode {|name1="value=@>?"|};;
+# let t = Set_cookie.New.decode {|name1@="value=@>?"|};;
 val t : Set_cookie.New.t = <abstr>
 
 # display_set_cookie_details t;;
-+name: name1
++name: name1@
 +value: 'value=@>?'
 +extension:
 - : unit = ()
