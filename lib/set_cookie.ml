@@ -245,6 +245,13 @@ module New = struct
   let make ?extension ~name value =
     { name; value; extension; attributes = Map.empty }
 
+  (* +-- decode --+ *)
+
+  let decode s =
+    let buf_read = Buf_read.of_string s in
+    let name, value = Buf_read.cookie_pair buf_read in
+    make ~name value
+
   let name t = t.name
 
   let value t = t.value

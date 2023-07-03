@@ -225,6 +225,13 @@ val t : Set_cookie.t = <abstr>
 
 # Set-Cookie
 
+```ocaml
+let display_set_cookie_details t =
+    Eio.traceln "name: %s" (Set_cookie.New.name t);
+    Eio.traceln "value: '%s'" (Set_cookie.New.value t);
+    Eio.traceln "extension: %a" Fmt.(option string) (Set_cookie.New.extension t)
+```
+
 1. Make a `Set-Cookie` value `t` with extension parameter.
 2. Display name
 3. Display value
@@ -234,14 +241,36 @@ val t : Set_cookie.t = <abstr>
 # let t = Set_cookie.New.make ~extension:"hello" ~name:"cookie1" "val1";;
 val t : Set_cookie.New.t = <abstr>
 
-# Set_cookie.New.name t;;
-- : string = "cookie1"
+# display_set_cookie_details t;;
++name: cookie1
++value: 'val1'
++extension: hello
+- : unit = ()
+```
 
-# Set_cookie.New.value t;;
-- : string = "val1"
+## decode
 
-# Set_cookie.New.extension t;;
-- : string option = Some "hello"
+1. Decode Set-Cookie from various strings.
+2. Display decoded Set-Cookie details.
+
+```ocaml
+# let t = Set_cookie.New.decode "asdfa=asdfasdf";;
+val t : Set_cookie.New.t = <abstr>
+
+# display_set_cookie_details t;;
++name: asdfa
++value: 'asdfasdf'
++extension:
+- : unit = ()
+
+# let t = Set_cookie.New.decode {|name1="value=@>?"|};;
+val t : Set_cookie.New.t = <abstr>
+
+# display_set_cookie_details t;;
++name: name1
++value: 'value=@>?'
++extension:
+- : unit = ()
 ```
 
 ## Add and find attributes in Set-Cookie

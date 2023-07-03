@@ -108,6 +108,12 @@ module New : sig
       @param extension
         is the extension attribute value for [t]. Default is [None]. *)
 
+  val decode : string -> t
+  (** [decode s] decodes string [s] into [t]. The grammar followed is specified
+      at
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-syntax}
+      Set-Cookie syntax} *)
+
   val name : t -> string
   (** [name t] is the name of [Set-Cookie] value [t]. *)
 
