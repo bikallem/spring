@@ -273,6 +273,16 @@ val t : Set_cookie.New.t = <abstr>
 - : unit = ()
 ```
 
+Ensure whitespaces are correctly parser.
+
+```ocaml
+# Set_cookie.New.decode {|name1@  =  "value=@>?"|} |> display_set_cookie_details;;
++name: name1@
++value: 'value=@>?'
++extension:
+- : unit = ()
+```
+
 ## Add and find attributes in Set-Cookie
 
 Expires attribute.
