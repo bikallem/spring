@@ -113,26 +113,9 @@ let cookie_value : string parser =
   | Some '"' -> char '"' *> cookie_octet <* char '"'
   | Some _ | None -> cookie_octet
 
-(** [cookie_name] parses cookie name as specified at
-    https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-syntax
-
-    {b Note} The cookie-name excludes '=' character since it is used as
-    delimiter with the cookie value. *)
-
-let cookie_name =
-  take_while1
-    ~on_error:(fun () -> failwith "Invalid \"cookie-pair\"")
-    (function
-      | '\x21'
-      | '\x23' .. '\x2B'
-      | '\x2D' .. '\x3A'
-      | '\x3C'
-      | '\x3E' .. '\x5B'
-      | '\x5D' .. '\x7E' -> true
-      | _ -> false)
-
+(* https://datatracker.ietf.org/doc/html/rfc6265#section-4.1 *)
 let cookie_pair : (string * string) parser =
-  ows *> cookie_name <* ows <* char '=' *> ows <*> cookie_value
+  ows *> token <* ows <* char '=' *> ows <*> cookie_value
 
 (* +-- #element - https://www.rfc-editor.org/rfc/rfc9110#name-lists-rule-abnf-extension --+ *)
 
