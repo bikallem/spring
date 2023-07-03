@@ -1,4 +1,4 @@
-(lang dune 3.8)
+(lang dune 3.9)
 
 (name spring)
 
@@ -25,9 +25,9 @@
   (ocaml
    (>= 5.0.0))
   (eio
-   (>= 0.9))
+   (= 0.9))
   (dune
-   (>= 3.8.2))
+   (>= 3.9.0))
   (uri
    (>= 4.2.0))
   (ptime
