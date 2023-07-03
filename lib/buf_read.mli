@@ -25,6 +25,11 @@ val quoted_string : string parser
 val parameters : (string * string) list parser
 
 val cookie_pair : (string * string) parser
+(** [cookie_pair] parser cookie name and value.
+
+    See
+    {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-syntax}
+    Cookie/Set-Cookie Syntax} *)
 
 val list1 : 'a parser -> 'a list parser
 (** [list1 p] is a parser that parses at least one element as defined by [p].
