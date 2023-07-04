@@ -98,6 +98,12 @@ module New : sig
       See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.1}
       Expires} *)
 
+  val max_age : int Attribute.t
+  (** [max_age] is the [Max-Age] [Set-Cookie] attribute.
+
+      See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.2}
+      Max-Age}.*)
+
   val path : string Attribute.t
   (** [path] is the [Path] attribute.
 

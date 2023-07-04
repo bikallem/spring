@@ -244,6 +244,8 @@ module New = struct
 
   let expires = Attribute.make_name_val "Expires" Date.decode Date.encode
 
+  let max_age = Attribute.make_name_val "Max-Age" int_of_string string_of_int
+
   let path = Attribute.make_name_val "Path" Fun.id Fun.id
 
   let domain =

@@ -360,6 +360,9 @@ val t : Set_cookie.New.t = <abstr>
 
 # Set_cookie.New.(find http_only t);;
 - : bool = true
+
+# Set_cookie.New.(find max_age t);;
+- : int = 123
 ```
 
 Decode name/value only.
