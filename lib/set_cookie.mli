@@ -138,7 +138,8 @@ module New : sig
       [v].
 
       @param extension
-        is the extension attribute value for [t]. Default is [None]. *)
+        is the extension attribute value for [t]. Default is [None].
+      @raise Invalid_arg if [name] is an empty string. *)
 
   val name : t -> string
   (** [name t] is the name of [Set-Cookie] value [t]. *)

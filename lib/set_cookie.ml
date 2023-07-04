@@ -268,7 +268,8 @@ module New = struct
     }
 
   let make ?extension ~name value =
-    { name; value; extension; attributes = Map.empty }
+    if String.is_empty name then invalid_arg "[name] is empty"
+    else { name; value; extension; attributes = Map.empty }
 
   let name t = t.name
 

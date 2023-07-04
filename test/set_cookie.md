@@ -232,6 +232,8 @@ let display_set_cookie_details t =
     Eio.traceln "extension: '%a'" Fmt.(option string) (Set_cookie.New.extension t)
 ```
 
+# make
+
 1. Make a `Set-Cookie` value `t` with extension parameter.
 2. Display name
 3. Display value
@@ -246,6 +248,13 @@ val t : Set_cookie.New.t = <abstr>
 +value: 'val1'
 +extension: 'hello'
 - : unit = ()
+```
+
+Set-Cookie can't have empty `name`.
+
+```ocaml
+# Set_cookie.New.make ~name:"" "v";;
+Exception: Invalid_argument "[name] is empty".
 ```
 
 ## decode
