@@ -144,6 +144,19 @@ module New : sig
         if [Attribute.is_bool d = false] and [v = None] since a non bool
         attribute requires a value. *)
 
+  val find : 'a Attribute.t -> t -> 'a
+  (** [find attr t] is [v] if attribute [attr] exists in [t]. [v] is the value
+      as denoted by [attr].
+
+      If [Attribute.is_bool attr = true] then [v = true] and [v = false] denotes
+      the existence and absence respectively of attribute [attr] in [t].
+
+      @raise Not_found
+        if attribute [attr] is not found in [t] and
+        [Attribute.is_bool attr = false].
+      @raise Failure
+        if [Attribute.is_bool attr = false] and decoding [v] results in error. *)
+
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)

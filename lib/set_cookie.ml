@@ -284,6 +284,15 @@ module New = struct
     let attributes = Map.add name v t.attributes in
     { t with attributes }
 
+  let find : type a. a Attribute.t -> t -> a =
+   fun attr t ->
+    let attr_name = Attribute.name attr in
+    match (Map.find_opt attr_name t.attributes, attr) with
+    | Some _, Attribute.Bool _ -> true
+    | None, Bool _ -> false
+    | Some v, Name_val { decode; _ } -> decode @@ Option.get v
+    | None, Name_val _ -> raise Not_found
+
   let find_opt : type a. a Attribute.t -> t -> a option =
    fun attr t ->
     let attr_name = Attribute.name attr in

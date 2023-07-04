@@ -306,3 +306,19 @@ val dt2 : Date.t = <abstr>
 # Date.equal dt1 dt2;;
 - : bool = true
 ```
+
+Secure attribute.
+
+1. Find `secure` attribute. It is `false`.
+2. Add `secure` attribute and find it. It is `true`.
+
+```ocaml
+# Set_cookie.New.(find secure t);;
+- : bool = false
+
+# let t = Set_cookie.New.(add secure t);;
+val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.(find secure t);;
+- : bool = true
+```
