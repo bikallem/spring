@@ -325,6 +325,15 @@ module New = struct
     let attributes = Map.remove attr_name t.attributes in
     { t with attributes }
 
+  let compare t0 t1 =
+    let cmp = String.compare t0.name t1.name in
+    if cmp = 0 then
+      let cmp = String.compare t0.value t1.value in
+      if cmp = 0 then
+        Map.compare (Option.compare String.compare) t0.attributes t1.attributes
+      else cmp
+    else cmp
+
   let av_octet buf_read =
     Buf_read.take_while
       (function

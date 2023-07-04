@@ -335,7 +335,7 @@ val t : Set_cookie.New.t = <abstr>
 - : bool = true
 ```
 
-## decode/encode
+## decode/encode/compare
 
 Test decoding `Set-Cookie` name, value and attributes. The attribute names are
 case in-sensitive.
@@ -350,6 +350,7 @@ case in-sensitive.
 8. Decode `s1` to `t1`.
 9. Encode `t1` to `s2`.
 10. `s1` is equal to `s2`.
+11. Compare `t` and `t1` is 0. 
 
 ```ocaml
 let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; ASDFas@sadfa\\;secure   ; HttpOnly    ; MaX-age =  123"
@@ -396,6 +397,9 @@ val s2 : string =
 
 # s1 = s2;;
 - : bool = true
+
+# Set_cookie.New.compare t t1;; 
+- : int = 0
 ```
 
 Decode name/value only.

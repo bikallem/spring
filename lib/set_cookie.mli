@@ -184,6 +184,18 @@ module New : sig
   val remove : 'a Attribute.t -> t -> t
   (** [remove attr t] is [t] with attribute [attr] removed. *)
 
+  val compare : t -> t -> int
+  (** [compare t0 t1] compares [t0] and [t1]. The comparison is done the
+      following way.
+
+      + Names and values of [t0] and [t1] are compared in a case-sensitive
+        manner.
+      + The attributes names are compared case-insensitively
+      + The attribute values are compared according to the value the attribute
+        encodes.
+
+      [compare t0 t1 = 0] is same as [equal t0 t1 = true]. *)
+
   (** {2 Codecs} *)
 
   val decode : string -> t
