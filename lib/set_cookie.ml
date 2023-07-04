@@ -293,7 +293,7 @@ module New = struct
 
   let extension t = t.extension
 
-  let add (type a) ?(v : a option) (attr : a Attribute.t) t =
+  let add_attribute (type a) ?(v : a option) (attr : a Attribute.t) attributes =
     let v =
       match attr with
       | Bool _ -> None
@@ -304,7 +304,14 @@ module New = struct
           invalid_arg "[v] is [None] but is required for non bool attribute")
     in
     let name = Attribute.name attr in
-    let attributes = Map.add name v t.attributes in
+    Map.add name v attributes
+
+  let expire t =
+    let attributes = add_attribute ~v:(-1) max_age Map.empty in
+    { t with extension = None; attributes }
+
+  let add ?v attr t =
+    let attributes = add_attribute ?v attr t.attributes in
     { t with attributes }
 
   let find : type a. a Attribute.t -> t -> a =

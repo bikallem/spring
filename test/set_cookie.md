@@ -161,6 +161,33 @@ No prefix is added to `Set-Cookie` name if `Secure` attribute is not present.
 - : string = "SID=1234; Domain=www.example.com; Path=/"
 ```
 
+## expire
+
+Expire a `Set-Cookie`.
+
+```ocaml
+let now = 1666627935.85052109 
+let mock_clock = Eio_mock.Clock.make ()
+let () = Eio_mock.Clock.set_time mock_clock now
+let dt1 = Date.now mock_clock;;
+```
+
+```ocaml
+# let t0 = 
+  Set_cookie.New.make ~name:"SID" "123"
+  |> Set_cookie.New.(add ~v:dt1 expires);;
+val t0 : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.encode t0;; 
+- : string = "SID=123; Expires=Mon, 24 Oct 2022 16:12:15 GMT"
+
+# let e0 = Set_cookie.New.expire t0;;
+val e0 : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.encode e0;;
+- : string = "SID=123; Max-Age=-1"
+```
+
 ## Add and find attributes in Set-Cookie
 
 Expires attribute.

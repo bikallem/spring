@@ -1,9 +1,14 @@
-(** [Set_cookie] implements HTTP [Set-Cooki]e header functionality as specified
-    in https://datatracker.ietf.org/doc/html/rfc6265
+(** HTTP [Set-Cooki]e header functionality as specified in
+    {{!https://datatracker.ietf.org/doc/html/rfc6265} RFC 6265}.
 
-    Addtionally, the module also supports Same-Site cookie attribute value as
-    specified in
-    https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00#section-1 *)
+    {b Note} Additional functionality supported in addition to the above RFC:
+
+    + Same-Site cookie attribute value. See
+      {{!https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site-00#section-1}
+      SameSite Attribute}
+    + Cookie Name Prefix encoding/decoding. See
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-cookie-name-prefixes}
+      Cookie Name Prefixes} *)
 
 type t
 (** [t] represents a HTTP Set-Cookie header value. *)
@@ -178,6 +183,11 @@ module New : sig
   val extension : t -> string option
   (** [extension t] is [Some v] if an extension attribute value is defined for
       [t]. *)
+
+  val expire : t -> t
+  (** [expire t] configures [t] to be expired/removed by user-agents. This is
+      done by setting [Max-Age] attribute to [-1] and removing all other
+      attributes in [t]. *)
 
   val add : ?v:'a -> 'a Attribute.t -> t -> t
   (** [add v attr t] adds attribute defined by [attr] and value [v] to [t].
