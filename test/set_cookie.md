@@ -479,3 +479,43 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find_opt secure t);;
 - : bool option = None
 ```
+
+## pp
+
+Pretty print.
+
+```ocaml
+let t = Set_cookie.New.decode s2 
+```
+
+```ocaml
+
+# Eio.traceln "%a" Set_cookie.New.pp t;;
++{
++  Name : 'SID' ;
++  Value : '31d4d96e407aad42' ;
++  Domain : 'example.com' ;
++  Expires : 'Thu, 17 Jun 2021 14:39:38 GMT' ;
++  Httponly ;
++  Max-Age : '123' ;
++  Path : '/' ;
++  Secure ;
++}
+- : unit = ()
+```
+
+Pretty print name/value only.
+
+```ocaml
+let t = Set_cookie.New.make ~name:"SID" "helloWorld";; 
+```
+
+```ocaml
+# Eio.traceln "%a" Set_cookie.New.pp t;; 
++{
++  Name : 'SID' ;
++  Value : 'helloWorld' ;
++}
+- : unit = ()
+```
+

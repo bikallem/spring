@@ -210,4 +210,9 @@ module New : sig
 
   val encode : t -> string
   (** [encode t] encodes [t] to [s]. *)
+
+  (** {2 Pretty Printing} *)
+
+  val pp : Format.formatter -> t -> unit
+  (** [pp fmt t] pretty prints [t] onto [fmt]. *)
 end

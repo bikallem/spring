@@ -392,6 +392,11 @@ module New = struct
     let extension, attributes = attr_tokens buf_read in
     { name; value; extension; attributes }
 
+  let canonical_attribute_name s =
+    String.cuts ~sep:"-" s
+    |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
+    |> String.concat ~sep:"-"
+
   let encode t =
     let module O = Option in
     let b = Buffer.create 10 in
@@ -413,4 +418,30 @@ module New = struct
     if find secure t then Buffer.add_string b "; Secure";
     if find http_only t then Buffer.add_string b "; HttpOnly";
     Buffer.contents b
+
+  (* +-- Pretty Printing --+ *)
+
+  let pp_field ?v lbl =
+    Fmt.(
+      const string lbl
+      ++
+      match v with
+      | Some v -> const string " : '" ++ const string v ++ const string "\' ;"
+      | None -> const string " ;")
+
+  let pp fmt t =
+    let name = pp_field ~v:t.name "Name" in
+    let value = Fmt.(cut ++ pp_field ~v:t.value "Value") in
+    let attributes =
+      Map.fold
+        (fun name v acc ->
+          let name = canonical_attribute_name name in
+          Fmt.(acc ++ cut ++ pp_field ?v name))
+        t.attributes Fmt.nop
+    in
+    let open_bracket =
+      Fmt.(
+        vbox ~indent:2 @@ (const char '{' ++ cut ++ name ++ value ++ attributes))
+    in
+    Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t
 end
