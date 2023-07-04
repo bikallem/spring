@@ -213,34 +213,46 @@ let pp fmt t =
 (* +-- Set-Cookie Attributes --+ *)
 module New = struct
   module Attribute = struct
-    type 'a t =
-      { name : string
+    type name = string
+
+    type 'a name_val =
+      { name : name
       ; decode : string -> 'a
       ; encode : 'a -> string
       }
-    [@@warning "-69"]
 
-    let make name decode encode = { name; decode; encode }
+    type 'a t =
+      | Bool : name -> bool t
+      | Name_val : 'a name_val -> 'a t
 
-    let name t = t.name
+    let make_bool name = Bool name
 
-    let decode (type a) s t : a = t.decode s
+    let make_name_val name decode encode = Name_val { name; decode; encode }
 
-    let encode (type a) (v : a) t : string = t.encode v
+    let name : type a. a t -> string = function
+      | Bool name -> name
+      | Name_val { name; _ } -> name
+
+    let is_bool (type a) (t : a t) =
+      match t with
+      | Bool _ -> true
+      | Name_val _ -> false
   end
 
-  let expires =
-    Attribute.make "Expires" Date.decode Date.encode (* +-- Set-Cookie --+ *)
+  let expires = Attribute.make_name_val "Expires" Date.decode Date.encode
+
+  let secure = Attribute.make_bool "Secure"
+
+  (* +-- Set-Cookie --+ *)
 
   module Map = Map.Make (String)
 
   type t =
     { name : string
     ; value : string
-    ; attributes : string Map.t
+    ; attributes : string option Map.t
     ; extension : string option
     }
-  [@@warning "-69"]
 
   let make ?extension ~name value =
     { name; value; extension; attributes = Map.empty }
@@ -256,21 +268,30 @@ module New = struct
 
   let value t = t.value
 
-  let add (type a) (attr : a Attribute.t) (v : a) t =
-    let v = Attribute.encode v attr in
+  let add (type a) ?(v : a option) (attr : a Attribute.t) t =
+    let v =
+      match attr with
+      | Bool _ -> None
+      | Name_val { encode; _ } -> (
+        match v with
+        | Some v -> Some (encode v)
+        | None ->
+          invalid_arg "[v] is [None] but is required for non bool attribute")
+    in
     let name = Attribute.name attr in
     let attributes = Map.add name v t.attributes in
     { t with attributes }
 
-  let find_opt (type a) (attr : a Attribute.t) t =
-    let open Option.Syntax in
+  let find_opt : type a. a Attribute.t -> t -> a option =
+   fun attr t ->
     let attr_name = Attribute.name attr in
-    match
-      let+ v = Map.find_opt attr_name t.attributes in
-      Attribute.decode v attr
-    with
-    | (Some _ | None) as v -> v
-    | exception _ -> None
+    match (Map.find_opt attr_name t.attributes, attr) with
+    | Some _, Attribute.Bool _ -> Some true
+    | Some (Some v), Name_val { decode; _ } -> (
+      match decode v with
+      | v -> Some v
+      | exception _ -> None)
+    | Some None, _ | None, _ -> None
 
   let extension t = t.extension
 end

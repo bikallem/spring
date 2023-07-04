@@ -86,6 +86,10 @@ module New : sig
         [t]. *)
 
     val name : 'a t -> string
+    (** [name t] is the name of the attribute [t]. *)
+
+    val is_bool : 'a t -> bool
+    (** [is_bool t] is [true] if attribute [t] encapsulates a bool value. *)
   end
 
   val expires : Date.t Attribute.t
@@ -95,6 +99,12 @@ module New : sig
       See
       {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-expires-attribute}
       Expires} *)
+
+  val secure : bool Attribute.t
+  (** [secure] is the [Secure] [Set-Cookie] attribute.
+
+      See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.5}
+      Secure} *)
 
   (** {1 Set-Cookie} *)
 
@@ -120,10 +130,15 @@ module New : sig
   val value : t -> string
   (** [value t] is the value of [Set-Cookie] value [t]. *)
 
-  val add : 'a Attribute.t -> 'a -> t -> t
-  (** [add attr v t] adds attribute defined by [attr] and with value [v] to [t].
+  val add : ?v:'a -> 'a Attribute.t -> t -> t
+  (** [add v attr t] adds attribute defined by [attr] and value [v] to [t].
 
-      If [attr] already exists in [t] then the old value is replaced by [v]. *)
+      @param v
+        is ignored if [Attribute.is_bool attr = true]. Otherwise the value is
+        required.
+      @raise Invalid_arg
+        if [Attribute.is_bool d = false] and [v = None] since a non bool
+        attribute requires a value. *)
 
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
