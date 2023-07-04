@@ -263,11 +263,11 @@ val t : Set_cookie.New.t = <abstr>
 +extension:
 - : unit = ()
 
-# let t = Set_cookie.New.decode {|name1@="value=@>?"|};;
+# let t = Set_cookie.New.decode {|name1="value=@>?"|};;
 val t : Set_cookie.New.t = <abstr>
 
 # display_set_cookie_details t;;
-+name: name1@
++name: name1
 +value: 'value=@>?'
 +extension:
 - : unit = ()
@@ -276,8 +276,8 @@ val t : Set_cookie.New.t = <abstr>
 Ensure whitespaces are correctly parser.
 
 ```ocaml
-# Set_cookie.New.decode {|name1@  =  "value=@>?"|} |> display_set_cookie_details;;
-+name: name1@
+# Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
++name: name1
 +value: 'value=@>?'
 +extension:
 - : unit = ()
@@ -297,7 +297,7 @@ let dt1 = Date.of_float_s 1623940778.27033591 |> Option.get
 ```
 
 ```ocaml
-# let t = Set_cookie.New.(add expires dt1 t);;
+# let t = Set_cookie.New.(add ~v:dt1 expires t);;
 val t : Set_cookie.New.t = <abstr>
 
 # let dt2 = Set_cookie.New.(find_opt expires t) |> Option.get;;
