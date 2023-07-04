@@ -215,25 +215,31 @@ module New = struct
   module Attribute = struct
     type name = string
 
+    type 'a equal = 'a -> 'a -> bool
+
     type 'a name_val =
       { name : name
       ; decode : string -> 'a
       ; encode : 'a -> string
+      ; equal : 'a equal
       }
+    [@@warning "-69"]
 
     type 'a t =
-      | Bool : name -> bool t
+      | Bool : name * 'a equal -> bool t
       | Name_val : 'a name_val -> 'a t
 
     let lname = String.Ascii.lowercase
 
-    let make_bool name = Bool (lname name)
+    let make_bool name =
+      let name = lname name in
+      Bool (name, ( = ))
 
-    let make_name_val name decode encode =
-      Name_val { name = lname name; decode; encode }
+    let make_name_val ?(equal = ( = )) name decode encode =
+      Name_val { name = lname name; decode; encode; equal }
 
     let name : type a. a t -> string = function
-      | Bool name -> name
+      | Bool (name, _) -> name
       | Name_val { name; _ } -> name
 
     let is_bool (type a) (t : a t) =
@@ -242,15 +248,16 @@ module New = struct
       | Name_val _ -> false
   end
 
-  let expires = Attribute.make_name_val "Expires" Date.decode Date.encode
+  let expires =
+    Attribute.make_name_val ~equal:Date.equal "Expires" Date.decode Date.encode
 
   let max_age = Attribute.make_name_val "Max-Age" int_of_string string_of_int
 
   let path = Attribute.make_name_val "Path" Fun.id Fun.id
 
   let domain =
-    Attribute.make_name_val "Domain" Domain_name.of_string_exn
-      Domain_name.to_string
+    Attribute.make_name_val ~equal:Domain_name.equal "Domain"
+      Domain_name.of_string_exn Domain_name.to_string
 
   let secure = Attribute.make_bool "Secure"
 
