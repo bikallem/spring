@@ -358,3 +358,22 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find http_only t);;
 - : bool = true
 ```
+
+Decode name/value only.
+
+```ocaml
+# let t = Set_cookie.New.(decode "SID=31d4d96e407aad42");;
+val t : Set_cookie.New.t = <abstr>
+
+# display_set_cookie_details t;;
++name: SID
++value: '31d4d96e407aad42'
++extension: ''
+- : unit = ()
+
+# Set_cookie.New.(find http_only t);;
+- : bool = false
+
+# Set_cookie.New.(find_opt http_only t);;
+- : bool option = None
+```
