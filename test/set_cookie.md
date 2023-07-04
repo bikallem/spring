@@ -417,6 +417,13 @@ val t : Set_cookie.New.t = <abstr>
 - : bool option = None
 ```
 
+Empty Set-Cookie value is allowed.
+
+```ocaml
+# Set_cookie.New.decode "SID=";;
+- : Set_cookie.New.t = <abstr>
+```
+
 ## remove
 
 Remove name/value attribute.
