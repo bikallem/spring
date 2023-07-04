@@ -196,6 +196,9 @@ module New : sig
 
       [compare t0 t1 = 0] is same as [equal t0 t1 = true]. *)
 
+  val equal : t -> t -> bool
+  (** [equal t0 t1] is [compare t0 t1 = 0]. *)
+
   (** {2 Codecs} *)
 
   val decode : string -> t

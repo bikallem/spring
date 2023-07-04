@@ -334,6 +334,8 @@ module New = struct
       else cmp
     else cmp
 
+  let equal t0 t1 = compare t0 t1 = 0
+
   let av_octet buf_read =
     Buf_read.take_while
       (function
