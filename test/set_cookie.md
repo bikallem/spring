@@ -229,7 +229,7 @@ val t : Set_cookie.t = <abstr>
 let display_set_cookie_details t =
     Eio.traceln "name: %s" (Set_cookie.New.name t);
     Eio.traceln "value: '%s'" (Set_cookie.New.value t);
-    Eio.traceln "extension: %a" Fmt.(option string) (Set_cookie.New.extension t)
+    Eio.traceln "extension: '%a'" Fmt.(option string) (Set_cookie.New.extension t)
 ```
 
 1. Make a `Set-Cookie` value `t` with extension parameter.
@@ -244,7 +244,7 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: cookie1
 +value: 'val1'
-+extension: hello
++extension: 'hello'
 - : unit = ()
 ```
 
@@ -260,7 +260,7 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: asdfa
 +value: 'asdfasdf'
-+extension:
++extension: ''
 - : unit = ()
 
 # let t = Set_cookie.New.decode {|name1="value=@>?"|};;
@@ -269,7 +269,7 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: name1
 +value: 'value=@>?'
-+extension:
++extension: ''
 - : unit = ()
 ```
 
@@ -279,7 +279,7 @@ Ensure whitespaces are correctly parser.
 # Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
 +name: name1
 +value: 'value=@>?'
-+extension:
++extension: ''
 - : unit = ()
 ```
 
