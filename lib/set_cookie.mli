@@ -140,13 +140,6 @@ module New : sig
       @param extension
         is the extension attribute value for [t]. Default is [None]. *)
 
-  val decode : string -> t
-  (** [decode s] decodes string [s] into [t].
-
-      The grammar followed is specified at
-      {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1} Set-Cookie
-      syntax} *)
-
   val name : t -> string
   (** [name t] is the name of [Set-Cookie] value [t]. *)
 
@@ -183,4 +176,13 @@ module New : sig
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)
+
+  (** {2 Codecs} *)
+
+  val decode : string -> t
+  (** [decode s] decodes string [s] into [t].
+
+      The grammar followed is specified at
+      {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1} Set-Cookie
+      syntax} *)
 end

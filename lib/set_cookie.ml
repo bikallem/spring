@@ -270,6 +270,46 @@ module New = struct
   let make ?extension ~name value =
     { name; value; extension; attributes = Map.empty }
 
+  let name t = t.name
+
+  let value t = t.value
+
+  let extension t = t.extension
+
+  let add (type a) ?(v : a option) (attr : a Attribute.t) t =
+    let v =
+      match attr with
+      | Bool _ -> None
+      | Name_val { encode; _ } -> (
+        match v with
+        | Some v -> Some (encode v)
+        | None ->
+          invalid_arg "[v] is [None] but is required for non bool attribute")
+    in
+    let name = Attribute.name attr in
+    let attributes = Map.add name v t.attributes in
+    { t with attributes }
+
+  let find : type a. a Attribute.t -> t -> a =
+   fun attr t ->
+    let attr_name = Attribute.name attr in
+    match (Map.find_opt attr_name t.attributes, attr) with
+    | Some _, Attribute.Bool _ -> true
+    | None, Bool _ -> false
+    | Some v, Name_val { decode; _ } -> decode @@ Option.get v
+    | None, Name_val _ -> raise Not_found
+
+  let find_opt : type a. a Attribute.t -> t -> a option =
+   fun attr t ->
+    let attr_name = Attribute.name attr in
+    match (Map.find_opt attr_name t.attributes, attr) with
+    | Some _, Attribute.Bool _ -> Some true
+    | Some (Some v), Name_val { decode; _ } -> (
+      match decode v with
+      | v -> Some v
+      | exception _ -> None)
+    | Some None, _ | None, _ -> None
+
   (* +-- decode --+ *)
 
   (* split tokens at ';' *)
@@ -327,44 +367,4 @@ module New = struct
     let name, value = Buf_read.cookie_pair buf_read in
     let extension, attributes = attr_tokens buf_read in
     { name; value; extension; attributes }
-
-  let name t = t.name
-
-  let value t = t.value
-
-  let extension t = t.extension
-
-  let add (type a) ?(v : a option) (attr : a Attribute.t) t =
-    let v =
-      match attr with
-      | Bool _ -> None
-      | Name_val { encode; _ } -> (
-        match v with
-        | Some v -> Some (encode v)
-        | None ->
-          invalid_arg "[v] is [None] but is required for non bool attribute")
-    in
-    let name = Attribute.name attr in
-    let attributes = Map.add name v t.attributes in
-    { t with attributes }
-
-  let find : type a. a Attribute.t -> t -> a =
-   fun attr t ->
-    let attr_name = Attribute.name attr in
-    match (Map.find_opt attr_name t.attributes, attr) with
-    | Some _, Attribute.Bool _ -> true
-    | None, Bool _ -> false
-    | Some v, Name_val { decode; _ } -> decode @@ Option.get v
-    | None, Name_val _ -> raise Not_found
-
-  let find_opt : type a. a Attribute.t -> t -> a option =
-   fun attr t ->
-    let attr_name = Attribute.name attr in
-    match (Map.find_opt attr_name t.attributes, attr) with
-    | Some _, Attribute.Bool _ -> Some true
-    | Some (Some v), Name_val { decode; _ } -> (
-      match decode v with
-      | v -> Some v
-      | exception _ -> None)
-    | Some None, _ | None, _ -> None
 end
