@@ -215,31 +215,27 @@ module New = struct
   module Attribute = struct
     type name = string
 
-    type 'a compare = 'a -> 'a -> int
-
     type 'a name_val =
       { name : name
       ; decode : string -> 'a
       ; encode : 'a -> string
-      ; compare : 'a compare
       }
-    [@@warning "-69"]
 
     type 'a t =
-      | Bool : name * 'a compare -> bool t
+      | Bool : name -> bool t
       | Name_val : 'a name_val -> 'a t
 
     let lname = String.Ascii.lowercase
 
     let make_bool name =
       let name = lname name in
-      Bool (name, Stdlib.compare)
+      Bool name
 
-    let make_name_val ?(compare = Stdlib.compare) name decode encode =
-      Name_val { name = lname name; decode; encode; compare }
+    let make_name_val name decode encode =
+      Name_val { name = lname name; decode; encode }
 
     let name : type a. a t -> string = function
-      | Bool (name, _) -> name
+      | Bool name -> name
       | Name_val { name; _ } -> name
 
     let is_bool (type a) (t : a t) =
@@ -248,17 +244,15 @@ module New = struct
       | Name_val _ -> false
   end
 
-  let expires =
-    Attribute.make_name_val ~compare:Date.compare "Expires" Date.decode
-      Date.encode
+  let expires = Attribute.make_name_val "Expires" Date.decode Date.encode
 
   let max_age = Attribute.make_name_val "Max-Age" int_of_string string_of_int
 
   let path = Attribute.make_name_val "Path" Fun.id Fun.id
 
   let domain =
-    Attribute.make_name_val ~compare:Domain_name.compare "Domain"
-      Domain_name.of_string_exn Domain_name.to_string
+    Attribute.make_name_val "Domain" Domain_name.of_string_exn
+      Domain_name.to_string
 
   let secure = Attribute.make_bool "Secure"
 
@@ -358,7 +352,14 @@ module New = struct
       buf_read
 
   let attribute_names =
-    [ "expires"; "max-age"; "domain"; "path"; "secure"; "httponly"; "samesite" ]
+    [ Attribute.name expires
+    ; "max-age"
+    ; "domain"
+    ; "path"
+    ; "secure"
+    ; "httponly"
+    ; "samesite"
+    ]
 
   (* split tokens at ';' *)
   let attr_tokens buf_read =
