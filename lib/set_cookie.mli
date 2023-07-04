@@ -189,6 +189,10 @@ module New : sig
       done by setting [Max-Age] attribute to [-1] and removing all other
       attributes in [t]. *)
 
+  val is_expired : #Eio.Time.clock -> t -> bool
+  (** [is_expired clock t] is [true] if [find max_age t <= 0] or if
+      [find expires t < Date.now clock]. *)
+
   val add : ?v:'a -> 'a Attribute.t -> t -> t
   (** [add v attr t] adds attribute defined by [attr] and value [v] to [t].
 

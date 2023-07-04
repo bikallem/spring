@@ -334,6 +334,20 @@ module New = struct
       | exception _ -> None)
     | Some None, _ | None, _ -> None
 
+  let is_max_age_expired t =
+    match find_opt max_age t with
+    | Some v -> v <= 0
+    | None -> false
+
+  let is_expires_expired clock t =
+    match find_opt expires t with
+    | Some date ->
+      let now = Date.now clock in
+      Date.is_earlier ~than:now date
+    | None -> false
+
+  let is_expired clock t = is_max_age_expired t || is_expires_expired clock t
+
   let remove : type a. a Attribute.t -> t -> t =
    fun attr t ->
     let attr_name = Attribute.name attr in

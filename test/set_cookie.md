@@ -161,7 +161,7 @@ No prefix is added to `Set-Cookie` name if `Secure` attribute is not present.
 - : string = "SID=1234; Domain=www.example.com; Path=/"
 ```
 
-## expire
+## expire/is_expired
 
 Expire a `Set-Cookie`.
 
@@ -186,6 +186,32 @@ val e0 : Set_cookie.New.t = <abstr>
 
 # Set_cookie.New.encode e0;;
 - : string = "SID=123; Max-Age=-1"
+```
+
+`is_expired` is `true` for `e0` since `Max-Age <= 0`.
+
+```ocaml
+# Set_cookie.New.is_expired mock_clock e0;;
+- : bool = true
+```
+
+`is_expired t0` is `false` since the `Expires` timestamp is equal to clock now value.
+
+```ocaml
+# Set_cookie.New.is_expired mock_clock t0;;
+- : bool = false
+```
+
+1. Increment the `mock_clock` time by `1.`.
+2. `is_expired t0` should be `true`.
+
+```ocaml
+# Eio_mock.Clock.set_time mock_clock (now +. 1.);;
++mock time is now 1.66663e+09
+- : unit = ()
+
+# Set_cookie.New.is_expired mock_clock t0;;
+- : bool = true
 ```
 
 ## Add and find attributes in Set-Cookie
