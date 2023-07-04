@@ -153,6 +153,9 @@ module New : sig
   val add : ?v:'a -> 'a Attribute.t -> t -> t
   (** [add v attr t] adds attribute defined by [attr] and value [v] to [t].
 
+      If attribute [attr] already exists in [t], then the old value is replaced
+      with [v].
+
       @param v
         is ignored if [Attribute.is_bool attr = true]. Otherwise the value is
         required.
