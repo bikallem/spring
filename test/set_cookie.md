@@ -303,6 +303,9 @@ val t : Set_cookie.New.t = <abstr>
 # let dt2 = Set_cookie.New.(find_opt expires t) |> Option.get;;
 val dt2 : Date.t = <abstr>
 
+# Date.encode dt2;;
+- : string = "Thu, 17 Jun 2021 14:39:38 GMT"
+
 # Date.equal dt1 dt2;;
 - : bool = true
 ```
@@ -323,7 +326,7 @@ val t : Set_cookie.New.t = <abstr>
 - : bool = true
 ```
 
-## decode
+## decode/encode
 
 Test decoding `Set-Cookie` name, value and attributes. The attribute names are
 case in-sensitive.
@@ -334,9 +337,13 @@ case in-sensitive.
 4. Find `Domain` = 'example.com'.
 5. Find `Secure` = `true`.
 6. Find `HttpOnly` = `true`.
+7. Encode `t` to `s1`.
+8. Decode `s1` to `t1`.
+9. Encode `t1` to `s2`.
+10. `s1` is equal to `s2`.
 
 ```ocaml
-let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure   ; HttpOnly    ; MaX-age =  123"
+let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; asdfas@sadfa\\;Secure   ; HttpOnly    ; MaX-age =  123"
 ```
 
 ```ocaml
@@ -363,6 +370,23 @@ val t : Set_cookie.New.t = <abstr>
 
 # Set_cookie.New.(find max_age t);;
 - : int = 123
+
+# Set_cookie.New.(find expires t) |> Date.encode;;
+- : string = "Thu, 17 Jun 2021 14:39:38 GMT"
+
+# let s1 = Set_cookie.New.encode t;;
+val s1 : string =
+  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; Secure; HttpOnly"
+
+# let t1 = Set_cookie.New.(decode s1);;
+val t1 : Set_cookie.New.t = <abstr>
+
+# let s2 = Set_cookie.New.encode t1;;
+val s2 : string =
+  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; Secure; HttpOnly"
+
+# s1 = s2;;
+- : bool = true
 ```
 
 Decode name/value only.

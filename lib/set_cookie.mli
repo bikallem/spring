@@ -185,4 +185,7 @@ module New : sig
       The grammar followed is specified at
       {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1} Set-Cookie
       syntax} *)
+
+  val encode : t -> string
+  (** [encode t] encodes [t] to [s]. *)
 end
