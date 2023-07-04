@@ -100,6 +100,12 @@ module New : sig
       {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-expires-attribute}
       Expires} *)
 
+  val path : string Attribute.t
+  (** [path] is the [Path] attribute.
+
+      See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.4}
+      Path}. *)
+
   val secure : bool Attribute.t
   (** [secure] is the [Secure] [Set-Cookie] attribute.
 
@@ -119,10 +125,11 @@ module New : sig
         is the extension attribute value for [t]. Default is [None]. *)
 
   val decode : string -> t
-  (** [decode s] decodes string [s] into [t]. The grammar followed is specified
-      at
-      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-syntax}
-      Set-Cookie syntax} *)
+  (** [decode s] decodes string [s] into [t].
+
+      The grammar followed is specified at
+      {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1} Set-Cookie
+      syntax} *)
 
   val name : t -> string
   (** [name t] is the name of [Set-Cookie] value [t]. *)

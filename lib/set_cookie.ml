@@ -243,6 +243,8 @@ module New = struct
 
   let secure = Attribute.make_bool "Secure"
 
+  let path = Attribute.make_name_val "Path" Fun.id Fun.id
+
   (* +-- Set-Cookie --+ *)
 
   module Map = Map.Make (String)
