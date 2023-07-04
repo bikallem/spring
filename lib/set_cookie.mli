@@ -190,7 +190,7 @@ module New : sig
 
       + Names and values of [t0] and [t1] are compared in a case-sensitive
         manner.
-      + The attributes names are compared case-insensitively
+      + The attribute names are compared case-insensitively
       + The attribute values are compared according to the value the attribute
         encodes.
 
