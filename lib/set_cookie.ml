@@ -245,6 +245,10 @@ module New = struct
 
   let path = Attribute.make_name_val "Path" Fun.id Fun.id
 
+  let domain =
+    Attribute.make_name_val "Domain" Domain_name.of_string_exn
+      Domain_name.to_string
+
   (* +-- Set-Cookie --+ *)
 
   module Map = Map.Make (String)

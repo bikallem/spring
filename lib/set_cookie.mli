@@ -106,6 +106,12 @@ module New : sig
       See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.4}
       Path}. *)
 
+  val domain : [ `raw ] Domain_name.t Attribute.t
+  (** [domain] is the [Domain] [Set-Cookie] attribute.
+
+      See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.3}
+      Domain}. *)
+
   val secure : bool Attribute.t
   (** [secure] is the [Secure] [Set-Cookie] attribute.
 
