@@ -130,6 +130,10 @@ module New : sig
   val value : t -> string
   (** [value t] is the value of [Set-Cookie] value [t]. *)
 
+  val extension : t -> string option
+  (** [extension t] is [Some v] if an extension attribute value is defined for
+      [t]. *)
+
   val add : ?v:'a -> 'a Attribute.t -> t -> t
   (** [add v attr t] adds attribute defined by [attr] and value [v] to [t].
 
@@ -143,8 +147,4 @@ module New : sig
   val find_opt : 'a Attribute.t -> t -> 'a option
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)
-
-  val extension : t -> string option
-  (** [extension t] is [Some v] if an extension attribute value is defined for
-      [t]. *)
 end

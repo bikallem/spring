@@ -268,6 +268,8 @@ module New = struct
 
   let value t = t.value
 
+  let extension t = t.extension
+
   let add (type a) ?(v : a option) (attr : a Attribute.t) t =
     let v =
       match attr with
@@ -292,6 +294,4 @@ module New = struct
       | v -> Some v
       | exception _ -> None)
     | Some None, _ | None, _ -> None
-
-  let extension t = t.extension
 end
