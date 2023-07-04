@@ -234,7 +234,12 @@ module New : sig
 
       The grammar followed is specified at
       {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1} Set-Cookie
-      syntax} *)
+      syntax}
+
+      {b Note} if the [Set-Cookie] value is double quoted, then double quotes
+      are part of the value and are not stripped. See
+      {{!https://github.com/httpwg/http-extensions/issues/295} Double quoted
+      value}. *)
 
   val encode : t -> string
   (** [encode t] encodes [t] to [s]. *)
