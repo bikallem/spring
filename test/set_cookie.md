@@ -322,3 +322,31 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find secure t);;
 - : bool = true
 ```
+
+## decode
+
+1. Decode `s` to `t`.
+2. Display name, value, extension.
+3. Find `Path` = '/'.
+4. Find `Domain` = 'example.com'.
+
+```ocaml
+let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure"
+```
+
+```ocaml
+# let t = Set_cookie.New.decode s;;
+val t : Set_cookie.New.t = <abstr>
+
+# display_set_cookie_details t;;
++name: SID
++value: '31d4d96e407aad42'
++extension: 'asdfas@sadfa\'
+- : unit = ()
+
+# Set_cookie.New.(find path t);;
+- : string = "/"
+
+# Set_cookie.New.(find domain t) |> Domain_name.to_string;;
+- : string = "example.com"
+```

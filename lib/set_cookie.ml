@@ -265,10 +265,59 @@ module New = struct
 
   (* +-- decode --+ *)
 
+  (* split tokens at ';' *)
+  let av_octet buf_read =
+    Buf_read.take_while
+      (function
+        | '\x20' .. '\x3A' | '\x3C' .. '\x7E' -> true
+        | _ -> false)
+      buf_read
+
+  let attribute_names =
+    [ "Expires"; "Max-Age"; "Domain"; "Path"; "Secure"; "HttpOnly"; "SameSite" ]
+
+  let attr_tokens buf_read =
+    let extension = ref None in
+    let rec loop buf_read m =
+      Buf_read.ows buf_read;
+      match Buf_read.peek_char buf_read with
+      | Some ';' ->
+        Buf_read.char ';' buf_read;
+        Buf_read.ows buf_read;
+        let nm =
+          Buf_read.take_while
+            (function
+              | 'a' .. 'z' | 'A' .. 'Z' -> true
+              | _ -> false)
+            buf_read
+        in
+        Buf_read.ows buf_read;
+        if List.mem nm attribute_names then
+          match Buf_read.peek_char buf_read with
+          | Some '=' ->
+            Buf_read.char '=' buf_read;
+            Buf_read.ows buf_read;
+            let v : string = av_octet buf_read in
+            let m = Map.add nm (Some v) m in
+            loop buf_read m
+          | Some ';' ->
+            let m = Map.add nm None m in
+            loop buf_read m
+          | Some _ | None -> m
+        else
+          let v = av_octet buf_read in
+          extension := Some (nm ^ v);
+          loop buf_read m
+      | Some _ | None -> m
+    in
+    let attrs = loop buf_read Map.empty in
+    (!extension, attrs)
+
   let decode s =
     let buf_read = Buf_read.of_string s in
     let name, value = Buf_read.cookie_pair buf_read in
-    make ~name value
+    let extension, attributes = attr_tokens buf_read in
+    { name; value; extension; attributes }
 
   let name t = t.name
 
