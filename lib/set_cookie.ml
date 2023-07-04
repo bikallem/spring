@@ -310,9 +310,12 @@ module New = struct
       | exception _ -> None)
     | Some None, _ | None, _ -> None
 
-  (* +-- decode --+ *)
+  let remove : type a. a Attribute.t -> t -> t =
+   fun attr t ->
+    let attr_name = Attribute.name attr in
+    let attributes = Map.remove attr_name t.attributes in
+    { t with attributes }
 
-  (* split tokens at ';' *)
   let av_octet buf_read =
     Buf_read.take_while
       (function
@@ -323,6 +326,7 @@ module New = struct
   let attribute_names =
     [ "expires"; "max-age"; "domain"; "path"; "secure"; "httponly"; "samesite" ]
 
+  (* split tokens at ';' *)
   let attr_tokens buf_read =
     let extension = ref None in
     let rec loop buf_read m =

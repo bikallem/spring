@@ -177,6 +177,9 @@ module New : sig
   (** [find_opt attr t] is [Some v] if attribute [attr] exists in [t]. Otherwise
       it is [None]. *)
 
+  val remove : 'a Attribute.t -> t -> t
+  (** [remove attr t] is [t] with attribute [attr] removed. *)
+
   (** {2 Codecs} *)
 
   val decode : string -> t

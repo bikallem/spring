@@ -407,3 +407,51 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find_opt http_only t);;
 - : bool option = None
 ```
+
+## remove
+
+Remove name/value attribute.
+
+1. Decode `t` from `s`.
+2. Find_opt `Max-Age` is `Some 123`. 
+3. Remove `Max-Age`.
+2. Find `Max-Age` is `None`. 
+
+```ocaml
+# let t = Set_cookie.New.decode s;;
+val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.(find_opt max_age t) ;;
+- : int option = Some 123
+
+# let t = Set_cookie.New.(remove max_age t);;
+val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.(find_opt max_age t);;
+- : int option = None
+```
+
+Remove bool attribute.
+
+1. Find `Secure` in `t` is `true`.
+2. Find_opt `Secure` in `t` is `Some true`.
+2. Remove `Secure` from `t`.
+3. Find `Secure` in `t` is `false`.
+4. Find_opt `Secure` in `t` is `None`.
+
+```ocaml
+# Set_cookie.New.(find secure t);;
+- : bool = true
+
+# Set_cookie.New.(find_opt secure t);;
+- : bool option = Some true
+
+# let t = Set_cookie.New.(remove secure t);;
+val t : Set_cookie.New.t = <abstr>
+
+# Set_cookie.New.(find secure t);;
+- : bool = false
+
+# Set_cookie.New.(find_opt secure t);;
+- : bool option = None
+```
