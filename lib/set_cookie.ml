@@ -418,22 +418,19 @@ module New = struct
     Buffer.add_string b t.name;
     Buffer.add_char b '=';
     Buffer.add_string b t.value;
-
-    O.iter (fun expires ->
-        Buffer.add_string b @@ "; Expires=" ^ Date.encode expires)
-    @@ find_opt expires t;
-    O.iter (fun max_age ->
-        Buffer.add_string b @@ "; Max-Age=" ^ string_of_int max_age)
-    @@ find_opt max_age t;
-    O.iter (fun path -> Buffer.add_string b @@ "; Path=" ^ path)
-    @@ find_opt path t;
-    O.iter (fun domain ->
-        Buffer.add_string b @@ "; Domain=" ^ Domain_name.to_string domain)
-    @@ find_opt domain t;
-    O.iter (fun same_site -> Buffer.add_string b @@ "; SameSite=" ^ same_site)
-    @@ find_opt same_site t;
-    if find secure t then Buffer.add_string b "; Secure";
-    if find http_only t then Buffer.add_string b "; HttpOnly";
+    Map.iter
+      (fun name v ->
+        let name = canonical_attribute_name name in
+        match v with
+        | Some v ->
+          Buffer.add_string b "; ";
+          Buffer.add_string b name;
+          Buffer.add_char b '=';
+          Buffer.add_string b v
+        | None ->
+          Buffer.add_string b "; ";
+          Buffer.add_string b name)
+      t.attributes;
     Buffer.contents b
 
   (* +-- Pretty Printing --+ *)

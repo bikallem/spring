@@ -400,14 +400,14 @@ val t : Set_cookie.New.t = <abstr>
 
 # let s1 = Set_cookie.New.encode t;;
 val s1 : string =
-  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; SameSite=Strict; Secure; HttpOnly"
+  "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
 # let t1 = Set_cookie.New.(decode s1);;
 val t1 : Set_cookie.New.t = <abstr>
 
 # let s2 = Set_cookie.New.encode t1;;
 val s2 : string =
-  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; SameSite=Strict; Secure; HttpOnly"
+  "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
 # s1 = s2;;
 - : bool = true
