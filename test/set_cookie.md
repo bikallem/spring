@@ -229,7 +229,9 @@ val t : Set_cookie.t = <abstr>
 let display_set_cookie_details t =
     Eio.traceln "name: %s" (Set_cookie.New.name t);
     Eio.traceln "value: '%s'" (Set_cookie.New.value t);
-    Eio.traceln "extension: '%a'" Fmt.(option string) (Set_cookie.New.extension t)
+    match Set_cookie.New.extension t with
+    | Some v -> Eio.traceln "extension: '%s'" v
+    | None -> ()
 ```
 
 # make
@@ -269,7 +271,6 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: asdfa
 +value: 'asdfasdf'
-+extension: ''
 - : unit = ()
 ```
 
@@ -282,7 +283,6 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: name1
 +value: '"value=@>?"'
-+extension: ''
 - : unit = ()
 
 # Set_cookie.New.encode t;;
@@ -295,7 +295,6 @@ Ensure whitespaces are correctly parser.
 # Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
 +name: name1
 +value: '"value=@>?"'
-+extension: ''
 - : unit = ()
 ```
 
@@ -428,7 +427,6 @@ val t : Set_cookie.New.t = <abstr>
 # display_set_cookie_details t;;
 +name: SID
 +value: '31d4d96e407aad42'
-+extension: ''
 - : unit = ()
 
 # Set_cookie.New.(find http_only t);;
