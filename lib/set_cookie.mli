@@ -128,6 +128,34 @@ module New : sig
       {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.6}
       HttpOnly}. *)
 
+  (** {2 SameSite}
+
+      Controls the scope of cookies attached to requests in a user-agent.
+
+      See
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-samesite-attribute}
+      Same-Site} *)
+
+  type same_site = private string
+  (** [same_site] is the [SameSite] attribute value. *)
+
+  val strict : same_site
+  (** [strict] denotes to the user-agent that the cookie should only be attached
+      to requests origininating from the same site. See
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#strict-lax}
+      Strict/Lax Algorithm}. *)
+
+  val lax : same_site
+  (** [lax] denotes to the user-agent that the cookie should be attached to both
+      same-site and cross-site top-level navigation.
+
+      See
+      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#strict-lax}
+      Strict/Lax Algorithm}. *)
+
+  val same_site : same_site Attribute.t
+  (** [same_site] is the [SameSite] [Set-Cookie] attribute. *)
+
   (** {1 Set-Cookie} *)
 
   type t

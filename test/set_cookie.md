@@ -346,15 +346,18 @@ case in-sensitive.
 4. Find `Domain` = 'example.com'.
 5. Find `Secure` = `true`.
 6. Find `HttpOnly` = `true`.
-7. Encode `t` to `s1`.
-8. Decode `s1` to `t1`.
-9. Encode `t1` to `s2`.
-10. `s1` is equal to `s2`.
-11. Compare `t` and `t1` is `0`. 
-12. Equal `ta and `t1` is `true`.
+7. Find `Max-Age` = `123`.
+7. Find `Expires` = `Thu, 17 Jun 2021 14:39:38 GMT`
+7. Find `SameSite` = `Strict`.
+8. Encode `t` to `s1`.
+9. Decode `s1` to `t1`.
+10. Encode `t1` to `s2`.
+11. `s1` is equal to `s2`.
+12. Compare `t` and `t1` is `0`. 
+13. Equal `ta and `t1` is `true`.
 
 ```ocaml
-let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; ASDFas@sadfa\\;secure   ; HttpOnly    ; MaX-age =  123"
+let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; ASDFas@sadfa\\;secure   ; HttpOnly    ; MaX-age =  123; SameSite=Strict"
 ```
 
 ```ocaml
@@ -385,16 +388,19 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find expires t) |> Date.encode;;
 - : string = "Thu, 17 Jun 2021 14:39:38 GMT"
 
+# Set_cookie.New.(find same_site t);;
+- : Set_cookie.New.same_site = "Strict"
+
 # let s1 = Set_cookie.New.encode t;;
 val s1 : string =
-  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; Secure; HttpOnly"
+  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; SameSite=Strict; Secure; HttpOnly"
 
 # let t1 = Set_cookie.New.(decode s1);;
 val t1 : Set_cookie.New.t = <abstr>
 
 # let s2 = Set_cookie.New.encode t1;;
 val s2 : string =
-  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; Secure; HttpOnly"
+  "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Max-Age=123; Path=/; Domain=example.com; SameSite=Strict; Secure; HttpOnly"
 
 # s1 = s2;;
 - : bool = true
@@ -499,6 +505,7 @@ let t = Set_cookie.New.decode s2
 +  Httponly ;
 +  Max-Age : '123' ;
 +  Path : '/' ;
++  Samesite : 'Strict' ;
 +  Secure ;
 +}
 - : unit = ()

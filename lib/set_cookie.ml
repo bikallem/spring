@@ -264,6 +264,20 @@ module New = struct
 
   let http_only = Attribute.make_bool "HttpOnly"
 
+  type same_site = string
+
+  let strict = "Strict"
+
+  let lax = "Lax"
+
+  let same_site =
+    Attribute.make_name_val "SameSite"
+      (function
+        | "Strict" -> strict
+        | "Lax" -> lax
+        | v -> Fmt.failwith "%s is not a valid SameSite attribute value" v)
+      Fun.id
+
   (* +-- Set-Cookie --+ *)
 
   module Map = Map.Make (String)
@@ -415,6 +429,8 @@ module New = struct
     O.iter (fun domain ->
         Buffer.add_string b @@ "; Domain=" ^ Domain_name.to_string domain)
     @@ find_opt domain t;
+    O.iter (fun same_site -> Buffer.add_string b @@ "; SameSite=" ^ same_site)
+    @@ find_opt same_site t;
     if find secure t then Buffer.add_string b "; Secure";
     if find http_only t then Buffer.add_string b "; HttpOnly";
     Buffer.contents b
