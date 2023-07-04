@@ -445,10 +445,11 @@ Empty Set-Cookie value is allowed.
 - : Set_cookie.New.t = <abstr>
 ```
 
-Set-Cookie value can be double quoted.
+Set-Cookie value can be double quoted. Decoding and encoding such values should preserve double quotes are part of the cookie value, i.e. double quotes are part of the value and aren't stripped away when decoding.
 
 ```ocaml
-
+# Set_cookie.New.decode {|SID="hello-world"|} |> Set_cookie.New.encode;;
+- : string = "SID=\"hello-world\""
 ```
 
 ## remove
