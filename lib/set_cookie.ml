@@ -241,13 +241,15 @@ module New = struct
 
   let expires = Attribute.make_name_val "Expires" Date.decode Date.encode
 
-  let secure = Attribute.make_bool "Secure"
-
   let path = Attribute.make_name_val "Path" Fun.id Fun.id
 
   let domain =
     Attribute.make_name_val "Domain" Domain_name.of_string_exn
       Domain_name.to_string
+
+  let secure = Attribute.make_bool "Secure"
+
+  let http_only = Attribute.make_bool "HttpOnly"
 
   (* +-- Set-Cookie --+ *)
 

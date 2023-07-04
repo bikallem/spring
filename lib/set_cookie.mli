@@ -118,6 +118,11 @@ module New : sig
       See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.5}
       Secure} *)
 
+  val http_only : bool Attribute.t
+  (** [http_only is the [HttpOnly] [Set-Cookie] attribute.
+
+  {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.6} HttpOnly}. *)
+
   (** {1 Set-Cookie} *)
 
   type t
