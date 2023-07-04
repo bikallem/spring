@@ -293,8 +293,8 @@ module New = struct
               | _ -> false)
             buf_read
         in
-        Buf_read.ows buf_read;
-        if List.mem nm attribute_names then
+        if List.mem nm attribute_names then (
+          Buf_read.ows buf_read;
           match Buf_read.peek_char buf_read with
           | Some '=' ->
             Buf_read.char '=' buf_read;
@@ -302,10 +302,10 @@ module New = struct
             let v : string = av_octet buf_read in
             let m = Map.add nm (Some v) m in
             loop buf_read m
-          | Some ';' ->
+          | Some ';' | None ->
             let m = Map.add nm None m in
             loop buf_read m
-          | Some _ | None -> m
+          | Some c -> Fmt.failwith "expected ';' or '=' but got %c" c)
         else
           let v = av_octet buf_read in
           extension := Some (nm ^ v);

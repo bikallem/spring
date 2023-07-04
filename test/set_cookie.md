@@ -325,13 +325,15 @@ val t : Set_cookie.New.t = <abstr>
 
 ## decode
 
-1. Decode `s` to `t`.
+1. Decode `s` to `t`. Note the parse should be robust against whitespaces.
 2. Display name, value, extension.
 3. Find `Path` = '/'.
 4. Find `Domain` = 'example.com'.
+5. Find `Secure` = `true`.
+6. Find `HttpOnly` = `true`.
 
 ```ocaml
-let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure"
+let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure   ; HttpOnly    "
 ```
 
 ```ocaml
@@ -349,4 +351,10 @@ val t : Set_cookie.New.t = <abstr>
 
 # Set_cookie.New.(find domain t) |> Domain_name.to_string;;
 - : string = "example.com"
+
+# Set_cookie.New.(find secure t);; 
+- : bool = true
+
+# Set_cookie.New.(find http_only t);;
+- : bool = true
 ```
