@@ -225,9 +225,12 @@ module New = struct
       | Bool : name -> bool t
       | Name_val : 'a name_val -> 'a t
 
-    let make_bool name = Bool name
+    let lname = String.Ascii.lowercase
 
-    let make_name_val name decode encode = Name_val { name; decode; encode }
+    let make_bool name = Bool (lname name)
+
+    let make_name_val name decode encode =
+      Name_val { name = lname name; decode; encode }
 
     let name : type a. a t -> string = function
       | Bool name -> name
@@ -276,7 +279,7 @@ module New = struct
       buf_read
 
   let attribute_names =
-    [ "Expires"; "Max-Age"; "Domain"; "Path"; "Secure"; "HttpOnly"; "SameSite" ]
+    [ "expires"; "max-age"; "domain"; "path"; "secure"; "httponly"; "samesite" ]
 
   let attr_tokens buf_read =
     let extension = ref None in
@@ -290,10 +293,12 @@ module New = struct
           Buf_read.take_while
             (function
               | 'a' .. 'z' | 'A' .. 'Z' -> true
+              | '-' -> true
               | _ -> false)
             buf_read
+          |> String.Ascii.lowercase
         in
-        if List.mem nm attribute_names then (
+        if List.mem (String.Ascii.lowercase nm) attribute_names then (
           Buf_read.ows buf_read;
           match Buf_read.peek_char buf_read with
           | Some '=' ->

@@ -93,11 +93,9 @@ module New : sig
   end
 
   val expires : Date.t Attribute.t
-  (** [expires] is the [Expires] [Set-Cookie] attribute. It encapsulates a HTTP
-      Date timestamp.
+  (** [expires] is the [Expires] [Set-Cookie] attribute.
 
-      See
-      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-the-expires-attribute}
+      See {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.1}
       Expires} *)
 
   val path : string Attribute.t
@@ -119,9 +117,10 @@ module New : sig
       Secure} *)
 
   val http_only : bool Attribute.t
-  (** [http_only is the [HttpOnly] [Set-Cookie] attribute.
+  (** [http_only] is the [HttpOnly] [Set-Cookie] attribute.
 
-  {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.6} HttpOnly}. *)
+      {{!https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.2.6}
+      HttpOnly}. *)
 
   (** {1 Set-Cookie} *)
 

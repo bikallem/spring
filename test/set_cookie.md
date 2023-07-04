@@ -325,6 +325,9 @@ val t : Set_cookie.New.t = <abstr>
 
 ## decode
 
+Test decoding `Set-Cookie` name, value and attributes. The attribute names are
+case in-sensitive.
+
 1. Decode `s` to `t`. Note the parse should be robust against whitespaces.
 2. Display name, value, extension.
 3. Find `Path` = '/'.
@@ -333,7 +336,7 @@ val t : Set_cookie.New.t = <abstr>
 6. Find `HttpOnly` = `true`.
 
 ```ocaml
-let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure   ; HttpOnly    "
+let s = "SID=31d4d96e407aad42; Path=/; Domain=example.com; asdfas@sadfa\\;Secure   ; HttpOnly    ; MaX-age =  123"
 ```
 
 ```ocaml
