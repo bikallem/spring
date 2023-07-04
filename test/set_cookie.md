@@ -79,20 +79,50 @@ Ensure whitespaces are correctly parsed.
 - : unit = ()
 ```
 
-Remove prefix `__Host-` and `__Secure-` from `Set-Cookie` name.
+Process cookie-name prefix `__Host-` in `Set-Cookie` name.
 
 ```ocaml
-# Set_cookie.decode "__Host-SID=12333" |> Set_cookie.name;;
-- : string = "SID"
+let display_set_cookie_attributes t =
+  Eio.traceln "Name : %s" @@ Set_cookie.name t;
+  Eio.traceln "Secure : %b" @@ Set_cookie.(find secure t);
+  (match Set_cookie.(find_opt path t) with
+  | Some p -> Eio.traceln "Path: '%s'" p
+  | None -> ());
+  (match Set_cookie.(find_opt domain t) with
+  | Some dn -> Eio.traceln "Domain : %a" Domain_name.pp dn
+  | None -> ())
+```
 
-# Set_cookie.decode "__Secure-SID=12333" |> Set_cookie.name;;
-- : string = "SID"
+```ocaml
+# Set_cookie.decode "__Host-SID=12333" |> display_set_cookie_attributes;;
++Name : SID
++Secure : true
++Path: '/'
+- : unit = ()
+```
 
-# Set_cookie.decode ~remove_name_prefix:false "__Secure-SID=123" |> Set_cookie.name;; 
-- : string = "__Secure-SID"
+Process cookie-name prefix `__Secure-` in `Set-Cookie` name.
 
-# Set_cookie.decode ~remove_name_prefix:false "__Host-SID=123" |> Set_cookie.name;;
-- : string = "__Host-SID"
+```ocaml
+# Set_cookie.decode "__Secure-SID=12333;Domain=www.example.com" |> display_set_cookie_attributes;;
++Name : SID
++Secure : true
++Domain : www.example.com
+- : unit = ()
+```
+
+Set `process_name_prefix` parameter to `false`.
+
+```ocaml
+# Set_cookie.decode ~process_name_prefix:false "__Secure-SID=123:Domain=www.example.com" |> display_set_cookie_attributes;;
++Name : __Secure-SID
++Secure : false
+- : unit = ()
+
+# Set_cookie.decode ~process_name_prefix:false "__Host-SID=123" |> display_set_cookie_attributes;;
++Name : __Host-SID
++Secure : false
+- : unit = ()
 ```
 
 ## encode

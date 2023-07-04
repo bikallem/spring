@@ -167,7 +167,7 @@ val equal : t -> t -> bool
 
 (** {2 Codecs} *)
 
-val decode : ?remove_name_prefix:bool -> string -> t
+val decode : ?process_name_prefix:bool -> string -> t
 (** [decode s] decodes string [s] into [t].
 
     The grammar followed is specified at
@@ -179,7 +179,7 @@ val decode : ?remove_name_prefix:bool -> string -> t
     {{!https://github.com/httpwg/http-extensions/issues/295} Double quoted
     value}.
 
-    @param remove_name_prefix
+    @param process_name_prefix
       if [true] and [name t] starts with either [__Secure-] or [__Host-], then
       the prefix will be removed from [name] property of [t]. Default is [true].
       See

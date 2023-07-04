@@ -135,10 +135,13 @@ let is_expires_expired clock t =
 
 let is_expired clock t = is_max_age_expired t || is_expires_expired clock t
 
+let remove_attribute (type a) (attr : a Attribute.t) attributes =
+  let attr_name = Attribute.name attr in
+  Map.remove attr_name attributes
+
 let remove : type a. a Attribute.t -> t -> t =
  fun attr t ->
-  let attr_name = Attribute.name attr in
-  let attributes = Map.remove attr_name t.attributes in
+  let attributes = remove_attribute attr t.attributes in
   { t with attributes }
 
 let compare t0 t1 =
@@ -213,19 +216,31 @@ let host_prefix = "__Host-"
 
 let secure_prefix = "__Secure-"
 
-let decode ?(remove_name_prefix = true) s =
+let decode ?(process_name_prefix = true) s =
   let buf_read = Buf_read.of_string s in
   let name, value = Buf_read.cookie_pair buf_read in
-  let name =
-    if remove_name_prefix then
+  let name, secure', path' =
+    if process_name_prefix then
       if String.is_prefix ~affix:host_prefix name then
-        String.with_range ~first:(String.length host_prefix) name
+        let name = String.with_range ~first:(String.length host_prefix) name in
+        (name, true, Some "/")
       else if String.is_prefix ~affix:secure_prefix name then
-        String.with_range ~first:(String.length secure_prefix) name
-      else name
-    else name
+        let name =
+          String.with_range ~first:(String.length secure_prefix) name
+        in
+        (name, true, None)
+      else (name, false, None)
+    else (name, false, None)
   in
   let extension, attributes = attr_tokens buf_read in
+  let attributes =
+    if secure' then add_attribute secure attributes else attributes
+  in
+  let attributes =
+    match path' with
+    | Some v -> add_attribute ~v path attributes
+    | None -> attributes
+  in
   { name; value; extension; attributes }
 
 let canonical_attribute_name s =
