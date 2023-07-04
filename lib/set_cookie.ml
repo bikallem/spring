@@ -285,7 +285,7 @@ module New = struct
 
   let make ?extension ~name value =
     if String.is_empty name then invalid_arg "[name] is empty"
-    else { name; value; extension; attributes = Map.empty }
+    else { name; value; attributes = Map.empty; extension }
 
   let name t = t.name
 
@@ -412,9 +412,26 @@ module New = struct
     |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
     |> String.concat ~sep:"-"
 
-  let encode t =
+  let host_prefix = "__Host-"
+
+  let secure_prefix = "__Secure-"
+
+  let encode ?(prefix_name = true) t =
     let b = Buffer.create 10 in
-    Buffer.add_string b t.name;
+    let name = t.name in
+    let name =
+      if prefix_name then
+        let secure = find secure t in
+        if secure then
+          let domain = find_opt domain t in
+          let path = find_opt path t in
+          match (domain, path) with
+          | None, Some "/" -> host_prefix ^ name
+          | _, _ -> secure_prefix ^ name
+        else name
+      else name
+    in
+    Buffer.add_string b name;
     Buffer.add_char b '=';
     Buffer.add_string b t.value;
     Map.iter

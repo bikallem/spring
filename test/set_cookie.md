@@ -79,6 +79,72 @@ Ensure whitespaces are correctly parser.
 - : unit = ()
 ```
 
+## encode
+
+Encode must prefix `__Host-` prefix to `Set-Cookie` name. The following conditions must be met:
+
+1. Path = `/`
+2. Secure attribute present.
+3. Domain attribute not set.
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add secure)
+  |> Set_cookie.New.(add ~v:"/" path)
+  |> Set_cookie.New.encode;;
+- : string = "__Host-SID=1234; Path=/; Secure"
+```
+
+Domain attribute is present, therefore we fallback to `__Secure-` prefix.
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add secure)
+  |> Set_cookie.New.(add ~v:"/" path)
+  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.New.encode;;
+- : string = "__Secure-SID=1234; Domain=www.example.com; Path=/; Secure"
+```
+
+Path attribute is present but not equal to `/`; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add secure)
+  |> Set_cookie.New.(add ~v:"/product" path)
+  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.New.encode;;
+- : string =
+"__Secure-SID=1234; Domain=www.example.com; Path=/product; Secure"
+```
+
+Path attribute is not present; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add secure)
+  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.New.encode;;
+- : string = "__Secure-SID=1234; Domain=www.example.com; Secure"
+```
+
+No prefix is added to `Set-Cookie` name if `Secure` attribute is not present.
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add ~v:"/" path)
+  |> Set_cookie.New.encode;;
+- : string = "SID=1234; Path=/"
+```
+
+```ocaml
+# Set_cookie.New.make ~name:"SID" "1234"
+  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.New.(add ~v:"/" path)
+  |> Set_cookie.New.encode;;
+- : string = "SID=1234; Domain=www.example.com; Path=/"
+```
+
 ## Add and find attributes in Set-Cookie
 
 Expires attribute.
@@ -178,14 +244,14 @@ val t : Set_cookie.New.t = <abstr>
 # Set_cookie.New.(find same_site t);;
 - : Set_cookie.New.same_site = "Strict"
 
-# let s1 = Set_cookie.New.encode t;;
+# let s1 = Set_cookie.New.encode ~prefix_name:false t;;
 val s1 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
 # let t1 = Set_cookie.New.(decode s1);;
 val t1 : Set_cookie.New.t = <abstr>
 
-# let s2 = Set_cookie.New.encode t1;;
+# let s2 = Set_cookie.New.encode ~prefix_name:false t1;;
 val s2 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 

@@ -241,8 +241,14 @@ module New : sig
       {{!https://github.com/httpwg/http-extensions/issues/295} Double quoted
       value}. *)
 
-  val encode : t -> string
-  (** [encode t] encodes [t] to [s]. *)
+  val encode : ?prefix_name:bool -> t -> string
+  (** [encode t] encodes [t] to [s].
+
+      @param prefix_name
+        if [true] then [name] will be prefixed with either [__Secure-] or
+        [__Host-] as required. Default is [true]. See
+        {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-cookie-name-prefixes}
+        Cookie Name Prefixes}. *)
 
   (** {2 Pretty Printing} *)
 
