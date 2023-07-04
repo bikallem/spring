@@ -413,7 +413,6 @@ module New = struct
     |> String.concat ~sep:"-"
 
   let encode t =
-    let module O = Option in
     let b = Buffer.create 10 in
     Buffer.add_string b t.name;
     Buffer.add_char b '=';
