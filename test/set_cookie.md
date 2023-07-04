@@ -352,7 +352,7 @@ case in-sensitive.
 10. `s1` is equal to `s2`.
 
 ```ocaml
-let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; ASDFas@sadfa\\;Secure   ; HttpOnly    ; MaX-age =  123"
+let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Domain=example.com; ASDFas@sadfa\\;secure   ; HttpOnly    ; MaX-age =  123"
 ```
 
 ```ocaml
