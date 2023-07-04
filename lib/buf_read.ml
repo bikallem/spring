@@ -110,7 +110,9 @@ let cookie_octet =
 let cookie_value : string parser =
   let* c = peek_char in
   match c with
-  | Some '"' -> char '"' *> cookie_octet <* char '"'
+  | Some '"' ->
+    let+ v = char '"' *> cookie_octet <* char '"' in
+    "\"" ^ v ^ "\""
   | Some _ | None -> cookie_octet
 
 (* https://datatracker.ietf.org/doc/html/rfc6265#section-4.1 *)

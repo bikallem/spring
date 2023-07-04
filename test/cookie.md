@@ -25,10 +25,10 @@ Exception: End_of_file.
 
 ```ocaml
 # Cookie.find_opt "SID" t ;;
-- : string option = Some "31d4d96e407aad42"
+- : string option = Some "\"31d4d96e407aad42\""
 
 # Cookie.find_opt "lang" t ;;
-- : string option = Some "en"
+- : string option = Some "\"en\""
 
 # Cookie.find_opt "asdfsa" t;;
 - : string option = None
@@ -38,7 +38,7 @@ Exception: End_of_file.
 
 ```ocaml
 # Cookie.encode t;;
-- : string = "SID=31d4d96e407aad42; lang=en"
+- : string = "SID=\"31d4d96e407aad42\"; lang=\"en\""
 ```
 
 ## Cookie.add
@@ -51,7 +51,7 @@ val t : Cookie.t = <abstr>
 - : string option = Some "value1"
 
 # Cookie.encode t;;
-- : string = "SID=31d4d96e407aad42; id=value1; lang=en"
+- : string = "SID=\"31d4d96e407aad42\"; id=value1; lang=\"en\""
 ```
 
 ## Cookie.remove

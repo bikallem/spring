@@ -271,15 +271,22 @@ val t : Set_cookie.New.t = <abstr>
 +value: 'asdfasdf'
 +extension: ''
 - : unit = ()
+```
 
+Double quoted Set-Cookie values are part of the value and are not stripped.
+
+```ocaml
 # let t = Set_cookie.New.decode {|name1="value=@>?"|};;
 val t : Set_cookie.New.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: name1
-+value: 'value=@>?'
++value: '"value=@>?"'
 +extension: ''
 - : unit = ()
+
+# Set_cookie.New.encode t;;
+- : string = "name1=\"value=@>?\""
 ```
 
 Ensure whitespaces are correctly parser.
@@ -287,7 +294,7 @@ Ensure whitespaces are correctly parser.
 ```ocaml
 # Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
 +name: name1
-+value: 'value=@>?'
++value: '"value=@>?"'
 +extension: ''
 - : unit = ()
 ```
@@ -436,6 +443,12 @@ Empty Set-Cookie value is allowed.
 ```ocaml
 # Set_cookie.New.decode "SID=";;
 - : Set_cookie.New.t = <abstr>
+```
+
+Set-Cookie value can be double quoted.
+
+```ocaml
+
 ```
 
 ## remove
