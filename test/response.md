@@ -189,7 +189,10 @@ val txt_response : Response.server Response.t = <abstr>
 ```
 
 ```ocaml
-# let id_cookie = Set_cookie.make ("ID", "1234") ;;
+# let id_cookie = 
+    Set_cookie.make ~name:"ID" "1234"
+    |> Set_cookie.(add secure)
+    |> Set_cookie.(add http_only);;
 val id_cookie : Set_cookie.t = <abstr>
 
 # let res = Response.add_set_cookie id_cookie txt_response ;;
@@ -199,7 +202,7 @@ val res : Response.server Response.t = <abstr>
 +HTTP/1.1 200 OK
 +Content-Length: 12
 +Content-Type: text/html; charset=uf-8
-+Set-Cookie: ID=1234; Secure; HttpOnly
++Set-Cookie: __Secure-ID=1234; Httponly; Secure
 +
 +hello, world
 - : unit = ()
@@ -210,15 +213,10 @@ val res : Response.server Response.t = <abstr>
 ```ocaml
 # Response.find_set_cookie "ID" res |> Option.iter (Eio.traceln "%a" Set_cookie.pp) ;;
 +{
-+  Name: ID;
-+  Value: 1234;
-+  Expires: ;
-+  Max-Age: ;
-+  Domain: ;
-+  Path: ;
-+  SameSite: ;
-+  Secure: true;
-+  HttpOnly: true
++  Name : 'ID' ;
++  Value : '1234' ;
++  Httponly ;
++  Secure ;
 +}
 - : unit = ()
 ```

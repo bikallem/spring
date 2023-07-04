@@ -8,9 +8,9 @@ Function to display a few `Set_cookie.t` properties.
 
 ```ocaml
 let display_set_cookie_details t =
-    Eio.traceln "name: %s" (Set_cookie.New.name t);
-    Eio.traceln "value: '%s'" (Set_cookie.New.value t);
-    match Set_cookie.New.extension t with
+    Eio.traceln "name: %s" (Set_cookie.name t);
+    Eio.traceln "value: '%s'" (Set_cookie.value t);
+    match Set_cookie.extension t with
     | Some v -> Eio.traceln "extension: '%s'" v
     | None -> ()
 ```
@@ -23,8 +23,8 @@ let display_set_cookie_details t =
 4. Display extension value.
 
 ```ocaml
-# let t = Set_cookie.New.make ~extension:"hello" ~name:"cookie1" "val1";;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.make ~extension:"hello" ~name:"cookie1" "val1";;
+val t : Set_cookie.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: cookie1
@@ -36,7 +36,7 @@ val t : Set_cookie.New.t = <abstr>
 Set-Cookie can't have empty `name`.
 
 ```ocaml
-# Set_cookie.New.make ~name:"" "v";;
+# Set_cookie.make ~name:"" "v";;
 Exception: Invalid_argument "[name] is empty".
 ```
 
@@ -46,8 +46,8 @@ Exception: Invalid_argument "[name] is empty".
 2. Display decoded Set-Cookie details.
 
 ```ocaml
-# let t = Set_cookie.New.decode "asdfa=asdfasdf";;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.decode "asdfa=asdfasdf";;
+val t : Set_cookie.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: asdfa
@@ -58,22 +58,22 @@ val t : Set_cookie.New.t = <abstr>
 Double quoted Set-Cookie values are part of the value and are not stripped.
 
 ```ocaml
-# let t = Set_cookie.New.decode {|name1="value=@>?"|};;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.decode {|name1="value=@>?"|};;
+val t : Set_cookie.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: name1
 +value: '"value=@>?"'
 - : unit = ()
 
-# Set_cookie.New.encode t;;
+# Set_cookie.encode t;;
 - : string = "name1=\"value=@>?\""
 ```
 
 Ensure whitespaces are correctly parsed.
 
 ```ocaml
-# Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
+# Set_cookie.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
 +name: name1
 +value: '"value=@>?"'
 - : unit = ()
@@ -82,16 +82,16 @@ Ensure whitespaces are correctly parsed.
 Remove prefix `__Host-` and `__Secure-` from `Set-Cookie` name.
 
 ```ocaml
-# Set_cookie.New.decode "__Host-SID=12333" |> Set_cookie.New.name;;
+# Set_cookie.decode "__Host-SID=12333" |> Set_cookie.name;;
 - : string = "SID"
 
-# Set_cookie.New.decode "__Secure-SID=12333" |> Set_cookie.New.name;;
+# Set_cookie.decode "__Secure-SID=12333" |> Set_cookie.name;;
 - : string = "SID"
 
-# Set_cookie.New.decode ~remove_name_prefix:false "__Secure-SID=123" |> Set_cookie.New.name;; 
+# Set_cookie.decode ~remove_name_prefix:false "__Secure-SID=123" |> Set_cookie.name;; 
 - : string = "__Secure-SID"
 
-# Set_cookie.New.decode ~remove_name_prefix:false "__Host-SID=123" |> Set_cookie.New.name;;
+# Set_cookie.decode ~remove_name_prefix:false "__Host-SID=123" |> Set_cookie.name;;
 - : string = "__Host-SID"
 ```
 
@@ -104,32 +104,32 @@ Encode must prefix `__Host-` prefix to `Set-Cookie` name. The following conditio
 3. Domain attribute not set.
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add secure)
-  |> Set_cookie.New.(add ~v:"/" path)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add secure)
+  |> Set_cookie.(add ~v:"/" path)
+  |> Set_cookie.encode;;
 - : string = "__Host-SID=1234; Path=/; Secure"
 ```
 
 Domain attribute is present, therefore we fallback to `__Secure-` prefix.
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add secure)
-  |> Set_cookie.New.(add ~v:"/" path)
-  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add secure)
+  |> Set_cookie.(add ~v:"/" path)
+  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.encode;;
 - : string = "__Secure-SID=1234; Domain=www.example.com; Path=/; Secure"
 ```
 
 Path attribute is present but not equal to `/`; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add secure)
-  |> Set_cookie.New.(add ~v:"/product" path)
-  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add secure)
+  |> Set_cookie.(add ~v:"/product" path)
+  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.encode;;
 - : string =
 "__Secure-SID=1234; Domain=www.example.com; Path=/product; Secure"
 ```
@@ -137,27 +137,27 @@ Path attribute is present but not equal to `/`; therefore we prefix `__Secure-` 
 Path attribute is not present; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add secure)
-  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add secure)
+  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.encode;;
 - : string = "__Secure-SID=1234; Domain=www.example.com; Secure"
 ```
 
 No prefix is added to `Set-Cookie` name if `Secure` attribute is not present.
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add ~v:"/" path)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add ~v:"/" path)
+  |> Set_cookie.encode;;
 - : string = "SID=1234; Path=/"
 ```
 
 ```ocaml
-# Set_cookie.New.make ~name:"SID" "1234"
-  |> Set_cookie.New.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.New.(add ~v:"/" path)
-  |> Set_cookie.New.encode;;
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
+  |> Set_cookie.(add ~v:"/" path)
+  |> Set_cookie.encode;;
 - : string = "SID=1234; Domain=www.example.com; Path=/"
 ```
 
@@ -174,31 +174,31 @@ let dt1 = Date.now mock_clock;;
 
 ```ocaml
 # let t0 = 
-  Set_cookie.New.make ~name:"SID" "123"
-  |> Set_cookie.New.(add ~v:dt1 expires);;
-val t0 : Set_cookie.New.t = <abstr>
+  Set_cookie.make ~name:"SID" "123"
+  |> Set_cookie.(add ~v:dt1 expires);;
+val t0 : Set_cookie.t = <abstr>
 
-# Set_cookie.New.encode t0;; 
+# Set_cookie.encode t0;; 
 - : string = "SID=123; Expires=Mon, 24 Oct 2022 16:12:15 GMT"
 
-# let e0 = Set_cookie.New.expire t0;;
-val e0 : Set_cookie.New.t = <abstr>
+# let e0 = Set_cookie.expire t0;;
+val e0 : Set_cookie.t = <abstr>
 
-# Set_cookie.New.encode e0;;
+# Set_cookie.encode e0;;
 - : string = "SID=123; Max-Age=-1"
 ```
 
 `is_expired` is `true` for `e0` since `Max-Age <= 0`.
 
 ```ocaml
-# Set_cookie.New.is_expired mock_clock e0;;
+# Set_cookie.is_expired mock_clock e0;;
 - : bool = true
 ```
 
 `is_expired t0` is `false` since the `Expires` timestamp is equal to clock now value.
 
 ```ocaml
-# Set_cookie.New.is_expired mock_clock t0;;
+# Set_cookie.is_expired mock_clock t0;;
 - : bool = false
 ```
 
@@ -210,7 +210,7 @@ val e0 : Set_cookie.New.t = <abstr>
 +mock time is now 1.66663e+09
 - : unit = ()
 
-# Set_cookie.New.is_expired mock_clock t0;;
+# Set_cookie.is_expired mock_clock t0;;
 - : bool = true
 ```
 
@@ -228,10 +228,10 @@ let dt1 = Date.of_float_s 1623940778.27033591 |> Option.get
 ```
 
 ```ocaml
-# let t = Set_cookie.New.(add ~v:dt1 expires t);;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.(add ~v:dt1 expires t);;
+val t : Set_cookie.t = <abstr>
 
-# let dt2 = Set_cookie.New.(find_opt expires t) |> Option.get;;
+# let dt2 = Set_cookie.(find_opt expires t) |> Option.get;;
 val dt2 : Date.t = <abstr>
 
 # Date.encode dt2;;
@@ -247,13 +247,13 @@ Secure attribute.
 2. Add `secure` attribute and find it. It is `true`.
 
 ```ocaml
-# Set_cookie.New.(find secure t);;
+# Set_cookie.(find secure t);;
 - : bool = false
 
-# let t = Set_cookie.New.(add secure t);;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.(add secure t);;
+val t : Set_cookie.t = <abstr>
 
-# Set_cookie.New.(find secure t);;
+# Set_cookie.(find secure t);;
 - : bool = true
 ```
 
@@ -283,8 +283,8 @@ let s = "SID=31d4d96e407aad42; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Path=/; Do
 ```
 
 ```ocaml
-# let t = Set_cookie.New.decode s;;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.decode s;;
+val t : Set_cookie.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: SID
@@ -292,77 +292,77 @@ val t : Set_cookie.New.t = <abstr>
 +extension: 'ASDFas@sadfa\'
 - : unit = ()
 
-# Set_cookie.New.(find path t);;
+# Set_cookie.(find path t);;
 - : string = "/"
 
-# Set_cookie.New.(find domain t) |> Domain_name.to_string;;
+# Set_cookie.(find domain t) |> Domain_name.to_string;;
 - : string = "example.com"
 
-# Set_cookie.New.(find secure t);; 
+# Set_cookie.(find secure t);; 
 - : bool = true
 
-# Set_cookie.New.(find http_only t);;
+# Set_cookie.(find http_only t);;
 - : bool = true
 
-# Set_cookie.New.(find max_age t);;
+# Set_cookie.(find max_age t);;
 - : int = 123
 
-# Set_cookie.New.(find expires t) |> Date.encode;;
+# Set_cookie.(find expires t) |> Date.encode;;
 - : string = "Thu, 17 Jun 2021 14:39:38 GMT"
 
-# Set_cookie.New.(find same_site t);;
-- : Set_cookie.New.same_site = "Strict"
+# Set_cookie.(find same_site t);;
+- : Set_cookie.same_site = "Strict"
 
-# let s1 = Set_cookie.New.encode ~prefix_name:false t;;
+# let s1 = Set_cookie.encode ~prefix_name:false t;;
 val s1 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
-# let t1 = Set_cookie.New.(decode s1);;
-val t1 : Set_cookie.New.t = <abstr>
+# let t1 = Set_cookie.(decode s1);;
+val t1 : Set_cookie.t = <abstr>
 
-# let s2 = Set_cookie.New.encode ~prefix_name:false t1;;
+# let s2 = Set_cookie.encode ~prefix_name:false t1;;
 val s2 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
 # s1 = s2;;
 - : bool = true
 
-# Set_cookie.New.compare t t1;; 
+# Set_cookie.compare t t1;; 
 - : int = 0
 
-# Set_cookie.New.equal t t1;;
+# Set_cookie.equal t t1;;
 - : bool = true
 ```
 
 Decode name/value only.
 
 ```ocaml
-# let t = Set_cookie.New.(decode "SID=31d4d96e407aad42");;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.(decode "SID=31d4d96e407aad42");;
+val t : Set_cookie.t = <abstr>
 
 # display_set_cookie_details t;;
 +name: SID
 +value: '31d4d96e407aad42'
 - : unit = ()
 
-# Set_cookie.New.(find http_only t);;
+# Set_cookie.(find http_only t);;
 - : bool = false
 
-# Set_cookie.New.(find_opt http_only t);;
+# Set_cookie.(find_opt http_only t);;
 - : bool option = None
 ```
 
 Empty Set-Cookie value is allowed.
 
 ```ocaml
-# Set_cookie.New.decode "SID=";;
-- : Set_cookie.New.t = <abstr>
+# Set_cookie.decode "SID=";;
+- : Set_cookie.t = <abstr>
 ```
 
 Set-Cookie value can be double quoted. Decoding and encoding such values should preserve double quotes are part of the cookie value, i.e. double quotes are part of the value and aren't stripped away when decoding.
 
 ```ocaml
-# Set_cookie.New.decode {|SID="hello-world"|} |> Set_cookie.New.encode;;
+# Set_cookie.decode {|SID="hello-world"|} |> Set_cookie.encode;;
 - : string = "SID=\"hello-world\""
 ```
 
@@ -376,16 +376,16 @@ Remove name/value attribute.
 2. Find `Max-Age` is `None`. 
 
 ```ocaml
-# let t = Set_cookie.New.decode s;;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.decode s;;
+val t : Set_cookie.t = <abstr>
 
-# Set_cookie.New.(find_opt max_age t) ;;
+# Set_cookie.(find_opt max_age t) ;;
 - : int option = Some 123
 
-# let t = Set_cookie.New.(remove max_age t);;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.(remove max_age t);;
+val t : Set_cookie.t = <abstr>
 
-# Set_cookie.New.(find_opt max_age t);;
+# Set_cookie.(find_opt max_age t);;
 - : int option = None
 ```
 
@@ -398,19 +398,19 @@ Remove bool attribute.
 4. Find_opt `Secure` in `t` is `None`.
 
 ```ocaml
-# Set_cookie.New.(find secure t);;
+# Set_cookie.(find secure t);;
 - : bool = true
 
-# Set_cookie.New.(find_opt secure t);;
+# Set_cookie.(find_opt secure t);;
 - : bool option = Some true
 
-# let t = Set_cookie.New.(remove secure t);;
-val t : Set_cookie.New.t = <abstr>
+# let t = Set_cookie.(remove secure t);;
+val t : Set_cookie.t = <abstr>
 
-# Set_cookie.New.(find secure t);;
+# Set_cookie.(find secure t);;
 - : bool = false
 
-# Set_cookie.New.(find_opt secure t);;
+# Set_cookie.(find_opt secure t);;
 - : bool option = None
 ```
 
@@ -419,12 +419,12 @@ val t : Set_cookie.New.t = <abstr>
 Pretty print.
 
 ```ocaml
-let t = Set_cookie.New.decode s2 
+let t = Set_cookie.decode s2 
 ```
 
 ```ocaml
 
-# Eio.traceln "%a" Set_cookie.New.pp t;;
+# Eio.traceln "%a" Set_cookie.pp t;;
 +{
 +  Name : 'SID' ;
 +  Value : '31d4d96e407aad42' ;
@@ -442,11 +442,11 @@ let t = Set_cookie.New.decode s2
 Pretty print name/value only.
 
 ```ocaml
-let t = Set_cookie.New.make ~name:"SID" "helloWorld";; 
+let t = Set_cookie.make ~name:"SID" "helloWorld";; 
 ```
 
 ```ocaml
-# Eio.traceln "%a" Set_cookie.New.pp t;; 
+# Eio.traceln "%a" Set_cookie.pp t;; 
 +{
 +  Name : 'SID' ;
 +  Value : 'helloWorld' ;

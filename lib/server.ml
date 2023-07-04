@@ -72,8 +72,10 @@ let session_pipeline (session_codec : Session.codec) : pipeline =
     let nonce = Mirage_crypto_rng.generate Secret.nonce_size in
     let encrypted_data = Session.encode ~nonce session_data session_codec in
     let cookie =
-      Set_cookie.make ~path:"/" ~same_site:Set_cookie.strict
-        (cookie_name, encrypted_data)
+      Set_cookie.make ~name:cookie_name encrypted_data
+      |> Set_cookie.(add ~v:"/" path)
+      |> Set_cookie.(add ~v:strict same_site)
+      |> Set_cookie.(add secure)
     in
     Response.add_set_cookie cookie response
 
