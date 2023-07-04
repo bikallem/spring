@@ -343,10 +343,10 @@ module New = struct
               | '-' -> true
               | _ -> false)
             buf_read
-          |> String.Ascii.lowercase
         in
         if List.mem (String.Ascii.lowercase nm) attribute_names then (
           Buf_read.ows buf_read;
+          let nm = String.Ascii.lowercase nm in
           match Buf_read.peek_char buf_read with
           | Some '=' ->
             Buf_read.char '=' buf_read;
