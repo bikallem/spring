@@ -195,6 +195,15 @@ val e0 : Set_cookie.t = <abstr>
 - : bool = true
 ```
 
+`is_expired` is `false` if `Max-Age > 0`.
+
+```ocaml
+# Set_cookie.make ~name:"SID" "1234"
+  |> Set_cookie.(add ~v:1 max_age)
+  |> Set_cookie.is_expired mock_clock
+- : bool = false
+```
+
 `is_expired t0` is `false` since the `Expires` timestamp is equal to clock now value.
 
 ```ocaml
