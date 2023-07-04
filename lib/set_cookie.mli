@@ -229,7 +229,7 @@ module New : sig
 
   (** {2 Codecs} *)
 
-  val decode : string -> t
+  val decode : ?remove_name_prefix:bool -> string -> t
   (** [decode s] decodes string [s] into [t].
 
       The grammar followed is specified at
@@ -239,7 +239,14 @@ module New : sig
       {b Note} if the [Set-Cookie] value is double quoted, then double quotes
       are part of the value and are not stripped. See
       {{!https://github.com/httpwg/http-extensions/issues/295} Double quoted
-      value}. *)
+      value}.
+
+      @param remove_name_prefix
+        if [true] and [name t] starts with either [__Secure-] or [__Host-], then
+        the prefix will be removed from [name] property of [t]. Default is
+        [true]. See
+        {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-cookie-name-prefixes}
+        Cookie Name Prefixes}. *)
 
   val encode : ?prefix_name:bool -> t -> string
   (** [encode t] encodes [t] to [s].

@@ -70,13 +70,29 @@ val t : Set_cookie.New.t = <abstr>
 - : string = "name1=\"value=@>?\""
 ```
 
-Ensure whitespaces are correctly parser.
+Ensure whitespaces are correctly parsed.
 
 ```ocaml
 # Set_cookie.New.decode {|name1  =  "value=@>?"|} |> display_set_cookie_details;;
 +name: name1
 +value: '"value=@>?"'
 - : unit = ()
+```
+
+Remove prefix `__Host-` and `__Secure-` from `Set-Cookie` name.
+
+```ocaml
+# Set_cookie.New.decode "__Host-SID=12333" |> Set_cookie.New.name;;
+- : string = "SID"
+
+# Set_cookie.New.decode "__Secure-SID=12333" |> Set_cookie.New.name;;
+- : string = "SID"
+
+# Set_cookie.New.decode ~remove_name_prefix:false "__Secure-SID=123" |> Set_cookie.New.name;; 
+- : string = "__Secure-SID"
+
+# Set_cookie.New.decode ~remove_name_prefix:false "__Host-SID=123" |> Set_cookie.New.name;;
+- : string = "__Host-SID"
 ```
 
 ## encode

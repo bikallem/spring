@@ -401,9 +401,22 @@ module New = struct
     let attrs = loop buf_read Map.empty in
     (!extension, attrs)
 
-  let decode s =
+  let host_prefix = "__Host-"
+
+  let secure_prefix = "__Secure-"
+
+  let decode ?(remove_name_prefix = true) s =
     let buf_read = Buf_read.of_string s in
     let name, value = Buf_read.cookie_pair buf_read in
+    let name =
+      if remove_name_prefix then
+        if String.is_prefix ~affix:host_prefix name then
+          String.with_range ~first:(String.length host_prefix) name
+        else if String.is_prefix ~affix:secure_prefix name then
+          String.with_range ~first:(String.length secure_prefix) name
+        else name
+      else name
+    in
     let extension, attributes = attr_tokens buf_read in
     { name; value; extension; attributes }
 
@@ -411,10 +424,6 @@ module New = struct
     String.cuts ~sep:"-" s
     |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
     |> String.concat ~sep:"-"
-
-  let host_prefix = "__Host-"
-
-  let secure_prefix = "__Secure-"
 
   let encode ?(prefix_name = true) t =
     let b = Buffer.create 10 in
