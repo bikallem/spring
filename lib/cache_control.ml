@@ -19,10 +19,6 @@ module Directive = struct
     | Bool name -> name
     | Name_val { name; _ } -> name
 
-  type bool' = bool t
-
-  let make_bool_directive name = Bool name
-
   let is_bool : type a. a t -> bool = function
     | Bool _ -> true
     | Name_val _ -> false
@@ -36,6 +32,10 @@ module Directive = struct
   let encode : type a. a t -> a encode option = function
     | Bool _ -> None
     | Name_val { encode; _ } -> Some encode
+
+  type nonrec bool = bool t
+
+  let make_bool_directive name = Bool name
 end
 
 type t = (string * string option) list

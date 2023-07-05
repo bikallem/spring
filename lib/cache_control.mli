@@ -25,20 +25,6 @@ module Directive : sig
   val name : 'a t -> name
   (** [name t] is the name of the cache-directive [t]. *)
 
-  (** {2:bool_directive Bool} *)
-
-  type bool' = bool t
-  (** [bool'] is a cache-directive that doesn't have a corresponding value
-      associated with it, e.g. [no-cache, private, public] etc.
-
-      [max-age] is not a bool directive as it has a value associated with it.
-      value.
-
-      See {!val:is_bool}. *)
-
-  val make_bool_directive : name -> bool'
-  (** [make_bool_directive name] makes a bool directive with name [name]. *)
-
   val is_bool : 'a t -> bool
   (** [is_bool t] is [true] if [t] is a bool directive.
 
@@ -75,6 +61,20 @@ module Directive : sig
       the encoder function for [t].
 
       It is [None] if [t] is a bool directive. *)
+
+  (** {2:bool_directive Bool} *)
+
+  type nonrec bool = bool t
+  (** [bool] is a cache-directive that doesn't have a corresponding value
+      associated with it, e.g. [no-cache, private, public] etc.
+
+      [max-age] is not a bool directive as it has a value associated with it.
+      value.
+
+      See {!val:is_bool}. *)
+
+  val make_bool_directive : name -> bool
+  (** [make_bool_directive name] makes a bool directive with name [name]. *)
 end
 
 (** {1 Cache-Control} *)
@@ -157,28 +157,28 @@ val min_fresh : delta_seconds Directive.t
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-min-fresh} min-fresh} *)
 
-val no_cache : Directive.bool'
+val no_cache : Directive.bool
 (** [no_cache] is [no-cache] directive.
 
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-cache} no-cache}. *)
 
-val no_store : Directive.bool'
+val no_store : Directive.bool
 (** [no_store] is [no-store] directive.
 
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
 
-val no_transform : Directive.bool'
+val no_transform : Directive.bool
 (** [no_transform] is [no-transform] directive.
 
     {b Usage} HTTP request and response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-no-store} no-store}. *)
 
-val only_if_cached : Directive.bool'
+val only_if_cached : Directive.bool
 (** [only_if_cached] is [only-if-cached] directive.
 
     {b Usage} HTTP request.
@@ -186,7 +186,7 @@ val only_if_cached : Directive.bool'
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-only-if-cached}
     only-if-cached}. *)
 
-val must_revalidate : Directive.bool'
+val must_revalidate : Directive.bool
 (** [must_revalidate] is [must-revalidate] directive.
 
     {b Usage} HTTP response.
@@ -194,7 +194,7 @@ val must_revalidate : Directive.bool'
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-revalidate}
     must-revalidate}. *)
 
-val must_understand : Directive.bool'
+val must_understand : Directive.bool
 (** [must_understand] is [must-understand] directive.
 
     {b Usage} HTTP response.
@@ -202,14 +202,14 @@ val must_understand : Directive.bool'
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-must-understand}
     must-understand}. *)
 
-val private' : Directive.bool'
+val private' : Directive.bool
 (** [private'] is [private] directive.
 
     {b Usage} HTTP response.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-private} private}. *)
 
-val proxy_revalidate : Directive.bool'
+val proxy_revalidate : Directive.bool
 (** [proxy_revalidate] is [proxy-revalidate] directive.
 
     {b Usage} HTTP response.
@@ -217,7 +217,7 @@ val proxy_revalidate : Directive.bool'
     See {{!https://www.rfc-editor.org/rfc/rfc9111#name-proxy-revalidate}
     proxy-revalidate}. *)
 
-val public : Directive.bool'
+val public : Directive.bool
 (** [public] is [public] directive.
 
     {b Usage} HTTP response.

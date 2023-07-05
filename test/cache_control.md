@@ -8,7 +8,7 @@ open Spring
 
 ```ocaml
 # let d = Cache_control.Directive.make_bool_directive "no-cache";;
-val d : Cache_control.Directive.bool' = <abstr>
+val d : Cache_control.Directive.bool = <abstr>
 
 # Cache_control.Directive.name d;;
 - : string = "no-cache"
