@@ -27,7 +27,7 @@ val cut_prefix : ?case_sensitive:bool -> string -> string * t option
     removing the matched cookie name prefix from [name]. [Some t] is the matched
     cookie name prefix.
 
-    If [name] doesn't prefix any of the two cookie name prefixes, then it is
+    If [name] doesn't contain either of the two prefixes, then it is
     [name, None] .i.e. [name] is unchanged. *)
 
 val to_string : t -> string
