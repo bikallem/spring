@@ -12,7 +12,7 @@ let decode v =
   let rec aux m =
     let name, value = Buf_read.cookie_pair r in
     let name, name_prefix =
-      Cookie_name_prefix.cut_prefix ~case_sensitive:false name
+      Cookie_name_prefix.cut_prefix ~case_sensitive:true name
     in
     let m = Map.add name { name_prefix; value } m in
     match Buf_read.peek_char r with

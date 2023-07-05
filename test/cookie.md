@@ -3,39 +3,79 @@
 ```ocaml
 open Spring
 ```
+
+```ocaml
+let display_cookie name t =
+    let pp_name_prefix = Fmt.(option ~none:(any "None") Cookie_name_prefix.pp) in
+    Eio.traceln "Name: %s" name;
+    Eio.traceln "NamePrefix: %a" pp_name_prefix @@ Cookie.name_prefix name t;
+    Eio.traceln "Value : %a" Fmt.(option string) @@ Cookie.find_opt name t
+```
+
 ## Cookie.decode - supports both " .. " and without
 
 ```ocaml
-# let t = Cookie.decode "SID=31d4d96e407aad42; lang=en";;
-val t : Cookie.t = <abstr>
+# let t0 = Cookie.decode "SID=31d4d96e407aad42; lang=en";;
+val t0 : Cookie.t = <abstr>
 
-# let t = Cookie.decode {|SID="31d4d96e407aad42"; lang="en"|};;
-val t : Cookie.t = <abstr>
+# display_cookie "SID" t0;;
++Name: SID
++NamePrefix: None
++Value : 31d4d96e407aad42
+- : unit = ()
+
+# display_cookie "lang" t0;;
++Name: lang
++NamePrefix: None
++Value : en
+- : unit = ()
+
+# let t1 = Cookie.decode {|SID="31d4d96e407aad42"; lang="en"|};;
+val t1 : Cookie.t = <abstr>
+
+# display_cookie "SID" t1;;
++Name: SID
++NamePrefix: None
++Value : "31d4d96e407aad42"
+- : unit = ()
+
+# display_cookie "lang" t1;;
++Name: lang
++NamePrefix: None
++Value : "en"
+- : unit = ()
 ```
 
-1. Parse cookie-name prefix. The matching is case sensitive.
-2. Display name_prefix.
+Decode cookies with cookie name prefix.
 
 ```ocaml
-# Cookie.decode {|__Host-SID=1234|} |> Cookie.name_prefix "SID";;
-- : Spring.Cookie_name_prefix.t option = Some <abstr>
+# display_cookie "SID" @@ Cookie.decode {|__Host-SID=1234|};;
++Name: SID
++NamePrefix: __Host-
++Value : 1234
+- : unit = ()
 
-# Cookie.decode {|__Secure-SID=1234|} |> Cookie.name_prefix "SID";;
-- : Cookie_name_prefix.t option = Some <abstr>
+# display_cookie "SID" @@ Cookie.decode {|__Secure-SID=1234|};;
++Name: SID
++NamePrefix: __Secure-
++Value : 1234
+- : unit = ()
 ```
 
 1. Cookie name prefixes are case-sensitive in Cookie header. (Set-Cookie decoding is case-insensitive.)
-2. If cookie-name-prefix is not matched, then it becomes part of the cookie name.
 
 ```ocaml
-# let t = Cookie.decode {|__SeCUre-SID=1234|};;
-val t : Cookie.t = <abstr>
+# let t3 = Cookie.decode {|__SeCUre-SID=1234|};;
+val t3 : Cookie.t = <abstr>
 
-# Cookie.name_prefix "SID" t;;
-- : Cookie_name_prefix.t option = Some <abstr>
+# display_cookie "__SeCUre-SID" t3;;
++Name: __SeCUre-SID
++NamePrefix: None
++Value : 1234
+- : unit = ()
 
-# Cookie.find_opt "__SeCUre-SID" t;;
-- : string option = None
+# Cookie.find_opt "__SeCUre-SID" t3;;
+- : string option = Some "1234"
 ```
 
 ```ocaml
@@ -49,21 +89,21 @@ Exception: End_of_file.
 ## Cookie.find_opt
 
 ```ocaml
-# Cookie.find_opt "SID" t ;;
-- : string option = Some "1234"
+# Cookie.find_opt "SID" t0 ;;
+- : string option = Some "31d4d96e407aad42"
 
-# Cookie.find_opt "lang" t ;;
-- : string option = None
+# Cookie.find_opt "lang" t0 ;;
+- : string option = Some "en"
 
-# Cookie.find_opt "asdfsa" t;;
+# Cookie.find_opt "asdfsa" t0;;
 - : string option = None
 ```
 
 ## Cookie.encode
 
 ```ocaml
-# Cookie.encode t;;
-- : string = "__Secure-SID=1234"
+# Cookie.encode t0;;
+- : string = "SID=31d4d96e407aad42;lang=en"
 ```
 
 Encode should add cookie name prefix if it exists.
@@ -81,14 +121,14 @@ Encode should add cookie name prefix if it exists.
 ## Cookie.add
 
 ```ocaml
-# let t = Cookie.add ~name:"id" ~value:"value1" t;;
+# let t = Cookie.add ~name:"id" ~value:"value1" t0;;
 val t : Cookie.t = <abstr>
 
 # Cookie.find_opt "id" t;;
 - : string option = Some "value1"
 
 # Cookie.encode t;;
-- : string = "__Secure-SID=1234;id=value1"
+- : string = "SID=31d4d96e407aad42;id=value1;lang=en"
 ```
 
 ## Cookie.remove
