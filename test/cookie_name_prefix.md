@@ -44,10 +44,9 @@ Case sensitive match is the default.
 # Cookie_name_prefix.(
     cut_prefix "__Host-SID", 
     cut_prefix ~case_sensitive:true "__HoST-SID")
-    |> display_cut_result2 ;;
-Line 4, characters 8-27:
-Error: Unbound value display_cut_result2
-Hint: Did you mean display_cut_result?
+    |> display_cut_result ;;
++(SID, __Host-) (__HoST-SID, None)
+- : unit = ()
 
 # Cookie_name_prefix.(
   cut_prefix "__Secure-SID", 
