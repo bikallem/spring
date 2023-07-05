@@ -167,12 +167,12 @@ let av_octet buf_read =
 
 let attribute_names =
   [ Attribute.name expires
-  ; "max-age"
-  ; "domain"
-  ; "path"
-  ; "secure"
-  ; "httponly"
-  ; "samesite"
+  ; Attribute.name max_age
+  ; Attribute.name domain
+  ; Attribute.name path
+  ; Attribute.name secure
+  ; Attribute.name http_only
+  ; Attribute.name same_site
   ]
 
 (* split tokens at ';' *)
