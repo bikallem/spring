@@ -105,6 +105,9 @@ val make :
 val name : t -> string
 (** [name t] is the name of [Set-Cookie] value [t]. *)
 
+val name_prefix : t -> string option
+(** [name_prefix t] is [Some prefix] is [t] contains a cookie name prefix. *)
+
 val value : t -> string
 (** [value t] is the value of [Set-Cookie] value [t]. *)
 

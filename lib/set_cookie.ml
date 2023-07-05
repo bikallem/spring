@@ -77,6 +77,8 @@ let make ?extension ?name_prefix ~name value =
 
 let name t = t.name
 
+let name_prefix t = t.name_prefix
+
 let value t = t.value
 
 let extension t = t.extension

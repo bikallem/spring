@@ -84,6 +84,7 @@ Process cookie-name prefix `__Host-` in `Set-Cookie` name.
 ```ocaml
 let display_set_cookie_attributes t =
   Eio.traceln "Name : %s" @@ Set_cookie.name t;
+  Eio.traceln "NamePrefix: %a" Fmt.(option string) @@ Set_cookie.name_prefix t;
   Eio.traceln "Secure : %b" @@ Set_cookie.(find secure t);
   (match Set_cookie.(find_opt path t) with
   | Some p -> Eio.traceln "Path: '%s'" p
@@ -96,6 +97,7 @@ let display_set_cookie_attributes t =
 ```ocaml
 # Set_cookie.decode "__Host-SID=12333" |> display_set_cookie_attributes;;
 +Name : SID
++NamePrefix: __Host-
 +Secure : false
 - : unit = ()
 ```
@@ -105,6 +107,7 @@ Process cookie-name prefix `__Secure-` in `Set-Cookie` name.
 ```ocaml
 # Set_cookie.decode "__Secure-SID=12333;Domain=www.example.com" |> display_set_cookie_attributes;;
 +Name : SID
++NamePrefix: __Secure-
 +Secure : false
 +Domain : www.example.com
 - : unit = ()
@@ -115,11 +118,13 @@ Set `process_name_prefix` parameter to `false`.
 ```ocaml
 # Set_cookie.decode "__Secure-SID=123:Domain=www.example.com" |> display_set_cookie_attributes;;
 +Name : SID
++NamePrefix: __Secure-
 +Secure : false
 - : unit = ()
 
 # Set_cookie.decode "__Host-SID=123" |> display_set_cookie_attributes;;
 +Name : SID
++NamePrefix: __Host-
 +Secure : false
 - : unit = ()
 ```
