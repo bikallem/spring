@@ -106,6 +106,13 @@ Exception: End_of_file.
 - : string = "SID=31d4d96e407aad42;lang=en"
 ```
 
+Encode should preserve the double quotes in cookie value.
+
+```ocaml
+# Cookie.encode t1;;
+- : string = "SID=\"31d4d96e407aad42\";lang=\"en\""
+```
+
 Encode should add cookie name prefix if it exists.
 
 ```ocaml
