@@ -10,6 +10,7 @@ module Date = Date
 module Content_type = Content_type
 module Content_disposition = Content_disposition
 module Set_cookie = Set_cookie
+module Cookie_name_prefix = Cookie_name_prefix
 module Cookie = Cookie
 module Expires = Expires
 module Etag = Etag
