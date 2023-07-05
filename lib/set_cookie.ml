@@ -219,7 +219,7 @@ let decode s =
   let buf_read = Buf_read.of_string s in
   let name, value = Buf_read.cookie_pair buf_read in
   let name, name_prefix =
-    Cookie_name_prefix.cut_prefix ~case_sensitive:true name
+    Cookie_name_prefix.cut_prefix ~case_sensitive:false name
   in
   let extension, attributes = attr_tokens buf_read in
   { name; name_prefix; value; extension; attributes }
