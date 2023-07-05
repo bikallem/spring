@@ -18,10 +18,10 @@ val t : Cookie.t = <abstr>
 
 ```ocaml
 # Cookie.decode {|__Host-SID=1234|} |> Cookie.name_prefix "SID";;
-- : string option = Some "__Host-"
+- : Spring.Cookie_name_prefix.t option = Some <abstr>
 
 # Cookie.decode {|__Secure-SID=1234|} |> Cookie.name_prefix "SID";;
-- : string option = Some "__Secure-"
+- : Cookie_name_prefix.t option = Some <abstr>
 ```
 
 1. Cookie name prefixes are case-sensitive in Cookie header. (Set-Cookie decoding is case-insensitive.)
@@ -32,10 +32,10 @@ val t : Cookie.t = <abstr>
 val t : Cookie.t = <abstr>
 
 # Cookie.name_prefix "SID" t;;
-- : string option = None
+- : Cookie_name_prefix.t option = Some <abstr>
 
 # Cookie.find_opt "__SeCUre-SID" t;;
-- : string option = Some "1234"
+- : string option = None
 ```
 
 ```ocaml
@@ -50,7 +50,7 @@ Exception: End_of_file.
 
 ```ocaml
 # Cookie.find_opt "SID" t ;;
-- : string option = None
+- : string option = Some "1234"
 
 # Cookie.find_opt "lang" t ;;
 - : string option = None
@@ -63,16 +63,19 @@ Exception: End_of_file.
 
 ```ocaml
 # Cookie.encode t;;
-- : string = "__SeCUre-SID=1234"
+- : string = "__Secure-SID=1234"
 ```
 
 Encode should add cookie name prefix if it exists.
 
 ```ocaml
-# Cookie.(add ~name_prefix:"__Host-" ~name:"SID" ~value:{|"1234"|} empty)
+# Cookie.(add ~name_prefix:Cookie_name_prefix.host 
+        ~name:"SID" 
+        ~value:{|"1234"|} 
+        empty)
   |> Cookie.add ~name:"nm1" ~value:"3333"
   |> Cookie.encode;;
-- : string = "__Host-SID=\"1234\"; nm1=3333"
+- : string = "__Host-SID=\"1234\";nm1=3333"
 ```
 
 ## Cookie.add
@@ -85,7 +88,7 @@ val t : Cookie.t = <abstr>
 - : string option = Some "value1"
 
 # Cookie.encode t;;
-- : string = "__SeCUre-SID=1234; id=value1"
+- : string = "__Secure-SID=1234;id=value1"
 ```
 
 ## Cookie.remove

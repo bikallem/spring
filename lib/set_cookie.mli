@@ -92,7 +92,11 @@ type t
 (** [t] represents a HTTP Set-Cookie header value. *)
 
 val make :
-  ?extension:string -> ?name_prefix:string -> name:string -> string -> t
+     ?extension:string
+  -> ?name_prefix:Cookie_name_prefix.t
+  -> name:string
+  -> string
+  -> t
 (** [make ~name v] creates [Set-Cookie] value [t] with name [name] and value
     [v].
 
@@ -105,7 +109,7 @@ val make :
 val name : t -> string
 (** [name t] is the name of [Set-Cookie] value [t]. *)
 
-val name_prefix : t -> string option
+val name_prefix : t -> Cookie_name_prefix.t option
 (** [name_prefix t] is [Some prefix] is [t] contains a cookie name prefix. *)
 
 val value : t -> string

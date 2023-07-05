@@ -65,7 +65,7 @@ module Map = Map.Make (String)
 
 type t =
   { name : string
-  ; name_prefix : string option
+  ; name_prefix : Cookie_name_prefix.t option
   ; value : string
   ; attributes : string option Map.t
   ; extension : string option
@@ -217,8 +217,9 @@ let attr_tokens buf_read =
 
 let decode s =
   let buf_read = Buf_read.of_string s in
-  let (name, name_prefix), value =
-    Buf_read.cookie_pair ~name_prefix_case_sensitive:false buf_read
+  let name, value = Buf_read.cookie_pair buf_read in
+  let name, name_prefix =
+    Cookie_name_prefix.cut_prefix ~case_sensitive:true name
   in
   let extension, attributes = attr_tokens buf_read in
   { name; name_prefix; value; extension; attributes }
@@ -230,12 +231,10 @@ let canonical_attribute_name s =
 
 let encode t =
   let b = Buffer.create 10 in
-  let name =
-    match t.name_prefix with
-    | Some name_prefix -> name_prefix ^ t.name
-    | None -> t.name
-  in
-  Buffer.add_string b name;
+  (match t.name_prefix with
+  | Some prefix -> Buffer.add_string b @@ Cookie_name_prefix.to_string prefix
+  | None -> ());
+  Buffer.add_string b t.name;
   Buffer.add_char b '=';
   Buffer.add_string b t.value;
   Map.iter

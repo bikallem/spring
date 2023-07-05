@@ -83,8 +83,9 @@ Process cookie-name prefix `__Host-` in `Set-Cookie` name.
 
 ```ocaml
 let display_set_cookie_attributes t =
+  let pp = Fmt.(option ~none:(any "None") Cookie_name_prefix.pp) in
   Eio.traceln "Name : %s" @@ Set_cookie.name t;
-  Eio.traceln "NamePrefix: %a" Fmt.(option string) @@ Set_cookie.name_prefix t;
+  Eio.traceln "NamePrefix: %a" pp @@ Set_cookie.name_prefix t;
   Eio.traceln "Secure : %b" @@ Set_cookie.(find secure t);
   (match Set_cookie.(find_opt path t) with
   | Some p -> Eio.traceln "Path: '%s'" p
@@ -135,7 +136,7 @@ Encode must prefix `__Host-` prefix to `Set-Cookie` name.
 
 
 ```ocaml
-# Set_cookie.make ~name_prefix:"__Host-" ~name:"SID" "1234"
+# Set_cookie.make ~name_prefix:Cookie_name_prefix.host ~name:"SID" "1234"
   |> Set_cookie.(add secure)
   |> Set_cookie.(add ~v:"/" path)
   |> Set_cookie.encode;;
@@ -145,7 +146,7 @@ Encode must prefix `__Host-` prefix to `Set-Cookie` name.
 Domain attribute is present, therefore we fallback to `__Secure-` prefix.
 
 ```ocaml
-# Set_cookie.make ~name_prefix:"__Secure-" ~name:"SID" "1234"
+# Set_cookie.make ~name_prefix:Cookie_name_prefix.secure ~name:"SID" "1234"
   |> Set_cookie.(add secure)
   |> Set_cookie.(add ~v:"/" path)
   |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)

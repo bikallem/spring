@@ -1,7 +1,7 @@
 module Map = Map.Make (String)
 
 type cookie_value =
-  { name_prefix : string option
+  { name_prefix : Cookie_name_prefix.t option
   ; value : string
   }
 
@@ -10,8 +10,9 @@ type t = cookie_value Map.t
 let decode v =
   let r = Buf_read.of_string v in
   let rec aux m =
-    let (name, name_prefix), value =
-      Buf_read.cookie_pair ~name_prefix_case_sensitive:true r
+    let name, value = Buf_read.cookie_pair r in
+    let name, name_prefix =
+      Cookie_name_prefix.cut_prefix ~case_sensitive:false name
     in
     let m = Map.add name { name_prefix; value } m in
     match Buf_read.peek_char r with
@@ -24,16 +25,21 @@ let decode v =
   aux Map.empty
 
 let encode t =
-  Map.to_seq t
-  |> List.of_seq
-  |> List.map (fun (k, { name_prefix; value }) ->
-         let name =
-           match name_prefix with
-           | Some prefix -> prefix ^ k
-           | None -> k
-         in
-         name ^ "=" ^ value)
-  |> String.concat ~sep:"; "
+  let buf = Buffer.create 10 in
+  let i = ref 1 in
+  Map.iter
+    (fun name { name_prefix; value } ->
+      if !i > 1 then Buffer.add_char buf ';';
+      (match name_prefix with
+      | Some prefix ->
+        Buffer.add_string buf @@ Cookie_name_prefix.to_string prefix
+      | None -> ());
+      Buffer.add_string buf name;
+      Buffer.add_char buf '=';
+      Buffer.add_string buf value;
+      i := !i + 1)
+    t;
+  Buffer.contents buf
 
 let empty = Map.empty
 
