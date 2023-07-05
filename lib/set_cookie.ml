@@ -65,14 +65,15 @@ module Map = Map.Make (String)
 
 type t =
   { name : string
+  ; name_prefix : string option
   ; value : string
   ; attributes : string option Map.t
   ; extension : string option
   }
 
-let make ?extension ~name value =
+let make ?extension ?name_prefix ~name value =
   if String.is_empty name then invalid_arg "[name] is empty"
-  else { name; value; attributes = Map.empty; extension }
+  else { name; name_prefix; value; attributes = Map.empty; extension }
 
 let name t = t.name
 
@@ -212,56 +213,25 @@ let attr_tokens buf_read =
   let attrs = loop buf_read Map.empty in
   (!extension, attrs)
 
-let host_prefix = "__Host-"
-
-let secure_prefix = "__Secure-"
-
-let decode ?(process_name_prefix = true) s =
+let decode s =
   let buf_read = Buf_read.of_string s in
-  let name, value = Buf_read.cookie_pair buf_read in
-  let name, secure', path' =
-    if process_name_prefix then
-      if String.is_prefix ~affix:host_prefix name then
-        let name = String.with_range ~first:(String.length host_prefix) name in
-        (name, true, Some "/")
-      else if String.is_prefix ~affix:secure_prefix name then
-        let name =
-          String.with_range ~first:(String.length secure_prefix) name
-        in
-        (name, true, None)
-      else (name, false, None)
-    else (name, false, None)
+  let (name, name_prefix), value =
+    Buf_read.cookie_pair ~name_prefix_case_sensitive:false buf_read
   in
   let extension, attributes = attr_tokens buf_read in
-  let attributes =
-    if secure' then add_attribute secure attributes else attributes
-  in
-  let attributes =
-    match path' with
-    | Some v -> add_attribute ~v path attributes
-    | None -> attributes
-  in
-  { name; value; extension; attributes }
+  { name; name_prefix; value; extension; attributes }
 
 let canonical_attribute_name s =
   String.cuts ~sep:"-" s
   |> List.map (fun s -> String.(Ascii.(lowercase s |> capitalize)))
   |> String.concat ~sep:"-"
 
-let encode ?(prefix_name = true) t =
+let encode t =
   let b = Buffer.create 10 in
-  let name = t.name in
   let name =
-    if prefix_name then
-      let secure = find secure t in
-      if secure then
-        let domain = find_opt domain t in
-        let path = find_opt path t in
-        match (domain, path) with
-        | None, Some "/" -> host_prefix ^ name
-        | _, _ -> secure_prefix ^ name
-      else name
-    else name
+    match t.name_prefix with
+    | Some name_prefix -> name_prefix ^ t.name
+    | None -> t.name
   in
   Buffer.add_string b name;
   Buffer.add_char b '=';

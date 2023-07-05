@@ -202,7 +202,7 @@ val res : Response.server Response.t = <abstr>
 +HTTP/1.1 200 OK
 +Content-Length: 12
 +Content-Type: text/html; charset=uf-8
-+Set-Cookie: __Secure-ID=1234; Httponly; Secure
++Set-Cookie: ID=1234; Httponly; Secure
 +
 +hello, world
 - : unit = ()

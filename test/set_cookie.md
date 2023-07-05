@@ -96,8 +96,7 @@ let display_set_cookie_attributes t =
 ```ocaml
 # Set_cookie.decode "__Host-SID=12333" |> display_set_cookie_attributes;;
 +Name : SID
-+Secure : true
-+Path: '/'
++Secure : false
 - : unit = ()
 ```
 
@@ -106,7 +105,7 @@ Process cookie-name prefix `__Secure-` in `Set-Cookie` name.
 ```ocaml
 # Set_cookie.decode "__Secure-SID=12333;Domain=www.example.com" |> display_set_cookie_attributes;;
 +Name : SID
-+Secure : true
++Secure : false
 +Domain : www.example.com
 - : unit = ()
 ```
@@ -114,27 +113,24 @@ Process cookie-name prefix `__Secure-` in `Set-Cookie` name.
 Set `process_name_prefix` parameter to `false`.
 
 ```ocaml
-# Set_cookie.decode ~process_name_prefix:false "__Secure-SID=123:Domain=www.example.com" |> display_set_cookie_attributes;;
-+Name : __Secure-SID
+# Set_cookie.decode "__Secure-SID=123:Domain=www.example.com" |> display_set_cookie_attributes;;
++Name : SID
 +Secure : false
 - : unit = ()
 
-# Set_cookie.decode ~process_name_prefix:false "__Host-SID=123" |> display_set_cookie_attributes;;
-+Name : __Host-SID
+# Set_cookie.decode "__Host-SID=123" |> display_set_cookie_attributes;;
++Name : SID
 +Secure : false
 - : unit = ()
 ```
 
 ## encode
 
-Encode must prefix `__Host-` prefix to `Set-Cookie` name. The following conditions must be met:
+Encode must prefix `__Host-` prefix to `Set-Cookie` name.
 
-1. Path = `/`
-2. Secure attribute present.
-3. Domain attribute not set.
 
 ```ocaml
-# Set_cookie.make ~name:"SID" "1234"
+# Set_cookie.make ~name_prefix:"__Host-" ~name:"SID" "1234"
   |> Set_cookie.(add secure)
   |> Set_cookie.(add ~v:"/" path)
   |> Set_cookie.encode;;
@@ -144,51 +140,12 @@ Encode must prefix `__Host-` prefix to `Set-Cookie` name. The following conditio
 Domain attribute is present, therefore we fallback to `__Secure-` prefix.
 
 ```ocaml
-# Set_cookie.make ~name:"SID" "1234"
+# Set_cookie.make ~name_prefix:"__Secure-" ~name:"SID" "1234"
   |> Set_cookie.(add secure)
   |> Set_cookie.(add ~v:"/" path)
   |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
   |> Set_cookie.encode;;
 - : string = "__Secure-SID=1234; Domain=www.example.com; Path=/; Secure"
-```
-
-Path attribute is present but not equal to `/`; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
-
-```ocaml
-# Set_cookie.make ~name:"SID" "1234"
-  |> Set_cookie.(add secure)
-  |> Set_cookie.(add ~v:"/product" path)
-  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.encode;;
-- : string =
-"__Secure-SID=1234; Domain=www.example.com; Path=/product; Secure"
-```
-
-Path attribute is not present; therefore we prefix `__Secure-` prefix to `Set-Cookie` name. 
-
-```ocaml
-# Set_cookie.make ~name:"SID" "1234"
-  |> Set_cookie.(add secure)
-  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.encode;;
-- : string = "__Secure-SID=1234; Domain=www.example.com; Secure"
-```
-
-No prefix is added to `Set-Cookie` name if `Secure` attribute is not present.
-
-```ocaml
-# Set_cookie.make ~name:"SID" "1234"
-  |> Set_cookie.(add ~v:"/" path)
-  |> Set_cookie.encode;;
-- : string = "SID=1234; Path=/"
-```
-
-```ocaml
-# Set_cookie.make ~name:"SID" "1234"
-  |> Set_cookie.(add ~v:(Domain_name.of_string_exn "www.example.com") domain)
-  |> Set_cookie.(add ~v:"/" path)
-  |> Set_cookie.encode;;
-- : string = "SID=1234; Domain=www.example.com; Path=/"
 ```
 
 ## expire/is_expired
@@ -352,14 +309,14 @@ val t : Set_cookie.t = <abstr>
 # Set_cookie.(find same_site t);;
 - : Set_cookie.same_site = "Strict"
 
-# let s1 = Set_cookie.encode ~prefix_name:false t;;
+# let s1 = Set_cookie.encode t;;
 val s1 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 
 # let t1 = Set_cookie.(decode s1);;
 val t1 : Set_cookie.t = <abstr>
 
-# let s2 = Set_cookie.encode ~prefix_name:false t1;;
+# let s2 = Set_cookie.encode t1;;
 val s2 : string =
   "SID=31d4d96e407aad42; Domain=example.com; Expires=Thu, 17 Jun 2021 14:39:38 GMT; Httponly; Max-Age=123; Path=/; Samesite=Strict; Secure"
 

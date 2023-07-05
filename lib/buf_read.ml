@@ -115,9 +115,39 @@ let cookie_value : string parser =
     "\"" ^ v ^ "\""
   | Some _ | None -> cookie_octet
 
+(* +-- Cookie Pair --+ *)
+
+let host_prefix = "__Host-"
+
+let host_prefix_lower = "__host-"
+
+let host_prefix_len = String.length host_prefix
+
+let secure_prefix = "__Secure-"
+
+let secure_prefix_lower = "__secure-"
+
+let secure_prefix_len = String.length secure_prefix
+
 (* https://datatracker.ietf.org/doc/html/rfc6265#section-4.1 *)
-let cookie_pair : (string * string) parser =
-  ows *> token <* ows <* char '=' *> ows <*> cookie_value
+let cookie_pair :
+       ?name_prefix_case_sensitive:bool
+    -> ((string * string option) * string) parser =
+ fun ?(name_prefix_case_sensitive = true) ->
+  let+ name, value = ows *> token <* ows <* char '=' *> ows <*> cookie_value in
+  let lower = String.Ascii.lowercase in
+  let name', host_prefix', secure_prefix' =
+    if name_prefix_case_sensitive then (name, host_prefix, secure_prefix)
+    else (lower name, host_prefix_lower, secure_prefix_lower)
+  in
+  let name, name_prefix =
+    if String.is_prefix ~affix:host_prefix' name' then
+      (String.with_range ~first:host_prefix_len name, Some host_prefix)
+    else if String.is_prefix ~affix:secure_prefix' name' then
+      (String.with_range ~first:secure_prefix_len name, Some secure_prefix)
+    else (name, None)
+  in
+  ((name, name_prefix), value)
 
 (* +-- #element - https://www.rfc-editor.org/rfc/rfc9110#name-lists-rule-abnf-extension --+ *)
 

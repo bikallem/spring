@@ -51,6 +51,48 @@ Exception: Failure "invalid name".
 - : string = "hello \" \\world"
 ```
 
+## cookie_pair
+
+Parse cookie name, value to `SID` and `"hello"`. Note the double quotes on the value.
+
+```ocaml
+# Buf_read.cookie_pair @@ b {|SID="hello"|};;
+- : (string * string option) * string = (("SID", None), "\"hello\"")
+
+# Buf_read.cookie_pair @@ b {|SID=1234|};;
+- : (string * string option) * string = (("SID", None), "1234")
+```
+
+Parse cookie name prefixes case-sensitively.
+
+```ocaml
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:true @@ b {|__Host-SID=12345|};;
+- : (string * string option) * string = (("SID", Some "__Host-"), "12345")
+
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:true @@ b {|__Secure-SID=12345|};;
+- : (string * string option) * string = (("SID", Some "__Secure-"), "12345")
+```
+
+The following donot match since the cases donot match.
+
+```ocaml
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:true @@ b {|__SeCUre-SID=123|};;
+- : (string * string option) * string = (("__SeCUre-SID", None), "123")
+
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:true @@ b {|__HOsT-SID=123|};;
+- : (string * string option) * string = (("__HOsT-SID", None), "123")
+```
+
+Parse cookie name prefixes case-insensitively.
+
+```ocaml
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:false @@ b {|__SeCURe-SID=123|};;
+- : (string * string option) * string = (("SID", Some "__Secure-"), "123")
+
+# Buf_read.cookie_pair ~name_prefix_case_sensitive:false @@ b {|__HOst-SID=123|};;
+- : (string * string option) * string = (("SID", Some "__Host-"), "123")
+```
+
 ## list1 
 
 `list1` should parse at least one or more elements. 

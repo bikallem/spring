@@ -91,12 +91,15 @@ val same_site : same_site Attribute.t
 type t
 (** [t] represents a HTTP Set-Cookie header value. *)
 
-val make : ?extension:string -> name:string -> string -> t
+val make :
+  ?extension:string -> ?name_prefix:string -> name:string -> string -> t
 (** [make ~name v] creates [Set-Cookie] value [t] with name [name] and value
     [v].
 
     @param extension
       is the extension attribute value for [t]. Default is [None].
+    @param name_prefix
+      if given then the value is prefixed to [name]. Default is [None].
     @raise Invalid_arg if [name] is an empty string. *)
 
 val name : t -> string
@@ -167,7 +170,7 @@ val equal : t -> t -> bool
 
 (** {2 Codecs} *)
 
-val decode : ?process_name_prefix:bool -> string -> t
+val decode : string -> t
 (** [decode s] decodes string [s] into [t].
 
     The grammar followed is specified at
@@ -177,23 +180,10 @@ val decode : ?process_name_prefix:bool -> string -> t
     {b Note} if the [Set-Cookie] value is double quoted, then double quotes are
     part of the value and are not stripped. See
     {{!https://github.com/httpwg/http-extensions/issues/295} Double quoted
-    value}.
+    value}. *)
 
-    @param process_name_prefix
-      if [true] and [name t] starts with either [__Secure-] or [__Host-], then
-      the prefix will be removed from [name] property of [t]. Default is [true].
-      See
-      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-cookie-name-prefixes}
-      Cookie Name Prefixes}. *)
-
-val encode : ?prefix_name:bool -> t -> string
-(** [encode t] encodes [t] to [s].
-
-    @param prefix_name
-      if [true] then [name] will be prefixed with either [__Secure-] or
-      [__Host-] as required. Default is [true]. See
-      {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-cookie-name-prefixes}
-      Cookie Name Prefixes}. *)
+val encode : t -> string
+(** [encode t] encodes [t] to [s]. *)
 
 (** {2 Pretty Printing} *)
 
