@@ -90,6 +90,16 @@ Exception: Failure "take_while1".
 Exception: End_of_file.
 ```
 
+## is_empty
+
+```ocaml
+# Cookie.(is_empty empty);;
+- : bool = true
+
+# Cookie.is_empty t0;;
+- : bool = false
+```
+
 ## Cookie.find_opt
 
 ```ocaml

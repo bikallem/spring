@@ -23,6 +23,9 @@ val encode : t -> string
 val empty : t
 (** [empty] is an HTTP Cookie header with zero cookie pair (name, value) *)
 
+val is_empty : t -> bool
+(** [is_empty t] is [true] iff [t] doesn't contain any cookie. *)
+
 val name_prefix : string -> t -> Cookie_name_prefix.t option
 (** [name_prefix name t] is [Some prefix] if cookie with name [name] exists in
     [t] and the cookie has a name prefix. It is [None] otherwise.

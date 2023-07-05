@@ -43,6 +43,8 @@ let encode t =
 
 let empty = Map.empty
 
+let is_empty t = Map.is_empty t
+
 let name_prefix name t =
   Option.bind (Map.find_opt name t) @@ fun { name_prefix; _ } -> name_prefix
 
