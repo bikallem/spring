@@ -35,7 +35,8 @@ val find_opt : string -> t -> string option
 (** [find_opt cookie_name t] is [Some v] if [cookie_name] exists in [t]. It is
     [None] otherwise. *)
 
-val add : ?name_prefix:Cookie_name_prefix.t -> name:string -> value:string -> t -> t
+val add :
+  ?name_prefix:Cookie_name_prefix.t -> name:string -> value:string -> t -> t
 (** [add ~name ~value t] adds a cookie [name] and [value] pair to [t] *)
 
 val remove : name:string -> t -> t
