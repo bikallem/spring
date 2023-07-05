@@ -7,9 +7,9 @@ open Spring
 ```ocaml
 let display_cookie name t =
     let pp_name_prefix = Fmt.(option ~none:(any "None") Cookie_name_prefix.pp) in
-    Eio.traceln "Name: %s" name;
-    Eio.traceln "NamePrefix: %a" pp_name_prefix @@ Cookie.name_prefix name t;
-    Eio.traceln "Value : %a" Fmt.(option string) @@ Cookie.find_opt name t
+    Eio.traceln "Name: '%s'" name;
+    Eio.traceln "NamePrefix: '%a'" pp_name_prefix @@ Cookie.name_prefix name t;
+    Eio.traceln "Value : '%a'" Fmt.(option string) @@ Cookie.find_opt name t
 ```
 
 ## decode 
@@ -19,15 +19,15 @@ let display_cookie name t =
 val t0 : Cookie.t = <abstr>
 
 # display_cookie "SID" t0;;
-+Name: SID
-+NamePrefix: None
-+Value : 31d4d96e407aad42
++Name: 'SID'
++NamePrefix: 'None'
++Value : '31d4d96e407aad42'
 - : unit = ()
 
 # display_cookie "lang" t0;;
-+Name: lang
-+NamePrefix: None
-+Value : en
++Name: 'lang'
++NamePrefix: 'None'
++Value : 'en'
 - : unit = ()
 ```
 
@@ -38,15 +38,15 @@ Decode should preserve double quotes in cookie value.
 val t1 : Cookie.t = <abstr>
 
 # display_cookie "SID" t1;;
-+Name: SID
-+NamePrefix: None
-+Value : "31d4d96e407aad42"
++Name: 'SID'
++NamePrefix: 'None'
++Value : '"31d4d96e407aad42"'
 - : unit = ()
 
 # display_cookie "lang" t1;;
-+Name: lang
-+NamePrefix: None
-+Value : "en"
++Name: 'lang'
++NamePrefix: 'None'
++Value : '"en"'
 - : unit = ()
 ```
 
@@ -54,15 +54,15 @@ Decode cookies with cookie name prefix.
 
 ```ocaml
 # display_cookie "SID" @@ Cookie.decode {|__Host-SID=1234|};;
-+Name: SID
-+NamePrefix: __Host-
-+Value : 1234
++Name: 'SID'
++NamePrefix: '__Host-'
++Value : '1234'
 - : unit = ()
 
 # display_cookie "SID" @@ Cookie.decode {|__Secure-SID=1234|};;
-+Name: SID
-+NamePrefix: __Secure-
-+Value : 1234
++Name: 'SID'
++NamePrefix: '__Secure-'
++Value : '1234'
 - : unit = ()
 ```
 
@@ -73,9 +73,9 @@ Decode cookies with cookie name prefix.
 val t3 : Cookie.t = <abstr>
 
 # display_cookie "__SeCUre-SID" t3;;
-+Name: __SeCUre-SID
-+NamePrefix: None
-+Value : 1234
++Name: '__SeCUre-SID'
++NamePrefix: 'None'
++Value : '1234'
 - : unit = ()
 
 # Cookie.find_opt "__SeCUre-SID" t3;;
