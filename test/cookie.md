@@ -12,7 +12,7 @@ let display_cookie name t =
     Eio.traceln "Value : %a" Fmt.(option string) @@ Cookie.find_opt name t
 ```
 
-## Cookie.decode - supports both " .. " and without
+## decode 
 
 ```ocaml
 # let t0 = Cookie.decode "SID=31d4d96e407aad42; lang=en";;
@@ -29,7 +29,11 @@ val t0 : Cookie.t = <abstr>
 +NamePrefix: None
 +Value : en
 - : unit = ()
+```
 
+Decode should preserve double quotes in cookie value.
+
+```ocaml
 # let t1 = Cookie.decode {|SID="31d4d96e407aad42"; lang="en"|};;
 val t1 : Cookie.t = <abstr>
 
