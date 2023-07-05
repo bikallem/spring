@@ -26,7 +26,7 @@ val d : Cache_control.Directive.bool' = <abstr>
 ## make 
 
 ```ocaml
-# let d1 = Cache_control.Directive.make "max-age" int_of_string string_of_int Fmt.int;;
+# let d1 = Cache_control.Directive.make "max-age" int_of_string string_of_int;;
 val d1 : int Cache_control.Directive.t = <abstr>
 
 # Cache_control.Directive.name d1;;
