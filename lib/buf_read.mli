@@ -44,3 +44,10 @@ val delta_seconds : int parser
 
     See {{!https://www.rfc-editor.org/rfc/rfc9111#delta-seconds} HTTP
     delta-seconds}. *)
+
+val validate : string -> 'a parser -> string -> 'a
+(** [validate param_name p v] -> [v] if parser [p] successfully parses [v].
+
+    @raise Invalid_arg
+      if parsing of [v] by [p] results in an error. [param_name] is used to in
+      the [Invalid_arg] exception message. *)

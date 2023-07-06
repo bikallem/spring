@@ -152,3 +152,8 @@ let digit =
     | _ -> false)
 
 let delta_seconds t = digit t |> int_of_string
+
+let validate param_name p v =
+  match parse_string p v with
+  | Ok v -> v
+  | Error (`Msg err) -> Fmt.invalid_arg "[%s] is invalid. %s" param_name err
