@@ -40,7 +40,9 @@ val find_opt : string -> t -> string option
 
 val add :
   ?name_prefix:Cookie_name_prefix.t -> name:string -> value:string -> t -> t
-(** [add ~name ~value t] adds a cookie [name] and [value] pair to [t] *)
+(** [add ~name ~value t] adds a cookie [name] and [value] pair to [t].
+
+    @raise Invalid_arg if [name] or [value] parameter is invalid. *)
 
 val remove : name:string -> t -> t
 (** [remove ~name t] is [t] with cookie [name] removed from [t]. *)

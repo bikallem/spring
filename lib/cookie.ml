@@ -51,6 +51,9 @@ let name_prefix name t =
 let find_opt cookie_name t =
   Option.map (fun { value; _ } -> value) @@ Map.find_opt cookie_name t
 
-let add ?name_prefix ~name ~value t = Map.add name { name_prefix; value } t
+let add ?name_prefix ~name ~value t =
+  let name = Buf_read.(validate "name" token name) in
+  let value = Buf_read.(validate "value" cookie_value value) in
+  Map.add name { name_prefix; value } t
 
 let remove ~name t = Map.remove name t
