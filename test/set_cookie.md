@@ -37,7 +37,7 @@ Set-Cookie can't have empty `name`.
 
 ```ocaml
 # Set_cookie.make ~name:"" "v";;
-Exception: Invalid_argument "[name] is empty".
+Exception: Invalid_argument "[name] is invalid".
 ```
 
 `make` validates the `name` parameter.

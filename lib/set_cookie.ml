@@ -84,10 +84,7 @@ let validate param_name p v =
   | Error (`Msg _) -> Fmt.invalid_arg "[%s] is invalid" param_name
 
 let make ?extension ?name_prefix ~name value =
-  let name =
-    if String.is_empty name then invalid_arg "[name] is empty"
-    else validate "name" Buf_read.token name
-  in
+  let name = validate "name" Buf_read.token name in
   let extension =
     Option.map (fun ext -> validate "extension" av_octet ext) extension
   in
