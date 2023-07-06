@@ -152,6 +152,24 @@ val t : Cookie.t = <abstr>
 - : string = "SID=31d4d96e407aad42;id=value1;lang=en"
 ```
 
+`name` parameter is validated.
+
+```ocaml
+# Cookie.add ~name:"id 1" ~value:"123" t0;;
+Exception:
+Invalid_argument
+ "[name] is invalid. Unexpected data after parsing (at offset 2)".
+```
+
+`value` parameter is validated.
+
+```ocaml
+# Cookie.add ~name:"id" ~value:"23,ab" t0;;
+Exception:
+Invalid_argument
+ "[value] is invalid. Unexpected data after parsing (at offset 2)".
+```
+
 ## Cookie.remove
 
 ```ocaml
