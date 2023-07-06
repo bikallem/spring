@@ -24,8 +24,11 @@ val quoted_string : string parser
 
 val parameters : (string * string) list parser
 
+val cookie_value : string parser
+(** [cookie_value] parses cookie value. *)
+
 val cookie_pair : (string * string) parser
-(** [cookie_pair] parser cookie name and value. See
+(** [cookie_pair] parses cookie name and value. See
     {{!https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html#name-syntax}
     Cookie/Set-Cookie Syntax} *)
 

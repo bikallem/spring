@@ -40,6 +40,27 @@ Set-Cookie can't have empty `name`.
 Exception: Invalid_argument "[name] is empty".
 ```
 
+`make` validates the `name` parameter.
+
+```ocaml
+# Set_cookie.make ~name:"asdf asdfas" "123";;
+Exception: Invalid_argument "[name] is invalid".
+```
+
+`make` validates the `extension` parameter.
+
+```ocaml
+# Set_cookie.make ~extension:"asdfas;" ~name:"SID" "123";;
+Exception: Invalid_argument "[extension] is invalid".
+```
+
+`make` validates `value` parameter. `,` is now allowed in value.
+
+```ocaml
+# Set_cookie.make ~name:"SID" "23ab,asdasd";;
+Exception: Invalid_argument "[value] is invalid".
+```
+
 ## decode
 
 1. Decode Set-Cookie from various strings.

@@ -71,9 +71,28 @@ type t =
   ; extension : string option
   }
 
+let av_octet buf_read =
+  Buf_read.take_while
+    (function
+      | '\x20' .. '\x3A' | '\x3C' .. '\x7E' -> true
+      | _ -> false)
+    buf_read
+
+let validate param_name p v =
+  match Buf_read.parse_string p v with
+  | Ok _ -> v
+  | Error (`Msg _) -> Fmt.invalid_arg "[%s] is invalid" param_name
+
 let make ?extension ?name_prefix ~name value =
-  if String.is_empty name then invalid_arg "[name] is empty"
-  else { name; name_prefix; value; attributes = Map.empty; extension }
+  let name =
+    if String.is_empty name then invalid_arg "[name] is empty"
+    else validate "name" Buf_read.token name
+  in
+  let extension =
+    Option.map (fun ext -> validate "extension" av_octet ext) extension
+  in
+  let value = validate "value" Buf_read.cookie_value value in
+  { name; name_prefix; value; attributes = Map.empty; extension }
 
 let name t = t.name
 
@@ -157,13 +176,6 @@ let compare t0 t1 =
   else cmp
 
 let equal t0 t1 = compare t0 t1 = 0
-
-let av_octet buf_read =
-  Buf_read.take_while
-    (function
-      | '\x20' .. '\x3A' | '\x3C' .. '\x7E' -> true
-      | _ -> false)
-    buf_read
 
 let attribute_names =
   [ Attribute.name expires
