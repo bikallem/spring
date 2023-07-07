@@ -12,3 +12,10 @@ open Spring
 ["home"; "hello"; "world";
  "asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A"]
 ```
+
+## origin_form
+
+```ocaml
+# Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello?a=23/?&b=/?dd";;
+- : string list * string option = (["home"; "hello"], Some "a=23/?&b=/?dd")
+```
