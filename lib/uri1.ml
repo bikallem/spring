@@ -39,7 +39,10 @@ let segment t : string =
   in
   loop ()
 
-let rec absolute_path t =
-  Buf_read.char '/' t;
-  let seg = segment t in
-  seg :: absolute_path t
+let rec absolute_path buf_read =
+  match Buf_read.peek_char buf_read with
+  | Some '/' ->
+    Buf_read.char '/' buf_read;
+    let seg = segment buf_read in
+    seg :: absolute_path buf_read
+  | Some _ | None -> []

@@ -19,3 +19,10 @@ let s = "asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A"
 # Uri1.(segment @@ Eio.Buf_read.of_string s) = s;;
 - : bool = true
 ```
+
+## absolute_path
+
+```ocaml
+# Uri1.absolute_path @@ Eio.Buf_read.of_string "/home/hello/world";;
+- : string list = ["home"; "hello"; "world"]
+```
