@@ -13,6 +13,7 @@
   spring
   base64
   ohtml
+  ipaddr
   mirage-crypto
   mirage-crypto-rng
   mirage-crypto-rng-eio

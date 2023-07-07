@@ -73,3 +73,115 @@ let origin_form buf_read =
     | Some _ | None -> None
   in
   (absolute_path, query)
+
+let scheme buf buf_read =
+  (match Buf_read.any_char buf_read with
+  | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
+  | c -> Fmt.failwith "[scheme] expected ALPHA but got '%c'" c);
+  let s =
+    Buf_read.take_while
+      (function
+        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '+' | '-' | '.' -> true
+        | _ -> false)
+      buf_read
+  in
+  Buffer.add_string buf s;
+  Buffer.contents buf
+
+let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
+  match Buf_read.peek_char buf_read with
+  | Some
+      (( 'a' .. 'z'
+       | 'A' .. 'Z'
+       | '0' .. '9'
+       | '-' | '.' | '_' | '~' (* unreserved *)
+       | '!'
+       | '$'
+       | '&'
+       | '\''
+       | '('
+       | ')'
+       | '*'
+       | '+'
+       | ','
+       | ';'
+       | '=' (* sub-delims *) ) as c) ->
+    Buf_read.char c buf_read;
+    Buffer.add_char buf c;
+    `Ok
+  | Some ('%' as c) ->
+    Buf_read.char c buf_read;
+    Buffer.add_char buf c;
+    Buffer.add_char buf @@ hex_dig buf_read;
+    Buffer.add_char buf @@ hex_dig buf_read;
+    `Ok
+  | Some c -> `Char c
+  | None -> `Eof
+
+type host =
+  [ `IPv6 of Ipaddr.t
+  | `IPv4 of Ipaddr.t
+  | `Domain_name of [ `raw ] Domain_name.t
+  ]
+
+let host ?(buf = Buffer.create 10) buf_read =
+  match Buf_read.peek_char buf_read with
+  | Some '[' ->
+    Buf_read.char '[' buf_read;
+    let ipv6 =
+      Buf_read.take_while
+        (function
+          | ']' -> false
+          | _ -> true)
+        buf_read
+      |> Ipaddr.of_string_exn
+    in
+    Buf_read.char ']' buf_read;
+    `IPv6 ipv6
+  | Some '0' .. '9' ->
+    let ipv4 =
+      Buf_read.take_while
+        (function
+          | '0' .. '9' | '.' -> true
+          | _ -> false)
+        buf_read
+      |> Ipaddr.of_string_exn
+    in
+    `IPv4 ipv4
+  | Some _ ->
+    let rec domain_name () =
+      match reg_name buf buf_read with
+      | `Ok -> domain_name ()
+      | `Char _ | `Eof -> Buffer.contents buf
+    in
+    let domain_name = domain_name () |> Domain_name.of_string_exn in
+    `Domain_name domain_name
+  | None -> Fmt.failwith "[host] invalid host value"
+
+let authority buf buf_read =
+  Buffer.clear buf;
+  let host = host ~buf buf_read in
+  let port =
+    match Buf_read.peek_char buf_read with
+    | Some ':' ->
+      Buf_read.char ':' buf_read;
+      Buf_read.take_while
+        (function
+          | '0' .. '9' -> true
+          | _ -> false)
+        buf_read
+      |> int_of_string_opt
+      |> (function
+           | Some p -> p
+           | None -> Fmt.failwith "[authority] invalid port")
+      |> Option.some
+    | Some _ | None -> None
+  in
+  (host, port)
+
+let absolute_form buf_read =
+  let buf = Buffer.create 10 in
+  let scheme = scheme buf buf_read in
+  Buf_read.string "://" buf_read;
+  let authority = authority buf buf_read in
+  (scheme, authority)

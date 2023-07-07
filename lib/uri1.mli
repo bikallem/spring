@@ -30,3 +30,13 @@ val origin_form : (string list * string option) Buf_read.parser
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#name-origin-form} Origin
     Form}. *)
+
+type host =
+  [ `IPv6 of Ipaddr.t
+  | `IPv4 of Ipaddr.t
+  | `Domain_name of [ `raw ] Domain_name.t
+  ]
+
+val host : ?buf:Buffer.t -> host Buf_read.parser
+
+val absolute_form : (string * (host * int option)) Buf_read.parser

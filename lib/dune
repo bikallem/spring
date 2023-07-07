@@ -13,6 +13,7 @@
   domain-name
   ppxlib
   csexp
+  ipaddr
   base64
   fpath
   magic-mime
