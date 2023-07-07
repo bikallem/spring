@@ -1,5 +1,3 @@
-type segment = string
-
 let hex_dig t : char =
   match Buf_read.any_char t with
   | ('0' .. '9' | 'A' .. 'F') as c -> c
@@ -35,19 +33,23 @@ let pchar buf buf_read : [ `Ok | `End ] =
     `Ok
   | Some _ | None -> `End
 
-let segment buf_read : string =
+let rec segment buf buf_read =
+  match pchar buf buf_read with
+  | `Ok -> segment buf buf_read
+  | `End -> Buffer.contents buf
+
+let absolute_path buf_read =
   let buf = Buffer.create 10 in
   let rec loop () =
-    match pchar buf buf_read with
-    | `Ok -> loop ()
-    | `End -> Buffer.contents buf
+    match Buf_read.peek_char buf_read with
+    | Some '/' ->
+      Buf_read.char '/' buf_read;
+      let seg = segment buf buf_read in
+      Buffer.clear buf;
+      seg :: loop ()
+    | Some _ | None -> []
   in
   loop ()
 
-let rec absolute_path buf_read =
-  match Buf_read.peek_char buf_read with
-  | Some '/' ->
-    Buf_read.char '/' buf_read;
-    let seg = segment buf_read in
-    seg :: absolute_path buf_read
-  | Some _ | None -> []
+(* [query         = *( pchar / "/" / "?" )] *)
+(* let query buf_read = buf_read *)
