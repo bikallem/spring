@@ -52,6 +52,8 @@
    (>= 0.9))
   (csexp
    (>= 1.5.2))
+  (ipaddr
+   (>= 5.5.0))
   (mirage-crypto
    (>= 0.11.1))
   (mirage-crypto-rng
