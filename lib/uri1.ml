@@ -5,37 +5,42 @@ let hex_dig t : char =
   | ('0' .. '9' | 'A' .. 'F') as c -> c
   | c -> Fmt.failwith "expected HEXDIG but got '%c'" c
 
-let segment t : string =
+let pchar buf buf_read : [ `Ok | `End ] =
+  match Buf_read.peek_char buf_read with
+  | Some
+      (( 'a' .. 'z'
+       | 'A' .. 'Z'
+       | '0' .. '9'
+       | '-' | '.' | '_' | '~' (* unreserved *)
+       | '!'
+       | '$'
+       | '&'
+       | '\''
+       | '('
+       | ')'
+       | '*'
+       | '+'
+       | ','
+       | ';'
+       | '=' (* sub-delims *)
+       | ':' | '@' ) as c) ->
+    Buf_read.char c buf_read;
+    Buffer.add_char buf c;
+    `Ok
+  | Some ('%' as c) ->
+    Buf_read.char c buf_read;
+    Buffer.add_char buf c;
+    Buffer.add_char buf @@ hex_dig buf_read;
+    Buffer.add_char buf @@ hex_dig buf_read;
+    `Ok
+  | Some _ | None -> `End
+
+let segment buf_read : string =
   let buf = Buffer.create 10 in
   let rec loop () =
-    match Buf_read.peek_char t with
-    | Some
-        (( 'a' .. 'z'
-         | 'A' .. 'Z'
-         | '0' .. '9'
-         | '-' | '.' | '_' | '~' (* unreserved *)
-         | '!'
-         | '$'
-         | '&'
-         | '\''
-         | '('
-         | ')'
-         | '*'
-         | '+'
-         | ','
-         | ';'
-         | '=' (* sub-delims *)
-         | ':' | '@' ) as c) ->
-      Buf_read.char c t;
-      Buffer.add_char buf c;
-      loop ()
-    | Some ('%' as c) ->
-      Buf_read.char c t;
-      Buffer.add_char buf c;
-      Buffer.add_char buf @@ hex_dig t;
-      Buffer.add_char buf @@ hex_dig t;
-      loop ()
-    | _ -> Buffer.contents buf
+    match pchar buf buf_read with
+    | `Ok -> loop ()
+    | `End -> Buffer.contents buf
   in
   loop ()
 
