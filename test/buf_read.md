@@ -124,3 +124,19 @@ val p : string Buf_read.parser = <fun>
 # Buf_read.(delta_seconds (of_string ""));;
 Exception: Failure "take_while1".
 ```
+
+## segment
+
+`segment` must parse all characters in `s` as they are all allowed as per. the syntax.
+
+```ocaml
+let s = "asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A"
+```
+
+```ocaml
+# Buf_read.(segment (of_string "path1/"));;
+- : string = "path1"
+
+# Buf_read.(segment @@ of_string s) = s;;
+- : bool = true
+```
