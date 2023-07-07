@@ -51,18 +51,3 @@ val validate : string -> 'a parser -> string -> 'a
     @raise Invalid_arg
       if parsing of [v] by [p] results in an error. [param_name] is used to in
       the [Invalid_arg] exception message. *)
-
-(** {1 Request Target Parser}
-
-    HTTP specific request target. The syntax is mostly similar to RFC 3986 -
-    Generic URI Syntax with some RFC 9110 specific extensions.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} HTTP URI
-    Syntax} See {{!https://datatracker.ietf.org/doc/html/rfc3986#appendix-A} RFC
-    3986 URI Syntax} *)
-
-val segment : string parser
-(** [segment] is a string [s]. [s] satisfies the following grammar.
-
-    [segment = *pchar]
-    [pchar = unreserved / pct-encoded / sub-delims / ":" / "@"] *)
