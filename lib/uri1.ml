@@ -39,6 +39,11 @@ let rec segment buf buf_read =
   | `Ok -> segment buf buf_read
   | `Char _ | `Eof -> Buffer.contents buf
 
+(** [absolute_path] is a HTTP URI absolute path string [s]
+
+    [absolute-path = 1*( "/" segment )]
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
 let absolute_path ?(buf = Buffer.create 10) buf_read =
   let rec loop () =
     match Buf_read.peek_char buf_read with
