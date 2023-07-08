@@ -7,14 +7,19 @@ open Spring
 ## origin_form
 
 ```ocaml
+let pp_origin_form (path, query) =
+  List.iter
+```
+
+```ocaml
 # Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
-- : string list * string option =
+- : Uri1.absolute_path * string option =
 (["home"; "hello"; "world";
   "asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A"],
  Some "a=23/?&b=/?dd")
 
 # Uri1.origin_form @@ Eio.Buf_read.of_string "/where?q=now";;
-- : string list * string option = (["where"], Some "q=now")
+- : Uri1.absolute_path * string option = (["where"], Some "q=now")
 ```
 
 ## host 

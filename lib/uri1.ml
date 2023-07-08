@@ -56,6 +56,10 @@ let absolute_path ?(buf = Buffer.create 10) buf_read =
   in
   loop ()
 
+type absolute_path = string list
+
+type query = string
+
 (* [query         = *( pchar / "/" / "?" )] *)
 let rec query buf buf_read =
   match pchar buf buf_read with

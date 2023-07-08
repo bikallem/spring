@@ -16,7 +16,25 @@
       {e {{!https://datatracker.ietf.org/doc/html/rfc3986#appendix-A} URI
          Generic Syntax}} *)
 
-val origin_form : (string list * string option) Buf_read.parser
+type absolute_path = string list
+(** [absolute_path] is the path component of a HTTP request target. It starts
+    with [/] and ends with possibly [?] character.
+
+    Example of a path,
+
+    {[
+      /pub/WWW/TheProject.html
+    ]}
+
+    See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.3} Path}. *)
+
+type query = string
+(** [query] is the query component of a HTTP request target. It starts with [?]
+    character.
+
+    See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
+
+val origin_form : (absolute_path * query option) Buf_read.parser
 (** [origin_form] is [absolute_path, Some query].
 
     [origin-form    = absolute-path \[ "?" query \]]
