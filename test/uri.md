@@ -7,11 +7,6 @@ open Spring
 ## origin_form
 
 ```ocaml
-let pp_origin_form (path, query) =
-  List.iter
-```
-
-```ocaml
 # Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
 - : Uri1.absolute_path * string option =
 (["home"; "hello"; "world";
@@ -27,6 +22,13 @@ let pp_origin_form (path, query) =
 ```ocaml
 # Uri1.origin_form @@ Eio.Buf_read.of_string "/";;
 - : Uri1.absolute_path * string option = ([""], None)
+```
+
+`origin_form` needs at least one path segment.
+
+```ocaml
+# Uri1.origin_form @@ Eio.Buf_read.of_string "";;
+Exception: End_of_file.
 ```
 
 ## authority 
