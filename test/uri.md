@@ -48,18 +48,43 @@ Exception: End_of_file.
 ## absolute_form
 
 ```ocaml
-# Uri1.absolute_form @@ Eio.Buf_read.of_string "http://example.com:80";;
-- : Uri1.scheme * Uri1.authority * Uri1.absolute_path * string option =
-(`Http, (`Domain_name <abstr>, Some 80), [], None)
+# Uri1.absolute_form @@ Eio.Buf_read.of_string "http://example.com:80"
+  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
++{
++  Scheme: http;
++  Authority: Domain example.com: 80;
++  Path: /;
++  Query:
++}
+- : unit = ()
 ```
 
 Parse scheme, authority, path and query.
 
 ```ocaml
-# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2";;
-- : Uri1.scheme * Uri1.authority * Uri1.absolute_path * string option =
-(`Https, (`Domain_name <abstr>, None), ["pub"; "WWW"; "TheProject.html"],
- Some "a=v1&b=v2")
+# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2"
+  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
++{
++  Scheme: https;
++  Authority: Domain www.example.org: ;
++  Path: /pub/WWW/TheProject.html;
++  Query: a=v1&b=v2
++}
+- : unit = ()
+```
+
+Path ending in `/` is also valid.
+
+```ocaml
+# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.com/pub/WWW/"
+  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
++{
++  Scheme: https;
++  Authority: Domain www.example.com: ;
++  Path: /pub/WWW/;
++  Query:
++}
+- : unit = ()
 ```
 
 ## authority_form

@@ -61,6 +61,8 @@ let absolute_path ?(buf = Buffer.create 10) buf_read =
 
 type absolute_path = string list
 
+let pp_absolute_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
+
 type query = string
 
 (* [query         = *( pchar / "/" / "?" )] *)
@@ -197,6 +199,14 @@ type scheme =
   | `Https
   ]
 
+let pp_scheme fmt scheme =
+  let s =
+    match scheme with
+    | `Http -> "http"
+    | `Https -> "https"
+  in
+  Fmt.string fmt s
+
 let scheme buf buf_read =
   (match Buf_read.any_char buf_read with
   | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
@@ -213,6 +223,25 @@ let scheme buf buf_read =
   | "http" -> `Http
   | "https" -> `Https
   | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
+
+type absolute_form = scheme * authority * absolute_path * query option
+
+let pp_absolute_form fmt absolute_form =
+  let fields =
+    Fmt.(
+      record ~sep:semi
+        [ field "Scheme" (fun (scheme, _, _, _) -> scheme) pp_scheme
+        ; field "Authority" (fun (_, authority, _, _) -> authority) pp_authority
+        ; field "Path"
+            (fun (_, _, absolute_path, _) -> absolute_path)
+            pp_absolute_path
+        ; field "Query" (fun (_, _, _, query) -> query) @@ option string
+        ])
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt absolute_form
 
 let absolute_form buf_read =
   let buf = Buffer.create 10 in
