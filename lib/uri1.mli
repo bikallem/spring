@@ -70,6 +70,9 @@ type authority = host * port option
 val pp_authority : Format.formatter -> authority -> unit
 (** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
 
+val authority : authority Buf_read.parser
+(** [authority buf_read] parses [authority] information from [buf_read]. *)
+
 type scheme =
   [ `Http
   | `Https
@@ -78,9 +81,6 @@ type scheme =
 
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
-
-val authority : authority Buf_read.parser
-(** [authority buf_read] parses [authority] information from [buf_read]. *)
 
 val absolute_form : (scheme * authority) Buf_read.parser
 (** [absolute_form] parses request target in an [absolute-form].

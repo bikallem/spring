@@ -83,28 +83,6 @@ let origin_form buf_read =
   in
   (absolute_path, query)
 
-type scheme =
-  [ `Http
-  | `Https
-  ]
-
-let scheme buf buf_read =
-  (match Buf_read.any_char buf_read with
-  | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
-  | c -> Fmt.failwith "[scheme] expected ALPHA but got '%c'" c);
-  let s =
-    Buf_read.take_while
-      (function
-        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '+' | '-' | '.' -> true
-        | _ -> false)
-      buf_read
-  in
-  Buffer.add_string buf s;
-  match Buffer.contents buf |> String.Ascii.lowercase with
-  | "http" -> `Http
-  | "https" -> `Https
-  | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
-
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
   | Some
@@ -209,6 +187,28 @@ let authority_ buf buf_read =
   (host, port)
 
 let authority buf_read = authority_ (Buffer.create 10) buf_read
+
+type scheme =
+  [ `Http
+  | `Https
+  ]
+
+let scheme buf buf_read =
+  (match Buf_read.any_char buf_read with
+  | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
+  | c -> Fmt.failwith "[scheme] expected ALPHA but got '%c'" c);
+  let s =
+    Buf_read.take_while
+      (function
+        | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '+' | '-' | '.' -> true
+        | _ -> false)
+      buf_read
+  in
+  Buffer.add_string buf s;
+  match Buffer.contents buf |> String.Ascii.lowercase with
+  | "http" -> `Http
+  | "https" -> `Https
+  | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
 let absolute_form buf_read =
   let buf = Buffer.create 10 in
