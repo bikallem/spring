@@ -22,22 +22,17 @@ let pp_origin_form (path, query) =
 - : Uri1.absolute_path * string option = (["where"], Some "q=now")
 ```
 
-## host 
+## authority 
 
 ```ocaml
-let pp_host = function
-  | `IPv4 addr -> Eio.traceln "IPv4 %a" Ipaddr.pp addr
-  | `IPv6 addr -> Eio.traceln "IPv6 %a" Ipaddr.pp addr
-  | `Domain_name dn -> Eio.traceln "Domain name: %a" Domain_name.pp dn
-```
-
-```ocaml
-# Uri1.host @@ Eio.Buf_read.of_string "192.168.0.1" |> pp_host;;
-+IPv4 192.168.0.1
+# Uri1.authority @@ Eio.Buf_read.of_string "192.168.0.1:8080"
+  |> Eio.traceln "%a" Uri1.pp_authority;;
++IPv4 192.168.0.1: 8080
 - : unit = ()
 
-# Uri1.host @@ Eio.Buf_read.of_string "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]" |> pp_host;;
-+IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1
+# Uri1.authority @@ Eio.Buf_read.of_string "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
+  |> Eio.traceln "%a" Uri1.pp_authority;;
++IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1: 8080
 - : unit = ()
 ```
 

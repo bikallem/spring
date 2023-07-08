@@ -67,6 +67,9 @@ type authority = host * port option
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2}
     Authority}. *)
 
+val pp_authority : Format.formatter -> authority -> unit
+(** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
+
 type scheme =
   [ `Http
   | `Https
@@ -76,12 +79,8 @@ type scheme =
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
 
-val host : ?buf:Buffer.t -> host Buf_read.parser
-(** [host] parses {!type:host} information.
-
-    @param buf
-      if given the parser uses [buf] rather than create one. This is mainly a
-      performance mechanism so that we reuse buffers.*)
+val authority : authority Buf_read.parser
+(** [authority buf_read] parses [authority] information from [buf_read]. *)
 
 val absolute_form : (scheme * authority) Buf_read.parser
 (** [absolute_form] parses request target in an [absolute-form].

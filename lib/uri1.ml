@@ -141,9 +141,17 @@ type host =
   | `Domain_name of [ `raw ] Domain_name.t
   ]
 
+let pp_host fmt = function
+  | `IPv4 addr -> Fmt.pf fmt "IPv4 %a" Ipaddr.pp addr
+  | `IPv6 addr -> Fmt.pf fmt "IPv6 %a" Ipaddr.pp addr
+  | `Domain_name dn -> Fmt.pf fmt "Domain %a" Domain_name.pp dn
+
 type port = int
 
 type authority = host * port option
+
+let pp_authority fmt auth =
+  Fmt.pf fmt "%a" Fmt.(pair ~sep:(any ": ") pp_host (option int)) auth
 
 let host ?(buf = Buffer.create 10) buf_read =
   match Buf_read.peek_char buf_read with
@@ -179,7 +187,7 @@ let host ?(buf = Buffer.create 10) buf_read =
     `Domain_name domain_name
   | None -> Fmt.failwith "[host] invalid host value"
 
-let authority buf buf_read =
+let authority_ buf buf_read =
   Buffer.clear buf;
   let host = host ~buf buf_read in
   let port =
@@ -200,9 +208,11 @@ let authority buf buf_read =
   in
   (host, port)
 
+let authority buf_read = authority_ (Buffer.create 10) buf_read
+
 let absolute_form buf_read =
   let buf = Buffer.create 10 in
   let scheme = scheme buf buf_read in
   Buf_read.string "://" buf_read;
-  let authority = authority buf buf_read in
+  let authority = authority_ buf buf_read in
   (scheme, authority)
