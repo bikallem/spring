@@ -82,6 +82,21 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
+type origin_form = absolute_path * query option
+
+let pp_origin_form fmt origin_form =
+  let fields =
+    Fmt.(
+      record ~sep:semi
+        [ field "Path" (fun (path, _) -> path) pp_absolute_path
+        ; field "Query" (fun (_, query) -> query) (Fmt.option string)
+        ])
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt origin_form
+
 let origin_form buf_read =
   let buf = Buffer.create 10 in
   let absolute_path = absolute_path ~buf buf_read in

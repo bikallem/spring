@@ -7,27 +7,39 @@ open Spring
 ## origin_form
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
-- : Uri1.absolute_path * string option =
-(["home"; "hello"; "world";
-  "asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A"],
- Some "a=23/?&b=/?dd")
+# Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
+  |> Eio.traceln "%a" Uri1.pp_origin_form;;
++{
++  Path: /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
++  Query: a=23/?&b=/?dd
++}
+- : unit = ()
 
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/where?q=now";;
-- : Uri1.absolute_path * string option = (["where"], Some "q=now")
+# Uri1.origin_form @@ Eio.Buf_read.of_string "/where?q=now"
+  |> Eio.traceln "%a" Uri1.pp_origin_form;;
++{
++  Path: /where;
++  Query: q=now
++}
+- : unit = ()
 ```
 
 `/` is a valid absolute path.
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/";;
-- : Uri1.absolute_path * string option = ([""], None)
+# Uri1.origin_form @@ Eio.Buf_read.of_string "/"
+  |> Eio.traceln "%a" Uri1.pp_origin_form;;
++{
++  Path: /;
++  Query:
++}
+- : unit = ()
 ```
 
 `origin_form` needs at least one path segment.
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string "";;
+# Uri1.origin_form @@ Eio.Buf_read.of_string ""
 Exception: End_of_file.
 ```
 
