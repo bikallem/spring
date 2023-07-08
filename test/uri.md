@@ -49,5 +49,15 @@ Exception: End_of_file.
 
 ```ocaml
 # Uri1.absolute_form @@ Eio.Buf_read.of_string "http://example.com:80";;
-- : Uri1.scheme * Uri1.authority = (`Http, (`Domain_name <abstr>, Some 80))
+- : Uri1.scheme * Uri1.authority * Uri1.absolute_path * string option =
+(`Http, (`Domain_name <abstr>, Some 80), [], None)
+```
+
+Parse scheme, authority, path and query.
+
+```ocaml
+# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2";;
+- : Uri1.scheme * Uri1.authority * Uri1.absolute_path * string option =
+(`Https, (`Domain_name <abstr>, None), ["pub"; "WWW"; "TheProject.html"],
+ Some "a=v1&b=v2")
 ```

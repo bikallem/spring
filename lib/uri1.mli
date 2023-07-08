@@ -82,7 +82,8 @@ type scheme =
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
 
-val absolute_form : (scheme * authority) Buf_read.parser
+val absolute_form :
+  (scheme * authority * absolute_path * query option) Buf_read.parser
 (** [absolute_form] parses request target in an [absolute-form].
 
     Example request target in absolute-form,

@@ -64,26 +64,27 @@ type absolute_path = string list
 type query = string
 
 (* [query         = *( pchar / "/" / "?" )] *)
-let rec query buf buf_read =
-  match pchar buf buf_read with
-  | `Ok -> query buf buf_read
-  | `Char ('/' as c) | `Char ('?' as c) ->
-    Buf_read.char c buf_read;
-    Buffer.add_char buf c;
-    query buf buf_read
-  | `Char _ | `Eof -> Buffer.contents buf
+let query buf buf_read =
+  let rec loop () =
+    match pchar buf buf_read with
+    | `Ok -> loop ()
+    | `Char ('/' as c) | `Char ('?' as c) ->
+      Buf_read.char c buf_read;
+      Buffer.add_char buf c;
+      loop ()
+    | `Char _ | `Eof -> Buffer.contents buf
+  in
+  match Buf_read.peek_char buf_read with
+  | Some '?' ->
+    Buf_read.char '?' buf_read;
+    Some (loop ())
+  | Some _ | None -> None
 
 let origin_form buf_read =
   let buf = Buffer.create 10 in
   let absolute_path = absolute_path ~buf buf_read in
   Buffer.clear buf;
-  let query =
-    match Buf_read.peek_char buf_read with
-    | Some ('?' as c) ->
-      Buf_read.char c buf_read;
-      Some (query buf buf_read)
-    | Some _ | None -> None
-  in
+  let query = query buf buf_read in
   (absolute_path, query)
 
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
@@ -218,4 +219,20 @@ let absolute_form buf_read =
   let scheme = scheme buf buf_read in
   Buf_read.string "://" buf_read;
   let authority = authority_ buf buf_read in
-  (scheme, authority)
+
+  let path =
+    let rec path () =
+      match Buf_read.peek_char buf_read with
+      | Some '/' ->
+        Buf_read.char '/' buf_read;
+        let seg = segment buf buf_read in
+        Buffer.clear buf;
+        seg :: path ()
+      | Some _ | None -> []
+    in
+    Buffer.clear buf;
+    path ()
+  in
+  Buffer.clear buf;
+  let query = query buf buf_read in
+  (scheme, authority, path, query)
