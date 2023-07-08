@@ -22,6 +22,13 @@ let pp_origin_form (path, query) =
 - : Uri1.absolute_path * string option = (["where"], Some "q=now")
 ```
 
+`/` is a valid absolute path.
+
+```ocaml
+# Uri1.origin_form @@ Eio.Buf_read.of_string "/";;
+- : Uri1.absolute_path * string option = ([""], None)
+```
+
 ## authority 
 
 ```ocaml
