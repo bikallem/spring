@@ -265,6 +265,11 @@ let absolute_form buf_read =
   let query = query buf buf_read in
   (scheme, authority, path, query)
 
+type authority_form = host * port
+
+let pp_authority_form fmt authority_form =
+  Fmt.(pair ~sep:(any ":") pp_host int) fmt authority_form
+
 let authority_form buf_read =
   let buf = Buffer.create 10 in
   let host = host buf buf_read in

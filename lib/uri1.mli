@@ -102,9 +102,16 @@ val absolute_form : absolute_form Buf_read.parser
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
 
-val authority_form : (host * port) Buf_read.parser
+type authority_form = host * port
 (** [authority_form] is the request target for [CONNECT] requests. It consists
     of only the host and port number.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
     authority-form}. *)
+
+val pp_authority_form : Format.formatter -> authority_form -> unit
+(** [pp_authority_form fmt authority_form] pretty prints [authority_form] onto
+    [fmt]. *)
+
+val authority_form : authority_form Buf_read.parser
+(** [authority_form] parses authority-form value. *)
