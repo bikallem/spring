@@ -61,3 +61,13 @@ Parse scheme, authority, path and query.
 (`Https, (`Domain_name <abstr>, None), ["pub"; "WWW"; "TheProject.html"],
  Some "a=v1&b=v2")
 ```
+
+## authority_form
+
+```ocaml
+# Uri1.authority_form @@ Eio.Buf_read.of_string "www.example.com:80";;
+- : Uri1.host * int = (`Domain_name <abstr>, 80)
+
+# Uri1.authority_form @@ Eio.Buf_read.of_string "192.168.0.1:80";;
+- : Uri1.host * int = (`IPv4 (Ipaddr.V4 <abstr>), 80)
+```

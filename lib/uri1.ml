@@ -135,7 +135,7 @@ type authority = host * port option
 let pp_authority fmt auth =
   Fmt.pf fmt "%a" Fmt.(pair ~sep:(any ": ") pp_host (option int)) auth
 
-let host ?(buf = Buffer.create 10) buf_read =
+let host buf buf_read =
   match Buf_read.peek_char buf_read with
   | Some '[' ->
     Buf_read.char '[' buf_read;
@@ -171,7 +171,7 @@ let host ?(buf = Buffer.create 10) buf_read =
 
 let authority_ buf buf_read =
   Buffer.clear buf;
-  let host = host ~buf buf_read in
+  let host = host buf buf_read in
   let port =
     match Buf_read.peek_char buf_read with
     | Some ':' ->
@@ -219,7 +219,6 @@ let absolute_form buf_read =
   let scheme = scheme buf buf_read in
   Buf_read.string "://" buf_read;
   let authority = authority_ buf buf_read in
-
   let path =
     let rec path () =
       match Buf_read.peek_char buf_read with
@@ -236,3 +235,17 @@ let absolute_form buf_read =
   Buffer.clear buf;
   let query = query buf buf_read in
   (scheme, authority, path, query)
+
+let authority_form buf_read =
+  let buf = Buffer.create 10 in
+  let host = host buf buf_read in
+  Buf_read.char ':' buf_read;
+  let port =
+    Buf_read.take_while
+      (function
+        | '0' .. '9' -> true
+        | _ -> false)
+      buf_read
+    |> int_of_string
+  in
+  (host, port)

@@ -93,3 +93,10 @@ val absolute_form :
     ]}
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
+
+val authority_form : (host * port) Buf_read.parser
+(** [authority_form] is the request target for [CONNECT] requests. It consists
+    of only the host and port number.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
+    authority-form}. *)
