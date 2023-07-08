@@ -45,6 +45,8 @@ let rec segment buf buf_read =
 
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
 let absolute_path ?(buf = Buffer.create 10) buf_read =
+  Buf_read.char '/' buf_read;
+  let path1 = segment buf buf_read in
   let rec loop () =
     match Buf_read.peek_char buf_read with
     | Some '/' ->
@@ -54,7 +56,8 @@ let absolute_path ?(buf = Buffer.create 10) buf_read =
       seg :: loop ()
     | Some _ | None -> []
   in
-  loop ()
+  Buffer.clear buf;
+  path1 :: loop ()
 
 type absolute_path = string list
 
