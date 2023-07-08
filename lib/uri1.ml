@@ -74,6 +74,11 @@ let origin_form buf_read =
   in
   (absolute_path, query)
 
+type scheme =
+  [ `Http
+  | `Https
+  ]
+
 let scheme buf buf_read =
   (match Buf_read.any_char buf_read with
   | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
@@ -86,7 +91,10 @@ let scheme buf buf_read =
       buf_read
   in
   Buffer.add_string buf s;
-  Buffer.contents buf
+  match Buffer.contents buf |> String.Ascii.lowercase with
+  | "http" -> `Http
+  | "https" -> `Https
+  | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
@@ -123,6 +131,10 @@ type host =
   | `IPv4 of Ipaddr.t
   | `Domain_name of [ `raw ] Domain_name.t
   ]
+
+type port = int
+
+type authority = host * port option
 
 let host ?(buf = Buffer.create 10) buf_read =
   match Buf_read.peek_char buf_read with

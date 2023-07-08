@@ -46,6 +46,5 @@ let pp_host = function
 
 ```ocaml
 # Uri1.absolute_form @@ Eio.Buf_read.of_string "http://example.com:80";;
-- : string * (Uri1.host * int option) =
-("http", (`Domain_name <abstr>, Some 80))
+- : Uri1.scheme * Uri1.authority = (`Http, (`Domain_name <abstr>, Some 80))
 ```
