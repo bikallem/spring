@@ -60,6 +60,10 @@ type authority = host * port option
 (** [authority] identifies an origin server of a HTTP request, i.e. the server
     that consumes a HTTP request and produces a response.
 
+    {b Note} HTTP Uri has deprecated the user-info in an authority. See
+    {{!https://www.rfc-editor.org/rfc/rfc9110#name-deprecation-of-userinfo-in-}
+    user-info deprecation}.
+
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2}
     Authority}. *)
 
