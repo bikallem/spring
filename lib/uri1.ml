@@ -3,25 +3,17 @@ let hex_dig t : char =
   | ('0' .. '9' | 'A' .. 'F') as c -> c
   | c -> Fmt.failwith "expected HEXDIG but got '%c'" c
 
+let is_reserved = function
+  | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '-' | '.' | '_' | '~' -> true
+  | _ -> false
+
+let is_sub_delims = function
+  | '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ',' | ';' | '=' -> true
+  | _ -> false
+
 let pchar buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
-  | Some
-      (( 'a' .. 'z'
-       | 'A' .. 'Z'
-       | '0' .. '9'
-       | '-' | '.' | '_' | '~' (* unreserved *)
-       | '!'
-       | '$'
-       | '&'
-       | '\''
-       | '('
-       | ')'
-       | '*'
-       | '+'
-       | ','
-       | ';'
-       | '=' (* sub-delims *)
-       | ':' | '@' ) as c) ->
+  | Some c when is_reserved c || is_sub_delims c || c = ':' || c = '@' ->
     Buf_read.char c buf_read;
     Buffer.add_char buf c;
     `Ok
@@ -106,22 +98,7 @@ let origin buf_read =
 
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
-  | Some
-      (( 'a' .. 'z'
-       | 'A' .. 'Z'
-       | '0' .. '9'
-       | '-' | '.' | '_' | '~' (* unreserved *)
-       | '!'
-       | '$'
-       | '&'
-       | '\''
-       | '('
-       | ')'
-       | '*'
-       | '+'
-       | ','
-       | ';'
-       | '=' (* sub-delims *) ) as c) ->
+  | Some c when is_reserved c || is_sub_delims c ->
     Buf_read.char c buf_read;
     Buffer.add_char buf c;
     `Ok
