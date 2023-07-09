@@ -82,9 +82,9 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
-type origin_form = absolute_path * query option
+type origin = absolute_path * query option
 
-let pp_origin_form fmt origin_form =
+let pp_origin fmt origin_form =
   let fields =
     Fmt.(
       record ~sep:semi
@@ -97,7 +97,7 @@ let pp_origin_form fmt origin_form =
   in
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt origin_form
 
-let origin_form buf_read =
+let origin buf_read =
   let buf = Buffer.create 10 in
   let absolute_path = absolute_path ~buf buf_read in
   Buffer.clear buf;

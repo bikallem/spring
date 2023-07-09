@@ -4,19 +4,19 @@
 open Spring
 ```
 
-## origin_form
+## origin
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
-  |> Eio.traceln "%a" Uri1.pp_origin_form;;
+# Uri1.origin @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
+  |> Eio.traceln "%a" Uri1.pp_origin;;
 +{
 +  Path: /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
 +  Query: a=23/?&b=/?dd
 +}
 - : unit = ()
 
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/where?q=now"
-  |> Eio.traceln "%a" Uri1.pp_origin_form;;
+# Uri1.origin @@ Eio.Buf_read.of_string "/where?q=now"
+  |> Eio.traceln "%a" Uri1.pp_origin;;
 +{
 +  Path: /where;
 +  Query: q=now
@@ -27,8 +27,8 @@ open Spring
 `/` is a valid absolute path.
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string "/"
-  |> Eio.traceln "%a" Uri1.pp_origin_form;;
+# Uri1.origin @@ Eio.Buf_read.of_string "/"
+  |> Eio.traceln "%a" Uri1.pp_origin;;
 +{
 +  Path: /;
 +  Query:
@@ -36,10 +36,10 @@ open Spring
 - : unit = ()
 ```
 
-`origin_form` needs at least one path segment.
+`origin` needs at least one path segment.
 
 ```ocaml
-# Uri1.origin_form @@ Eio.Buf_read.of_string ""
+# Uri1.origin @@ Eio.Buf_read.of_string ""
 Exception: End_of_file.
 ```
 

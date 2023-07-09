@@ -34,20 +34,19 @@ type query = string
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
 
-type origin_form = absolute_path * query option
-(** [origin_form] is the request target without the scheme and authority
-    components.
+type origin = absolute_path * query option
+(** [origin] is the request target without the scheme and authority components.
 
     [origin-form    = absolute-path \[ "?" query \]]
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#name-origin-form} Origin
     Form}. *)
 
-val pp_origin_form : Format.formatter -> origin_form -> unit
-(** [pp_origin_form fmt origin_form] pretty prints [origin_form] onto [fmt]. *)
+val pp_origin : Format.formatter -> origin -> unit
+(** [pp_origin fmt origin] pretty prints [origin] onto [fmt]. *)
 
-val origin_form : origin_form Buf_read.parser
-(** [origin_form] parses into origin_form value. *)
+val origin : origin Buf_read.parser
+(** [origin] parses into origin value. *)
 
 type host =
   [ `IPv6 of Ipaddr.t
