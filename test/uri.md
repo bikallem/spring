@@ -112,3 +112,13 @@ Path ending in `/` is also valid.
 +IPv4 192.168.0.1:80
 - : unit = ()
 ```
+
+## asterisk_form
+
+```ocaml
+# Uri1.asterisk_form @@ Eio.Buf_read.of_string "*";;
+- : char = '*'
+
+# Uri1.asterisk_form @@ Eio.Buf_read.of_string "a";;
+Exception: Failure "Expected '*' but got 'a'".
+```

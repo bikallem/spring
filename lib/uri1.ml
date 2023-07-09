@@ -298,3 +298,7 @@ let authority_form buf_read =
     |> int_of_string
   in
   (host, port)
+
+let asterisk_form buf_read =
+  Buf_read.char '*' buf_read;
+  '*'

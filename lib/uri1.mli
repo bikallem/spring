@@ -122,3 +122,10 @@ val pp_authority_form : Format.formatter -> authority_form -> unit
 
 val authority_form : authority_form Buf_read.parser
 (** [authority_form] parses authority-form value. *)
+
+val asterisk_form : char Buf_read.parser
+(** [asterisk_form] is the request target used for a server-wide HTTP [OPTIONS]
+    request. It is represented by a char literal ['*'].
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-asterisk-form}
+    asterisk-form}. *)
