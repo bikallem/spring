@@ -31,12 +31,12 @@ let rec segment buf buf_read =
   | `Ok -> segment buf buf_read
   | `Char _ | `Eof -> Buffer.contents buf
 
-(** [absolute_path] is a HTTP URI absolute path string [s]
+(** [path] is a HTTP URI absolute path string [s]
 
     [absolute-path = 1*( "/" segment )]
 
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
-let absolute_path ?(buf = Buffer.create 10) buf_read =
+let path ?(buf = Buffer.create 10) buf_read =
   Buf_read.char '/' buf_read;
   let path1 = segment buf buf_read in
   let rec loop () =
@@ -51,13 +51,32 @@ let absolute_path ?(buf = Buffer.create 10) buf_read =
   Buffer.clear buf;
   path1 :: loop ()
 
-type absolute_path = string list
+let encode_string ppf s =
+  String.iter
+    (fun c ->
+      if is_unreserved c then Fmt.pf ppf "%c%!" c
+      else Fmt.pf ppf "%%%02X%!" @@ Char.code c)
+    s
 
-let pp_absolute_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
+type path = string list
+
+let make_path l =
+  let buf = Buffer.create 64 in
+  let ppf = Fmt.with_buffer buf in
+  List.map
+    (fun comp ->
+      Buffer.add_char buf '/';
+      encode_string ppf comp;
+      let s = Buffer.contents buf in
+      Buffer.clear buf;
+      s)
+    l
+
+let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
 
 type query = string
 
-let encode_query_string ppf s =
+let encode_string ppf s =
   String.iter
     (fun c ->
       if is_unreserved c then Fmt.pf ppf "%c%!" c
@@ -70,15 +89,15 @@ let make_query name_values =
   match name_values with
   | [] -> Buffer.contents buf
   | (name, value) :: name_values ->
-    encode_query_string ppf name;
+    encode_string ppf name;
     Buffer.add_char buf '=';
-    encode_query_string ppf value;
+    encode_string ppf value;
     List.iter
       (fun (name, value) ->
         Buffer.add_char buf '&';
-        encode_query_string ppf name;
+        encode_string ppf name;
         Buffer.add_char buf '=';
-        encode_query_string ppf value)
+        encode_string ppf value)
       name_values;
     Buffer.contents buf
 
@@ -99,13 +118,13 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
-type origin = absolute_path * query option
+type origin = path * query option
 
 let pp_origin fmt origin_form =
   let fields =
     Fmt.(
       record ~sep:semi
-        [ field "Path" (fun (path, _) -> path) pp_absolute_path
+        [ field "Path" (fun (path, _) -> path) pp_path
         ; field "Query" (fun (_, query) -> query) (Fmt.option string)
         ])
   in
@@ -116,10 +135,10 @@ let pp_origin fmt origin_form =
 
 let origin buf_read =
   let buf = Buffer.create 10 in
-  let absolute_path = absolute_path ~buf buf_read in
+  let path = path ~buf buf_read in
   Buffer.clear buf;
   let query = query buf buf_read in
-  (absolute_path, query)
+  (path, query)
 
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
@@ -241,7 +260,7 @@ let scheme buf buf_read =
   | "https" -> `Https
   | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
-type absolute_form = scheme * authority * absolute_path * query option
+type absolute_form = scheme * authority * path * query option
 
 let pp_absolute_form fmt absolute_form =
   let fields =
@@ -249,9 +268,7 @@ let pp_absolute_form fmt absolute_form =
       record ~sep:semi
         [ field "Scheme" (fun (scheme, _, _, _) -> scheme) pp_scheme
         ; field "Authority" (fun (_, authority, _, _) -> authority) pp_authority
-        ; field "Path"
-            (fun (_, _, absolute_path, _) -> absolute_path)
-            pp_absolute_path
+        ; field "Path" (fun (_, _, path, _) -> path) pp_path
         ; field "Query" (fun (_, _, _, query) -> query) @@ option string
         ])
   in

@@ -23,9 +23,9 @@
       {e {{!https://datatracker.ietf.org/doc/html/rfc3986#appendix-A} URI
          Generic Syntax}} *)
 
-type absolute_path = string list
-(** [absolute_path] is the path component of a HTTP request target. It starts
-    with [/] and ends with possibly [?] character.
+type path = private string list
+(** [path] is the path component of a HTTP request target. It starts with [/]
+    and ends with possibly [?] character.
 
     Example of a path,
 
@@ -34,6 +34,10 @@ type absolute_path = string list
     ]}
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.3} Path}. *)
+
+val make_path : string list -> path
+(** [make_path l] is absolute path [p]. [l] is the list of path components which
+    are percent encoded in [p]. *)
 
 type query = private string
 (** [query] is the URI encoded query component of a HTTP request target. The
@@ -45,7 +49,7 @@ val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
     [name_values] is percent encoded and concatenated with '&' character. *)
 
-type origin = absolute_path * query option
+type origin = path * query option
 (** [origin] is the request target without the scheme and authority components.
 
     [origin-form    = absolute-path \[ "?" query \]]
@@ -99,7 +103,7 @@ type scheme =
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
 
-type absolute_form = scheme * authority * absolute_path * query option
+type absolute_form = scheme * authority * path * query option
 (** [absolute_form] is the absolute uri form.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
