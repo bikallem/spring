@@ -57,6 +57,31 @@ let pp_absolute_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
 
 type query = string
 
+let encode_query_string ppf s =
+  String.iter
+    (fun c ->
+      if is_unreserved c then Fmt.pf ppf "%c%!" c
+      else Fmt.pf ppf "%%%02X%!" @@ Char.code c)
+    s
+
+let make_query name_values =
+  let buf = Buffer.create 64 in
+  let ppf = Fmt.with_buffer buf in
+  match name_values with
+  | [] -> Buffer.contents buf
+  | (name, value) :: name_values ->
+    encode_query_string ppf name;
+    Buffer.add_char buf '=';
+    encode_query_string ppf value;
+    List.iter
+      (fun (name, value) ->
+        Buffer.add_char buf '&';
+        encode_query_string ppf name;
+        Buffer.add_char buf '=';
+        encode_query_string ppf value)
+      name_values;
+    Buffer.contents buf
+
 (* [query         = *( pchar / "/" / "?" )] *)
 let query buf buf_read =
   let rec loop () =

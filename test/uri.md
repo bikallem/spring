@@ -4,6 +4,19 @@
 open Spring
 ```
 
+## make_query
+
+URI reserved characters are percent encoded.
+
+```ocaml
+# Uri1.make_query ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
+- : Uri1.query =
+"field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world"
+
+# Uri1.make_query ["field1","value2";"field2","value2"];;
+- : Uri1.query = "field1=value2&field2=value2"
+```
+
 ## origin
 
 ```ocaml

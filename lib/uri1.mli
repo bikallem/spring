@@ -2,6 +2,13 @@
 
     URI is used to implement HTTP request target specification.
 
+    Some natable differences (of HTTP URI) with that of Generic URI syntax:
+
+    + Absolute paths starting with '//' are not allowed.
+    + user-name info in authority is deprecated.
+    + The only schemes allowed are [http] and https.
+    + uri fragments (e.g. [#section1]) is not allowed.
+
     {b References}
 
     - RFC 9112
@@ -28,11 +35,15 @@ type absolute_path = string list
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.3} Path}. *)
 
-type query = string
-(** [query] is the query component of a HTTP request target. It starts with [?]
-    character.
+type query = private string
+(** [query] is the URI encoded query component of a HTTP request target. The
+    reserved characters in query name/value are percent encoded.
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
+
+val make_query : (string * string) list -> query
+(** [make_query name_values] creates a query value by percent encoding
+    [name_values] - a list of [name] and [value]. *)
 
 type origin = absolute_path * query option
 (** [origin] is the request target without the scheme and authority components.
