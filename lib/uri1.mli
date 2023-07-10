@@ -42,8 +42,8 @@ type query = private string
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
 
 val make_query : (string * string) list -> query
-(** [make_query name_values] creates a query value by percent encoding
-    [name_values] - a list of [name] and [value]. *)
+(** [make_query name_values] is a query [q]. Each [(name,value)] pair in
+    [name_values] is percent encoded and concatenated with '&' character. *)
 
 type origin = absolute_path * query option
 (** [origin] is the request target without the scheme and authority components.
