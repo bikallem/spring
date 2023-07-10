@@ -2,7 +2,7 @@
 
     URI is used to implement HTTP request target specification.
 
-    Some natable differences (of HTTP URI) with that of Generic URI syntax:
+    Some notable differences (of HTTP URI) with that of Generic URI syntax:
 
     + Absolute paths starting with '//' are not allowed.
     + user-name info in authority is deprecated.
