@@ -318,6 +318,49 @@ let authority_form buf_read =
   in
   (host, port)
 
-let asterisk_form buf_read =
-  Buf_read.char '*' buf_read;
-  '*'
+let asterisk_form buf_read = Buf_read.char '*' buf_read
+
+(* +-- https://www.rfc-editor.org/rfc/rfc9112#name-request-target --+ *)
+type 'a t =
+  | Origin of origin
+  | Absolute of (scheme * authority * path * query option)
+  | Authority of authority_form
+  | Asterisk
+
+let try_ f =
+  try f () with _ -> invalid_arg "[s] is an invalid request target value"
+
+let of_string s =
+  let buf_read = Buf_read.of_string s in
+  match Buf_read.peek_char buf_read with
+  | Some '/' ->
+    try_ @@ fun () ->
+    let path, query = origin buf_read in
+    Origin (path, query)
+  | Some 'h' | Some 'H' ->
+    try_ @@ fun () ->
+    let scheme, authority, path, query = absolute_form buf_read in
+    Absolute (scheme, authority, path, query)
+  | Some '*' ->
+    try_ @@ fun () ->
+    asterisk_form buf_read;
+    Asterisk
+  | Some _ ->
+    try_ @@ fun () ->
+    let host, port = authority_form buf_read in
+    Authority (host, port)
+  | None -> invalid_arg "[s] is invalid request target value"
+
+let authority_form = function
+  | Authority _ as t -> t
+  | _ -> invalid_arg "[t] is not in authority-form"
+
+let asterisk_form = function
+  | Asterisk as t -> t
+  | _ -> invalid_arg "[t] is not in asterisk-form"
+
+let pp fmt = function
+  | Origin origin -> pp_origin fmt origin
+  | Absolute absolute_form -> pp_absolute_form fmt absolute_form
+  | Authority authority -> pp_authority_form fmt authority
+  | Asterisk -> Fmt.pf fmt "*"

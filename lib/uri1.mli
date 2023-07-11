@@ -134,12 +134,53 @@ val pp_authority_form : Format.formatter -> authority_form -> unit
 (** [pp_authority_form fmt authority_form] pretty prints [authority_form] onto
     [fmt]. *)
 
-val authority_form : authority_form Buf_read.parser
-(** [authority_form] parses authority-form value. *)
+type 'a t
+(** [t] is the HTTP request target value. *)
 
-val asterisk_form : char Buf_read.parser
-(** [asterisk_form] is the request target used for a server-wide HTTP [OPTIONS]
-    request. It is represented by a char literal ['*'].
+val of_string : string -> [ `raw ] t
+(** [of_string url] is [t] iff [url] contains a valid url value in string
+    representation. [url] can be in one of the forms as listed below:
 
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-asterisk-form}
-    asterisk-form}. *)
+    + origin-form - only holds URI path and query information. Starts with [/]
+      e.g. [/home/products]. See
+      {{!https://www.rfc-editor.org/rfc/rfc9112#name-origin-form} origin-form}.
+
+    + absolute-form - holds scheme,authority, path and query, eg.
+      [http://www.example.org/pub/WWW/TheProject.html]. See
+      {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
+      authority-form}.
+
+    + authority-form - holds [host] and [port] information, e.g.
+      [www.example.com:8080]. See
+      {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
+      authority-form}.
+
+    + asterisk-form - request-target with value [*]. See
+      {{!https://www.rfc-editor.org/rfc/rfc9112#name-asterisk-form}
+      asterisk-form}.
+
+    {{!https://www.rfc-editor.org/rfc/rfc9112#name-request-target} RFC 9112 -
+    request target}.
+
+    @raise Invalid_argument if [url] contains invalid url value. *)
+
+val authority_form : 'a t -> [ `authority ] t
+(** [authority_form t] is request target of form [`authority t] iff [t] is in
+    authority form.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form} authority
+    form}.
+
+    @raise Invalid_argument if [t] is not in authority-form. *)
+
+val asterisk_form : 'a t -> [ `asterisk ] t
+(** [asterisk_form t] is request target of form [`asterisk t] iff [t] is in
+    asterisk form.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-asterisk-form} asterisk
+    form}.
+
+    @raise Invalid_argument if [t] is not in asterisk.form. *)
+
+val pp : Format.formatter -> 'a t -> unit
+(** [pp fmt t] pretty prints [t] onto [fmt]. *)

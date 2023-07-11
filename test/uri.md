@@ -124,23 +124,31 @@ Path ending in `/` is also valid.
 ## authority_form
 
 ```ocaml
-# Uri1.authority_form @@ Eio.Buf_read.of_string "www.example.com:80"
-  |> Eio.traceln "%a" Uri1.pp_authority_form;;
+# Uri1.of_string "www.example.com:80"
+  |> Uri1.authority_form
+  |> Eio.traceln "%a" Uri1.pp;;
 +Domain www.example.com:80
 - : unit = ()
 
-# Uri1.authority_form @@ Eio.Buf_read.of_string "192.168.0.1:80"
-  |> Eio.traceln "%a" Uri1.pp_authority_form;;
+# Uri1.of_string "192.168.0.1:80"
+  |> Uri1.authority_form
+  |> Eio.traceln "%a" Uri1.pp;;
 +IPv4 192.168.0.1:80
+- : unit = ()
+
+# Uri1.of_string "[2001:0db8:0000:0000:0000:ff00:0042:8329]:8080"
+  |> Uri1.authority_form
+  |> Eio.traceln "%a" Uri1.pp;;
++IPv6 2001:db8::ff00:42:8329:8080
 - : unit = ()
 ```
 
 ## asterisk_form
 
 ```ocaml
-# Uri1.asterisk_form @@ Eio.Buf_read.of_string "*";;
-- : char = '*'
-
-# Uri1.asterisk_form @@ Eio.Buf_read.of_string "a";;
-Exception: Failure "Expected '*' but got 'a'".
+# Uri1.of_string "*"
+  |> Uri1.asterisk_form
+  |> Eio.traceln "%a" Uri1.pp;;
++*
+- : unit = ()
 ```
