@@ -120,11 +120,15 @@ Path ending in `/` is also valid.
 ## authority_form
 
 ```ocaml
-# Uri1.of_string "www.example.com:80"
-  |> Uri1.authority_form
-  |> Eio.traceln "%a" Uri1.pp;;
+# let rt = Uri1.of_string "www.example.com:80" |> Uri1.authority_form ;;
+val rt : [ `authority ] Uri1.t = <abstr>
+
+# Eio.traceln "%a" Uri1.pp rt;;
 +Domain www.example.com:80
 - : unit = ()
+
+# Uri1.authority' rt;;
+- : Uri1.host * int = (`Domain_name <abstr>, 80)
 
 # Uri1.of_string "192.168.0.1:80"
   |> Uri1.authority_form

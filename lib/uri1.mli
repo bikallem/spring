@@ -156,11 +156,16 @@ val origin_form : 'a t -> [ `origin ] t
 
     @raise Invalid_argument if [t] is not in origin-form. *)
 
+(** {2 Authority Form} *)
+
 val authority_form : 'a t -> [ `authority ] t
 (** [authority_form t] is request target of form [`authority t] iff [t] is in
     authority form.
 
     @raise Invalid_argument if [t] is not in authority-form. *)
+
+val authority' : [ `authority ] t -> host * port
+(** [authority t] is [host, port]. *)
 
 val asterisk_form : 'a t -> [ `asterisk ] t
 (** [asterisk_form t] is request target of form [`asterisk t] iff [t] is in

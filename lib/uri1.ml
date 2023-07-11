@@ -355,9 +355,14 @@ let origin_form = function
   | Origin _ as t -> t
   | _ -> invalid_arg "[t] is not in origin-form"
 
+(* +-- Authority Form --+ *)
 let authority_form = function
   | Authority _ as t -> t
   | _ -> invalid_arg "[t] is not in authority-form"
+
+let authority' = function
+  | Authority (port, host) -> (port, host)
+  | _ -> assert false
 
 let asterisk_form = function
   | Asterisk as t -> t
