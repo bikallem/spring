@@ -351,6 +351,10 @@ let of_string s =
     Authority (host, port)
   | None -> invalid_arg "[s] is invalid request target value"
 
+let origin_form = function
+  | Origin _ as t -> t
+  | _ -> invalid_arg "[t] is not in origin-form"
+
 let authority_form = function
   | Authority _ as t -> t
   | _ -> invalid_arg "[t] is not in authority-form"

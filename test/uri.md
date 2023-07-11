@@ -29,16 +29,18 @@ URI reserved characters are percent encoded.
 ## origin
 
 ```ocaml
-# Uri1.origin @@ Eio.Buf_read.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
-  |> Eio.traceln "%a" Uri1.pp_origin;;
+# Uri1.of_string "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
+  |> Uri1.origin_form 
+  |> Eio.traceln "%a" Uri1.pp;;
 +{
 +  Path: /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
 +  Query: a=23/?&b=/?dd
 +}
 - : unit = ()
 
-# Uri1.origin @@ Eio.Buf_read.of_string "/where?q=now"
-  |> Eio.traceln "%a" Uri1.pp_origin;;
+# Uri1.of_string "/where?q=now"
+  |> Uri1.origin_form
+  |> Eio.traceln "%a" Uri1.pp;;
 +{
 +  Path: /where;
 +  Query: q=now
@@ -49,20 +51,14 @@ URI reserved characters are percent encoded.
 `/` is a valid absolute path.
 
 ```ocaml
-# Uri1.origin @@ Eio.Buf_read.of_string "/"
-  |> Eio.traceln "%a" Uri1.pp_origin;;
+# Uri1.of_string "/"
+  |> Uri1.origin_form
+  |> Eio.traceln "%a" Uri1.pp;;
 +{
 +  Path: /;
 +  Query:
 +}
 - : unit = ()
-```
-
-`origin` needs at least one path segment.
-
-```ocaml
-# Uri1.origin @@ Eio.Buf_read.of_string ""
-Exception: End_of_file.
 ```
 
 ## authority 

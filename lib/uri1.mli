@@ -49,20 +49,6 @@ val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
     [name_values] is percent encoded and concatenated with '&' character. *)
 
-type origin = path * query option
-(** [origin] is the request target without the scheme and authority components.
-
-    [origin-form    = absolute-path \[ "?" query \]]
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-origin-form} Origin
-    Form}. *)
-
-val pp_origin : Format.formatter -> origin -> unit
-(** [pp_origin fmt origin] pretty prints [origin] onto [fmt]. *)
-
-val origin : origin Buf_read.parser
-(** [origin] parses into origin value. *)
-
 type host =
   [ `IPv6 of Ipaddr.t
   | `IPv4 of Ipaddr.t
@@ -164,21 +150,21 @@ val of_string : string -> [ `raw ] t
 
     @raise Invalid_argument if [url] contains invalid url value. *)
 
+val origin_form : 'a t -> [ `origin ] t
+(** [origin_form t] is request target of form [`origin t] iff [t] is in origin
+    form.
+
+    @raise Invalid_argument if [t] is not in origin-form. *)
+
 val authority_form : 'a t -> [ `authority ] t
 (** [authority_form t] is request target of form [`authority t] iff [t] is in
     authority form.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form} authority
-    form}.
 
     @raise Invalid_argument if [t] is not in authority-form. *)
 
 val asterisk_form : 'a t -> [ `asterisk ] t
 (** [asterisk_form t] is request target of form [`asterisk t] iff [t] is in
     asterisk form.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-asterisk-form} asterisk
-    form}.
 
     @raise Invalid_argument if [t] is not in asterisk.form. *)
 
