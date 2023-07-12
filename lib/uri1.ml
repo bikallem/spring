@@ -260,7 +260,7 @@ let scheme buf buf_read =
   | "https" -> `Https
   | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
-type absolute_form = scheme * authority * path * query option
+(* type absolute_form = scheme * authority * path * query option *)
 
 let pp_absolute_form fmt absolute_form =
   let fields =
@@ -355,7 +355,18 @@ let origin_form = function
   | Origin _ as t -> t
   | _ -> invalid_arg "[t] is not in origin-form"
 
+(* +-- Absolute form --+ *)
+
+let absolute_form = function
+  | Absolute _ as t -> t
+  | _ -> invalid_arg "[t] is not in absolute-from"
+
+let scheme = function
+  | Absolute (scheme, _, _, _) -> scheme
+  | _ -> assert false
+
 (* +-- Authority Form --+ *)
+
 let authority_form = function
   | Authority _ as t -> t
   | _ -> invalid_arg "[t] is not in authority-form"

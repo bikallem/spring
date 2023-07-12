@@ -89,16 +89,16 @@ type scheme =
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
 
-type absolute_form = scheme * authority * path * query option
+(* type absolute_form = scheme * authority * path * query option *)
 (** [absolute_form] is the absolute uri form.
 
     See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
 
-val pp_absolute_form : Format.formatter -> absolute_form -> unit
+(* val pp_absolute_form : Format.formatter -> absolute_form -> unit *)
 (** [pp_absoltue_form fmt absolute_form] pretty prints [absolute_form] onto
     [fmt]. *)
 
-val absolute_form : absolute_form Buf_read.parser
+(* val absolute_form : absolute_form Buf_read.parser *)
 (** [absolute_form] parses request target in an [absolute-form].
 
     Example request target in absolute-form,
@@ -142,16 +142,24 @@ val of_string : string -> [ `raw ] t
 (** {2 Origin Form} *)
 
 val origin_form : 'a t -> [ `origin ] t
-(** [origin_form t] is request target of form [`origin t] iff [t] is in origin
-    form.
+(** [origin_form t] is request target [`origin t] iff [t] is of origin form.
 
     @raise Invalid_argument if [t] is not in origin-form. *)
+
+(** {2 Absolute Form} *)
+
+val absolute_form : 'a t -> [ `absolute ] t
+(** [absolute_form t] is request target [`absolute t] iff [t] is of absolute
+    form. *)
+
+val scheme : [ `absolute ] t -> scheme
+(** [scheme t] is the [scheme] for absolute request target [t]. *)
 
 (** {2 Authority Form} *)
 
 val authority_form : 'a t -> [ `authority ] t
-(** [authority_form t] is request target of form [`authority t] iff [t] is in
-    authority form.
+(** [authority_form t] is request target [`authority t] iff [t] is of authority
+    form.
 
     @raise Invalid_argument if [t] is not in authority-form. *)
 
@@ -161,8 +169,8 @@ val authority' : [ `authority ] t -> host * port
 (** {2 Astrisk Form} *)
 
 val asterisk_form : 'a t -> [ `asterisk ] t
-(** [asterisk_form t] is request target of form [`asterisk t] iff [t] is in
-    asterisk form.
+(** [asterisk_form t] is request target [`asterisk t] iff [t] is of asterisk
+    form.
 
     @raise Invalid_argument if [t] is not in asterisk.form. *)
 

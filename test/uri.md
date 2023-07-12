@@ -78,8 +78,9 @@ URI reserved characters are percent encoded.
 ## absolute_form
 
 ```ocaml
-# Uri1.absolute_form @@ Eio.Buf_read.of_string "http://example.com:80"
-  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
+# Uri1.of_string "http://example.com:80"
+  |> Uri1.absolute_form
+  |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: http;
 +  Authority: Domain example.com: 80;
@@ -92,8 +93,9 @@ URI reserved characters are percent encoded.
 Parse scheme, authority, path and query.
 
 ```ocaml
-# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2"
-  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
+# Uri1.of_string "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2"
+  |> Uri1.absolute_form
+  |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: https;
 +  Authority: Domain www.example.org: ;
@@ -106,8 +108,9 @@ Parse scheme, authority, path and query.
 Path ending in `/` is also valid.
 
 ```ocaml
-# Uri1.absolute_form @@ Eio.Buf_read.of_string "https://www.example.com/pub/WWW/"
-  |> Eio.traceln "%a" Uri1.pp_absolute_form ;;
+# Uri1.of_string "https://www.example.com/pub/WWW/"
+  |> Uri1.absolute_form
+  |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: https;
 +  Authority: Domain www.example.com: ;
