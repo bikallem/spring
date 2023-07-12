@@ -139,6 +139,8 @@ val of_string : string -> [ `raw ] t
 
     @raise Invalid_argument if [url] contains invalid url value. *)
 
+(** {2 Origin Form} *)
+
 val origin_form : 'a t -> [ `origin ] t
 (** [origin_form t] is request target of form [`origin t] iff [t] is in origin
     form.
@@ -156,11 +158,15 @@ val authority_form : 'a t -> [ `authority ] t
 val authority' : [ `authority ] t -> host * port
 (** [authority t] is [host, port]. *)
 
+(** {2 Astrisk Form} *)
+
 val asterisk_form : 'a t -> [ `asterisk ] t
 (** [asterisk_form t] is request target of form [`asterisk t] iff [t] is in
     asterisk form.
 
     @raise Invalid_argument if [t] is not in asterisk.form. *)
+
+(** {2 Pretty Printer} *)
 
 val pp : Format.formatter -> 'a t -> unit
 (** [pp fmt t] pretty prints [t] onto [fmt]. *)
