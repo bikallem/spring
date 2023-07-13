@@ -15,6 +15,7 @@ module Expires = Expires
 module Etag = Etag
 module If_none_match = If_none_match
 module Cache_control = Cache_control
+module Host = Host
 module Headers = Headers
 
 (* Body *)
