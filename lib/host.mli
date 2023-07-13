@@ -21,8 +21,8 @@ type t = private host * port option
 val v : t -> host * int option
 (** [v t] is [host, port] encapsulated in [t]. *)
 
-val of_string : string -> t
-(** [of_string s] is [t] if the authority information in [s] can be successfully
+val decode : string -> t
+(** [decode s] is [t] if the authority information in [s] can be successfully
     parsed into [t]. *)
 
 val pp : Format.formatter -> t -> unit

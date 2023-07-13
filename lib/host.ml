@@ -10,7 +10,7 @@ type t = host * port option
 
 let v t = t
 
-let of_string s =
+let decode s =
   let buf = Buffer.create 10 in
   let buf_read = Buf_read.of_string s in
   Uri1.authority buf buf_read
