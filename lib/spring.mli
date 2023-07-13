@@ -26,7 +26,6 @@ module Multipart = Multipart
 
 (* {1 Request} *)
 
-module Uri1 = Uri1
 module Request = Request
 
 (** {1 Response} *)

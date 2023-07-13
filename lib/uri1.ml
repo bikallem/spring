@@ -156,14 +156,14 @@ let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   | None -> `Eof
 
 type host =
-  [ `IPv6 of Ipaddr.t
-  | `IPv4 of Ipaddr.t
+  [ `IPv6 of Ipaddr.V6.t
+  | `IPv4 of Ipaddr.V4.t
   | `Domain_name of [ `raw ] Domain_name.t
   ]
 
 let pp_host fmt = function
-  | `IPv4 addr -> Fmt.pf fmt "IPv4 %a" Ipaddr.pp addr
-  | `IPv6 addr -> Fmt.pf fmt "IPv6 %a" Ipaddr.pp addr
+  | `IPv4 addr -> Fmt.pf fmt "IPv4 %a" Ipaddr.V4.pp addr
+  | `IPv6 addr -> Fmt.pf fmt "IPv6 %a" Ipaddr.V6.pp addr
   | `Domain_name dn -> Fmt.pf fmt "Domain %a" Domain_name.pp dn
 
 type port = int
@@ -183,7 +183,7 @@ let host buf buf_read =
           | ']' -> false
           | _ -> true)
         buf_read
-      |> Ipaddr.of_string_exn
+      |> Ipaddr.V6.of_string_exn
     in
     Buf_read.char ']' buf_read;
     `IPv6 ipv6
@@ -194,7 +194,7 @@ let host buf buf_read =
           | '0' .. '9' | '.' -> true
           | _ -> false)
         buf_read
-      |> Ipaddr.of_string_exn
+      |> Ipaddr.V4.of_string_exn
     in
     `IPv4 ipv4
   | Some _ ->
@@ -207,7 +207,7 @@ let host buf buf_read =
     `Domain_name domain_name
   | None -> Fmt.failwith "[host] invalid host value"
 
-let authority_ buf buf_read =
+let authority buf buf_read =
   Buffer.clear buf;
   let host = host buf buf_read in
   let port =
@@ -227,8 +227,6 @@ let authority_ buf buf_read =
     | Some _ | None -> None
   in
   (host, port)
-
-let authority buf_read = authority_ (Buffer.create 10) buf_read
 
 type scheme =
   [ `Http
@@ -260,8 +258,6 @@ let scheme buf buf_read =
   | "https" -> `Https
   | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
-(* type absolute_form = scheme * authority * path * query option *)
-
 let pp_absolute_form fmt absolute_form =
   let fields =
     Fmt.(
@@ -281,7 +277,7 @@ let absolute_form buf_read =
   let buf = Buffer.create 10 in
   let scheme = scheme buf buf_read in
   Buf_read.string "://" buf_read;
-  let authority = authority_ buf buf_read in
+  let authority = authority buf buf_read in
   let path =
     let rec path () =
       match Buf_read.peek_char buf_read with

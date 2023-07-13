@@ -23,7 +23,6 @@ module Chunked = Chunked
 module Multipart = Multipart
 
 (* Others *)
-module Uri1 = Uri1
 module Request = Request
 module Response = Response
 module Client = Client

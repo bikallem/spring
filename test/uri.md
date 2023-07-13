@@ -2,13 +2,15 @@
 
 ```ocaml
 open Spring
+
+module Uri1 = Spring__Uri1
 ```
 
 ## make_path
 
 ```ocaml
 # Uri1.make_path ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
-- : Uri1.path =
+- : string list =
 ["/path%20"; "/path%20%2B%3A%2F%3F%23%5B%5D%40";
  "/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D"]
 ```
@@ -19,11 +21,11 @@ URI reserved characters are percent encoded.
 
 ```ocaml
 # Uri1.make_query ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
-- : Uri1.query =
+- : string =
 "field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world"
 
 # Uri1.make_query ["field1","value2";"field2","value2"];;
-- : Uri1.query = "field1=value2&field2=value2"
+- : string = "field1=value2&field2=value2"
 ```
 
 ## origin
@@ -64,12 +66,12 @@ URI reserved characters are percent encoded.
 ## authority 
 
 ```ocaml
-# Uri1.authority @@ Eio.Buf_read.of_string "192.168.0.1:8080"
+# Uri1.authority (Buffer.create 10) @@ Eio.Buf_read.of_string "192.168.0.1:8080"
   |> Eio.traceln "%a" Uri1.pp_authority;;
 +IPv4 192.168.0.1: 8080
 - : unit = ()
 
-# Uri1.authority @@ Eio.Buf_read.of_string "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
+# Uri1.authority (Buffer.create 10) @@ Eio.Buf_read.of_string "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
   |> Eio.traceln "%a" Uri1.pp_authority;;
 +IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1: 8080
 - : unit = ()
@@ -124,7 +126,7 @@ Path ending in `/` is also valid.
 
 ```ocaml
 # let rt = Uri1.of_string "www.example.com:80" |> Uri1.authority_form ;;
-val rt : [ `authority ] Uri1.t = <abstr>
+val rt : 'a Uri1.t = Uri1.Authority (`Domain_name <abstr>, 80)
 
 # Eio.traceln "%a" Uri1.pp rt;;
 +Domain www.example.com:80

@@ -63,23 +63,6 @@ type port = int
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.3} Port}. *)
 
-type authority = host * port option
-(** [authority] identifies an origin server of a HTTP request, i.e. the server
-    that consumes a HTTP request and produces a response.
-
-    {b Note} HTTP Uri has deprecated the user-info in an authority. See
-    {{!https://www.rfc-editor.org/rfc/rfc9110#name-deprecation-of-userinfo-in-}
-    user-info deprecation}.
-
-    See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2}
-    Authority}. *)
-
-val pp_authority : Format.formatter -> authority -> unit
-(** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
-
-val authority : authority Buf_read.parser
-(** [authority buf_read] parses [authority] information from [buf_read]. *)
-
 type scheme =
   [ `Http
   | `Https
@@ -88,26 +71,6 @@ type scheme =
 
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
-
-(* type absolute_form = scheme * authority * path * query option *)
-(** [absolute_form] is the absolute uri form.
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
-
-(* val pp_absolute_form : Format.formatter -> absolute_form -> unit *)
-(** [pp_absoltue_form fmt absolute_form] pretty prints [absolute_form] onto
-    [fmt]. *)
-
-(* val absolute_form : absolute_form Buf_read.parser *)
-(** [absolute_form] parses request target in an [absolute-form].
-
-    Example request target in absolute-form,
-
-    {[
-      http://www.example.org/pub/WWW/TheProject.html
-    ]}
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9112#section-3.2.2} absolute-form} *)
 
 type 'a t
 (** [t] is the HTTP request target value. *)
