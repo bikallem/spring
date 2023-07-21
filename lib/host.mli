@@ -18,9 +18,6 @@ type t = private host * port option
 (** [t] is the HTTP Host header value. It encapsulates host details of a HTTP
     request. *)
 
-val v : t -> host * int option
-(** [v t] is [host, port] encapsulated in [t]. *)
-
 val decode : string -> t
 (** [decode s] is [t] if the authority information in [s] can be successfully
     parsed into [t]. *)
