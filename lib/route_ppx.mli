@@ -3,7 +3,7 @@
 
     Routes can be specified as follows:
 
-    + [\[%r "route-syntax" \]] or
+    + [[%r "route-syntax" ]] or
     + [{%r| route-syntax |}] - {i since OCaml 4.11.0}
 
     where [route-syntax] is a string which follows the grammar specified in

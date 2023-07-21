@@ -13,7 +13,7 @@ type media_type = private string * string
 val make : ?params:(string * string) list -> string * string -> t
 (** [make media_type] is [t].
 
-    @param params is the list of parameters encoded in [t]. Default is [\[\]]. *)
+    @param params is the list of parameters encoded in [t]. Default is [[]]. *)
 
 (** {1 Codec} *)
 

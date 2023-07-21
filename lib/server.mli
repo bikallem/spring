@@ -155,7 +155,7 @@ val make :
 
 type 'a request_target = ('a, response) Router.request_target
 (** [request_target] is the request path for router. Use [spring] ppx and
-    [\[%r \]] syntax to add routes to a router. *)
+    [[%r ]] syntax to add routes to a router. *)
 
 val get : 'f request_target -> 'f -> t -> t
 (** [get request_target f t] is [t] with a route that matches HTTP GET method
@@ -194,7 +194,7 @@ val serve_dir :
     path [dirpath] in response to requests with request path matching url value
     [route_url].
 
-    Use ppx [\[%r "" \]] to specify [route_url]. See {{!section:usage} Usage}.
+    Use ppx [[%r "" ]] to specify [route_url]. See {{!section:usage} Usage}.
 
     [t] will respond with [Response.not_found] if a file requested in
     [route_url] doesn't exist in [dirpath].

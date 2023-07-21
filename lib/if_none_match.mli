@@ -11,7 +11,7 @@ val make : Etag.t list -> t
 (** [make entity_tags] creates [If-None-Match] value from a list of Etag values
     [entity_tags].
 
-    @raise Invalid_arg if [entity_tags = \[\]]. *)
+    @raise Invalid_arg if [entity_tags = []]. *)
 
 val entity_tags : t -> Etag.t list option
 (** [entity_tags t] is [Some entity_tags] where [entity_tags] is a list of

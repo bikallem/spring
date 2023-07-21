@@ -23,7 +23,7 @@
 
     - {{!section:request_target_dsl} Request Target Combinators} - combinators
       based
-    - [\[%r ""\]] - ppx based which is provided by a separate opam package
+    - [[%r ""]] - ppx based which is provided by a separate opam package
       [wtr-ppx]. *)
 
 (* {1 Arg} *)

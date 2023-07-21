@@ -178,8 +178,8 @@ val find_opt : 'a Definition.t -> t -> 'a option
 
 val find_all : 'a Definition.t -> t -> 'a list
 (** [find_all d t] is a list of header values [l] where each item in it matches
-    the header as defined in [d]. [l] is [\[\]] if none of the fields in [t]
-    match [d]. *)
+    the header as defined in [d]. [l] is [[]] if none of the fields in [t] match
+    [d]. *)
 
 val exists : 'a Definition.t -> t -> bool
 (** [exists d t] is [true] if header [d] exists in [t]. It is [false] otherwise. *)

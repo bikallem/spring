@@ -47,7 +47,7 @@ let make
   ; write_initial_size
   ; maximum_conns_per_host
   ; sw
-  ; net = (net :> Eio.Net.t)
+  ; net :> Eio.Net.t
   ; mutex = Eio.Mutex.create ()
   ; cache = Cache.create 1
   }
