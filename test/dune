@@ -3,6 +3,7 @@
  (libraries
   eio
   eio.core
+  eio.unix
   eio.mock
   eio_main
   fmt
