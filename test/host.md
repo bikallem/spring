@@ -56,6 +56,37 @@ val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 - : bool = true
 ```
 
+## compare
+
+```ocaml
+# Host.compare t0 t0;;
+- : int = 0
+
+# Host.compare t0 t1;;
+- : int = 1
+
+# Host.compare t0 t2;;
+- : int = 1
+
+# Host.compare t1 t1;;
+- : int = 0
+
+# Host.compare t1 t0;;
+- : int = -1
+
+# Host.compare t1 t2;;
+- : int = 1
+
+# Host.compare t2 t2;;
+- : int = 0
+
+# Host.compare t2 t0;;
+- : int = -1
+
+# Host.compare t2 t1;;
+- : int = -1
+```
+
 ## pp
 
 ```ocaml

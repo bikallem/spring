@@ -35,4 +35,23 @@ let equal (t0, p0) (t1, p1) =
   let port_equal = Option.equal ( = ) p0 p1 in
   host_equal && port_equal
 
+let compare_port p0 p1 = Option.compare Int.compare p0 p1
+
+let compare t0 t1 =
+  match (t0, t1) with
+  | (`IPv6 ip0, p0), (`IPv6 ip1, p1) ->
+    let cmp = Ipaddr.V6.compare ip0 ip1 in
+    if cmp = 0 then compare_port p0 p1 else cmp
+  | (`IPv4 ip0, p0), (`IPv4 ip1, p1) ->
+    let cmp = Ipaddr.V4.compare ip0 ip1 in
+    if cmp = 0 then compare_port p0 p1 else cmp
+  | (`Domain_name dn0, p0), (`Domain_name dn1, p1) ->
+    let cmp = Domain_name.compare dn0 dn1 in
+    if cmp = 0 then compare_port p0 p1 else cmp
+  | (`IPv6 _, _), _ -> 1
+  | (`IPv4 _, _), (`IPv6 _, _) -> -1
+  | (`Domain_name _, _), (`IPv6 _, _) -> -1
+  | (`IPv4 _, _), (`Domain_name _, _) -> 1
+  | (`Domain_name _, _), (`IPv4 _, _) -> -1
+
 let pp fmt t = Uri1.pp_authority fmt t

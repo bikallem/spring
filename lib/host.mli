@@ -29,5 +29,10 @@ val encode : t -> string
 val equal : t -> t -> bool
 (** [equal t0 t1] is [treu] iff [t0] is equal to [t1]. *)
 
+val compare : t -> t -> int
+(** [compare t0 t1] orders [t0] and [t1] such that [compare t0 t1 = 0] is
+    equivalent to [equal t0 t1 = true]. The ordering follows the host ordering
+    as follows: [IPv6]. [IPv4] and [Domain_name] *)
+
 val pp : Format.formatter -> t -> unit
 (** [pp fmt t] pretty prints [t] onto [fmt]. *)
