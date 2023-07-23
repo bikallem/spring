@@ -22,5 +22,8 @@ val decode : string -> t
 (** [decode s] is [t] if the authority information in [s] can be successfully
     parsed into [t]. *)
 
+val encode : t -> string
+(** [encode t] encodes [t] into a string representation. *)
+
 val pp : Format.formatter -> t -> unit
 (** [pp fmt t] pretty prints [t] onto [fmt]. *)

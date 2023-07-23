@@ -13,4 +13,15 @@ let decode s =
   let buf_read = Buf_read.of_string s in
   Uri1.authority buf buf_read
 
+let encode (host, port) =
+  let port =
+    match port with
+    | Some p -> ":" ^ string_of_int p
+    | None -> ""
+  in
+  match host with
+  | `IPv6 ip -> Fmt.str "%a%s" Ipaddr.V6.pp ip port
+  | `IPv4 ip -> Fmt.str "%a%s" Ipaddr.V4.pp ip port
+  | `Domain_name dn -> Fmt.str "%a%s" Domain_name.pp dn port
+
 let pp fmt t = Uri1.pp_authority fmt t

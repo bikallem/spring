@@ -9,13 +9,13 @@ open Spring
 Decode both host and port.
 
 ```ocaml
-# Host.decode "192.168.0.1:8080" |> Eio.traceln "%a" Host.pp;;
-+IPv4 192.168.0.1:8080
-- : unit = ()
+# let t1 = Host.decode "192.168.0.1:8080";;
+val t1 : Host.t = (`IPv4 <abstr>, Some 8080)
 ```
 
 Decode host only.
 
 ```ocaml
-# Host.decode "192.168.0.1";;
+# let t2 = Host.decode "192.168.0.1";;
+val t2 : Host.t = (`IPv4 <abstr>, None)
 ```
