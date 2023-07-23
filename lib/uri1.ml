@@ -171,7 +171,7 @@ type port = int
 type authority = host * port option
 
 let pp_authority fmt auth =
-  Fmt.pf fmt "%a" Fmt.(pair ~sep:(any ": ") pp_host (option int)) auth
+  Fmt.pf fmt "%a" Fmt.(pair ~sep:(any ":") pp_host (option int)) auth
 
 let host buf buf_read =
   match Buf_read.peek_char buf_read with
