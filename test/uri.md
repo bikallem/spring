@@ -68,12 +68,12 @@ URI reserved characters are percent encoded.
 ```ocaml
 # Uri1.authority (Buffer.create 10) @@ Eio.Buf_read.of_string "192.168.0.1:8080"
   |> Eio.traceln "%a" Uri1.pp_authority;;
-+IPv4 192.168.0.1: 8080
++IPv4 192.168.0.1:8080
 - : unit = ()
 
 # Uri1.authority (Buffer.create 10) @@ Eio.Buf_read.of_string "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
   |> Eio.traceln "%a" Uri1.pp_authority;;
-+IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1: 8080
++IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 - : unit = ()
 ```
 
@@ -85,7 +85,7 @@ URI reserved characters are percent encoded.
   |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: http;
-+  Authority: Domain example.com: 80;
++  Authority: Domain example.com:80;
 +  Path: /;
 +  Query:
 +}
@@ -100,7 +100,7 @@ Parse scheme, authority, path and query.
   |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: https;
-+  Authority: Domain www.example.org: ;
++  Authority: Domain www.example.org:;
 +  Path: /pub/WWW/TheProject.html;
 +  Query: a=v1&b=v2
 +}
@@ -115,7 +115,7 @@ Path ending in `/` is also valid.
   |> Eio.traceln "%a" Uri1.pp ;;
 +{
 +  Scheme: https;
-+  Authority: Domain www.example.com: ;
++  Authority: Domain www.example.com:;
 +  Path: /pub/WWW/;
 +  Query:
 +}
