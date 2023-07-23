@@ -26,5 +26,8 @@ val decode : string -> t
 val encode : t -> string
 (** [encode t] encodes [t] into a string representation. *)
 
+val equal : t -> t -> bool
+(** [equal t0 t1] is [treu] iff [t0] is equal to [t1]. *)
+
 val pp : Format.formatter -> t -> unit
 (** [pp fmt t] pretty prints [t] onto [fmt]. *)
