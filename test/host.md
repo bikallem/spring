@@ -6,14 +6,14 @@ open Spring
 
 ## decode
 
-Decode both host and port.
+Decode IPv6 host and port.
 
 ```ocaml
 # let t0 = Host.decode "192.168.0.1:8080";;
 val t0 : Host.t = (`IPv4 <abstr>, Some 8080)
 ```
 
-Decode host only.
+Decode IPv4 host only.
 
 ```ocaml
 # let t1 = Host.decode "192.168.0.1";;
@@ -27,6 +27,13 @@ Decode domain name.
 val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 ```
 
+Decode IPv6 host and port.
+
+```ocaml
+# let t3 = Host.decode "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
+val t3 : Host.t = (`IPv6 <abstr>, Some 8080)
+```
+
 ## encode
 
 ```ocaml
@@ -38,6 +45,9 @@ val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 
 # Host.encode t2;;
 - : string = "www.example.com:8080"
+
+# Host.encode t3;;
+- : string = "2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080"
 ```
 
 ## equal
@@ -53,6 +63,9 @@ val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 - : bool = true
 
 # Host.equal t2 t2;;
+- : bool = true
+
+# Host.equal t3 t3;;
 - : bool = true
 ```
 
@@ -85,6 +98,18 @@ val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 
 # Host.compare t2 t1;;
 - : int = -1
+
+# Host.compare t3 t3;;
+- : int = 0
+
+# Host.compare t3 t0;;
+- : int = 1
+
+# Host.compare t3 t1;;
+- : int = 1
+
+# Host.compare t3 t2;;
+- : int = 1
 ```
 
 ## pp
@@ -100,5 +125,9 @@ val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
 
 # Eio.traceln "%a" Host.pp t2;;
 +Domain www.example.com:8080
+- : unit = ()
+
+# Eio.traceln "%a" Host.pp t3;;
++IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 - : unit = ()
 ```
