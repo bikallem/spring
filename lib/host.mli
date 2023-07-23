@@ -19,6 +19,11 @@ type t = private host * port option
 (** [t] is the HTTP Host header value. It encapsulates host details of a HTTP
     request. *)
 
+val make : ?port:int -> host -> t
+(** [make host] is [t].
+
+    @param port is the TCP/IP port. Default is [None] *)
+
 val decode : string -> t
 (** [decode s] is [t] if the authority information in [s] can be successfully
     parsed into [t]. *)

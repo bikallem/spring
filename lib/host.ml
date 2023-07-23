@@ -8,6 +8,8 @@ type port = int
 
 type t = host * port option
 
+let make ?port host = (host, port)
+
 let decode s =
   let buf = Buffer.create 10 in
   let buf_read = Buf_read.of_string s in
