@@ -13,6 +13,7 @@ type host =
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2} Host}. *)
 
 type port = int
+(** [port] is the TCP/IP port number. *)
 
 type t = private host * port option
 (** [t] is the HTTP Host header value. It encapsulates host details of a HTTP
