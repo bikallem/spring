@@ -20,6 +20,13 @@ Decode host only.
 val t1 : Host.t = (`IPv4 <abstr>, None)
 ```
 
+Decode domain name.
+
+```ocaml
+# let t2 = Host.decode "www.example.com:8080";;
+val t2 : Host.t = (`Domain_name <abstr>, Some 8080)
+```
+
 ## encode
 
 ```ocaml
@@ -28,6 +35,9 @@ val t1 : Host.t = (`IPv4 <abstr>, None)
 
 # Host.encode t1;;
 - : string = "192.168.0.1"
+
+# Host.encode t2;;
+- : string = "www.example.com:8080"
 ```
 
 ## equal
@@ -41,6 +51,9 @@ val t1 : Host.t = (`IPv4 <abstr>, None)
 
 # Host.equal t1 t1;;
 - : bool = true
+
+# Host.equal t2 t2;;
+- : bool = true
 ```
 
 ## pp
@@ -52,5 +65,9 @@ val t1 : Host.t = (`IPv4 <abstr>, None)
 
 # Eio.traceln "%a" Host.pp t1;;
 +IPv4 192.168.0.1:
+- : unit = ()
+
+# Eio.traceln "%a" Host.pp t2;;
++Domain www.example.com:8080
 - : unit = ()
 ```
