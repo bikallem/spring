@@ -44,6 +44,10 @@ Decode IPv6 host and port.
 ```ocaml
 # let t3 = Host.decode "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
 val t3 : Host.t = <abstr>
+
+# Eio.traceln "%a" Host.pp t3;;
++IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+- : unit = ()
 ```
 
 ## encode
