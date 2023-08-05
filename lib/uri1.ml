@@ -74,6 +74,8 @@ let make_path l =
 
 let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
 
+let path_to_string path = Fmt.str "%a" pp_path path
+
 type query = string
 
 let encode_string ppf s =
@@ -118,9 +120,11 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
-type origin = path * query option
+(* +-- Origin URI --+ *)
 
-let pp_origin fmt origin_form =
+type origin_uri = path * query option
+
+let pp_origin_uri fmt origin_uri =
   let fields =
     Fmt.(
       record ~sep:semi
@@ -131,9 +135,10 @@ let pp_origin fmt origin_form =
   let open_bracket =
     Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
   in
-  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt origin_form
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt origin_uri
 
-let origin buf_read =
+let origin_uri s =
+  let buf_read = Buf_read.of_string s in
   let buf = Buffer.create 10 in
   let path = path ~buf buf_read in
   Buffer.clear buf;
@@ -207,7 +212,7 @@ let host buf buf_read =
     `Domain_name domain_name
   | None -> Fmt.failwith "[host] invalid host value"
 
-let authority buf buf_read =
+let authority_ buf buf_read =
   Buffer.clear buf;
   let host = host buf buf_read in
   let port =
@@ -228,6 +233,11 @@ let authority buf buf_read =
   in
   (host, port)
 
+let authority s =
+  let buf = Buffer.create 10 in
+  let buf_read = Buf_read.of_string s in
+  authority_ buf buf_read
+
 type scheme =
   [ `Http
   | `Https
@@ -241,7 +251,7 @@ let pp_scheme fmt scheme =
   in
   Fmt.string fmt s
 
-let scheme buf buf_read =
+let scheme_ buf buf_read =
   (match Buf_read.any_char buf_read with
   | ('a' .. 'z' | 'A' .. 'Z') as c -> Buffer.add_char buf c
   | c -> Fmt.failwith "[scheme] expected ALPHA but got '%c'" c);
@@ -258,26 +268,14 @@ let scheme buf buf_read =
   | "https" -> `Https
   | s -> Fmt.failwith "[scheme] invalid scheme '%s'" s
 
-let pp_absolute_form fmt absolute_form =
-  let fields =
-    Fmt.(
-      record ~sep:semi
-        [ field "Scheme" (fun (scheme, _, _, _) -> scheme) pp_scheme
-        ; field "Authority" (fun (_, authority, _, _) -> authority) pp_authority
-        ; field "Path" (fun (_, _, path, _) -> path) pp_path
-        ; field "Query" (fun (_, _, _, query) -> query) @@ option string
-        ])
-  in
-  let open_bracket =
-    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
-  in
-  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt absolute_form
+type absolute_uri = scheme * host * port option * path * query option
 
-let absolute_form buf_read =
+let absolute_uri s =
+  let buf_read = Buf_read.of_string s in
   let buf = Buffer.create 10 in
-  let scheme = scheme buf buf_read in
+  let scheme = scheme_ buf buf_read in
   Buf_read.string "://" buf_read;
-  let authority = authority buf buf_read in
+  let host, port = authority_ buf buf_read in
   let path =
     let rec path () =
       match Buf_read.peek_char buf_read with
@@ -293,14 +291,37 @@ let absolute_form buf_read =
   in
   Buffer.clear buf;
   let query = query buf buf_read in
-  (scheme, authority, path, query)
+  (scheme, host, port, path, query)
 
-type authority_form = host * port
+let pp_absolute_uri fmt absolute_uri =
+  let fields =
+    Fmt.(
+      record ~sep:semi
+        [ field "Scheme" (fun (scheme, _, _, _, _) -> scheme) pp_scheme
+        ; field "Authority"
+            (fun (_, host, port, _, _) -> (host, port))
+            pp_authority
+        ; field "Path" (fun (_, _, _, path, _) -> path) pp_path
+        ; field "Query" (fun (_, _, _, _, query) -> query) @@ option string
+        ])
+  in
+  let open_bracket =
+    Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
+  in
+  Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt absolute_uri
 
-let pp_authority_form fmt authority_form =
-  Fmt.(pair ~sep:(any ":") pp_host int) fmt authority_form
+let path_and_query (_, _, _, path, query) =
+  let path = path_to_string path in
+  match query with
+  | Some q -> path ^ "?" ^ q
+  | None -> path
 
-let authority_form buf_read =
+let host_and_port (_, host, port, _, _) = (host, port)
+
+type authority_uri = host * port
+
+let authority_uri s =
+  let buf_read = Buf_read.of_string s in
   let buf = Buffer.create 10 in
   let host = host buf buf_read in
   Buf_read.char ':' buf_read;
@@ -314,69 +335,17 @@ let authority_form buf_read =
   in
   (host, port)
 
-let asterisk_form buf_read = Buf_read.char '*' buf_read
+let pp_authority_uri fmt authority_form =
+  Fmt.(pair ~sep:(any ":") pp_host int) fmt authority_form
 
-(* +-- https://www.rfc-editor.org/rfc/rfc9112#name-request-target --+ *)
-type 'a t =
-  | Origin of origin
-  | Absolute of (scheme * authority * path * query option)
-  | Authority of authority_form
-  | Asterisk
+type asterisk_uri = char
 
-let try_ f =
-  try f () with _ -> invalid_arg "[s] is an invalid request target value"
-
-let of_string s =
+let asterisk_uri s =
   let buf_read = Buf_read.of_string s in
   match Buf_read.peek_char buf_read with
-  | Some '/' ->
-    try_ @@ fun () ->
-    let path, query = origin buf_read in
-    Origin (path, query)
-  | Some 'h' | Some 'H' ->
-    try_ @@ fun () ->
-    let scheme, authority, path, query = absolute_form buf_read in
-    Absolute (scheme, authority, path, query)
   | Some '*' ->
-    try_ @@ fun () ->
-    asterisk_form buf_read;
-    Asterisk
-  | Some _ ->
-    try_ @@ fun () ->
-    let host, port = authority_form buf_read in
-    Authority (host, port)
-  | None -> invalid_arg "[s] is invalid request target value"
+    Buf_read.char '*' buf_read;
+    '*'
+  | Some _ | None -> invalid_arg "[s] doesn't contain valid asterisk-url"
 
-let origin_form = function
-  | Origin _ as t -> t
-  | _ -> invalid_arg "[t] is not in origin-form"
-
-(* +-- Absolute form --+ *)
-
-let absolute_form = function
-  | Absolute _ as t -> t
-  | _ -> invalid_arg "[t] is not in absolute-from"
-
-let scheme = function
-  | Absolute (scheme, _, _, _) -> scheme
-  | _ -> assert false
-
-(* +-- Authority Form --+ *)
-
-let authority_form = function
-  | Authority _ as t -> t
-  | _ -> invalid_arg "[t] is not in authority-form"
-
-let authority' = function
-  | Authority (port, host) -> (port, host)
-  | _ -> assert false
-
-let asterisk_form = function
-  | Asterisk as t -> t
-  | _ -> invalid_arg "[t] is not in asterisk-form"
-
-let pp fmt = function
-  | Origin origin -> pp_origin fmt origin
-  | Absolute absolute_form -> pp_absolute_form fmt absolute_form
-  | Authority authority -> pp_authority_form fmt authority
-  | Asterisk -> Fmt.pf fmt "*"
+let pp_asterisk_uri fmt _uri = Fmt.pf fmt "*"

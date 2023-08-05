@@ -20,15 +20,12 @@ type pipeline = handler -> handler
     https://github.com/mirage/ocaml-uri/pull/169 if merged. *)
 let host_header : pipeline =
  fun (next : handler) req ->
-  let headers = Request.headers req in
-  let hosts = Headers.(find_all host headers) in
-  let len = List.length hosts in
-  if len = 0 || len > 1 then Response.bad_request
-  else
-    let host = List.hd hosts in
-    match Uri.of_string ("//" ^ host) |> Uri.host with
-    | Some _ -> next req
-    | None -> Response.bad_request
+  try
+    let headers = Request.headers req in
+    let hosts = Headers.(find_all host headers) in
+    let len = List.length hosts in
+    if len = 0 || len > 1 then Response.bad_request else next req
+  with _ -> Response.bad_request
 
 (* A request pipeline that adds "Date" header if required.
 

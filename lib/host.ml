@@ -1,19 +1,12 @@
-type host =
-  [ `IPv6 of Ipaddr.V6.t
-  | `IPv4 of Ipaddr.V4.t
-  | `Domain_name of [ `raw ] Domain_name.t
-  ]
-
-type port = int
-
-type t = host * port option
+type t = Uri1.authority
 
 let make ?port host = (host, port)
 
-let decode s =
-  let buf = Buffer.create 10 in
-  let buf_read = Buf_read.of_string s in
-  Uri1.authority buf buf_read
+let host (host, _) = host
+
+let port (_, port) = port
+
+let decode s = Uri1.authority s
 
 let encode (host, port) =
   let port =

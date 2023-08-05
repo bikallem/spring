@@ -68,7 +68,7 @@ val content_disposition : Content_disposition.t Definition.t
 (** [content_disposition] is the [Content-Disposition] header as defined in
     https://httpwg.org/specs/rfc6266.html#top *)
 
-val host : string Definition.t
+val host : Host.t Definition.t
 (** [host] is the [Host] header as specified in
     https://httpwg.org/specs/rfc9110.html#field.host *)
 

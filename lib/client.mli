@@ -47,8 +47,11 @@ val make :
 
     Common client use-cases optimized for convenience. *)
 
-type url = string
-(** [url] is the full HTTP request url. [wwww.example.com/products] *)
+type uri = string
+(** [uri] is the full HTTP request uri. [http://www.example.com/products] or
+    [wwww.example.com/products].
+
+    If HTTP uri scheme - [http/htttps] - is not given, then [http] is assumed. *)
 
 type request = Request.client Request.t
 
@@ -58,45 +61,45 @@ type 'a handler = response -> 'a
 (** [handler] is the response handler. [Response.close] is called after
     executing the [handler]. *)
 
-val get : t -> url -> 'a handler -> 'a
-(** [get t url] is [response] after making a HTTP GET request call to [url].
+val get : t -> uri -> 'a handler -> 'a
+(** [get t uri] is [response] after making a HTTP GET request call to [uri].
 
     {[
       Client.get t "www.example.com"
     ]}
-    @raise Invalid_argument if [url] is invalid.
+    @raise Invalid_argument if [uri] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val head : t -> url -> 'a handler -> 'a
-(** [head t url] is [response] after making a HTTP HEAD request call to [url].
+val head : t -> uri -> 'a handler -> 'a
+(** [head t uri] is [response] after making a HTTP HEAD request call to [uri].
 
     {[
       Client.head t "www.example.com"
     ]}
-    @raise Invalid_argument if [url] is invalid.
+    @raise Invalid_argument if [uri] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val post : t -> Body.writable -> url -> 'a handler -> 'a
-(** [post t body url] is [response] after making a HTTP POST request call with
-    body [body] to [url].
+val post : t -> Body.writable -> uri -> 'a handler -> 'a
+(** [post t body uri] is [response] after making a HTTP POST request call with
+    body [body] to [uri].
 
     {[
       Client.port t body_w "www.example.com/update"
     ]}
-    @raise Invalid_argument if [url] is invalid.
+    @raise Invalid_argument if [uri] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
 val post_form_values :
-  t -> (string * string list) list -> url -> 'a handler -> 'a
-(** [post_form_values t form_values url] is [response] after making a HTTP POST
-    request call to [url] with form values [form_values].
+  t -> (string * string list) list -> uri -> 'a handler -> 'a
+(** [post_form_values t form_values uri] is [response] after making a HTTP POST
+    request call to [uri] with form values [form_values].
 
     {[
       Client.post_form_values t
         [ ("field_a", [ "val a1"; "val a2" ]); ("field_b", [ "val b" ]) ]
-        url
+        uri
     ]}
-    @raise Invalid_argument if [url] is invalid.
+    @raise Invalid_argument if [uri] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
 (** {1 Generic Client Call} *)

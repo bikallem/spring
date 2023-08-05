@@ -120,9 +120,17 @@ val h2 : Headers.t = <abstr>
 Add the header if it doesn't exist yet.
 
 ```ocaml
-# let h = Headers.(replace host "www.example.com" empty) in
+# let host' = Host.decode "www.example.com" ;;
+val host' : Host.t = <abstr>
+
+# let host_hdr =
+  let h = Headers.(replace host host' empty) in
   Headers.(find_opt host h);;
-- : string option = Some "www.example.com"
+val host_hdr : Host.t option = Some <abstr>
+
+# Eio.traceln "%a" Fmt.(option Host.pp) host_hdr;; 
++Domain www.example.com:
+- : unit = ()
 ```
 
 ## Headers.remove_all
@@ -168,7 +176,7 @@ val hdr : string =
 val t : Headers.t = <abstr>
 
 # Headers.(find_opt host t);;
-- : string option = Some "localhost:1234"
+- : Host.t option = Some <abstr>
 
 # Headers.(find_opt content_length t);;
 - : int option = Some 10063

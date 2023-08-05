@@ -3,26 +3,20 @@
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-host-and-authority}
     Host}. *)
 
-type host =
-  [ `IPv6 of Ipaddr.V6.t
-  | `IPv4 of Ipaddr.V4.t
-  | `Domain_name of [ `raw ] Domain_name.t
-  ]
-(** [host] identifies a server. It is either an IPv6, IPv4 or a domain name.
-
-    See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2} Host}. *)
-
-type port = int
-(** [port] is the TCP/IP port number. *)
-
-type t = private host * port option
+type t
 (** [t] is the HTTP Host header value. It encapsulates host details of a HTTP
     request. *)
 
-val make : ?port:int -> host -> t
+val make : ?port:int -> Uri1.host -> t
 (** [make host] is [t].
 
     @param port is the TCP/IP port. Default is [None] *)
+
+val host : t -> Uri1.host
+(** [v t] is [host] component of [t]. *)
+
+val port : t -> Uri1.port option
+(** [port t] is the [port] component of [t]. *)
 
 val decode : string -> t
 (** [decode s] is [t] if the authority information in [s] can be successfully

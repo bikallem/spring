@@ -48,7 +48,7 @@ let content_disposition =
     Content_disposition.encode
 
 (* TODO Host header - https://httpwg.org/specs/rfc9110.html#field.host *)
-let host = Definition.make "host" Fun.id Fun.id
+let host = Definition.make "host" Host.decode Host.encode
 
 (** TODO Trailer header - https://httpwg.org/specs/rfc9110.html#field.trailer *)
 let trailer = Definition.make "trailer" Fun.id Fun.id

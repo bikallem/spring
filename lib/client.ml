@@ -94,15 +94,19 @@ type response = Response.client Response.t
 type 'a handler = response -> 'a
 
 let do_call t (req : request) f =
-  Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
-  let host = Request.host req in
-  let port = Request.port req in
+  let host =
+    match Request.host req with
+    | `IPv6 ip -> Ipaddr.V6.to_string ip
+    | `IPv4 ip -> Ipaddr.V4.to_string ip
+    | `Domain_name nm -> Domain_name.to_string nm
+  in
   let service =
-    match port with
+    match Request.port req with
     | Some x -> string_of_int x
     | None -> "80"
   in
   let k = (host, service) in
+  Eio.Time.Timeout.run_exn t.timeout @@ fun () ->
   let conn = connection t k in
   Eio.Buf_write.with_flow ~initial_size:t.write_initial_size conn
   @@ fun writer ->
@@ -120,51 +124,42 @@ let do_call t (req : request) f =
       x)
     ~finally:(fun () -> Eio.Mutex.unlock t.mutex)
 
-type url = string
+type uri = string
 
-let parse_url url =
-  if String.is_prefix ~affix:"https" url then
-    raise @@ Invalid_argument "url: https protocol not supported";
-  let url =
-    if
-      (not (String.is_prefix ~affix:"http" url))
-      && not (String.is_prefix ~affix:"//" url)
-    then "//" ^ url
-    else url
+let parse_uri uri =
+  if String.is_prefix ~affix:"https" uri then
+    raise @@ Invalid_argument "uri: https protocol not supported";
+  let uri =
+    if String.is_prefix ~affix:"http" uri || String.is_prefix ~affix:"http" uri
+    then uri
+    else "http://" ^ uri
   in
-  let u = Uri.of_string url in
-  let host, port =
-    match (Uri.host u, Uri.port u) with
-    | None, _ -> raise @@ Invalid_argument "invalid url: host not defined"
-    | Some host, port when String.length host > 0 -> (host, port)
-    | _ -> raise @@ Invalid_argument "invalid url: host not defined"
-  in
-  (host, port, Uri.path_and_query u)
+  match Uri1.absolute_uri uri with
+  | uri ->
+    let host, port = Uri1.host_and_port uri in
+    let host = Host.make ?port host in
+    let resource = Uri1.path_and_query uri in
+    (host, resource)
+  | exception _ -> invalid_arg "[uri] invalid HTTP uri."
 
-let get t url =
-  let host, port, resource = parse_url url in
-  let req =
-    Request.make_client_request ?port ~host ~resource Method.get Body.none
-  in
+let get t uri =
+  let host, resource = parse_uri uri in
+  let req = Request.make_client_request ~resource host Method.get Body.none in
   do_call t req
 
-let head t url =
-  let host, port, resource = parse_url url in
-  let req =
-    Request.make_client_request ?port ~host ~resource Method.head Body.none
-  in
+let head t uri =
+  let host, resource = parse_uri uri in
+  let req = Request.make_client_request ~resource host Method.head Body.none in
   do_call t req
 
-let post t body url =
-  let host, port, resource = parse_url url in
-  let req =
-    Request.make_client_request ?port ~host ~resource Method.post body
-  in
+let post t body uri =
+  let host, resource = parse_uri uri in
+  let req = Request.make_client_request ~resource host Method.post body in
   do_call t req
 
-let post_form_values t form_values url =
+let post_form_values t form_values uri =
   let body = Body.writable_form_values form_values in
-  post t body url
+  post t body uri
 
 let call ~conn req =
   let initial_size = 0x1000 in

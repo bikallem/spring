@@ -58,6 +58,10 @@ val req : Request.server Request.t = <abstr>
 Return OK response if the CSRF token in form matches the one in session.
 
 ```ocaml
+let host = Host.decode "www.example.com"
+```
+
+```ocaml
 # let csrf_form_req =
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key csrf_tok in
@@ -68,8 +72,8 @@ Return OK response if the CSRF token in form matches the one in session.
       ]
     in
     Request.make_client_request
-        ~host:"www.example.com"
-        ~resource:"www.example.com/post_form"
+        ~resource:"/post_form"
+        host
         Method.post
         body
     |>  make_form_submission_request ;;
@@ -100,8 +104,8 @@ Return `Bad Request` response if the CSRF tokens dont' match.
       ]
     in
     Request.make_client_request
-        ~host:"www.example.com"
-        ~resource:"www.example.com/post_form"
+        ~resource:"/post_form"
+        host
         Method.post
         body
     |>  make_form_submission_request ;;
@@ -134,8 +138,8 @@ val p2 : Multipart.writable Multipart.part = <abstr>
     Eio_main.run @@ fun _env ->
     let form_body = Multipart.writable ~boundary:"--A1B2C3" [p1;p2] in
     Request.make_client_request
-        ~host:"www.example.com"
-        ~resource:"www.example.com/post_form"
+        ~resource:"/post_form"
+        host
         Method.post
         form_body
     |>  make_form_submission_request ;;

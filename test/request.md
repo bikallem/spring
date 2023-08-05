@@ -182,12 +182,12 @@ Pretty-print `client Request.t`.
 ```ocaml
 # let headers = Headers.of_list ["Header1", "val 1"; "Header2", "val 2"] ;;
 val headers : Headers.t = <abstr>
+
 # let req = 
     Request.make_client_request
       ~version:Version.http1_1 
       ~headers 
-      ~port:8080 
-      ~host:"www.example.com" 
+      (Host.decode "www.example.com:8080") 
       ~resource:"/update" 
       Method.get 
       Body.none ;;
@@ -202,7 +202,7 @@ val req : Request.client Request.t = <abstr>
 +             Header1: val 1;
 +             Header2: val 2
 +           ];
-+  Host: www.example.com:8080
++  Host: Domain www.example.com:8080
 +}
 - : unit = ()
 ```
@@ -270,8 +270,7 @@ val req : Request.server Request.t = <abstr>
 # let req = 
     Request.make_client_request 
       ~version:Version.http1_1 
-      ~port:8080 
-      ~host:"www.example.com" 
+      (Host.decode "www.example.com:8080") 
       ~resource:"/update" 
       Method.get 
       Body.none ;;
@@ -297,8 +296,7 @@ val headers : Headers.t = <abstr>
     Request.make_client_request
       ~version:Version.http1_1 
       ~headers 
-      ~port:8080 
-      ~host:"www.example.com" 
+      (Host.decode "www.example.com:8080") 
       ~resource:"/update" 
       Method.get 
       Body.none ;;

@@ -43,9 +43,8 @@ type client
 val make_client_request :
      ?version:Version.t
   -> ?headers:Headers.t
-  -> ?port:int
-  -> host:string
   -> resource:resource
+  -> Host.t
   -> Method.t
   -> Body.writable
   -> client t
@@ -54,13 +53,12 @@ val make_client_request :
     [t]. [meth] is the HTTP request method. [body] is the request body.
 
     @param version HTTP version of [t]. Default is [1.1].
-    @param headers HTTP request headers of [t]. Default is [Headers.empty] .
-    @param port the [host] port. Default is [None]. *)
+    @param headers HTTP request headers of [t]. Default is [Headers.empty] . *)
 
-val host : client t -> string
+val host : client t -> Uri1.host
 (** [host t] is the server host name which handles the request [t]. *)
 
-val port : client t -> int option
+val port : client t -> Uri1.port option
 (** [port t] is [Some p] if a port component exists in [Host] header in [t]. It
     is [None] otherwise. *)
 

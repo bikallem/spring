@@ -43,12 +43,11 @@ let find_cookie name t =
   Cookie.find_opt name cookie
 
 type client =
-  { host : string
-  ; port : int option
+  { host : Host.t
   ; body : Body.writable
   }
 
-let host_port_to_string (host, port) =
+let _host_port_to_string (host, port) =
   match port with
   | Some p -> Format.sprintf "%s:%d" host p
   | None -> host
@@ -72,22 +71,17 @@ let pp_fields x_field_pp fmt t =
 let make_client_request
     ?(version = Version.http1_1)
     ?(headers = Headers.empty)
-    ?port
-    ~host
     ~resource
+    host
     meth
     body =
-  let client = { host; port; body } in
-  let pp =
-    Fmt.(
-      field "Host" (fun t -> host_port_to_string (t.x.host, t.x.port)) string)
-    |> pp_fields
-  in
+  let client = { host; body } in
+  let pp = Fmt.(field "Host" (fun t -> t.x.host) Host.pp) |> pp_fields in
   { meth; resource; version; headers; x = client; pp }
 
-let host t = t.x.host
+let host t = Host.host t.x.host
 
-let port t = t.x.port
+let port t = Host.port t.x.host
 
 let add_cookie ~name ~value t =
   let cookie_hdr =
@@ -125,8 +119,7 @@ let write_client_request t w =
   Eio.Buf_write.string w version;
   Eio.Buf_write.string w "\r\n";
   (* The first header is a "Host" header. *)
-  let host' = host_port_to_string (t.x.host, t.x.port) in
-  Headers.(write_header w host host');
+  Headers.(write_header w host t.x.host);
   Body.write_headers w t.x.body;
   Headers.write w headers;
   Eio.Buf_write.string w "\r\n";
