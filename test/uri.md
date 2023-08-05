@@ -58,6 +58,18 @@ URI reserved characters are percent encoded.
 - : unit = ()
 ```
 
+Parse trailing '/'.
+
+```ocaml
+# Uri.origin_uri "/home/about/"
+  |> Eio.traceln "%a" Uri.pp_origin_uri;;
++{
++  Path: /home/about/;
++  Query:
++}
+- : unit = ()
+```
+
 ## authority 
 
 ```ocaml
