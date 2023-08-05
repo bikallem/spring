@@ -1,6 +1,7 @@
 module Version = Version
 module Method = Method
 module Status = Status
+module Uri = Uri1
 
 (** {1 Header} *)
 

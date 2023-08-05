@@ -2,15 +2,13 @@
 
 ```ocaml
 open Spring
-
-module Uri1 = Spring__Uri1
 ```
 
 ## make_path
 
 ```ocaml
-# Uri1.make_path ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
-- : Uri1.path =
+# Uri.make_path ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
+- : Uri.path =
 ["/path%20"; "/path%20%2B%3A%2F%3F%23%5B%5D%40";
  "/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D"]
 ```
@@ -20,27 +18,27 @@ module Uri1 = Spring__Uri1
 URI reserved characters are percent encoded.
 
 ```ocaml
-# Uri1.make_query ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
-- : Uri1.query =
+# Uri.make_query ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
+- : Uri.query =
 "field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world"
 
-# Uri1.make_query ["field1","value2";"field2","value2"];;
-- : Uri1.query = "field1=value2&field2=value2"
+# Uri.make_query ["field1","value2";"field2","value2"];;
+- : Uri.query = "field1=value2&field2=value2"
 ```
 
 ## origin_uri
 
 ```ocaml
-# Uri1.origin_uri "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
-  |> Eio.traceln "%a" Uri1.pp_origin_uri;;
+# Uri.origin_uri "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd"
+  |> Eio.traceln "%a" Uri.pp_origin_uri;;
 +{
 +  Path: /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
 +  Query: a=23/?&b=/?dd
 +}
 - : unit = ()
 
-# Uri1.origin_uri "/where?q=now"
-  |> Eio.traceln "%a" Uri1.pp_origin_uri;;
+# Uri.origin_uri "/where?q=now"
+  |> Eio.traceln "%a" Uri.pp_origin_uri;;
 +{
 +  Path: /where;
 +  Query: q=now
@@ -51,8 +49,8 @@ URI reserved characters are percent encoded.
 `/` is a valid absolute path.
 
 ```ocaml
-# Uri1.origin_uri "/"
-  |> Eio.traceln "%a" Uri1.pp_origin_uri;;
+# Uri.origin_uri "/"
+  |> Eio.traceln "%a" Uri.pp_origin_uri;;
 +{
 +  Path: /;
 +  Query:
@@ -63,13 +61,13 @@ URI reserved characters are percent encoded.
 ## authority 
 
 ```ocaml
-# Uri1.authority "192.168.0.1:8080"
-  |> Eio.traceln "%a" Uri1.pp_authority;;
+# Uri.authority "192.168.0.1:8080"
+  |> Eio.traceln "%a" Uri.pp_authority;;
 +IPv4 192.168.0.1:8080
 - : unit = ()
 
-# Uri1.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
-  |> Eio.traceln "%a" Uri1.pp_authority;;
+# Uri.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080"
+  |> Eio.traceln "%a" Uri.pp_authority;;
 +IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 - : unit = ()
 ```
@@ -77,8 +75,8 @@ URI reserved characters are percent encoded.
 ## absolute_uri
 
 ```ocaml
-# Uri1.absolute_uri "http://example.com:80"
-  |> Eio.traceln "%a" Uri1.pp_absolute_uri ;;
+# Uri.absolute_uri "http://example.com:80"
+  |> Eio.traceln "%a" Uri.pp_absolute_uri ;;
 +{
 +  Scheme: http;
 +  Authority: Domain example.com:80;
@@ -91,8 +89,8 @@ URI reserved characters are percent encoded.
 Parse scheme, authority, path and query.
 
 ```ocaml
-# Uri1.absolute_uri "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2"
-  |> Eio.traceln "%a" Uri1.pp_absolute_uri ;;
+# Uri.absolute_uri "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2"
+  |> Eio.traceln "%a" Uri.pp_absolute_uri ;;
 +{
 +  Scheme: https;
 +  Authority: Domain www.example.org:;
@@ -105,8 +103,8 @@ Parse scheme, authority, path and query.
 Path ending in `/` is also valid.
 
 ```ocaml
-# Uri1.absolute_uri "https://www.example.com/pub/WWW/"
-  |> Eio.traceln "%a" Uri1.pp_absolute_uri ;;
+# Uri.absolute_uri "https://www.example.com/pub/WWW/"
+  |> Eio.traceln "%a" Uri.pp_absolute_uri ;;
 +{
 +  Scheme: https;
 +  Authority: Domain www.example.com:;
@@ -119,18 +117,18 @@ Path ending in `/` is also valid.
 ## authority_uri
 
 ```ocaml
-# Uri1.authority_uri "www.example.com:80" 
-  |> Eio.traceln "%a" Uri1.pp_authority_uri;;
+# Uri.authority_uri "www.example.com:80" 
+  |> Eio.traceln "%a" Uri.pp_authority_uri;;
 +Domain www.example.com:80
 - : unit = ()
 
-# Uri1.authority_uri "192.168.0.1:80"
-  |> Eio.traceln "%a" Uri1.pp_authority_uri;;
+# Uri.authority_uri "192.168.0.1:80"
+  |> Eio.traceln "%a" Uri.pp_authority_uri;;
 +IPv4 192.168.0.1:80
 - : unit = ()
 
-# Uri1.authority_uri "[2001:0db8:0000:0000:0000:ff00:0042:8329]:8080"
-  |> Eio.traceln "%a" Uri1.pp_authority_uri;;
+# Uri.authority_uri "[2001:0db8:0000:0000:0000:ff00:0042:8329]:8080"
+  |> Eio.traceln "%a" Uri.pp_authority_uri;;
 +IPv6 2001:db8::ff00:42:8329:8080
 - : unit = ()
 ```
@@ -138,8 +136,8 @@ Path ending in `/` is also valid.
 ## asterisk_uri
 
 ```ocaml
-# Uri1.asterisk_uri "*"
-  |> Eio.traceln "%a" Uri1.pp_asterisk_uri;;
+# Uri.asterisk_uri "*"
+  |> Eio.traceln "%a" Uri.pp_asterisk_uri;;
 +*
 - : unit = ()
 ```
