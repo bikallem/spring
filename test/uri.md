@@ -18,8 +18,7 @@ open Spring
 ```ocaml
 # Uri.make_path ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
 - : Uri.path =
-["/path%20"; "/path%20%2B%3A%2F%3F%23%5B%5D%40";
- "/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D"]
+/path%20/path%20%2B%3A%2F%3F%23%5B%5D%40/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D
 ```
 
 ## make_query
