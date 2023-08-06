@@ -64,8 +64,8 @@ val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
     [name_values] is percent encoded and concatenated with '&' character. *)
 
-val decode_query : query -> (string * string) list
-(** [decode_query q] decodes HTTP URI query component [q] to a list of
+val query_name_values : query -> (string * string) list
+(** [query_name_values q] decodes HTTP URI query component [q] to a list of
     [name, value] tuple. *)
 
 val pp_query : Format.formatter -> query -> unit

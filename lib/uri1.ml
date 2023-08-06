@@ -146,7 +146,7 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
-let decode_query q =
+let query_name_values q =
   let buf_read = Buf_read.of_string q in
   let rec loop () =
     let name =

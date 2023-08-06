@@ -85,24 +85,24 @@ val nv2 : (string * string) list = [("field1", "value1")]
 val q2 : Uri.query = field1=value1
 ```
 
-## decode_query
+## query_name_values
 
 ```ocaml
-# let nv0' = Uri.decode_query q0;;
+# let nv0' = Uri.query_name_values q0;;
 val nv0' : (string * string) list =
   [("field +:/?#[]@", "value+!$&'()*+,;="); ("hello", "world")]
 
 # nv0 = nv0';;
 - : bool = true
 
-# let nv1' = Uri.decode_query q1;;
+# let nv1' = Uri.query_name_values q1;;
 val nv1' : (string * string) list =
   [("field1", "value2"); ("field2", "value2")]
 
 # nv1 = nv1';;
 - : bool = true
 
-# let nv2' = Uri.decode_query q2;;
+# let nv2' = Uri.query_name_values q2;;
 val nv2' : (string * string) list = [("field1", "value1")]
 
 # nv2 = nv2';;
