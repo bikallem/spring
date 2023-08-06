@@ -158,6 +158,16 @@ Parse trailing '/'.
 - : Uri.path = /where
 ```
 
+## origin_uri_query
+
+```ocaml
+# Uri.origin_uri_query ouri0;;
+- : Uri.query option = Some a=23/?&b=/?dd
+
+# Uri.origin_uri_query ouri1;;
+- : Uri.query option = Some q=now
+```
+
 ## authority 
 
 ```ocaml

@@ -84,6 +84,9 @@ val origin_uri : string -> origin_uri
 val origin_uri_path : origin_uri -> path
 (** [origin_uri_path uri] is the HTPP URI path component of origin uri [uri]. *)
 
+val origin_uri_query : origin_uri -> query option
+(** [origin_uri_query uri] is the HTTP URI query component of origin uri [uri]. *)
+
 val pp_origin_uri : Format.formatter -> origin_uri -> unit
 (** [pp_origin_uri fmt origin_uri] pretty prints [origin_uri] onto [fmt]. *)
 

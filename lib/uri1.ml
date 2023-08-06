@@ -190,6 +190,8 @@ let origin_uri s =
 
 let origin_uri_path (path, _) = path
 
+let origin_uri_query (_, query) = query
+
 let pp_origin_uri fmt origin_uri =
   let fields =
     Fmt.(
