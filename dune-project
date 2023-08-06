@@ -1,4 +1,4 @@
-(lang dune 3.9)
+(lang dune 3.10)
 
 (name spring)
 
@@ -23,9 +23,9 @@
  (description "A delightful web programming library")
  (depends
   (ocaml
-   (>= 5.0.0))
+   (>= 5.1.0))
   (eio
-   (= 0.9))
+   (>= 0.11))
   (dune
    (>= 3.9.0))
   (uri
