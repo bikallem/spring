@@ -23,7 +23,7 @@
       {e {{!https://datatracker.ietf.org/doc/html/rfc3986#appendix-A} URI
          Generic Syntax}} *)
 
-type path = private string list
+type path
 (** [path] is the path component of a HTTP request target. It starts with [/]
     and ends with possibly [?] character.
 
@@ -41,6 +41,9 @@ val make_path : string list -> path
 
 val path_to_string : path -> string
 (** [path_to_string p] is path [p] formatted to HTTP path format. *)
+
+val pp_path : Format.formatter -> path -> unit
+(** [pp_path fmt path] pretty prints [path] onto [fmt]. *)
 
 type query = private string
 (** [query] is the URI encoded query component of a HTTP request target. The

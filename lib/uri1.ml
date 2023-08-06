@@ -65,7 +65,6 @@ let make_path l =
   let ppf = Fmt.with_buffer buf in
   List.map
     (fun comp ->
-      Buffer.add_char buf '/';
       encode_string ppf comp;
       let s = Buffer.contents buf in
       Buffer.clear buf;
