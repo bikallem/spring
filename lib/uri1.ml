@@ -119,6 +119,8 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
+let pp_query = Fmt.string
+
 (* +-- Origin URI --+ *)
 
 type origin_uri = path * query option

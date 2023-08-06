@@ -45,7 +45,7 @@ val path_to_string : path -> string
 val pp_path : Format.formatter -> path -> unit
 (** [pp_path fmt path] pretty prints [path] onto [fmt]. *)
 
-type query = private string
+type query
 (** [query] is the URI encoded query component of a HTTP request target. The
     reserved characters in query name/value are percent encoded.
 
@@ -54,6 +54,9 @@ type query = private string
 val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
     [name_values] is percent encoded and concatenated with '&' character. *)
+
+val pp_query : Format.formatter -> query -> unit
+(** [pp_query fmt q] pretty prints HTTP URI query component [q] onto [fmt]. *)
 
 type origin_uri = private path * query option
 (** [origin_uri] holds URI path and query information. Starts with [/] e.g.
