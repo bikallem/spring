@@ -119,8 +119,6 @@ let query buf buf_read =
     Some (loop ())
   | Some _ | None -> None
 
-let pp_query = Fmt.string
-
 let pct_decode_string s =
   let len = String.length s in
   let buf = Buffer.create len in
@@ -168,6 +166,8 @@ let decode_query q =
     | Some _ | None -> [ (name, value) ]
   in
   loop ()
+
+let pp_query = Fmt.string
 
 (* +-- Origin URI --+ *)
 
