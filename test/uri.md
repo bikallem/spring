@@ -5,6 +5,7 @@ open Spring
 ```
 
 ```ocaml
+# #install_printer Uri.pp_path;;
 # #install_printer Uri.pp_origin_uri;;
 # #install_printer Uri.pp_authority;;
 # #install_printer Uri.pp_absolute_uri;;
