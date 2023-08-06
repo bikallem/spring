@@ -95,7 +95,7 @@ let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
 
 let encode_path path = Fmt.str "%a" pp_path path
 
-let decode_path path =
+let path_segments path =
   List.map
     (fun segment ->
       if String.is_infix ~affix:"%" segment then pct_decode_string segment

@@ -42,16 +42,16 @@ val path1 : Uri.path = /
 - : string = "/"
 ```
 
-## decode_path
+## path_segments
 
 ```ocaml
-# let p0' = Uri.decode_path path0;;
+# let p0' = Uri.path_segments path0;;
 val p0' : string list = ["path "; "path +:/?#[]@"; "+!$&'()*+,;="]
 
 # p0 = p0';;
 - : bool = true
 
-# let p1' = Uri.decode_path path1;;
+# let p1' = Uri.path_segments path1;;
 val p1' : string list = [""]
 
 # p1 = p1';;

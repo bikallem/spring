@@ -42,8 +42,8 @@ val make_path : string list -> path
 val encode_path : path -> string
 (** [encode_path p] is path [p] formatted to HTTP path format. *)
 
-val decode_path : path -> string list
-(** [decode_path path] decodes HTTP URI path [path] to a string list [l]. Each
+val path_segments : path -> string list
+(** [path_segments path] decodes HTTP URI path [path] to path segments. Each
     item represents a path segment. *)
 
 val pp_path : Format.formatter -> path -> unit
