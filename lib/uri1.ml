@@ -31,93 +31,12 @@ let rec segment buf buf_read =
   | `Ok -> segment buf buf_read
   | `Char _ | `Eof -> Buffer.contents buf
 
-(** [path] is a HTTP URI absolute path string [s]
-
-    [absolute-path = 1*( "/" segment )]
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
-let path ?(buf = Buffer.create 10) buf_read =
-  Buf_read.char '/' buf_read;
-  let path1 = segment buf buf_read in
-  let rec loop () =
-    match Buf_read.peek_char buf_read with
-    | Some '/' ->
-      Buf_read.char '/' buf_read;
-      let seg = segment buf buf_read in
-      Buffer.clear buf;
-      seg :: loop ()
-    | Some _ | None -> []
-  in
-  Buffer.clear buf;
-  path1 :: loop ()
-
-let encode_string ppf s =
+let pct_encode_string ppf s =
   String.iter
     (fun c ->
       if is_unreserved c then Fmt.pf ppf "%c%!" c
       else Fmt.pf ppf "%%%02X%!" @@ Char.code c)
     s
-
-type path = string list
-
-let make_path l =
-  let buf = Buffer.create 64 in
-  let ppf = Fmt.with_buffer buf in
-  List.map
-    (fun comp ->
-      encode_string ppf comp;
-      let s = Buffer.contents buf in
-      Buffer.clear buf;
-      s)
-    l
-
-let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
-
-let encode_path path = Fmt.str "%a" pp_path path
-
-type query = string
-
-let encode_string ppf s =
-  String.iter
-    (fun c ->
-      if is_unreserved c then Fmt.pf ppf "%c%!" c
-      else Fmt.pf ppf "%%%02X%!" @@ Char.code c)
-    s
-
-let make_query name_values =
-  let buf = Buffer.create 64 in
-  let ppf = Fmt.with_buffer buf in
-  match name_values with
-  | [] -> Buffer.contents buf
-  | (name, value) :: name_values ->
-    encode_string ppf name;
-    Buffer.add_char buf '=';
-    encode_string ppf value;
-    List.iter
-      (fun (name, value) ->
-        Buffer.add_char buf '&';
-        encode_string ppf name;
-        Buffer.add_char buf '=';
-        encode_string ppf value)
-      name_values;
-    Buffer.contents buf
-
-(* [query         = *( pchar / "/" / "?" )] *)
-let query buf buf_read =
-  let rec loop () =
-    match pchar buf buf_read with
-    | `Ok -> loop ()
-    | `Char ('/' as c) | `Char ('?' as c) ->
-      Buf_read.char c buf_read;
-      Buffer.add_char buf c;
-      loop ()
-    | `Char _ | `Eof -> Buffer.contents buf
-  in
-  match Buf_read.peek_char buf_read with
-  | Some '?' ->
-    Buf_read.char '?' buf_read;
-    Some (loop ())
-  | Some _ | None -> None
 
 let pct_decode_string s =
   let len = String.length s in
@@ -138,6 +57,94 @@ let pct_decode_string s =
     | None -> Buffer.contents buf
   in
   aux ()
+
+type path = string list
+
+(** [path] is a HTTP URI absolute path string [s]
+
+    [absolute-path = 1*( "/" segment )]
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
+let path ?(buf = Buffer.create 10) buf_read =
+  Buf_read.char '/' buf_read;
+  let path1 = segment buf buf_read in
+  let rec loop () =
+    match Buf_read.peek_char buf_read with
+    | Some '/' ->
+      Buf_read.char '/' buf_read;
+      let seg = segment buf buf_read in
+      Buffer.clear buf;
+      seg :: loop ()
+    | Some _ | None -> []
+  in
+  Buffer.clear buf;
+  path1 :: loop ()
+
+let make_path l =
+  let buf = Buffer.create 64 in
+  let ppf = Fmt.with_buffer buf in
+  List.map
+    (fun comp ->
+      pct_encode_string ppf comp;
+      let s = Buffer.contents buf in
+      Buffer.clear buf;
+      s)
+    l
+
+let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
+
+let encode_path path = Fmt.str "%a" pp_path path
+
+let decode_path path =
+  List.map
+    (fun segment ->
+      if String.is_infix ~affix:"%" segment then pct_decode_string segment
+      else segment)
+    path
+
+type query = string
+
+let pct_encode_string ppf s =
+  String.iter
+    (fun c ->
+      if is_unreserved c then Fmt.pf ppf "%c%!" c
+      else Fmt.pf ppf "%%%02X%!" @@ Char.code c)
+    s
+
+let make_query name_values =
+  let buf = Buffer.create 64 in
+  let ppf = Fmt.with_buffer buf in
+  match name_values with
+  | [] -> Buffer.contents buf
+  | (name, value) :: name_values ->
+    pct_encode_string ppf name;
+    Buffer.add_char buf '=';
+    pct_encode_string ppf value;
+    List.iter
+      (fun (name, value) ->
+        Buffer.add_char buf '&';
+        pct_encode_string ppf name;
+        Buffer.add_char buf '=';
+        pct_encode_string ppf value)
+      name_values;
+    Buffer.contents buf
+
+(* [query         = *( pchar / "/" / "?" )] *)
+let query buf buf_read =
+  let rec loop () =
+    match pchar buf buf_read with
+    | `Ok -> loop ()
+    | `Char ('/' as c) | `Char ('?' as c) ->
+      Buf_read.char c buf_read;
+      Buffer.add_char buf c;
+      loop ()
+    | `Char _ | `Eof -> Buffer.contents buf
+  in
+  match Buf_read.peek_char buf_read with
+  | Some '?' ->
+    Buf_read.char '?' buf_read;
+    Some (loop ())
+  | Some _ | None -> None
 
 let decode_query q =
   let buf_read = Buf_read.of_string q in

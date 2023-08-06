@@ -17,16 +17,45 @@ open Spring
 ## make_path
 
 ```ocaml
-# let path0 = Uri.make_path ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
+# let p0 = ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
+val p0 : string list = ["path "; "path +:/?#[]@"; "+!$&'()*+,;="]
+
+# let path0 = Uri.make_path p0;;
 val path0 : Uri.path =
   /path%20/path%20%2B%3A%2F%3F%23%5B%5D%40/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D
+
+# let p1 = [""];;
+val p1 : string list = [""]
+
+# let path1 = Uri.make_path p1;;
+val path1 : Uri.path = /
 ```
+
 ## encode_path
 
 ```ocaml
 # Uri.encode_path path0;; 
 - : string =
 "/path%20/path%20%2B%3A%2F%3F%23%5B%5D%40/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D"
+
+# Uri.encode_path path1;;
+- : string = "/"
+```
+
+## decode_path
+
+```ocaml
+# let p0' = Uri.decode_path path0;;
+val p0' : string list = ["path "; "path +:/?#[]@"; "+!$&'()*+,;="]
+
+# p0 = p0';;
+- : bool = true
+
+# let p1' = Uri.decode_path path1;;
+val p1' : string list = [""]
+
+# p1 = p1';;
+- : bool = true
 ```
 
 ## make_query
