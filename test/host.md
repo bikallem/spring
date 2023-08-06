@@ -4,50 +4,38 @@
 open Spring
 ```
 
+```ocaml
+# #install_printer Host.pp;;
+```
+
 ## decode
 
 Decode IPv6 host and port.
 
 ```ocaml
 # let t0 = Host.decode "192.168.0.1:8080";;
-val t0 : Host.t = <abstr>
-
-# Eio.traceln "%a" Host.pp t0;;
-+IPv4 192.168.0.1:8080
-- : unit = ()
+val t0 : Host.t = IPv4 192.168.0.1:8080
 ```
 
 Decode IPv4 host only.
 
 ```ocaml
 # let t1 = Host.decode "192.168.0.1";;
-val t1 : Host.t = <abstr>
-
-# Eio.traceln "%a" Host.pp t1;;
-+IPv4 192.168.0.1:
-- : unit = ()
+val t1 : Host.t = IPv4 192.168.0.1:
 ```
 
 Decode domain name.
 
 ```ocaml
 # let t2 = Host.decode "www.example.com:8080";;
-val t2 : Host.t = <abstr>
-
-# Eio.traceln "%a" Host.pp t2;;
-+Domain www.example.com:8080
-- : unit = ()
+val t2 : Host.t = Domain www.example.com:8080
 ```
 
 Decode IPv6 host and port.
 
 ```ocaml
 # let t3 = Host.decode "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
-val t3 : Host.t = <abstr>
-
-# Eio.traceln "%a" Host.pp t3;;
-+IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
-- : unit = ()
+val t3 : Host.t = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 ```
 
 ## encode
