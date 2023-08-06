@@ -39,8 +39,8 @@ val make_path : string list -> path
 (** [make_path l] is absolute path [p]. [l] is the list of path components which
     are percent encoded in [p]. *)
 
-val path_to_string : path -> string
-(** [path_to_string p] is path [p] formatted to HTTP path format. *)
+val encode_path : path -> string
+(** [encode_path p] is path [p] formatted to HTTP path format. *)
 
 val pp_path : Format.formatter -> path -> unit
 (** [pp_path fmt path] pretty prints [path] onto [fmt]. *)

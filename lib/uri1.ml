@@ -73,7 +73,7 @@ let make_path l =
 
 let pp_path = Fmt.(any "/" ++ list ~sep:(any "/") string)
 
-let path_to_string path = Fmt.str "%a" pp_path path
+let encode_path path = Fmt.str "%a" pp_path path
 
 type query = string
 
@@ -360,7 +360,7 @@ let pp_absolute_uri fmt absolute_uri =
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt absolute_uri
 
 let path_and_query (_, _, _, path, query) =
-  let path = path_to_string path in
+  let path = encode_path path in
   match query with
   | Some q -> path ^ "?" ^ q
   | None -> path
