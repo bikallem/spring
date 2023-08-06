@@ -112,28 +112,29 @@ val nv2' : (string * string) list = [("field1", "value1")]
 ## origin_uri
 
 ```ocaml
-# Uri.origin_uri "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
-- : Uri.origin_uri =
-{
-  Path: /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
-  Query: a=23/?&b=/?dd
-}
+# let ouri0 = Uri.origin_uri "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
+val ouri0 : Uri.origin_uri =
+  {
+    Path:
+     /home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A;
+    Query: a=23/?&b=/?dd
+  }
 
-# Uri.origin_uri "/where?q=now";;
-- : Uri.origin_uri = {
-                       Path: /where;
-                       Query: q=now
-                     }
+# let ouri1 = Uri.origin_uri "/where?q=now";;
+val ouri1 : Uri.origin_uri = {
+                               Path: /where;
+                               Query: q=now
+                             }
 ```
 
 `/` is a valid absolute path.
 
 ```ocaml
-# Uri.origin_uri "/";;
-- : Uri.origin_uri = {
-                       Path: /;
-                       Query:
-                     }
+# let ouri2 = Uri.origin_uri "/";;
+val ouri2 : Uri.origin_uri = {
+                               Path: /;
+                               Query:
+                             }
 ```
 
 Parse trailing '/'.
@@ -144,6 +145,17 @@ Parse trailing '/'.
                        Path: /home/about/;
                        Query:
                      }
+```
+
+## origin_uri_path
+
+```ocaml
+# Uri.origin_uri_path ouri0;;
+- : Uri.path =
+/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A
+
+# Uri.origin_uri_path ouri1;;
+- : Uri.path = /where
 ```
 
 ## authority 

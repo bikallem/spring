@@ -81,6 +81,9 @@ val origin_uri : string -> origin_uri
 
     @raise Invalid_argument if [s] doesn't contain valid origin_uri data. *)
 
+val origin_uri_path : origin_uri -> path
+(** [origin_uri_path uri] is the HTPP URI path component of origin uri [uri]. *)
+
 val pp_origin_uri : Format.formatter -> origin_uri -> unit
 (** [pp_origin_uri fmt origin_uri] pretty prints [origin_uri] onto [fmt]. *)
 

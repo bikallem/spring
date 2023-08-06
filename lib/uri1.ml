@@ -180,6 +180,16 @@ let pp_query = Fmt.string
 
 type origin_uri = path * query option
 
+let origin_uri s =
+  let buf_read = Buf_read.of_string s in
+  let buf = Buffer.create 10 in
+  let path = path ~buf buf_read in
+  Buffer.clear buf;
+  let query = query buf buf_read in
+  (path, query)
+
+let origin_uri_path (path, _) = path
+
 let pp_origin_uri fmt origin_uri =
   let fields =
     Fmt.(
@@ -192,14 +202,6 @@ let pp_origin_uri fmt origin_uri =
     Fmt.(vbox ~indent:2 @@ (const char '{' ++ cut ++ fields))
   in
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt origin_uri
-
-let origin_uri s =
-  let buf_read = Buf_read.of_string s in
-  let buf = Buffer.create 10 in
-  let path = path ~buf buf_read in
-  Buffer.clear buf;
-  let query = query buf buf_read in
-  (path, query)
 
 let reg_name buf buf_read : [ `Ok | `Char of char | `Eof ] =
   match Buf_read.peek_char buf_read with
