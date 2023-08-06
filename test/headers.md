@@ -4,6 +4,10 @@
 open Spring
 ```
 
+```ocaml
+# #install_printer Host.pp;;
+```
+
 ## Name/Canonical names 
 
 `Definition.canonical_name`
@@ -121,16 +125,12 @@ Add the header if it doesn't exist yet.
 
 ```ocaml
 # let host' = Host.decode "www.example.com" ;;
-val host' : Host.t = <abstr>
+val host' : Host.t = Domain www.example.com:
 
 # let host_hdr =
   let h = Headers.(replace host host' empty) in
   Headers.(find_opt host h);;
-val host_hdr : Host.t option = Some <abstr>
-
-# Eio.traceln "%a" Fmt.(option Host.pp) host_hdr;; 
-+Domain www.example.com:
-- : unit = ()
+val host_hdr : Host.t option = Some Domain www.example.com:
 ```
 
 ## Headers.remove_all
@@ -176,7 +176,7 @@ val hdr : string =
 val t : Headers.t = <abstr>
 
 # Headers.(find_opt host t);;
-- : Host.t option = Some <abstr>
+- : Host.t option = Some Domain localhost:1234
 
 # Headers.(find_opt content_length t);;
 - : int option = Some 10063
