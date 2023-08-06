@@ -6,7 +6,7 @@ type 'a t
 (** {1 Common Request Details} *)
 
 type resource = string
-(** [resource] is the request uri path *)
+(** [resource] is the request uri with path and query components. *)
 
 val meth : _ t -> Method.t
 
