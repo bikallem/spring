@@ -34,12 +34,50 @@ val path0 : Uri.path =
 URI reserved characters are percent encoded.
 
 ```ocaml
-# Uri.make_query ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
-- : Uri.query =
-field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world
+# let nv0 = ["field +:/?#[]@", "value+!$&'()*+,;="; "hello", "world"];;
+val nv0 : (string * string) list =
+  [("field +:/?#[]@", "value+!$&'()*+,;="); ("hello", "world")]
 
-# Uri.make_query ["field1","value2";"field2","value2"];;
-- : Uri.query = field1=value2&field2=value2
+# let q0 = Uri.make_query nv0;; 
+val q0 : Uri.query =
+  field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world
+
+# let nv1 = ["field1","value2";"field2","value2"];;
+val nv1 : (string * string) list =
+  [("field1", "value2"); ("field2", "value2")]
+
+# let q1 = Uri.make_query nv1;;
+val q1 : Uri.query = field1=value2&field2=value2
+
+# let nv2 = ["field1", "value1"];;
+val nv2 : (string * string) list = [("field1", "value1")]
+
+# let q2 = Uri.make_query nv2;;
+val q2 : Uri.query = field1=value1
+```
+
+## decode_query
+
+```ocaml
+# let nv0' = Uri.decode_query q0;;
+val nv0' : (string * string) list =
+  [("field +:/?#[]@", "value+!$&'()*+,;="); ("hello", "world")]
+
+# nv0 = nv0';;
+- : bool = true
+
+# let nv1' = Uri.decode_query q1;;
+val nv1' : (string * string) list =
+  [("field1", "value2"); ("field2", "value2")]
+
+# nv1 = nv1';;
+- : bool = true
+
+# let nv2' = Uri.decode_query q2;;
+val nv2' : (string * string) list = [("field1", "value1")]
+
+# nv2 = nv2';;
+- : bool = true
 ```
 
 ## origin_uri

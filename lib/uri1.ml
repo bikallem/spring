@@ -121,6 +121,54 @@ let query buf buf_read =
 
 let pp_query = Fmt.string
 
+let pct_decode_string s =
+  let len = String.length s in
+  let buf = Buffer.create len in
+  let buf_read = Buf_read.of_string s in
+  let rec aux () =
+    match Buf_read.peek_char buf_read with
+    | Some '%' ->
+      Buf_read.char '%' buf_read;
+      let hex_digits = Buf_read.take 2 buf_read in
+      let c = Char.chr @@ int_of_string ("0x" ^ hex_digits) in
+      Buffer.add_char buf c;
+      aux ()
+    | Some c ->
+      Buf_read.char c buf_read;
+      Buffer.add_char buf c;
+      aux ()
+    | None -> Buffer.contents buf
+  in
+  aux ()
+
+let decode_query q =
+  let buf_read = Buf_read.of_string q in
+  let rec loop () =
+    let name =
+      Buf_read.take_while
+        (function
+          | '=' -> false
+          | _ -> true)
+        buf_read
+      |> pct_decode_string
+    in
+    Buf_read.char '=' buf_read;
+    let value =
+      Buf_read.take_while
+        (function
+          | '&' -> false
+          | _ -> true)
+        buf_read
+      |> pct_decode_string
+    in
+    match Buf_read.peek_char buf_read with
+    | Some '&' ->
+      Buf_read.char '&' buf_read;
+      (name, value) :: loop ()
+    | Some _ | None -> [ (name, value) ]
+  in
+  loop ()
+
 (* +-- Origin URI --+ *)
 
 type origin_uri = path * query option

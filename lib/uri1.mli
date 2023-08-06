@@ -47,7 +47,12 @@ val pp_path : Format.formatter -> path -> unit
 
 type query
 (** [query] is the URI encoded query component of a HTTP request target. The
-    reserved characters in query name/value are percent encoded.
+    reserved characters in query name/value pair are percent encoded. The name
+    and value are delimited by [=] character.
+
+    The pairs are delimited by [&] character.
+
+    e.g. [a=b&c=d]
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
 
@@ -57,6 +62,10 @@ val make_query : (string * string) list -> query
 
 val pp_query : Format.formatter -> query -> unit
 (** [pp_query fmt q] pretty prints HTTP URI query component [q] onto [fmt]. *)
+
+val decode_query : query -> (string * string) list
+(** [decode_query q] decodes HTTP URI query component [q] to a list of
+    [name, value] tuple. *)
 
 type origin_uri = private path * query option
 (** [origin_uri] holds URI path and query information. Starts with [/] e.g.
