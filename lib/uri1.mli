@@ -154,9 +154,9 @@ val absolute_uri : string -> absolute_uri
 
     @raise Invalid_argument if [s] contains invalid absolute uri value. *)
 
-val path_and_query : absolute_uri -> string
-(** [path_and_query uri] formats path and query components of absolute-uri [uri]
-    into a string. *)
+val encode_path_and_query : absolute_uri -> string
+(** [encode_path_and_query uri] formats path and query components of
+    absolute-uri [uri] into a string. *)
 
 val host_and_port : absolute_uri -> host * port option
 (** [host_and_port uri] is the host and port component of [uri]. *)
