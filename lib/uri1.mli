@@ -83,6 +83,8 @@ val pct_encode : ?query:query -> path -> string
 
     @param query is the optional query component. Default is [None]. *)
 
+(** {1 Origin URI} *)
+
 type origin_uri
 (** [origin_uri] holds URI path and query information. Starts with [/] e.g.
     [/home/products]. See
@@ -101,6 +103,8 @@ val origin_uri_query : origin_uri -> query option
 
 val pp_origin_uri : Format.formatter -> origin_uri -> unit
 (** [pp_origin_uri fmt origin_uri] pretty prints [origin_uri] onto [fmt]. *)
+
+(** {1 Authority} *)
 
 type host =
   [ `IPv6 of Ipaddr.V6.t
@@ -145,6 +149,8 @@ val authority_port : authority -> int option
 val pp_authority : Format.formatter -> authority -> unit
 (** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
 
+(** {1 Absolute URI} *)
+
 type scheme =
   [ `Http
   | `Https
@@ -180,6 +186,8 @@ val host_and_port : absolute_uri -> host * port option
 val pp_absolute_uri : Format.formatter -> absolute_uri -> unit
 (** [pp_absolute_uri fmt uri] pretty prints [uri] onto [fmt]. *)
 
+(** {1 Authority URI} *)
+
 type authority_uri = private host * port
 (** [authority_uri] is an uri in an authority form as specified in
     {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
@@ -196,6 +204,8 @@ val authority_uri : string -> authority_uri
 
 val pp_authority_uri : Format.formatter -> authority_uri -> unit
 (** [pp_authority_uri fmt uri] pretty prints [uri] onto [fmt]. *)
+
+(** {1 Asterisk URI} *)
 
 type asterisk_uri
 (** [asterisk_uri] is the uri in asterisk-form as specified in
