@@ -68,7 +68,8 @@ type query
 
 val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
-    [name_values] is percent encoded and concatenated with '&' character. *)
+    [name_values] is percent encoded and each item pair is concatenated with '&'
+    character. *)
 
 val query_name_values : query -> (string * string) list
 (** [query_name_values q] decodes HTTP URI query component [q] to a list of
@@ -76,6 +77,10 @@ val query_name_values : query -> (string * string) list
 
 val pp_query : Format.formatter -> query -> unit
 (** [pp_query fmt q] pretty prints HTTP URI query component [q] onto [fmt]. *)
+
+val pct_encode_name_values : (string * string) list -> string
+(** [pct_encode_name_values name_values] is like {!val:make_query} except it
+    returns a string. *)
 
 val pct_encode : ?query:query -> path -> string
 (** [pct_encode ?query path] percent encodes [path] and [query] into a format

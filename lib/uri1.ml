@@ -176,6 +176,8 @@ let query_name_values q =
 
 let pp_query = Fmt.string
 
+let pct_encode_name_values = make_query
+
 let pct_encode ?query path =
   let path = encode_path path in
   match query with

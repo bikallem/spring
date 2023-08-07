@@ -128,6 +128,13 @@ val nv2' : (string * string) list = [("field1", "value1")]
 - : bool = true
 ```
 
+### pct_encode_name_values
+
+```ocaml
+# Uri.pct_encode_name_values ["field 1", "value 1"; "field2", "value2"];;
+- : string = "field%201=value%201&field2=value2"
+```
+
 ### pct_encode
 
 ```ocaml
@@ -141,6 +148,8 @@ val nv2' : (string * string) list = [("field1", "value1")]
 # Uri.pct_encode path1;;
 - : string = "/"
 ```
+
+## Origin URI
 
 ### origin_uri
 
