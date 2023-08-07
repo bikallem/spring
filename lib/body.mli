@@ -44,7 +44,7 @@ val writable_content : Content_type.t -> string -> writable
     [content_type] denotes the type of [content] encoded in [body]. It manifests
     in HTTP request/response [Content-Type] header. *)
 
-val writable_form_values : (string * string list) list -> writable
+val writable_form_values : (string * string) list -> writable
 (** [writable_form_values key_values] is a writable [body] which encodes a form
     submission content. Its [Content-Type] header is encoded as
     "application/x-www.form-urlencoded". *)
@@ -85,7 +85,7 @@ val read_content : readable -> string option
     If ["Content-Length"] header is missing or is an invalid value, then [None]
     is returned. *)
 
-val read_form_values : readable -> (string * string list) list
+val read_form_values : readable -> (string * string) list
 (** [read_form_values readable] is [form_values] if [readable] body
     [Content-Type] is ["application/x-www-form-urlencoded"] and [Content-Length]
     is a valid integer value.

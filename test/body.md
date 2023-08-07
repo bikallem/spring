@@ -34,10 +34,10 @@ val content_type : Content_type.t = <abstr>
 ## writable_form_values
 
 ```ocaml
-# test_writer @@ Body.writable_form_values [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] ;;
-+Content-Length: 59
+# test_writer @@ Body.writable_form_values ["name1", "val a"; "name1", "val b"; "name1", "val c"; "name2", "val c"; "name2", "val d"; "name2", "val e"] ;;
++Content-Length: 83
 +Content-Type: application/x-www-form-urlencoded
-+name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e
++name1=val%20a&name1=val%20b&name1=val%20c&name2=val%20c&name2=val%20d&name2=val%20e
 - : unit = ()
 ```
 
@@ -79,25 +79,25 @@ The reader below has both "Content-Length" and "Content-Type" header set correct
 to parse the body correctly.
 
 ```ocaml
-# let body = "name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e" in
+# let body = "name1=val%20a&name1=val%20b&name1=val%20c&name2=val%20c&name2=val%20d&name2=val%20e" in
   test_reader
     body
     [("Content-Length", (string_of_int (String.length body))); ("Content-Type", "application/x-www-form-urlencoded")]
     Body.read_form_values ;;
-- : (string * string list) list =
-[("name1", ["val a"; "val b"; "val c"]);
- ("name2", ["val c"; "val d"; "val e"])]
+- : (string * string) list =
+[("name1", "val a"); ("name1", "val b"); ("name1", "val c");
+ ("name2", "val c"); ("name2", "val d"); ("name2", "val e")]
 ```
 
 Note that the reader below doesn't have "Content-Type" header. Thus `read_form_values` returns am empty list.
 
 ```ocaml
-# let body = "name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e" in
+# let body = "name1=val%20a&name1=val%20b&name1=val%20c&name2=val%20c&name2=val%20d&name2=val%20e" in
   test_reader
     body
     [("Content-Length", (string_of_int (String.length body)))]
     Body.read_form_values ;;
-- : (string * string list) list = []
+- : (string * string) list = []
 ```
 
 Note that the reader below doesn't have "Content-Length" header. Thus `read_form_values` returns am empty list.
@@ -108,5 +108,5 @@ Note that the reader below doesn't have "Content-Length" header. Thus `read_form
     body
     [("Content-Type", "application/x-www-form-urlencoded")]
     Body.read_form_values ;;
-- : (string * string list) list = []
+- : (string * string) list = []
 ```

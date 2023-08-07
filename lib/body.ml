@@ -21,7 +21,7 @@ let writable_content content_type content =
   }
 
 let writable_form_values assoc_list =
-  let content = Uri.encoded_of_query assoc_list in
+  let content = Uri1.pct_encode_name_values assoc_list in
   let content_type =
     Content_type.make ("application", "x-www-form-urlencoded")
   in
@@ -51,7 +51,7 @@ let read_form_values (t : readable) =
     let* content_type = Headers.(find_opt content_type t.headers) in
     match (Content_type.media_type content_type :> string * string) with
     | "application", "x-www-form-urlencoded" ->
-      Some (Uri.query_of_encoded content)
+      Uri1.query content |> Uri1.query_name_values |> Option.some
     | _ -> None
   with
   | Some l -> l
