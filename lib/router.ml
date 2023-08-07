@@ -196,21 +196,21 @@ let rec drop : 'a list -> int -> 'a list =
 
 let rec match' : request -> 'a t -> 'a option =
  fun req t ->
-  let resource = Request.resource req in
-  let request_target = resource in
   let method' = Request.meth req in
-  (* split request_target into path and query tokens *)
-  let request_target' = String.trim request_target |> Uri.of_string in
+  let resource = Request.resource req in
+  let origin_uri = Uri1.origin_uri resource in
   let path_tokens =
-    Uri.path request_target'
-    |> String.split_on_char '/'
-    |> List.tl
+    origin_uri
+    |> Uri1.origin_uri_path
+    |> Uri1.path_segments
     |> List.map (fun tok -> `Path tok)
   in
   let query_tokens =
-    Uri.query request_target'
-    |> List.map (fun (k, values) -> List.map (fun v' -> `Query (k, v')) values)
-    |> List.concat
+    match Uri1.origin_uri_query origin_uri with
+    | Some query ->
+      Uri1.query_name_values query
+      |> List.map (fun (name, value) -> `Query (name, value))
+    | None -> []
   in
   let request_target_tokens = path_tokens @ query_tokens in
   (* Matching algorithm overview:
@@ -255,7 +255,7 @@ let rec match' : request -> 'a t -> 'a option =
         |> String.concat "/"
       in
       let rest_url =
-        String.split_on_char '?' request_target |> fun l ->
+        String.split_on_char '?' resource |> fun l ->
         if List.length l > 1 then path ^ "?" ^ List.nth l 1 else path
       in
       ( true
