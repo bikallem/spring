@@ -120,6 +120,10 @@ val authority : string -> authority
 val authority_host : authority -> host
 (** [authority_host] is the [host] component of HTTP URI authority. *)
 
+val authority_port : authority -> int option
+(** [authority_port auth] is [Some port] if authority [auth] contains IP port
+    [port]. It is [None] otherwise. *)
+
 val pp_authority : Format.formatter -> authority -> unit
 (** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
 

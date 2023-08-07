@@ -191,6 +191,16 @@ val auth1 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 - : Uri.host = `IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1
 ```
 
+## authority_port
+
+```ocaml
+# Uri.authority_port auth0;;
+- : int option = Some 8080
+
+# Uri.authority_port auth1;;
+- : int option = Some 8080
+```
+
 ## absolute_uri
 
 ```ocaml

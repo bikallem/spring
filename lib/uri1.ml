@@ -300,6 +300,8 @@ let authority s =
 
 let authority_host (host, _) = host
 
+let authority_port (_, port) = port
+
 type scheme =
   [ `Http
   | `Https
