@@ -154,7 +154,7 @@ type scheme =
     See {{!https://www.rfc-editor.org/rfc/rfc9110#name-http-related-uri-schemes}
     HTTP Schemes} *)
 
-type absolute_uri = private scheme * host * port option * path * query option
+type absolute_uri
 (** [absolute_uri] is a uri in an absolute form as specified in
     {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
     authority-form}. It allows to specify [scheme], [authority], [path] and
