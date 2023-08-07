@@ -381,12 +381,6 @@ let pp_absolute_uri fmt absolute_uri =
 
 let absolute_uri_scheme (scheme, _, _, _, _) = scheme
 
-let encode_path_and_query (_, _, _, path, query) =
-  let path = encode_path path in
-  match query with
-  | Some q -> path ^ "?" ^ q
-  | None -> path
-
 let absolute_uri_path_and_query (_, _, _, path, query) = (path, query)
 
 let host_and_port (_, host, port, _, _) = (host, port)

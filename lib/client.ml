@@ -138,7 +138,8 @@ let parse_uri uri =
   | uri ->
     let host, port = Uri1.host_and_port uri in
     let host = Host.make ?port host in
-    let resource = Uri1.encode_path_and_query uri in
+    let path, query = Uri1.absolute_uri_path_and_query uri in
+    let resource = Uri1.pct_encode ?query path in
     (host, resource)
   | exception _ -> invalid_arg "[uri] invalid HTTP uri."
 

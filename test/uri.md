@@ -298,19 +298,6 @@ val abs2 : Uri.absolute_uri =
 - : Uri.path * Uri.query option = (/pub/WWW/, None)
 ```
 
-### encode_path_and_query
-
-```ocaml
-# Uri.encode_path_and_query abs0;;
-- : string = "/"
-
-# Uri.encode_path_and_query abs1;;
-- : string = "/pub/WWW/TheProject.html?a=v1&b=v2"
-
-# Uri.encode_path_and_query abs2;;
-- : string = "/pub/WWW/"
-```
-
 ### host_and_port
 
 ```ocaml

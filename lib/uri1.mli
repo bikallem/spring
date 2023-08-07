@@ -170,10 +170,6 @@ val absolute_uri_path_and_query : absolute_uri -> path * query option
 (** [absolute_uri_path_and_query uri] is the [host] and optional [query]
     component encapsulated in absolute uri [uri]. *)
 
-val encode_path_and_query : absolute_uri -> string
-(** [encode_path_and_query uri] formats path and query components of
-    absolute-uri [uri] into a string. *)
-
 val host_and_port : absolute_uri -> host * port option
 (** [host_and_port uri] is the host and port component of [uri]. *)
 
