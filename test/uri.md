@@ -220,40 +220,53 @@ val auth22 : Uri.authority = Domain www.example.com:3000
 ## absolute_uri
 
 ```ocaml
-# Uri.absolute_uri "http://example.com:80";;
-- : Uri.absolute_uri =
-{
-  Scheme: http;
-  Authority: Domain example.com:80;
-  Path: /;
-  Query:
-}
+# let abs0 = Uri.absolute_uri "http://example.com:80";;
+val abs0 : Uri.absolute_uri =
+  {
+    Scheme: http;
+    Authority: Domain example.com:80;
+    Path: /;
+    Query:
+  }
 ```
 
 Parse scheme, authority, path and query.
 
 ```ocaml
-# Uri.absolute_uri "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2";;
-- : Uri.absolute_uri =
-{
-  Scheme: https;
-  Authority: Domain www.example.org:;
-  Path: /pub/WWW/TheProject.html;
-  Query: a=v1&b=v2
-}
+# let abs1 = Uri.absolute_uri "https://www.example.org/pub/WWW/TheProject.html?a=v1&b=v2";;
+val abs1 : Uri.absolute_uri =
+  {
+    Scheme: https;
+    Authority: Domain www.example.org:;
+    Path: /pub/WWW/TheProject.html;
+    Query: a=v1&b=v2
+  }
 ```
 
 Path ending in `/` is also valid.
 
 ```ocaml
-# Uri.absolute_uri "https://www.example.com/pub/WWW/";;
-- : Uri.absolute_uri =
-{
-  Scheme: https;
-  Authority: Domain www.example.com:;
-  Path: /pub/WWW/;
-  Query:
-}
+# let abs2 = Uri.absolute_uri "https://www.example.com/pub/WWW/";;
+val abs2 : Uri.absolute_uri =
+  {
+    Scheme: https;
+    Authority: Domain www.example.com:;
+    Path: /pub/WWW/;
+    Query:
+  }
+```
+
+## encode_path_and_query
+
+```ocaml
+# Uri.encode_path_and_query abs0;;
+- : string = "/"
+
+# Uri.encode_path_and_query abs1;;
+- : string = "/pub/WWW/TheProject.html?a=v1&b=v2"
+
+# Uri.encode_path_and_query abs2;;
+- : string = "/pub/WWW/"
 ```
 
 ## authority_uri
