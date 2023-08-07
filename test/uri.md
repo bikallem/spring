@@ -77,6 +77,17 @@ val p1' : string list = [""]
 - : bool = true
 ```
 
+### query
+
+```ocaml
+# Uri.query "field1=value1&field2=value2";; 
+- : Uri.query = field1=value1&field2=value2
+
+# Uri.query "field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world"
+- : Uri.query =
+field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world
+```
+
 ### make_query
 
 URI reserved characters are percent encoded.

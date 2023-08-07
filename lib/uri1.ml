@@ -130,21 +130,26 @@ let make_query name_values =
     Buffer.contents buf
 
 (* [query         = *( pchar / "/" / "?" )] *)
-let query buf buf_read =
-  let rec loop () =
-    match pchar buf buf_read with
-    | `Ok -> loop ()
-    | `Char ('/' as c) | `Char ('?' as c) ->
-      Buf_read.char c buf_read;
-      Buffer.add_char buf c;
-      loop ()
-    | `Char _ | `Eof -> Buffer.contents buf
-  in
+let rec parse_query buf buf_read =
+  match pchar buf buf_read with
+  | `Ok -> parse_query buf buf_read
+  | `Char ('/' as c) | `Char ('?' as c) ->
+    Buf_read.char c buf_read;
+    Buffer.add_char buf c;
+    parse_query buf buf_read
+  | `Char _ | `Eof -> Buffer.contents buf
+
+let query_ buf buf_read =
   match Buf_read.peek_char buf_read with
   | Some '?' ->
     Buf_read.char '?' buf_read;
-    Some (loop ())
+    Some (parse_query buf buf_read)
   | Some _ | None -> None
+
+let query s =
+  let buf = Buffer.create 10 in
+  let buf_read = Buf_read.of_string s in
+  parse_query buf buf_read
 
 let query_name_values q =
   let buf_read = Buf_read.of_string q in
@@ -193,7 +198,7 @@ let origin_uri s =
   let buf = Buffer.create 10 in
   let path = path ~buf buf_read in
   Buffer.clear buf;
-  let query = query buf buf_read in
+  let query = query_ buf buf_read in
   (path, query)
 
 let origin_uri_path (path, _) = path
@@ -364,7 +369,7 @@ let absolute_uri s =
     path ()
   in
   Buffer.clear buf;
-  let query = query buf buf_read in
+  let query = query_ buf buf_read in
   (scheme, host, port, path, query)
 
 let pp_absolute_uri fmt absolute_uri =

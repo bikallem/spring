@@ -66,6 +66,9 @@ type query
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.4} Query}. *)
 
+val query : string -> query
+(** [query s] decodes [s] into a query. *)
+
 val make_query : (string * string) list -> query
 (** [make_query name_values] is a query [q]. Each [(name,value)] pair in
     [name_values] is percent encoded and each item pair is concatenated with '&'
