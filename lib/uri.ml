@@ -412,6 +412,10 @@ let authority_uri s =
   in
   (host, port)
 
+let authority_uri_host (host, _) = host
+
+let authority_uri_port (_, port) = port
+
 let pp_authority_uri fmt authority_form =
   Fmt.(pair ~sep:(any ":") pp_host int) fmt authority_form
 

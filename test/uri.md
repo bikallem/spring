@@ -348,14 +348,40 @@ val abs2 : Uri.absolute_uri =
 ### authority_uri
 
 ```ocaml
-# Uri.authority_uri "www.example.com:80" ;;
-- : Uri.authority_uri = Domain www.example.com:80
+# let auth_uri0 = Uri.authority_uri "www.example.com:80" ;;
+val auth_uri0 : Uri.authority_uri = Domain www.example.com:80
 
-# Uri.authority_uri "192.168.0.1:80";;
-- : Uri.authority_uri = IPv4 192.168.0.1:80
+# let auth_uri1 = Uri.authority_uri "192.168.0.1:80";;
+val auth_uri1 : Uri.authority_uri = IPv4 192.168.0.1:80
 
-# Uri.authority_uri "[2001:0db8:0000:0000:0000:ff00:0042:8329]:8080";;
-- : Uri.authority_uri = IPv6 2001:db8::ff00:42:8329:8080
+# let auth_uri2 = Uri.authority_uri "[2001:0db8:0000:0000:0000:ff00:0042:8329]:8080";;
+val auth_uri2 : Uri.authority_uri = IPv6 2001:db8::ff00:42:8329:8080
+```
+
+### authority_uri_host
+
+```ocaml
+# Uri.authority_uri_host auth_uri0;;
+- : Uri.host = `Domain_name www.example.com
+
+# Uri.authority_uri_host auth_uri1;;
+- : Uri.host = `IPv4 192.168.0.1
+
+# Uri.authority_uri_port auth_uri2;;
+- : int = 8080
+```
+
+### authority_uri_port
+
+```ocaml
+# Uri.authority_uri_port auth_uri0;;
+- : int = 80
+
+# Uri.authority_uri_port auth_uri1;;
+- : int = 80
+
+# Uri.authority_uri_port auth_uri2;;
+- : int = 8080
 ```
 
 ### asterisk_uri

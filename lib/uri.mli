@@ -196,7 +196,7 @@ val pp_absolute_uri : Format.formatter -> absolute_uri -> unit
 
 (** {1 Authority URI} *)
 
-type authority_uri = private host * port
+type authority_uri
 (** [authority_uri] is an uri in an authority form as specified in
     {{!https://www.rfc-editor.org/rfc/rfc9112#name-authority-form}
     authority-form}.
@@ -209,6 +209,12 @@ val authority_uri : string -> authority_uri
 (** [authority_uri s] decodes [s] into [authority_uri].
 
     @raise Invalid_argument if [s] contains invalid authority-uri data. *)
+
+val authority_uri_host : authority_uri -> host
+(** [authority_uri_host uri] is the [host] component of authority uri [uri]. *)
+
+val authority_uri_port : authority_uri -> port
+(** [authority_uri_port uri] is the [port] component of authority uri [uri]. *)
 
 val pp_authority_uri : Format.formatter -> authority_uri -> unit
 (** [pp_authority_uri fmt uri] pretty prints [uri] onto [fmt]. *)
