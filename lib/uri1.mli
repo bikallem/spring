@@ -105,10 +105,17 @@ type port = int
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.3} Port}. *)
 
 type authority = host * port option
-(** [authority] is the host and an optional port information. *)
+(** [authority] is the HTTP URI authority component. It consists of host and an
+    optional port information.
+
+    [userinfo] component of generic URI authority is deprecated in the HTTP URI
+    authority.
+
+    See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2} URI
+    Authority}. *)
 
 val authority : string -> authority
-(** [authority s] decodes [s] into authority. *)
+(** [authority s] decodes [s] into HTTP URI authority. *)
 
 val pp_authority : Format.formatter -> authority -> unit
 (** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
