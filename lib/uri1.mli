@@ -23,6 +23,8 @@
       {e {{!https://datatracker.ietf.org/doc/html/rfc3986#appendix-A} URI
          Generic Syntax}} *)
 
+(** {1 Path and Query} *)
+
 type path
 (** [path] is the path component of a HTTP request target. It starts with [/]
     and ends with possibly [?] character.
@@ -70,6 +72,12 @@ val query_name_values : query -> (string * string) list
 
 val pp_query : Format.formatter -> query -> unit
 (** [pp_query fmt q] pretty prints HTTP URI query component [q] onto [fmt]. *)
+
+val pct_encode : ?query:query -> path -> string
+(** [pct_encode ?query path] percent encodes [path] and [query] into a format
+    suitable for use with HTTP request and response.
+
+    @param query is the optional query component. Default is [None]. *)
 
 type origin_uri
 (** [origin_uri] holds URI path and query information. Starts with [/] e.g.

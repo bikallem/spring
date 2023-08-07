@@ -17,7 +17,9 @@ open Spring
 # #install_printer Domain_name.pp;;
 ```
 
-## make_path
+## Path and Query
+
+### make_path
 
 ```ocaml
 # let p0 = ["path "; "path +:/?#[]@"; "+!$&'()*+,;="];;
@@ -34,7 +36,7 @@ val p1 : string list = [""]
 val path1 : Uri.path = /
 ```
 
-## encode_path
+### encode_path
 
 ```ocaml
 # Uri.encode_path path0;; 
@@ -45,7 +47,7 @@ val path1 : Uri.path = /
 - : string = "/"
 ```
 
-## path_segments
+### path_segments
 
 ```ocaml
 # let p0' = Uri.path_segments path0;;
@@ -61,7 +63,7 @@ val p1' : string list = [""]
 - : bool = true
 ```
 
-## make_query
+### make_query
 
 URI reserved characters are percent encoded.
 
@@ -88,7 +90,7 @@ val nv2 : (string * string) list = [("field1", "value1")]
 val q2 : Uri.query = field1=value1
 ```
 
-## query_name_values
+### query_name_values
 
 ```ocaml
 # let nv0' = Uri.query_name_values q0;;
@@ -112,7 +114,21 @@ val nv2' : (string * string) list = [("field1", "value1")]
 - : bool = true
 ```
 
-## origin_uri
+### pct_encode
+
+```ocaml
+# Uri.pct_encode ~query:q0 path0;;
+- : string =
+"/path%20/path%20%2B%3A%2F%3F%23%5B%5D%40/%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D?field%20%2B%3A%2F%3F%23%5B%5D%40=value%2B%21%24%26%27%28%29%2A%2B%2C%3B%3D&hello=world"
+
+# Uri.pct_encode ~query:q1 path1;;
+- : string = "/?field1=value2&field2=value2"
+
+# Uri.pct_encode path1;;
+- : string = "/"
+```
+
+### origin_uri
 
 ```ocaml
 # let ouri0 = Uri.origin_uri "/home/hello/world/asdaszfAASDFASDGDDZ0123456789-._~!$&'()*+,;=:%AF%9A?a=23/?&b=/?dd";;
@@ -150,7 +166,7 @@ Parse trailing '/'.
                      }
 ```
 
-## origin_uri_path
+### origin_uri_path
 
 ```ocaml
 # Uri.origin_uri_path ouri0;;
@@ -161,7 +177,7 @@ Parse trailing '/'.
 - : Uri.path = /where
 ```
 
-## origin_uri_query
+### origin_uri_query
 
 ```ocaml
 # Uri.origin_uri_query ouri0;;
@@ -171,7 +187,7 @@ Parse trailing '/'.
 - : Uri.query option = Some q=now
 ```
 
-## make_authority
+### make_authority
 
 ```ocaml
 # let auth0 = Uri.make_authority ~port:8080 @@ `IPv4 (Ipaddr.V4.of_string_exn "192.168.0.1");;
@@ -184,7 +200,7 @@ val auth1 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 val auth2 : Uri.authority = Domain www.example.com:3000
 ```
 
-## authority 
+### authority 
 
 ```ocaml
 # let auth00 = Uri.authority "192.168.0.1:8080";;
@@ -197,7 +213,7 @@ val auth11 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
 val auth22 : Uri.authority = Domain www.example.com:3000
 ```
 
-## authority_host
+### authority_host
 
 ```ocaml
 # Uri.authority_host auth0;;
@@ -207,7 +223,7 @@ val auth22 : Uri.authority = Domain www.example.com:3000
 - : Uri.host = `IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1
 ```
 
-## authority_port
+### authority_port
 
 ```ocaml
 # Uri.authority_port auth0;;
@@ -217,7 +233,7 @@ val auth22 : Uri.authority = Domain www.example.com:3000
 - : int option = Some 8080
 ```
 
-## absolute_uri
+### absolute_uri
 
 ```ocaml
 # let abs0 = Uri.absolute_uri "http://example.com:80";;
@@ -256,7 +272,7 @@ val abs2 : Uri.absolute_uri =
   }
 ```
 
-## absolute_uri_scheme
+### absolute_uri_scheme
 
 ```ocaml
 # Uri.absolute_uri_scheme abs0;;
@@ -269,7 +285,7 @@ val abs2 : Uri.absolute_uri =
 - : Uri.scheme = `Https
 ```
 
-## encode_path_and_query
+### encode_path_and_query
 
 ```ocaml
 # Uri.encode_path_and_query abs0;;
@@ -282,7 +298,7 @@ val abs2 : Uri.absolute_uri =
 - : string = "/pub/WWW/"
 ```
 
-## host_and_port
+### host_and_port
 
 ```ocaml
 # Uri.host_and_port abs0;;
@@ -295,7 +311,7 @@ val abs2 : Uri.absolute_uri =
 - : Uri.host * int option = (`Domain_name www.example.com, None)
 ```
 
-## authority_uri
+### authority_uri
 
 ```ocaml
 # Uri.authority_uri "www.example.com:80" ;;
@@ -308,7 +324,7 @@ val abs2 : Uri.absolute_uri =
 - : Uri.authority_uri = IPv6 2001:db8::ff00:42:8329:8080
 ```
 
-## asterisk_uri
+### asterisk_uri
 
 ```ocaml
 # Uri.asterisk_uri "*";;

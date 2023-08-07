@@ -58,13 +58,10 @@ let pct_decode_string s =
   in
   aux ()
 
+(* +-- Path and Query --+ *)
+
 type path = string list
 
-(** [path] is a HTTP URI absolute path string [s]
-
-    [absolute-path = 1*( "/" segment )]
-
-    See {{!https://www.rfc-editor.org/rfc/rfc9110#name-uri-references} URI}. *)
 let path ?(buf = Buffer.create 10) buf_read =
   Buf_read.char '/' buf_read;
   let path1 = segment buf buf_read in
@@ -175,6 +172,12 @@ let query_name_values q =
   loop ()
 
 let pp_query = Fmt.string
+
+let pct_encode ?query path =
+  let path = encode_path path in
+  match query with
+  | Some q -> path ^ "?" ^ q
+  | None -> path
 
 (* +-- Origin URI --+ *)
 
