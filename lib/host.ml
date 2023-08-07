@@ -1,25 +1,27 @@
 type t = Uri1.authority
 
-let make ?port host = (host, port)
+let make ?port host = Uri1.make_authority ?port host
 
-let host (host, _) = host
+let host t = Uri1.authority_host t
 
-let port (_, port) = port
+let port t = Uri1.authority_port t
 
 let decode s = Uri1.authority s
 
-let encode (host, port) =
+let encode t =
   let port =
-    match port with
+    match Uri1.authority_port t with
     | Some p -> ":" ^ string_of_int p
     | None -> ""
   in
-  match host with
+  match Uri1.authority_host t with
   | `IPv6 ip -> Fmt.str "%a%s" Ipaddr.V6.pp ip port
   | `IPv4 ip -> Fmt.str "%a%s" Ipaddr.V4.pp ip port
   | `Domain_name dn -> Fmt.str "%a%s" Domain_name.pp dn port
 
-let equal (t0, p0) (t1, p1) =
+let equal t0 t1 =
+  let t0, p0 = (host t0, port t0) in
+  let t1, p1 = (host t1, port t1) in
   let host_equal =
     match (t0, t1) with
     | `IPv6 ip0, `IPv6 ip1 -> Ipaddr.V6.compare ip0 ip1 = 0
@@ -33,6 +35,8 @@ let equal (t0, p0) (t1, p1) =
 let compare_port p0 p1 = Option.compare Int.compare p0 p1
 
 let compare t0 t1 =
+  let t0 = (host t0, port t0) in
+  let t1 = (host t1, port t1) in
   match (t0, t1) with
   | (`IPv6 ip0, p0), (`IPv6 ip1, p1) ->
     let cmp = Ipaddr.V6.compare ip0 ip1 in
