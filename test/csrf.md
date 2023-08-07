@@ -66,10 +66,8 @@ let host = Host.decode "www.example.com"
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key csrf_tok in
     let token_name = Csrf.token_name form_codec in 
-    let body = Body.writable_form_values 
-      [(token_name, [tok]);
-       ("name2", ["val c"; "val d"; "val e"])
-      ]
+    let body = 
+      Body.writable_form_values [token_name, tok; "name2", "val c"; "name2", "val d"; "name2", "val e"]
     in
     Request.make_client_request
         ~resource:"/post_form"
@@ -98,10 +96,8 @@ Return `Bad Request` response if the CSRF tokens dont' match.
     Eio_main.run @@ fun _env ->
     let tok : string = Spring__Secret.encrypt_base64 nonce key "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" in
     let token_name = Csrf.token_name form_codec in 
-    let body = Body.writable_form_values 
-      [(token_name, [tok]);
-       ("name2", ["val c"; "val d"; "val e"])
-      ]
+    let body = 
+      Body.writable_form_values [token_name, tok;"name2","val c"; "name2","val d"; "name2","val e"]
     in
     Request.make_client_request
         ~resource:"/post_form"

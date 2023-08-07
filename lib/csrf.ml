@@ -23,15 +23,10 @@ let form_codec ?(token_name = "__csrf_token__") key =
     let* ct = Headers.(find_opt content_type headers) in
     let* tok =
       match (Content_type.media_type ct :> string * string) with
-      | "application", "x-www-form-urlencoded" -> (
-        let* toks =
-          Request.readable req
-          |> Body.read_form_values
-          |> List.assoc_opt token_name
-        in
-        match toks with
-        | tok :: _ -> Some tok
-        | _ -> None)
+      | "application", "x-www-form-urlencoded" ->
+        Request.readable req
+        |> Body.read_form_values
+        |> List.assoc_opt token_name
       | "multipart", "formdata" ->
         let rdr = Request.readable req |> Multipart.stream in
         (* Note: anticsrf field must be the first field in multipart/formdata form. *)
