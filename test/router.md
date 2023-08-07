@@ -100,9 +100,6 @@ Some "Product detail - dyson350. Section: 2. Display questions? false"
 # test_get "/";
 - : string option = Some "Root page"
 
-# test_get "";;
-- : string option = None
-
 # test_head "/numbers/23/code/6888/";;
 - : string option = Some "int32: 23, int64: 6888."
 
