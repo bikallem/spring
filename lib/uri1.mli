@@ -114,6 +114,12 @@ type authority = host * port option
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2} URI
     Authority}. *)
 
+val make_authority : ?port:port -> host -> authority
+(** [make_authority host] is the HTTP URI authority component composed of host
+    [host].
+
+    @param port is the authority port component. Default is [None]. *)
+
 val authority : string -> authority
 (** [authority s] decodes [s] into HTTP URI authority. *)
 

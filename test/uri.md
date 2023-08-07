@@ -171,14 +171,30 @@ Parse trailing '/'.
 - : Uri.query option = Some q=now
 ```
 
+## make_authority
+
+```ocaml
+# let auth0 = Uri.make_authority ~port:8080 @@ `IPv4 (Ipaddr.V4.of_string_exn "192.168.0.1");;
+val auth0 : Uri.authority = IPv4 192.168.0.1:8080
+
+# let auth1 = Uri.make_authority ~port:8080 @@ `IPv6 (Ipaddr.V6.of_string_exn "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]");;
+val auth1 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+
+# let auth2 = Uri.make_authority ~port:3000 @@ `Domain_name (Domain_name.of_string_exn "www.example.com");;
+val auth2 : Uri.authority = Domain www.example.com:3000
+```
+
 ## authority 
 
 ```ocaml
-# let auth0 = Uri.authority "192.168.0.1:8080";;
-val auth0 : Uri.authority = IPv4 192.168.0.1:8080
+# let auth00 = Uri.authority "192.168.0.1:8080";;
+val auth00 : Uri.authority = IPv4 192.168.0.1:8080
 
-# let auth1 = Uri.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
-val auth1 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+# let auth11 = Uri.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
+val auth11 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+
+# let auth22 = Uri.authority "www.example.com:3000";;
+val auth22 : Uri.authority = Domain www.example.com:3000
 ```
 
 ## authority_host

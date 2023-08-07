@@ -293,6 +293,8 @@ let authority_ buf buf_read =
   in
   (host, port)
 
+let make_authority ?port host = (host, port)
+
 let authority s =
   let buf = Buffer.create 10 in
   let buf_read = Buf_read.of_string s in
