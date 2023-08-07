@@ -7,7 +7,6 @@
  (libraries
   eio
   ptime
-  uri
   astring
   fmt
   domain-name
