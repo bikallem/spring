@@ -31,11 +31,6 @@ let split_on f l =
 let capitalized s = Char.(uppercase_ascii s.[0] |> equal s.[0])
 
 let validate_path_tokens tokens =
-  let validate_start tokens =
-    match List.hd tokens with
-    | "" -> Ok (List.tl tokens)
-    | _ | (exception _) -> Error "Uri path specification must start with '/'"
-  in
   let validate_end_slash path =
     let _, l2 = split_on (fun x -> String.equal "" x) path in
     if List.length l2 > 0 then
@@ -52,27 +47,21 @@ let validate_path_tokens tokens =
          (**) token"
     else Ok path
   in
-  validate_start tokens >>= validate_end_slash >>= validate_rest
+  validate_end_slash tokens >>= validate_rest
 
 let path_tokens uri =
-  Uri.path uri |> String.split_on_char '/' |> validate_path_tokens
+  Uri1.origin_uri_path uri |> Uri1.path_segments |> validate_path_tokens
 
 let query_tokens uri =
-  let exception E of string in
-  try
-    Uri.query uri
-    |> List.map (fun (k, v) ->
-           if List.length v != 1 then
-             raise
-               (E (Printf.sprintf "Invalid query specification for key: %s" k))
-           else (k, List.hd v))
-    |> Result.ok
-  with E msg -> Error msg
+  (match Uri1.origin_uri_query uri with
+  | Some query -> Uri1.query_name_values query
+  | None -> [])
+  |> Result.ok
 
 let request_target_tokens target =
   let target = String.trim target in
   if String.length target > 0 then
-    let uri = Uri.of_string target in
+    let uri = Uri1.origin_uri target in
     let* path_components = path_tokens uri in
     let* query_components = query_tokens uri in
     Ok (path_components, query_components)
