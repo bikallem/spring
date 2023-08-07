@@ -118,7 +118,7 @@ val authority : string -> authority
 (** [authority s] decodes [s] into HTTP URI authority. *)
 
 val authority_host : authority -> host
-(** [authority_host] is the [host] component of HTTP URI authority. *)
+(** [authority_host auth] is the [host] component of HTTP URI authority [auth]. *)
 
 val authority_port : authority -> int option
 (** [authority_port auth] is [Some port] if authority [auth] contains IP port
