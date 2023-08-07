@@ -104,7 +104,7 @@ type port = int
 
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.3} Port}. *)
 
-type authority = host * port option
+type authority
 (** [authority] is the HTTP URI authority component. It consists of host and an
     optional port information.
 
