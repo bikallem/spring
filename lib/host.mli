@@ -7,15 +7,15 @@ type t
 (** [t] is the HTTP Host header value. It encapsulates host details of a HTTP
     request. *)
 
-val make : ?port:int -> Uri1.host -> t
+val make : ?port:int -> Uri.host -> t
 (** [make host] is [t].
 
     @param port is the TCP/IP port. Default is [None] *)
 
-val host : t -> Uri1.host
+val host : t -> Uri.host
 (** [v t] is [host] component of [t]. *)
 
-val port : t -> Uri1.port option
+val port : t -> Uri.port option
 (** [port t] is the [port] component of [t]. *)
 
 val decode : string -> t

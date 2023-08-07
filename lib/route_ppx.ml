@@ -50,18 +50,18 @@ let validate_path_tokens tokens =
   validate_end_slash tokens >>= validate_rest
 
 let path_tokens uri =
-  Uri1.origin_uri_path uri |> Uri1.path_segments |> validate_path_tokens
+  Uri.origin_uri_path uri |> Uri.path_segments |> validate_path_tokens
 
 let query_tokens uri =
-  (match Uri1.origin_uri_query uri with
-  | Some query -> Uri1.query_name_values query
+  (match Uri.origin_uri_query uri with
+  | Some query -> Uri.query_name_values query
   | None -> [])
   |> Result.ok
 
 let request_target_tokens target =
   let target = String.trim target in
   if String.length target > 0 then
-    let uri = Uri1.origin_uri target in
+    let uri = Uri.origin_uri target in
     let* path_components = path_tokens uri in
     let* query_components = query_tokens uri in
     Ok (path_components, query_components)

@@ -55,10 +55,10 @@ val make_client_request :
     @param version HTTP version of [t]. Default is [1.1].
     @param headers HTTP request headers of [t]. Default is [Headers.empty] . *)
 
-val host : client t -> Uri1.host
+val host : client t -> Uri.host
 (** [host t] is the server host name which handles the request [t]. *)
 
-val port : client t -> Uri1.port option
+val port : client t -> Uri.port option
 (** [port t] is [Some p] if a port component exists in [Host] header in [t]. It
     is [None] otherwise. *)
 

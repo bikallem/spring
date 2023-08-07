@@ -1,20 +1,20 @@
-type t = Uri1.authority
+type t = Uri.authority
 
-let make ?port host = Uri1.make_authority ?port host
+let make ?port host = Uri.make_authority ?port host
 
-let host t = Uri1.authority_host t
+let host t = Uri.authority_host t
 
-let port t = Uri1.authority_port t
+let port t = Uri.authority_port t
 
-let decode s = Uri1.authority s
+let decode s = Uri.authority s
 
 let encode t =
   let port =
-    match Uri1.authority_port t with
+    match Uri.authority_port t with
     | Some p -> ":" ^ string_of_int p
     | None -> ""
   in
-  match Uri1.authority_host t with
+  match Uri.authority_host t with
   | `IPv6 ip -> Fmt.str "%a%s" Ipaddr.V6.pp ip port
   | `IPv4 ip -> Fmt.str "%a%s" Ipaddr.V4.pp ip port
   | `Domain_name dn -> Fmt.str "%a%s" Domain_name.pp dn port
@@ -53,4 +53,4 @@ let compare t0 t1 =
   | (`IPv4 _, _), (`Domain_name _, _) -> 1
   | (`Domain_name _, _), (`IPv4 _, _) -> -1
 
-let pp fmt t = Uri1.pp_authority fmt t
+let pp fmt t = Uri.pp_authority fmt t

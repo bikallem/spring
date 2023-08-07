@@ -198,17 +198,17 @@ let rec match' : request -> 'a t -> 'a option =
  fun req t ->
   let method' = Request.meth req in
   let resource = Request.resource req in
-  let origin_uri = Uri1.origin_uri resource in
+  let origin_uri = Uri.origin_uri resource in
   let path_tokens =
     origin_uri
-    |> Uri1.origin_uri_path
-    |> Uri1.path_segments
+    |> Uri.origin_uri_path
+    |> Uri.path_segments
     |> List.map (fun tok -> `Path tok)
   in
   let query_tokens =
-    match Uri1.origin_uri_query origin_uri with
+    match Uri.origin_uri_query origin_uri with
     | Some query ->
-      Uri1.query_name_values query
+      Uri.query_name_values query
       |> List.map (fun (name, value) -> `Query (name, value))
     | None -> []
   in
