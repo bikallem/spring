@@ -376,6 +376,8 @@ let pp_absolute_uri fmt absolute_uri =
   in
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt absolute_uri
 
+let absolute_uri_scheme (scheme, _, _, _, _) = scheme
+
 let encode_path_and_query (_, _, _, path, query) =
   let path = encode_path path in
   match query with

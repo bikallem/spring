@@ -256,6 +256,19 @@ val abs2 : Uri.absolute_uri =
   }
 ```
 
+## absolute_uri_scheme
+
+```ocaml
+# Uri.absolute_uri_scheme abs0;;
+- : Uri.scheme = `Http
+
+# Uri.absolute_uri_scheme abs1;;
+- : Uri.scheme = `Https
+
+# Uri.absolute_uri_scheme abs2;;
+- : Uri.scheme = `Https
+```
+
 ## encode_path_and_query
 
 ```ocaml
