@@ -387,6 +387,8 @@ let encode_path_and_query (_, _, _, path, query) =
   | Some q -> path ^ "?" ^ q
   | None -> path
 
+let absolute_uri_path_and_query (_, _, _, path, query) = (path, query)
+
 let host_and_port (_, host, port, _, _) = (host, port)
 
 type authority_uri = host * port

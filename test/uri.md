@@ -285,6 +285,19 @@ val abs2 : Uri.absolute_uri =
 - : Uri.scheme = `Https
 ```
 
+### absolute_uri_path_and_query
+
+```ocaml
+# Uri.absolute_uri_path_and_query abs0;;
+- : Uri.path * Uri.query option = (/, None)
+
+# Uri.absolute_uri_path_and_query abs1;;
+- : Uri.path * Uri.query option = (/pub/WWW/TheProject.html, Some a=v1&b=v2)
+
+# Uri.absolute_uri_path_and_query abs2;;
+- : Uri.path * Uri.query option = (/pub/WWW/, None)
+```
+
 ### encode_path_and_query
 
 ```ocaml
