@@ -17,7 +17,7 @@ let test_client r =
   Eio.traceln "%s" (Buffer.contents b);;
 ```
 
-## Request.parse_server_request
+### parse_server_request
 
 Mock the client addr.
 
@@ -29,7 +29,7 @@ let make_buf_read version meth connection =
   Eio.Buf_read.of_string s
 ```
 
-### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
+#### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "TE";;
@@ -48,7 +48,7 @@ val r : Request.server Request.t = <abstr>
 - : unit = ()
 ```
 
-### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
+#### Parse HTTP/1.1 GET request. Keep-alive should be `true`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "keep-alive, TE";;
@@ -67,7 +67,7 @@ val r : Request.server Request.t = <abstr>
 - : bool = true
 ```
 
-### Parse HTTP/1.1 GET request. Keep-alive should be `false`.
+#### Parse HTTP/1.1 GET request. Keep-alive should be `false`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.1" "get" "close, TE";;
@@ -85,7 +85,7 @@ val r : Request.server Request.t = <abstr>
 # Request.keep_alive r ;;
 - : bool = false
 ```
-### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
+#### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "TE" ;;
@@ -104,7 +104,7 @@ val r : Request.server Request.t = <abstr>
 - : bool = false
 ```
 
-### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
+#### Parse HTTP/1.0 GET request. Keep-alive should be `false`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "close, TE" ;;
@@ -122,7 +122,7 @@ val r : Request.server Request.t = <abstr>
 # Request.keep_alive r ;;
 - : bool = false
 ```
-### Parse HTTP/1.0 GET request. Keep-alive should be `true`.
+#### Parse HTTP/1.0 GET request. Keep-alive should be `true`.
 
 ```ocaml
 # let r = Request.parse_server_request client_addr @@ make_buf_read "1.0" "get" "keep-alive, TE" ;;
@@ -141,7 +141,7 @@ val r : Request.server Request.t = <abstr>
 - : bool = true
 ```
 
-### Parse request methods - Head, Delete, Options, Trace, Connect, Post, Put and Patch - correctly.
+#### Parse request methods - Head, Delete, Options, Trace, Connect, Post, Put and Patch - correctly.
 
 ```ocaml
 let parse_method m = 
@@ -175,7 +175,7 @@ let parse_method m =
 - : bool = true
 ```
 
-## Request.pp
+### pp
 
 Pretty-print `client Request.t`.
 
@@ -237,7 +237,7 @@ val req : Request.server Request.t = <abstr>
 - : unit = ()
 ```
 
-## Request.find_cookie
+### find_cookie
 
 ```ocaml
 # let headers = Headers.of_list ["Cookie", "SID=31d4d96e407aad42; lang=en"] ;;
@@ -264,7 +264,7 @@ val req : Request.server Request.t = <abstr>
 - : string option = None
 ```
 
-## Request.add_cookie
+### add_cookie
 
 ```ocaml
 # let req = 
@@ -286,7 +286,7 @@ val req : Request.client Request.t = <abstr>
 - : string option = Some "en"
 ```
 
-## Request.remove_cookie
+### remove_cookie
 
 ```ocaml
 # let headers = Headers.of_list ["Cookie", "SID=31d4d96e407aad42;lang=en"] ;;
@@ -315,7 +315,7 @@ val req : Request.client Request.t = <abstr>
 - : string option = None
 ```
 
-## Request.add_session_data/find_session_data
+### add_session_data/find_session_data
 
 ```ocaml
 # let req =
@@ -333,7 +333,20 @@ val req : Request.server Request.t = <abstr>
 - : string option = Some "a_val"
 ```
 
-## Request.parse_server_request/find_session_data
+### make_server_request
+
+`resource` parameter with empty string value is invalid.
+
+```ocaml
+# Request.make_server_request
+    ~resource:"" 
+    Method.get
+    client_addr
+    (Eio.Buf_read.of_string "");;
+Exception: Invalid_argument "[resource] is an empty string".
+```
+
+### parse_server_request/find_session_data
 
 Parse with session data initialized
 
