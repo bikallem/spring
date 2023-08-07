@@ -269,6 +269,19 @@ val abs2 : Uri.absolute_uri =
 - : string = "/pub/WWW/"
 ```
 
+## host_and_port
+
+```ocaml
+# Uri.host_and_port abs0;;
+- : Uri.host * int option = (`Domain_name example.com, Some 80)
+
+# Uri.host_and_port abs1;;
+- : Uri.host * int option = (`Domain_name www.example.org, None)
+
+# Uri.host_and_port abs2;;
+- : Uri.host * int option = (`Domain_name www.example.com, None)
+```
+
 ## authority_uri
 
 ```ocaml
