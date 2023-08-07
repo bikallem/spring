@@ -38,8 +38,12 @@ type path
     See {{!https://datatracker.ietf.org/doc/html/rfc3986#section-3.3} Path}. *)
 
 val make_path : string list -> path
-(** [make_path l] is absolute path [p]. [l] is the list of path components which
-    are percent encoded in [p]. *)
+(** [make_path l] is absolute path [p] where items in [l] are percent encoded.
+    {b Note} [l] should not have any items where item [x] is ["" = x]. However,
+    this restriction is relaxed if the item is the last item in [l]. An empty
+    string [""] at the last position of [l] denotes a trailing [/].
+
+    @raise Invalid_argument if [l] contains one or more invalid path segments. *)
 
 val encode_path : path -> string
 (** [encode_path p] is path [p] formatted to HTTP path format. *)

@@ -80,9 +80,12 @@ let path ?(buf = Buffer.create 10) buf_read =
 let make_path l =
   let buf = Buffer.create 64 in
   let ppf = Fmt.with_buffer buf in
-  List.map
-    (fun comp ->
-      pct_encode_string ppf comp;
+  let len = List.length l in
+  List.mapi
+    (fun i comp ->
+      if String.is_empty comp && i <> len - 1 then
+        invalid_arg @@ Fmt.str "[l] contains empty path segment at index %i" i
+      else pct_encode_string ppf comp;
       let s = Buffer.contents buf in
       Buffer.clear buf;
       s)

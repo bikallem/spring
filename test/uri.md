@@ -36,6 +36,20 @@ val p1 : string list = [""]
 val path1 : Uri.path = /
 ```
 
+Empty string at the tail position denotes a trailing `/`.
+
+```ocaml
+# Uri.make_path ["hello"; "/"];;
+- : Uri.path = /hello/%2F
+```
+
+Empty string in any position other than the last is an error.
+
+```ocaml
+# Uri.make_path ["hello"; ""; "a"];;
+Exception: Invalid_argument "[l] contains empty path segment at index 1".
+```
+
 ### encode_path
 
 ```ocaml
