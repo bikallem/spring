@@ -12,6 +12,9 @@ open Spring
 # #install_printer Uri.pp_absolute_uri;;
 # #install_printer Uri.pp_authority_uri;;
 # #install_printer Uri.pp_asterisk_uri;;
+# #install_printer Ipaddr.V6.pp;;
+# #install_printer Ipaddr.V4.pp;;
+# #install_printer Domain_name.pp;;
 ```
 
 ## make_path
@@ -171,11 +174,21 @@ Parse trailing '/'.
 ## authority 
 
 ```ocaml
-# Uri.authority "192.168.0.1:8080";;
-- : Uri.authority = IPv4 192.168.0.1:8080
+# let auth0 = Uri.authority "192.168.0.1:8080";;
+val auth0 : Uri.authority = IPv4 192.168.0.1:8080
 
-# Uri.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
-- : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+# let auth1 = Uri.authority "[2001:db8:aaaa:bbbb:cccc:dddd:eeee:1]:8080";;
+val auth1 : Uri.authority = IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1:8080
+```
+
+## authority_host
+
+```ocaml
+# Uri.authority_host auth0;;
+- : Uri.host = `IPv4 192.168.0.1
+
+# Uri.authority_host auth1;;
+- : Uri.host = `IPv6 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1
 ```
 
 ## absolute_uri

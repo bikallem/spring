@@ -298,6 +298,8 @@ let authority s =
   let buf_read = Buf_read.of_string s in
   authority_ buf buf_read
 
+let authority_host (host, _) = host
+
 type scheme =
   [ `Http
   | `Https

@@ -117,6 +117,9 @@ type authority = host * port option
 val authority : string -> authority
 (** [authority s] decodes [s] into HTTP URI authority. *)
 
+val authority_host : authority -> host
+(** [authority_host] is the [host] component of HTTP URI authority. *)
+
 val pp_authority : Format.formatter -> authority -> unit
 (** [pp_authority fmt auth] pretty prints [auth] onto [fmt]. *)
 
