@@ -175,19 +175,19 @@ let test_client f =
 
 ```ocaml
 # test_client @@ fun t ->
-  let form = [("name1", ["val a"; "val b"; "val c"]); ("name2", ["val c"; "val d"; "val e"])] in
+  let form = ["name1","val a"; "name1","val b"; "name1","val c"; "name2", "val c"; "name2","val d"; "name2","val e"] in
   Client.post_form_values t form "www.example.com/upload";;
 +net: getaddrinfo ~service:80 www.example.com
 +net: connect to tcp:127.0.0.1:80
 +www.example.com: wrote "post /upload HTTP/1.1\r\n"
 +                       "Host: www.example.com\r\n"
-+                       "Content-Length: 59\r\n"
++                       "Content-Length: 83\r\n"
 +                       "Content-Type: application/x-www-form-urlencoded\r\n"
 +                       "Connection: TE\r\n"
 +                       "Te: trailers\r\n"
 +                       "User-Agent: spring\r\n"
 +                       "\r\n"
-+                       "name1=val%20a,val%20b,val%20c&name2=val%20c,val%20d,val%20e"
++                       "name1=val%20a&name1=val%20b&name1=val%20c&name2=val%20c&name2=val%20d&name2=val%20e"
 +www.example.com: read "HTTP/1.1 200 OK\r\n"
 +www.example.com: read "content-length: 0\r\n"
 +                      "\r\n"

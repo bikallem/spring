@@ -89,14 +89,13 @@ val post : t -> Body.writable -> uri -> 'a handler -> 'a
     @raise Invalid_argument if [uri] is invalid.
     @raise Eio.Exn.Io in cases of connection errors. *)
 
-val post_form_values :
-  t -> (string * string list) list -> uri -> 'a handler -> 'a
+val post_form_values : t -> (string * string) list -> uri -> 'a handler -> 'a
 (** [post_form_values t form_values uri] is [response] after making a HTTP POST
     request call to [uri] with form values [form_values].
 
     {[
       Client.post_form_values t
-        [ ("field_a", [ "val a1"; "val a2" ]); ("field_b", [ "val b" ]) ]
+        [ ("field_a", "val a2"); ("field_b", "val b"]) ]
         uri
     ]}
     @raise Invalid_argument if [uri] is invalid.
