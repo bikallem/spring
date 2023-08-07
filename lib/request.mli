@@ -94,7 +94,9 @@ val make_server_request :
 
     @param version HTTP version of [t]. Default is [1.1].
     @param headers HTTP request headers of [t]. Default is [Headers.empty] .
-    @param session_data is the Session data for the request. Default is [None]. *)
+    @param session_data is the Session data for the request. Default is [None].
+
+    @raise Invalid_argument if [resource] is an empty string. *)
 
 val client_addr : server t -> Eio.Net.Sockaddr.stream
 (** [client_addr t] is the client socket *)

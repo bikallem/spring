@@ -139,12 +139,15 @@ let make_server_request
     meth
     client_addr
     buf_read =
-  let server = { client_addr; buf_read; session_data } in
-  let pp =
-    Fmt.(field "Client Address" (fun t -> t.x.client_addr) Eio.Net.Sockaddr.pp)
-    |> pp_fields
-  in
-  { meth; resource; version; headers; x = server; pp }
+  if String.is_empty resource then invalid_arg "[resource] is an empty string"
+  else
+    let server = { client_addr; buf_read; session_data } in
+    let pp =
+      Fmt.(
+        field "Client Address" (fun t -> t.x.client_addr) Eio.Net.Sockaddr.pp)
+      |> pp_fields
+    in
+    { meth; resource; version; headers; x = server; pp }
 
 let client_addr t = t.x.client_addr
 
