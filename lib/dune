@@ -17,6 +17,7 @@
   fpath
   tls
   tls-eio
+  ca-certs
   magic-mime
   mirage-crypto
   mirage-crypto-rng
