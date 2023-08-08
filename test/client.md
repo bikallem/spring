@@ -257,7 +257,7 @@ let () = Eio_mock.Flow.on_read
     let timeout = Eio.Time.Timeout.seconds env#mono_clock 0.01 in
     let t = Client.make ~timeout sw env#net in
     Eio.traceln "Timeout: %a" Eio.Time.Timeout.pp (Client.timeout t);
-    Client.get t "www.example.com" @@ fun (_:Response.client Response.t) -> ()
+    Client.get t "localhost" @@ fun (_:Response.client Response.t) -> ()
   with 
     | Eio.Time.Timeout -> ()
     | Eio.Io _ -> ();;
