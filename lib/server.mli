@@ -122,19 +122,24 @@ val make :
   -> #Eio.Time.clock
   -> #Eio.Net.t
   -> t
-(** [make t ~secure_random ~on_error clock net handler] is a HTTP server [t].
+(** [make ~secure_random ~on_error clock net] is a HTTP server [t].
 
-    {b Running a Parallel Server} By default [t] runs on a {e single} OCaml
+    {b Running a Parallel Server:} By default [t] runs on a {e single} OCaml
     {!module:Domain}. However, if [additional_domains:(domain_mgr, domains)]
     parameter is given, then [t] will spawn [domains] additional domains and run
-    accept loops in those too. In such cases you must ensure that [handler] only
-    accesses thread-safe values. Note that having more than
+    accept loops in those too. In such cases you must ensure that request
+    handlers only accesses thread-safe values. Note that having more than
     {!Domain.recommended_domain_count} domains in total is likely to result in
     bad performance.
 
     @param max_connections
       The maximum number of concurrent connections accepted by [t] at any time.
       The default is [Int.max_int].
+
+    @param additional_domains
+      denotes the setting for running server [t] in multiple domains.
+    @param make_handler
+      is the {!type:make_handler}. Default is {!val:default_make_handler}.
     @param session_codec
       is the session codec implementation to be used by the [t]. The default
       value is [Session.cookie_codec].
@@ -146,9 +151,6 @@ val make :
       - environment variable [___SPRING_MASTER_KEY___]
       - file [master.key]. The [master.key] file can be generated using
         [spring.exe key] command.
-    @param csrf_token_name
-      is the form field name which holds the anticsrf token value. The default
-      value is "__csrf_token__".
     @param secure_random
       in the OS dependent secure random number generator. It is usually
       [Eio.Stdenv.secure_random]. *)
