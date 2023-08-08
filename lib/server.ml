@@ -14,10 +14,7 @@ type pipeline = handler -> handler
 (* RFC 9112 states that host is required in server requests and server MUST
     send bad request if Host header value is not correct.
 
-    https://www.rfc-editor.org/rfc/rfc9112#section-3.2
-
-    TODO bikal add tests for IPv6 host parsing after
-    https://github.com/mirage/ocaml-uri/pull/169 if merged. *)
+    https://www.rfc-editor.org/rfc/rfc9112#section-3.2 *)
 let host_header : pipeline =
  fun (next : handler) req ->
   try
