@@ -16,6 +16,7 @@
   base64
   fpath
   tls
+  tls-eio
   magic-mime
   mirage-crypto
   mirage-crypto-rng
