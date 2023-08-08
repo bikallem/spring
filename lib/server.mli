@@ -187,7 +187,7 @@ val add_route : Method.t -> 'f request_target -> 'f -> t -> t
 
 val serve_dir :
      on_error:(exn -> response)
-  -> dirpath:#Eio.Fs.dir Eio.Path.t
+  -> dirpath:_ Eio.Path.t
   -> (string -> request -> response) request_target
   -> t
   -> t
@@ -244,7 +244,7 @@ val serve_dir :
 
 val serve_file :
      on_error:(exn -> response)
-  -> filepath:#Eio.Fs.dir Eio.Path.t
+  -> filepath:_ Eio.Path.t
   -> (request -> response) request_target
   -> t
   -> t
