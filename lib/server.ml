@@ -210,21 +210,44 @@ let rec handle_request clock client_addr buf_read buf_write handler =
     write_response Response.internal_server_error;
     raise ex
 
-let connection_handler handler clock flow client_addr =
+let connection_handler
+    ?tls_certificates
+    handler
+    clock
+    (flow : #Eio.Net.stream_socket)
+    client_addr =
+  let flow =
+    match tls_certificates with
+    | Some certs ->
+      let server_config =
+        Tls.Config.(
+          server ~version:(`TLS_1_0, `TLS_1_3) ~certificates:(`Multiple certs)
+            ~ciphers:Ciphers.supported ())
+      in
+      (Tls_eio.server_of_flow server_config flow :> Eio.Flow.two_way)
+    | None -> (flow :> Eio.Flow.two_way)
+  in
   let reader = Buf_read.of_flow ~initial_size:0x1000 ~max_size:max_int flow in
   Eio.Buf_write.with_flow flow (fun buf_write ->
       handle_request clock client_addr reader buf_write handler)
 
-let run socket t =
-  let connection_handler = connection_handler (t.make_handler t) t.clock in
+let run ?tls_certificates socket t =
+  let connection_handler =
+    connection_handler ?tls_certificates (t.make_handler t) t.clock
+  in
   t.run socket connection_handler
 
-let run_local ?(reuse_addr = true) ?(socket_backlog = 128) ?(port = 80) t =
+let run_local
+    ?tls_certificates
+    ?(reuse_addr = true)
+    ?(socket_backlog = 128)
+    ?(port = 80)
+    t =
   Eio.Switch.run @@ fun sw ->
   let addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, port) in
   let socket =
     Eio.Net.listen ~reuse_addr ~backlog:socket_backlog ~sw t.net addr
   in
-  run socket t
+  run ?tls_certificates socket t
 
 let shutdown t = Eio.Promise.resolve t.stop_u ()

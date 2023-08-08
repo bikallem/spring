@@ -251,14 +251,31 @@ val serve_file :
 
 (** {1 Running Servers} *)
 
-val run : Eio.Net.listening_socket -> t -> unit
-(** [run socket t] runs a HTTP/1.1 server [t] listening on socket [socket]. *)
+val run :
+     ?tls_certificates:Tls.Config.certchain list
+  -> Eio.Net.listening_socket
+  -> t
+  -> unit
+(** [run socket t] runs a HTTP(S)/1.1 server [t] listening on socket [socket].
+    If [tls_certificates] is given then HTTPS/1.1 server is created.
+
+    @param tls_certificates
+      TLS/1.3 of TLS/1.0 server certificates. Default is [None] *)
 
 val run_local :
-  ?reuse_addr:bool -> ?socket_backlog:int -> ?port:int -> t -> unit
-(** [run_local t] runs HTTP/1.1 server [t] on a local TCP/IP address
+     ?tls_certificates:Tls.Config.certchain list
+  -> ?reuse_addr:bool
+  -> ?socket_backlog:int
+  -> ?port:int
+  -> t
+  -> unit
+(** [run_local t] runs HTTP(S)/1.1 server [t] on a local TCP/IP address
     [localhost].
 
+    If [tls_certificates] is given then HTTPS/1.1 server is created.
+
+    @param tls_certificates
+      TLS/1.3 of TLS/1.0 server certificates. Default is [None].
     @param reuse_addr
       configures listening socket to reuse [localhost] address. Default value is
       [true].
@@ -267,9 +284,18 @@ val run_local :
       is the port number for TCP/IP address [localhost]. Default is [80]. *)
 
 val connection_handler :
-  handler -> #Eio.Time.clock -> Eio.Net.connection_handler
+     ?tls_certificates:Tls.Config.certchain list
+  -> handler
+  -> #Eio.Time.clock
+  -> Eio.Net.connection_handler
 (** [connection_handler handler clock] is a connection handler, suitable for
-    passing to {!Eio.Net.accept_fork}. *)
+    passing to {!Eio.Net.accept_fork}.
+
+    If [tls_certificates] is given then the connection is upgraded to TLS/1.0 or
+    TLS/1.3 socket.
+
+    @param tls_certificates
+      TLS/1.3 of TLS/1.0 server certificates. Default is [None] *)
 
 val shutdown : t -> unit
 (** [shutdown t] instructs [t] to stop accepting new connections and waits for
