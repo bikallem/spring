@@ -15,6 +15,7 @@
   ipaddr
   base64
   fpath
+  tls
   magic-mime
   mirage-crypto
   mirage-crypto-rng
