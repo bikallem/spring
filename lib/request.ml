@@ -43,14 +43,10 @@ let find_cookie name t =
   Cookie.find_opt name cookie
 
 type client =
-  { host : Host.t
+  { scheme : Uri.scheme
+  ; host : Host.t
   ; body : Body.writable
   }
-
-let _host_port_to_string (host, port) =
-  match port with
-  | Some p -> Format.sprintf "%s:%d" host p
-  | None -> host
 
 let pp_fields x_field_pp fmt t =
   let fields =
@@ -69,15 +65,18 @@ let pp_fields x_field_pp fmt t =
   Fmt.(vbox @@ (open_bracket ++ cut ++ const char '}')) fmt t
 
 let make_client_request
+    ?(scheme = `Http)
     ?(version = Version.http1_1)
     ?(headers = Headers.empty)
     ~resource
     host
     meth
     body =
-  let client = { host; body } in
+  let client = { scheme; host; body } in
   let pp = Fmt.(field "Host" (fun t -> t.x.host) Host.pp) |> pp_fields in
   { meth; resource; version; headers; x = client; pp }
+
+let scheme t = t.x.scheme
 
 let host t = Host.host t.x.host
 

@@ -41,7 +41,8 @@ type client
 (** [client] a HTTP client request. *)
 
 val make_client_request :
-     ?version:Version.t
+     ?scheme:Uri.scheme
+  -> ?version:Version.t
   -> ?headers:Headers.t
   -> resource:resource
   -> Host.t
@@ -52,8 +53,12 @@ val make_client_request :
     request url [resource]. [host] represents a HTTP server that will process
     [t]. [meth] is the HTTP request method. [body] is the request body.
 
+    @param scheme is the HTTP request [t] connection scheme. Default is [`Http].
     @param version HTTP version of [t]. Default is [1.1].
     @param headers HTTP request headers of [t]. Default is [Headers.empty] . *)
+
+val scheme : client t -> Uri.scheme
+(** [scheme req] is the HTTP request [req] connection scheme. *)
 
 val host : client t -> Uri.host
 (** [host t] is the server host name which handles the request [t]. *)
