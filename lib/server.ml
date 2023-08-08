@@ -113,7 +113,7 @@ let router t = t.router
 let make
     ?(max_connections = Int.max_int)
     ?additional_domains
-    ?make_handler
+    ?(make_handler = default_make_handler)
     ?session_codec
     ?master_key
     ~on_error
@@ -135,11 +135,6 @@ let make
   in
   let clock = (clock :> Eio.Time.clock) in
   let net = (net :> Eio.Net.t) in
-  let make_handler =
-    match make_handler with
-    | Some mh -> mh
-    | None -> default_make_handler
-  in
   let run socket handler =
     Eio.Fiber.first
       (fun () -> Eio.Promise.await stop)
