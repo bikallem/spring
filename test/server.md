@@ -25,7 +25,7 @@ let handler req =
   | _ -> Response.not_found
 ```
 
-## Server.run/Server.run_local
+### Server.run/Server.run_local
 
 <!-- $MDX set-SPRING_MASTER_KEY=knFR+ybPVw/DJoOn+e6vpNNU2Ip2Z3fj1sXMgEyWYhA -->
 ```ocaml
@@ -74,7 +74,7 @@ let handler req =
 - : unit = ()
 ```
 
-## Server.pipeline  
+### Server.pipeline  
 
 A `router` pipeline is a simple `Request.resource` based request router. It only handles resource path "/" and delegates the rest to the builtin `Server.not_found_handler`. When a request is sent with "/" then we get a "hello, there" text response. However, if we try with any other resource path, we get `404 Not Found` response.
 
@@ -113,7 +113,7 @@ let final_handler : Server.handler = router @@ Server.not_found_handler
 - : unit = ()
 ```
 
-## Server.host_header
+### Server.host_header
 
 ```ocaml
 let client_addr = `Tcp (Eio.Net.Ipaddr.V4.loopback, 8081)
@@ -189,7 +189,7 @@ val res1 : Server.response = <abstr>
 - : unit = ()
 ```
 
-## Server.response_date
+### Server.response_date
 
 ```ocaml
 let mock_clock = Eio_mock.Clock.make ()
@@ -260,7 +260,7 @@ val h : Server.handler = <fun>
 ```
 
 
-## Server.host_header/response_data
+### Server.host_header/response_data
 
 Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/rfc9112#section-3.2
 
@@ -333,7 +333,7 @@ Check that "Host" header value is validated. See https://www.rfc-editor.org/rfc/
 - : unit = ()
 ```
 
-## Server.session_pipeline
+### Server.session_pipeline
 
 ```ocaml
 let make_session_cookie session key = 
