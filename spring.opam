@@ -31,6 +31,7 @@ depends: [
   "tls" {>= "0.17.1"}
   "tsl-eio" {>= "0.17.1"}
   "ca-certs" {>= "0.2.3"}
+  "x509" {>= "0.16.5"}
   "cstruct" {>= "6.1.1" & with-test}
   "mdx" {>= "2.3.0" & with-test}
   "odoc" {with-doc}
