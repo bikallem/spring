@@ -1,8 +1,14 @@
+(** HTTP [Transfer-Encoding] header.
+
+    See {{!https://www.rfc-editor.org/rfc/rfc9112#name-transfer-encoding}
+    Transfer-Encoding}. *)
+
 type t
 
 (** {1 Encoding} *)
 
 type encoding
+(** [encoding] is HTTP encoding. *)
 
 val encoding : string -> encoding
 
