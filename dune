@@ -3,3 +3,5 @@
   (flags
    ; Warning 60 [unused-module]: unused module M. 
    (:standard -w +60))))
+
+(vendored_dirs vendor)
