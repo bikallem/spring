@@ -23,4 +23,5 @@ val to_string : t -> string
 val pp : Format.formatter -> t -> unit
 (** [pp fmt t] pretty prints [t] onto [fmt]. *)
 
-val p : t Buf_read.parser
+val parse : t Buf_read.parser
+(** [parse buf_read] parses HTTP version [t] from [buf_read]. *)

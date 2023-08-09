@@ -13,7 +13,7 @@ let to_string (major, minor) =
 
 let pp fmt t = Format.fprintf fmt "%s" @@ to_string t
 
-let p =
+let parse =
   let open Buf_read.Syntax in
   let* major =
     Buf_read.string "HTTP/" *> Buf_read.any_char <* Buf_read.char '.'

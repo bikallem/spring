@@ -178,7 +178,7 @@ let parse_server_request ?session client_addr (buf_read : Buf_read.t) =
       buf_read
   in
   let resource = Buf_read.(take_while1 (fun c -> c != ' ') <* space) buf_read in
-  let version = (Version.p <* Buf_read.crlf) buf_read in
+  let version = (Version.parse <* Buf_read.crlf) buf_read in
   let headers = Headers.parse buf_read in
   let session_data =
     let open Option.Syntax in

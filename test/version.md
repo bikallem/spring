@@ -11,9 +11,9 @@ open Eio
 # let r = Buf_read.of_string "HTTP/1.1";;
 val r : Buf_read.t = <abstr>
 
-# Version.p r;;
+# Version.parse r;;
 - : Version.t = (1, 1)
 
-# Version.p (Buf_read.of_string "HTTP/1.0");;
+# Version.parse (Buf_read.of_string "HTTP/1.0");;
 - : Version.t = (1, 0)
 ```

@@ -62,7 +62,7 @@ let p_status =
   Status.make (int_of_string status) phrase
 
 let parse_client_response buf_read =
-  let version = (Version.p <* Buf_read.space) buf_read in
+  let version = (Version.parse <* Buf_read.space) buf_read in
   let status = Buf_read.(p_status <* crlf) buf_read in
   let headers = Headers.parse buf_read in
   let client = { buf_read; closed = false } in
