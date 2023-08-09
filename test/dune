@@ -1,5 +1,12 @@
+(copy_files certificates/*.pem)
+
+(copy_files certificates/*.key)
+
+(copy_files ../examples/hello/master.key)
+
 (mdx
  (package spring)
+ (deps server.pem server.key server-ec.pem server-ec.key)
  (libraries
   eio
   eio.core
@@ -15,6 +22,9 @@
   base64
   ohtml
   ipaddr
+  tls
+  tls-eio
+  unix
   mirage-crypto
   mirage-crypto-rng
   mirage-crypto-rng-eio
