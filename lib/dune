@@ -18,6 +18,7 @@
   tls
   tls-eio
   ca-certs
+  x509
   magic-mime
   mirage-crypto
   mirage-crypto-rng
