@@ -19,6 +19,7 @@ val make :
   -> ?read_initial_size:int
   -> ?write_initial_size:int
   -> ?maximum_conns_per_host:int
+  -> ?authenticate_tls:bool
   -> Eio.Switch.t
   -> #Eio.Net.t
   -> t
@@ -41,7 +42,9 @@ val make :
       is the initial client buffered writer size. Default is [0x1000].
     @param max_conns_per_host
       is the maximum number of connections cached per host,port. The default is
-      [5]. *)
+      [5].
+    @param authenticate_tls
+      if [true] authenticates HTTPS/TLS certificates. Default is [true]. *)
 
 (** {1:common Common Client Use-Cases}
 

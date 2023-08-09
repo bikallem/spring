@@ -33,6 +33,7 @@ type t =
   ; net : Eio.Net.t
   ; mutex : Eio.Mutex.t
   ; cache : connection_stream Cache.t
+  ; tls_authenticator : X509.Authenticator.t
   }
 
 let make
@@ -40,8 +41,16 @@ let make
     ?(read_initial_size = 0x1000)
     ?(write_initial_size = 0x1000)
     ?(maximum_conns_per_host = 5)
+    ?(authenticate_tls = true)
     sw
     (net : #Eio.Net.t) =
+  let tls_authenticator =
+    if authenticate_tls then
+      match Ca_certs.authenticator () with
+      | Ok a -> a
+      | Error (`Msg m) -> invalid_arg ("failed to trust anchors: " ^ m)
+    else fun ?ip:_ ~host:_ _ -> Ok None
+  in
   { timeout
   ; read_initial_size
   ; write_initial_size
@@ -50,61 +59,48 @@ let make
   ; net :> Eio.Net.t
   ; mutex = Eio.Mutex.create ()
   ; cache = Cache.create 1
+  ; tls_authenticator
   }
 
+let tls_connect t flow =
+  let authenticator = t.tls_authenticator in
+  let config = Tls.Config.client ~authenticator () in
+  (Tls_eio.client_of_flow config flow :> Eio.Flow.two_way)
+
 (* Specialized version of Eio.Net.with_tcp_connect *)
-let tcp_connect sw ~host ~service net =
+let connect t scheme ~host ~service =
   match
     let rec aux = function
       | [] -> raise @@ Eio.Net.(err (Connection_failure No_matching_addresses))
       | addr :: addrs -> (
-        try Eio.Net.connect ~sw net addr
+        try Eio.Net.connect ~sw:t.sw t.net addr
         with Eio.Exn.Io _ when addrs <> [] -> aux addrs)
     in
-    Eio.Net.getaddrinfo_stream ~service net host
+    Eio.Net.getaddrinfo_stream ~service t.net host
     |> List.filter_map (function
          | `Tcp _ as x -> Some x
          | `Unix _ -> None)
     |> aux
   with
-  | conn -> (conn :> Eio.Flow.two_way)
+  | conn -> (
+    match scheme with
+    | `Http -> (conn :> Eio.Flow.two_way)
+    | `Https -> tls_connect t conn)
   | exception (Eio.Exn.Io _ as ex) ->
     let bt = Printexc.get_raw_backtrace () in
     Eio.Exn.reraise_with_context ex bt "connecting to %S:%s" host service
-
-let tls_authenticator =
-  let authenticator_ref = ref None in
-  fun () ->
-    match !authenticator_ref with
-    | Some x -> x
-    | None -> (
-      match Ca_certs.authenticator () with
-      | Ok a ->
-        authenticator_ref := Some a;
-        a
-      | Error (`Msg m) -> invalid_arg ("failed to trust anchors: " ^ m))
-
-let tls_connect flow =
-  let authenticator = tls_authenticator () in
-  let config = Tls.Config.client ~authenticator () in
-  (Tls_eio.client_of_flow config flow :> Eio.Flow.two_way)
 
 let connection t ((scheme, host, service) as k) =
   Eio.Mutex.lock t.mutex;
   Fun.protect ~finally:(fun () -> Eio.Mutex.unlock t.mutex) @@ fun () ->
   match Cache.find_opt t.cache k with
   | Some (n, s) when n <= t.maximum_conns_per_host && Eio.Stream.length s = 0 ->
-    let conn = tcp_connect t.sw ~host ~service t.net in
-    let conn =
-      match scheme with
-      | `Http -> conn
-      | `Https -> tls_connect conn
-    in
+    let conn = connect t scheme ~host ~service in
     Cache.replace t.cache k (n + 1, s);
     conn
   | Some (_, s) -> Eio.Stream.take s
   | None ->
-    let conn = tcp_connect t.sw ~host ~service t.net in
+    let conn = connect t scheme ~host ~service in
     let s = Eio.Stream.create t.maximum_conns_per_host in
     Cache.replace t.cache k (1, s);
     conn
