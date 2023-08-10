@@ -181,9 +181,9 @@ let put rt f t = add_route Method.put rt f t
 
 (* +-- File Server --+*)
 
-let serve_dir ~on_error ~dirpath url t =
+let serve_dir ~on_error ~dir url t =
   let get_handler filepath =
-    let filepath = Eio.Path.(dirpath / filepath) in
+    let filepath = Eio.Path.(dir / filepath) in
     File_handler.handle_get ~on_error filepath
   in
   get url get_handler t
