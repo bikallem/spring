@@ -33,7 +33,9 @@ let () =
       Eio.Switch.run @@ fun sw ->
       let client = Client.make ~authenticate_tls:false sw env#net in
       Client.get client "https://localhost:8080/hello" (fun res ->
-          let body = Response.readable res in
-          Eio.traceln "client <- %s" (Body.read_content body |> Option.get));
+          Response.readable res
+          |> Body.read_content
+          |> Option.get
+          |> Eio.traceln "client <- %s");
       Eio.traceln "client done.";
       Server.shutdown server)
