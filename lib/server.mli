@@ -252,8 +252,14 @@ val serve_file :
 
 (** {1 Running Servers} *)
 
+type 'a tls_private_certificate = 'a Eio.Path.t
+(** [tls_private_certificate] is the path to a private HTTPS/TLS certificate. *)
+
+type 'a tls_public_certificate = 'a Eio.Path.t
+(** [tls_oublic_certificate] is the path to a public HTTPS/TLS certificate. *)
+
 val run :
-     ?tls_certificates:Tls.Config.certchain list
+     ?tls_certificates:_ tls_private_certificate * _ tls_public_certificate
   -> Eio.Net.listening_socket
   -> t
   -> unit
@@ -264,7 +270,7 @@ val run :
       TLS/1.3 of TLS/1.0 server certificates. Default is [None] *)
 
 val run_local :
-     ?tls_certificates:Tls.Config.certchain list
+     ?tls_certificates:_ tls_private_certificate * _ tls_public_certificate
   -> ?reuse_addr:bool
   -> ?socket_backlog:int
   -> ?port:int
@@ -285,7 +291,7 @@ val run_local :
       is the port number for TCP/IP address [localhost]. Default is [80]. *)
 
 val connection_handler :
-     ?tls_certificates:Tls.Config.certchain list
+     ?tls_certificates:_ tls_private_certificate * _ tls_public_certificate
   -> handler
   -> #Eio.Time.clock
   -> Eio.Net.connection_handler

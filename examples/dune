@@ -5,6 +5,6 @@
 (copy_files ../examples/hello/master.key)
 
 (executable
- (libraries eio eio_main spring tls tls-eio)
+ (libraries eio eio_main spring)
  (name https_server)
  (modules https_server))

@@ -210,6 +210,10 @@ let rec handle_request clock client_addr buf_read buf_write handler =
     write_response Response.internal_server_error;
     raise ex
 
+type 'a tls_private_certificate = 'a Eio.Path.t
+
+type 'a tls_public_certificate = 'a Eio.Path.t
+
 let connection_handler
     ?tls_certificates
     handler
@@ -218,10 +222,11 @@ let connection_handler
     client_addr =
   let flow =
     match tls_certificates with
-    | Some certs ->
+    | Some (priv_key, cert) ->
+      let cert = X509_eio.private_of_pems ~priv_key ~cert in
       let server_config =
         Tls.Config.(
-          server ~version:(`TLS_1_0, `TLS_1_3) ~certificates:(`Multiple certs)
+          server ~version:(`TLS_1_0, `TLS_1_3) ~certificates:(`Single cert)
             ~ciphers:Ciphers.supported ())
       in
       (Tls_eio.server_of_flow server_config flow :> Eio.Flow.two_way)

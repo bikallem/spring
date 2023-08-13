@@ -2,16 +2,10 @@ open Spring
 
 let server_certificates env =
   let ( / ) = Eio.Path.( / ) in
-  let dir = env#cwd in
-  let certificate =
-    X509_eio.private_of_pems ~cert:(dir / "server.pem")
-      ~priv_key:(dir / "server.key")
-  in
-  let ec_certificate =
-    X509_eio.private_of_pems ~cert:(dir / "server-ec.pem")
-      ~priv_key:(dir / "server-ec.key")
-  in
-  [ certificate; ec_certificate ]
+  let dir = env#fs in
+  let priv_key = dir / "server.key" in
+  let cert = dir / "server.pem" in
+  (priv_key, cert)
 
 let say_hello _req = Response.text "Hello, world!"
 
