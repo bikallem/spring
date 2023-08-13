@@ -6,7 +6,7 @@
 
 (mdx
  (package spring)
- (deps server.pem server.key server-ec.pem server-ec.key)
+ (deps server.pem server.key)
  (libraries
   eio
   eio.core
