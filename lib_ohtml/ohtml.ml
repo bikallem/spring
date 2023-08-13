@@ -67,7 +67,7 @@ let pop i = ignore (Stack.pop i.tokenizer : lexer)
 
 let push i lexer = Stack.push lexer i.tokenizer
 
-let rec loop (i : input) checkpoint =
+let rec parse (i : input) checkpoint =
   match checkpoint with
   | I.InputNeeded _env ->
     let token = ref (tokenize i) in
@@ -116,10 +116,10 @@ let rec loop (i : input) checkpoint =
     let startp = i.lexbuf.lex_start_p
     and endp = i.lexbuf.lex_curr_p in
     let checkpoint = I.offer checkpoint (!token, startp, endp) in
-    loop i checkpoint
+    parse i checkpoint
   | I.Shifting _ | I.AboutToReduce _ ->
     let checkpoint = I.resume checkpoint in
-    loop i checkpoint
+    parse i checkpoint
   | I.HandlingError _env ->
     let line, pos = get_lexing_position i.lexbuf in
     raise (Syntax_error (line, pos))
@@ -132,7 +132,7 @@ let parse_element s =
   let i = { lexbuf; tokenizer; next_tok = None } in
   push i Lexer.element;
   let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
-  loop i checkpoint
+  parse i checkpoint
 
 let parse_doc_string s =
   let lexbuf = Lexing.from_string s in
@@ -140,7 +140,7 @@ let parse_doc_string s =
   let i = { lexbuf; tokenizer; next_tok = None } in
   push i Lexer.func;
   let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
-  loop i checkpoint
+  parse i checkpoint
 
 let parse_doc filepath =
   In_channel.with_open_text filepath (fun ch ->
@@ -149,7 +149,7 @@ let parse_doc filepath =
       let i = { lexbuf; tokenizer; next_tok = None } in
       push i Lexer.func;
       let checkpoint = Parser.Incremental.doc lexbuf.lex_curr_p in
-      loop i checkpoint)
+      parse i checkpoint)
 
 let gen_ocaml ~function_name ~write_ln (doc : Doc.doc) =
   let rec gen_element el =
