@@ -25,7 +25,7 @@ let ohtml_cmd =
                let function_name = Filename.remove_extension x in
                let ohtml_doc = Ohtml.parse_doc filepath in
                Ohtml.gen_ocaml ~function_name ~write_ln ohtml_doc;
-               Printf.printf "\nGenerating view: %s" function_name))
+               Printf.printf "\nGenerated view: %s" function_name))
   in
   let ohtml_t = Term.(const ohtml $ ohtml_dir_arg) in
   Cmd.v info ohtml_t
