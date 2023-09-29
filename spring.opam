@@ -9,7 +9,8 @@ homepage: "https://github.com/gbikal/spring"
 bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
   "ocaml" {>= "5.1.0"}
-  "eio" {>= "0.11"}
+  "eio" {>= "0.12"}
+  "eio_main" {>= "0.12"}
   "dune" {>= "3.10" & >= "3.9.0"}
   "ptime" {>= "1.1.0"}
   "astring" {>= "0.8.5"}
@@ -20,7 +21,6 @@ depends: [
   "ppxlib" {>= "0.29.1"}
   "cstruct" {>= "6.2.0"}
   "base64" {>= "3.5.1"}
-  "eio_main" {>= "0.9"}
   "csexp" {>= "1.5.2"}
   "ipaddr" {>= "5.5.0"}
   "mirage-crypto" {>= "0.11.1"}
@@ -35,6 +35,8 @@ depends: [
   "cstruct" {>= "6.1.1" & with-test}
   "mdx" {>= "2.3.0" & with-test}
   "odoc" {with-doc}
+  "ocamlformat" {>= "0.26.1" & with-dev-setup}
+  "utop" {>= "2.13.1" & with-dev-setup}
 ]
 build: [
   ["dune" "subst"] {dev}
