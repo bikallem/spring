@@ -8,7 +8,7 @@ license: "MPL-2.0"
 homepage: "https://github.com/gbikal/spring"
 bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
-  "ocaml" {>= "5.1.0"}
+  "ocaml" {>= "5.1.1"}
   "eio" {>= "0.12"}
   "eio_main" {>= "0.12"}
   "dune" {>= "3.10" & >= "3.9.0"}
