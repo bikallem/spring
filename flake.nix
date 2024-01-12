@@ -22,7 +22,7 @@
             (oself: osuper: {
               eio = osuper.eio.overrideAttrs (_: _: rec {
                 version = "0.11";
-                src = self.fetchurl {
+                src = super.fetchurl {
                   url =
                     "https://github.com/ocaml-multicore/eio/releases/download/v${version}/eio-${version}.tbz";
                   hash = "sha256-DDN0IHRWJjFneIb0/koC+Wcs7JQpf/hcLthU21uqcao=";
