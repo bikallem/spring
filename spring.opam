@@ -9,8 +9,8 @@ homepage: "https://github.com/gbikal/spring"
 bug-reports: "https://github.com/gbikal/spring/issues"
 depends: [
   "ocaml" {>= "5.1.1"}
-  "eio" {>= "0.12"}
-  "eio_main" {>= "0.12"}
+  "eio" {>= "0.11"}
+  "eio_main" {>= "0.11"}
   "dune" {>= "3.10" & >= "3.9.0"}
   "ptime" {>= "1.1.0"}
   "astring" {>= "0.8.5"}
