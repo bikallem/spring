@@ -10,9 +10,7 @@ let day_name =
 
 let digit n =
   let+ v = Buf_read.take n in
-  match int_of_string v with
-  | i -> i
-  | exception _ -> failwith @@ "digit: unrecognized integer '" ^ v ^ "'"
+  int_of_string v
 
 let comma = Buf_read.char ','
 
