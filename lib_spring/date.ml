@@ -27,18 +27,15 @@ let day_l =
       | 'a' .. 'z' | 'A' .. 'Z' -> true
       | _ -> false)
   in
-  if
-    List.exists (String.equal day)
-      [ "Monday"
-      ; "Tuesday"
-      ; "Wednesday"
-      ; "Thursday"
-      ; "Friday"
-      ; "Saturday"
-      ; "Sunday"
-      ]
-  then ()
-  else failwith "day_l : expected long day name"
+  match day with
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday" -> ()
+  | _ -> failwith "day_l : expected long day name"
 
 let month =
   let+ m = Buf_read.take 3 in
