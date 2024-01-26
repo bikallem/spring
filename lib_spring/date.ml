@@ -10,14 +10,9 @@ let day_name =
 
 let digit n =
   let+ v = Buf_read.take n in
-  if
-    String.for_all
-      (function
-        | '0' .. '9' -> true
-        | _ -> false)
-      v
-  then int_of_string v
-  else failwith @@ "digit: unrecognized integer '" ^ v ^ "'"
+  match int_of_string v with
+  | i -> i
+  | exception _ -> failwith @@ "digit: unrecognized integer '" ^ v ^ "'"
 
 let comma = Buf_read.char ','
 
