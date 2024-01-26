@@ -42,23 +42,20 @@ let day_l =
 
 let month =
   let+ m = Buf_read.take 3 in
-  List.assoc_opt m
-    [ ("Jan", 1)
-    ; ("Feb", 2)
-    ; ("Mar", 3)
-    ; ("Apr", 4)
-    ; ("May", 5)
-    ; ("Jun", 6)
-    ; ("Jul", 7)
-    ; ("Aug", 8)
-    ; ("Sep", 9)
-    ; ("Oct", 10)
-    ; ("Nov", 11)
-    ; ("Dec", 12)
-    ]
-  |> function
-  | Some m -> m
-  | None -> failwith "month: expected month"
+  match m with
+  | "Jan" -> 1
+  | "Feb" -> 2
+  | "Mar" -> 3
+  | "Apr" -> 4
+  | "May" -> 5
+  | "Jun" -> 6
+  | "Jul" -> 7
+  | "Aug" -> 8
+  | "Sep" -> 9
+  | "Oct" -> 10
+  | "Nov" -> 11
+  | "Dec" -> 12
+  | _ -> failwith "month: expected month"
 
 let gmt = Buf_read.string "GMT"
 
